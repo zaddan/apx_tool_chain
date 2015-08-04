@@ -73,10 +73,14 @@ int main(int argc, char* argv[]){
     resultFile.open(resultFileNameCompleteAddress.c_str(), ios_base::app);
     resultFile<<"*****************start******"<<endl; 
     //resultFile<<inputVar.size();
-    resultFile<<myOp[0]->calc(inputVar[0],inputVar[1])<<endl; //AdditionOp
-    resultFile<<myOp[1]->calc(inputVar[2],inputVar[3])<<endl; //MultiplicationOp
-    resultFile<<myOp[2]->calc(inputVar[4],inputVar[5])<<endl; //MultiplicationOp
-    resultFile<<myOp[3]->calc(inputVar[0],inputVar[5])<<endl; //AdditionOp
+    int a = myOp[0]->calc(inputVar[0],inputVar[1]); //MultiplicationOp
+    int b = myOp[1]->calc(a,inputVar[2]); //AdditionOp
+    int d = myOp[2]->calc(b,inputVar[3]); //MultiplicationOp
+    int c = myOp[3]->calc(inputVar[4],inputVar[5]); //AdditionOp
+    int e = myOp[4]->calc(c,d); //MultiplicationOp
+    //writing the result 
+    resultFile<< e <<endl;
+    //resultFile<< b <<endl;
     resultFile<<"*****************end******"<<endl; 
     resultFile.close();
     return 10;

@@ -93,3 +93,9 @@ generatedTextFolderName = "generated_text"
 global CBuildFolderName
 CBuildFolderName = "Debug"
 
+
+
+global resultsBackups #this variable contains the back of all the results (settings.generatedTextFolderName)
+resultsBackups = generatedTextFolderName +"_backup"
+
+
