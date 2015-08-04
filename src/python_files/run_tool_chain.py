@@ -127,7 +127,8 @@ def main():
         print "******************************GENERATING MAKE FILE********************"
         print "**********************************************************************"
         currentDir = os.getcwd() #getting the current directory
-        #CBuildFolder = "./../../Debug" 
+        os.system("rm -r " + CBuildFolder); #removing the old one
+        os.system("mkdir " + CBuildFolder); #making a new one
         os.chdir(CBuildFolder) #chaning the directory
         os.system("cmake ..");
         print "**********************************************************************"
