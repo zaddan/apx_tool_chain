@@ -8,6 +8,9 @@ def cleanUpExtras(rootResultFolderName):
 def cleanUpEveryThing(rootFolder):
     os.system("rm -r " + rootFolder + "/" + settings.generatedTextFolderName)
     os.system("rm -r " + rootFolder + "/" + settings.CBuildFolderName)
+    print "rm " + rootFolder + "/" + "src/python_files *pyc"
+    os.system("rm " + rootFolder + "/" + "src/python_files/*pyc")
+
 
 
 
