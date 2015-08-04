@@ -1,5 +1,13 @@
 import os
 import sys
 import settings
-def cleanUp(rootResultFolderName):
+
+def cleanUpExtras(rootResultFolderName):
 	os.system("rm " + rootResultFolderName + "/" + settings.operatorSampleFileName) 
+    
+def cleanUpEveryThing(rootFolder):
+    os.system("rm -r " + rootFolder + "/" + settings.generatedTextFolderName)
+    os.system("rm -r " + rootFolder + "/" + settings.CBuildFolderName)
+
+
+

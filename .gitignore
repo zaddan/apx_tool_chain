@@ -1,5 +1,6 @@
-./Debug/*
-./extras/*
-./inputPic/*
-./generated_text/*
+Debug/*
+extras/*
+inputPic/*
+generated_text/*
+src/python_files/*.pyc
 

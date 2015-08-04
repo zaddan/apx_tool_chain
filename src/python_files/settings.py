@@ -82,9 +82,9 @@ global rawResultFolderName
 rawResultFolderName = "csource_output_folder"
 
 
-global finalResultFileName  #this file contains the final result 
-finalResultFileName = "final_results.txt"
-
+#global finalResultFileName  #this file contains the final result 
+#finalResultFileName = "final_results.txt"
+#
 global csourceOutputFileName 
 csourceOutputFileName = "csource_output"
 

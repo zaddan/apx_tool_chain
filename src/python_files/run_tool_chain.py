@@ -47,11 +47,11 @@ def main():
     print "***********"
     print "4.AllOperandScenariosInOneFiles" #whether all the operand scenarios can be found in one file or no
     print "5. AllOperandsFileOrDirectoryName" #the user should be providing a file name if AllOperandScenariosInOneFiles is true and a direcoty other   
-
+    print "6. finalResulstFileName"
 
     
     #validating the number of inputs
-    if len(sys.argv) < 5:
+    if len(sys.argv) < 7:
 
         print "***ERROR***"
         print "the following inputs with the order mentioned needs to be provided"
@@ -62,6 +62,7 @@ def main():
         print "***********"
         print "4.AllOperandScenariosInOneFiles" #whether all the operand scenarios can be found in one file or no
         print "5. AllOperandsFileOrDirectoryName" #the user should be providing a file name if AllOperandScenariosInOneFiles is true and a direcoty other wise
+        print "6. finalResulstFileName"
         exit()
     
     #-----acquaring the inputs
@@ -71,7 +72,7 @@ def main():
     rootFolder = sys.argv[3] 
     AllOperandScenariosInOneFiles = sys.argv[4]
     AllOperandsFileOrDirectoryName = sys.argv[5]
-    
+    finalResultFileName = sys.argv[6]
     rootResultFolderName = rootFolder + "/" + settings.generatedTextFolderName
     os.system("rm -r " + rootResultFolderName)
     os.system("mkdir " + rootResultFolderName)
@@ -221,10 +222,10 @@ def main():
     
       
     #---------guide:::  writing the result back
-    finalResultFileFullAddress = rootResultFolderName + "/" + settings.finalResultFileName
+    finalResultFileFullAddress = rootResultFolderName + "/" + finalResultFileName
     #---------guide:::  writing the result in human readable format to a file
     writeReadableOutput(resultTuple, inputFileNameList, symbolsCollected, finalResultFileFullAddress)
-    cleanUp(rootResultFolderName) 
+    cleanUpExtras(rootResultFolderName) 
     #---------guide::: show the graph
     #plt.show() 
 
