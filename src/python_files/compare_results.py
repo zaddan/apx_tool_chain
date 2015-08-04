@@ -106,18 +106,23 @@ def compareResults(sourceFile1Name, sourceFile2Name, startingOpNumforFile1, endi
             print "input should be the same for both of the files"
             exit()
 
+    foundEqual = False #this variable indicates whether a pareto point has been found in both results
     for key in inputFile1Dic.keys():
         file1Values = inputFile1Dic[key] #pareto points for one input
         file2Values = inputFile2Dic[key] #pareto points for one input
-        for paretoPointsNumber in range(0,len(file1Values),1):
-            if not(map(getRidOfLeadingAndTailingSpaces, getOpsFromlist(file1Values[paretoPointsNumber])) == map(getRidOfLeadingAndTailingSpaces, getOpsFromlist(file2Values[paretoPointsNumber]))):
-                print "------------------------------" 
-                print "pareto points are not equal"
-                print "this is the pareto point associated with the first file" 
-                print getOpsFromlist(file1Values[paretoPointsNumber])
-                print "this is the pareto point associated with the second file" 
-                print getOpsFromlist(file2Values[paretoPointsNumber])
-                print "------------------------------" 
+        for paretoPointNumberAssWithFile1 in range(0,len(file1Values),1):
+            for paretoPointNumberAssWithFile2 in range(0,len(file2Values),1):
+                if (map(getRidOfLeadingAndTailingSpaces, getOpsFromlist(file1Values[paretoPointNumberAssWithFile1])) == map(getRidOfLeadingAndTailingSpaces, getOpsFromlist(file2Values[paretoPointNumberAssWithFile2]))):
+                    foundEqual = True 
+                    break
+            if not(foundEqual): 
+	            print "------------------------------" 
+	            print "this is the pareto point found in " + sourceFile1Name + " but not found in the other file"
+	            print getOpsFromlist(file1Values[paretoPointNumberAssWithFile1])
+	#	        print "this is the pareto point associated with the second file" 
+	#	        print getOpsFromlist(file2Values[paretoPointNumberAssWithFile1])
+	            print "------------------------------" 
+            foundEqual = False 
     return inputFile1Dic, inputFile2Dic
 
     
@@ -153,6 +158,6 @@ def main():
     startingOpNumforFile2 =  sys.argv[5]
     endingOpNumForFile2 =   sys.argv[6]
     inputFile1Dic,inputFIle2Dic = compareResults(sourceFile1Name, sourceFile2Name,startingOpNumforFile1, endingOpNumForFile1, startingOpNumforFile2, endingOpNumForFile2)
-
+    inputFile1Dic,inputFIle2Dic = compareResults(sourceFile2Name, sourceFile1Name,startingOpNumforFile2, endingOpNumForFile2, startingOpNumforFile1, endingOpNumForFile1)
 
 main()

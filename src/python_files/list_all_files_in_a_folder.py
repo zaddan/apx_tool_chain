@@ -28,7 +28,7 @@ def generateBackup(folderToCopyTo, folderToCopyFrom, newFolderName):
     
     
     fileList = getNameOfFilesInAFolder(folderToCopyTo)
-
+    
     if not(len(fileList) == 0): 
         newestFolder = max(glob.iglob(folderToCopyTo+"/*") , key=os.path.getctime) #getting the newst folder
         if((newestFolder[-3:]).isdigit()):
@@ -42,8 +42,11 @@ def generateBackup(folderToCopyTo, folderToCopyFrom, newFolderName):
 
      
     newFolderFullAddress = folderToCopyTo + "/" + newFolderName + str(int(suffix) + 1)
-    os.system("mkdir " + newFolderFullAddress)
-    
+    error = os.system("mkdir " + newFolderFullAddress)
+    if (error):
+        print "*******************ERROR******" 
+        print "some thing went wrong with generating a new folder with the name " + newFolderFullAddress
+        exit() 
     fileList = getNameOfFilesInAFolder(folderToCopyFrom)
     if not(len(fileList) == 0): 
         os.system("cp -r " + folderToCopyFrom+ "/* " + newFolderFullAddress)

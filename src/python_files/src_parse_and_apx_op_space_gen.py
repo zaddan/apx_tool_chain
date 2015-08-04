@@ -41,6 +41,18 @@ lAllOpsInSrcFile = [] #all the operations found in the source files
 #sourceFileName = CSrcDir + "all_ops_test.cpp"
 #sourceFileName = CSrcDir + "test.txt"
 
+
+
+## 
+# @brief subtracting a string from another (a from b)
+# 
+# @param a
+# @param b
+# 
+# @return 
+def subtract(a, b):                              
+    return "".join(a.rsplit(b))
+
 ## 
 # @brief parses the source file (the one that needs to be approximated) and find all the ops that are approximatable
 # 
@@ -58,7 +70,8 @@ def sourceFileParse(sourceFileName, lAllOpsInSrcFile):
             for words in line.replace(',', ' ').replace('/',' ').replace(';', ' ').split(' '): #find the lines with key word and write it to another file
                 if words.strip() in settings.lAccurateOpFlags:
                     lAllOpsInSrcFile.append(words.strip())
-
+                if "Ignore" in words.strip() and subtract(words.strip(), "Ignore") in settings.lAccurateOpFlags: #if ignore is part of the words, that means you can ignore that operator, but still add it
+                    lAllOpsInSrcFile.append(words.strip())
 
 ## 
 # @brief generate all possible apx scenarios given a set of accurate ops
@@ -71,7 +84,11 @@ def generateAllPossibleApxScenarios(outputFile, lAllOpsInSrcFile):
     outputOpTypeList = [] 
     joinedList = []
     for element in lAllOpsInSrcFile:
-        outputOpTypeList.append(settings.OpTypeOpKind[element])
+        if "Ignore" in element:
+            outputOpTypeList.append([settings.OpTypeOpKind[subtract(element,"Ignore")][0]])
+        else:
+            outputOpTypeList.append(settings.OpTypeOpKind[element])
+    #print outputOpTypeList 
     #generated the permuted version of all the operations
     permutedList = list(itertools.product(*outputOpTypeList))
     for element in permutedList:
