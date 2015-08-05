@@ -4,4 +4,6 @@ inputPic/*
 generated_text/*
 src/python_files/*pyc
 /*.png
+all_backups
+src/CSrc/*
 

@@ -3,32 +3,22 @@ import glob
 
 def getNameOfFilesInAFolder(folderAddress):
     if not(os.path.isdir(folderAddress)):
-            print "the folder (for which you requested to get the files for does not exist" 
+            print "the folder with the name " + folderAddress + " (for which you requested to get the files for does not exist" 
             exit()
     else:
         return glob.glob(folderAddress + "/*")
 
 
 ## 
-# @brief this module generates a folder with the following name (newFolderName + suffix) in the folderTOCopyTo. the suffix is one higher than the highest suffix in folderToCopyTo
+# @brief responsible for finding a suffix for back up floder.
+    # to make this name, we add the newFolderNameInFolderToCopyTo with a number wich is aqcuired from 
+    #finding the newest folder and adding one to the number that is the suffix of that folder
 # 
 # @param folderToCopyTo
-# @param folderToCopyFrom
-# @param newFolderName
 # 
 # @return 
-def generateBackup(folderToCopyTo, folderToCopyFrom, newFolderName):
-    if not(os.path.isdir(folderToCopyTo)):
-        print "folder with the name " + folderToCopyTo + "which is required for 'to copy to' folder does not exist"
-        exit();
-    
-    if not(os.path.isdir(folderToCopyFrom)):
-        print "folder with the name " + folderToCopyFrom + " which is required for 'to copy from' does not exist"
-        exit();
-    
-    
+def comeUpWithNewFolderNameAccordingly(folderToCopyTo):
     fileList = getNameOfFilesInAFolder(folderToCopyTo)
-    
     if not(len(fileList) == 0): 
         newestFolder = max(glob.iglob(folderToCopyTo+"/*") , key=os.path.getctime) #getting the newst folder
         if((newestFolder[-3:]).isdigit()):
@@ -40,16 +30,45 @@ def generateBackup(folderToCopyTo, folderToCopyFrom, newFolderName):
     else:
         suffix = -1 
 
+    newFolderFullAddress = "backup_" + str(int(suffix) + 1)
+    return newFolderFullAddress
+
+
+## 
+# @brief this module generates a folder with the following name (newFolderNameInFolderToCopyTo + suffix) in the folderTOCopyTo. the suffix is one higher than the highest suffix in folderToCopyTo
+# 
+# @param folderToCopyTo
+# @param listOfFoldersToCopyFrom
+# @param newFolderNameInFolderToCopyTo
+# 
+# @return 
+def generateBackup(folderToCopyTo, listOfFoldersToCopyFrom, newFolderNameInFolderToCopyTo):
+    #---------guide::: (error checking) check whether the required folders exist
+    if not(os.path.isdir(folderToCopyTo)):
+        print "folder with the name " + folderToCopyTo + "which is required for 'to copy to' folder does not exist"
+        exit();
+    
      
-    newFolderFullAddress = folderToCopyTo + "/" + newFolderName + str(int(suffix) + 1)
+    for folderName in listOfFoldersToCopyFrom:
+        if not(os.path.isdir(folderName)):
+            print "**************ERROR****************" 
+            print "folder with the name " + folderName + " which is required for 'to copy from' does not exist"
+            exit();
+    
+    #---------guide:::  making the folder that we dump the 
+    #---------guide:::  error checking with the name 
+    newFolderFullAddress = folderToCopyTo + "/" + newFolderNameInFolderToCopyTo 
     error = os.system("mkdir " + newFolderFullAddress)
     if (error):
         print "*******************ERROR******" 
         print "some thing went wrong with generating a new folder with the name " + newFolderFullAddress
         exit() 
-    fileList = getNameOfFilesInAFolder(folderToCopyFrom)
-    if not(len(fileList) == 0): 
-        os.system("cp -r " + folderToCopyFrom+ "/* " + newFolderFullAddress)
+    
+    #---------guide:::  copy the folders over
+    for folderName in listOfFoldersToCopyFrom:
+        fileList = getNameOfFilesInAFolder(folderName)
+        if not(len(fileList) == 0): 
+            os.system("cp -r " + folderName + " " + newFolderFullAddress)
 #
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #test

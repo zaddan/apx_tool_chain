@@ -33,8 +33,8 @@ lAccurateOpFlags = ["AdditionOp", "MultiplicationOp"] #all of the defined operat
 #given the boundaries generate all each ops space(this means, all the apx and accurate versions of one operation)
 global lAllApxVersionOfEachOps 
 
-lAllApxVersionOfEachOps = [GenOpSpace("bta", 8,[32,33, 0,3, 0,1, 0, 1]), GenOpSpace("btm", 4,[32, 33, 0, 3])]
-#lAllApxVersionOfEachOps = [GenOpSpace("bta", 8,[32,33, 0,2, 0,1, 0, 1]), GenOpSpace("btm", 4,[32, 33, 0, 1])]
+#lAllApxVersionOfEachOps = [GenOpSpace("bta", 8,[32,33, 0,3, 0,1, 0, 1]), GenOpSpace("btm", 4,[32, 33, 0, 3])]
+lAllApxVersionOfEachOps = [GenOpSpace("bta", 8,[32,33, 0,2, 0,1, 0, 1]), GenOpSpace("btm", 4,[32, 33, 0, 1])]
 
 for element in lAllApxVersionOfEachOps:
     element.sweepInput()
@@ -96,6 +96,6 @@ CBuildFolderName = "Debug"
 
 
 global resultsBackups #this variable contains the back of all the results (settings.generatedTextFolderName)
-resultsBackups = generatedTextFolderName +"_backup"
+resultsBackups = "all_backups" 
 
 

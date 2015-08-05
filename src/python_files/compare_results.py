@@ -117,7 +117,7 @@ def compareResults(sourceFile1Name, sourceFile2Name, startingOpNumforFile1, endi
                     break
             if not(foundEqual): 
 	            print "------------------------------" 
-	            print "this is the pareto point found in " + sourceFile1Name + " but not found in the other file"
+	            print "this is the pareto point found in " + sourceFile1Name + " but not found in" + sourceFile2Name 
 	            print getOpsFromlist(file1Values[paretoPointNumberAssWithFile1])
 	#	        print "this is the pareto point associated with the second file" 
 	#	        print getOpsFromlist(file2Values[paretoPointNumberAssWithFile1])
