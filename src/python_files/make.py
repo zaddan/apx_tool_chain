@@ -1,7 +1,10 @@
 import os
 def make():
     #print "blahblah"
-    os.system("make"); 
+    error = os.system("make"); 
+    if (error):
+        print "was not able to make"
+        exit()
     #os.system("make clean; make"); 
 
 

@@ -40,11 +40,15 @@ def sample_apx_space_and_run(executableName, executableInputList, rootResultFold
     operatorSampleFileNameP = open(rootResultFolderName + "/" +settings.operatorSampleFileName, "w")
     operatorSampleFileNameP.close()
     start = 0
+    numberOfRunsSoFar = 0 
     for line in srcFileOpSpacePtr:
         for words in line.replace(',', ' ').replace('/',' ').replace(';', ' ').split(' '): #find the lines with key word and write it to another file
             if "end" in words: 
                 start = 0
                 operatorSampleFileNameP.close()
+                numberOfRunsSoFar +=1 
+                #if (float(numberOfRunsSoFar)/float(settings.totalNumberOfOpCombinations)
+                print "percentage of of runs So Far: " + str((float(numberOfRunsSoFar)/float(settings.totalNumberOfOpCombinations))*100)
                 make_run(executableName, executableInputList, rootResultFolderName, resultFileName, CBuildFolder, operandSampleFileName)
                 #os.system("python run_test.py"); #building and running the module under test
                 #print "*****done" 

@@ -81,16 +81,6 @@ int main(int argc, char* argv[]){
     int d = myOp[2]->calc(b,inputVar[3]); //MultiplicationOp
     int c = myOp[3]->calc(inputVar[4],inputVar[5]); //AdditionOp
     int e = myOp[4]->calc(c,d); //MultiplicationOp
-    
-    int numberOfOperandsNecessary = 6; 
-    if (numberOfOperandsNecessary != inputVar.size()){
-        cout << "the number of operands do not match what is necesary in the source file"<<endl;
-        cout << "here is the number of operands provided: " << inputVar.size() <<endl;
-        cout << "here is the number of Operands necessary: " << numberOfOperandsNecessary <<endl;
-        exit(0); 
-    }
-    
-    
     //writing the result 
     resultFile<< e <<endl;
     //resultFile<< b <<endl;

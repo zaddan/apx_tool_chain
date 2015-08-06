@@ -106,6 +106,7 @@ def generateAllPossibleApxScenarios(outputFile, lAllOpsInSrcFile):
             outputFileP.write("\n")
         outputFileP.write("************end*******\n");
     outputFileP.close()
+    return len(joinedList)
 
 
 
@@ -121,5 +122,5 @@ def src_parse_and_apx_op_space_gen(outputFolder, sourceFileName):
     sourceFileParse(sourceFileName, lAllOpsInSrcFile)
     #print lAllOpsInSrcFile
     #generate different permutations, using the lAllOpsInSrcFile generated in the previous stage 
-    generateAllPossibleApxScenarios(outputFolder + "/" + settings.AllPossibleApxOpScenarios, lAllOpsInSrcFile)
+    return generateAllPossibleApxScenarios(outputFolder + "/" + settings.AllPossibleApxOpScenarios, lAllOpsInSrcFile)
 

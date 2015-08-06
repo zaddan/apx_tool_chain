@@ -75,26 +75,28 @@ int main(int argc, char* argv[]){
     
    
     resultFile<<"*****************start******"<<endl; 
-    //resultFile<<inputVar.size();
-    int a = myOp[0]->calc(inputVar[0],inputVar[1]); //MultiplicationOp
-    int b = myOp[1]->calc(a,inputVar[2]); //AdditionOp
-    int d = myOp[2]->calc(b,inputVar[3]); //MultiplicationOp
-    int c = myOp[3]->calc(inputVar[4],inputVar[5]); //AdditionOp
-    int e = myOp[4]->calc(c,d); //MultiplicationOp
+    //first part 
+    int a = myOp[0]->calc(inputVar[1],inputVar[2]); //MultiplicationOp
     
-    int numberOfOperandsNecessary = 6; 
+    int b = myOp[1]->calc(a, inputVar[0]); //AdditionOp
+    
+    int c = myOp[2]->calc(b, inputVar[3]); //MultiplicationOp
+    
+    //2nd part 
+    int d = myOp[3]->calc(inputVar[4],inputVar[5]); //MultiplicationOp
+    int e = myOp[4]->calc(c, d); //AdditionOp
+    int f = myOp[5]->calc(inputVar[6],inputVar[7]); //MultiplicationOp
+    int g = myOp[6]->calc(e, f); //AdditionOp
+    int numberOfOperandsNecessary = 8; 
     if (numberOfOperandsNecessary != inputVar.size()){
         cout << "the number of operands do not match what is necesary in the source file"<<endl;
         cout << "here is the number of operands provided: " << inputVar.size() <<endl;
         cout << "here is the number of Operands necessary: " << numberOfOperandsNecessary <<endl;
         exit(0); 
     }
-    
-    
     //writing the result 
-    resultFile<< e <<endl;
-    //resultFile<< b <<endl;
-    //resultFile<< d <<endl;
+    //resultFile<< g <<endl;
+    resultFile<< g <<endl;
     resultFile<<"*****************end******"<<endl; 
     
     

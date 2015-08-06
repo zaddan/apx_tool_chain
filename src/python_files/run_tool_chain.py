@@ -113,7 +113,7 @@ def main():
             exit();
 
     #---parse the C source files and collect all the operands (that have the potential to be apx) and generate all possible apx setups 
-    src_parse_and_apx_op_space_gen(rootResultFolderName, CSrcFileAddress)
+    settings.totalNumberOfOpCombinations = src_parse_and_apx_op_space_gen(rootResultFolderName, CSrcFileAddress)
     if not((generateMakeFile == "YES") or (generateMakeFile == "NO")): 
         print generateMakeFile 
         print "generateMakeFile can only take YES or NO value (capital letters)"
