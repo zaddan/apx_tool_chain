@@ -35,7 +35,6 @@ import settings
 #CSrcDir = "../MotionEstimation/"
 #CSrcDir = "./"
 #global variables
-lAllOpsInSrcFile = [] #all the operations found in the source files
 
 
 #sourceFileName = CSrcDir + "all_ops_test.cpp"
@@ -73,24 +72,32 @@ def sourceFileParse(sourceFileName, lAllOpsInSrcFile):
                 if "Ignore" in words.strip() and subtract(words.strip(), "Ignore") in settings.lAccurateOpFlags: #if ignore is part of the words, that means you can ignore that operator, but still add it
                     lAllOpsInSrcFile.append(words.strip())
 
+
+
+def generateAllPossibleScenariosForEachOperator(outputFile, lAllOpsInSrcFile):
+    allPossibleScenariosForEachOperator = []
+    allPossibleScenariosForEachOperator = [] 
+    for element in lAllOpsInSrcFile:
+        if "Ignore" in element:
+            allPossibleScenariosForEachOperator.append([settings.OpTypeOpKind[subtract(element,"Ignore")][0]])
+        else:
+            allPossibleScenariosForEachOperator.append(settings.OpTypeOpKind[element])
+    return allPossibleScenariosForEachOperator
+
+
 ## 
-# @brief generate all possible apx scenarios given a set of accurate ops
+# @brief generate a possible apx scenario
 # 
 # @param outputFile: where to write the result. The result 
 # @param lAllOpsInSrcFile: list of ops that can be aproximated
 # 
 # @return  no return. outputFile is where all the results are written into
-def generateAllPossibleApxScenarios(outputFile, lAllOpsInSrcFile):
-    outputOpTypeList = [] 
-    joinedList = []
-    for element in lAllOpsInSrcFile:
-        if "Ignore" in element:
-            outputOpTypeList.append([settings.OpTypeOpKind[subtract(element,"Ignore")][0]])
-        else:
-            outputOpTypeList.append(settings.OpTypeOpKind[element])
-    #print outputOpTypeList 
+def generateAPossibleApxScenarios(outputFile, allPossibleScenariosForEachOperator, permListIndex):
     #generated the permuted version of all the operations
-    permutedList = list(itertools.product(*outputOpTypeList))
+    permutedList = list(itertools.product(*allPossibleScenariosForEachOperator))
+    joinedList = []
+    totalNumberOfCombo = len(permutedList) #delete later 
+    permutedList = [permutedList[permListIndex]]
     for element in permutedList:
         joinedList.append(list(element)); 
 
@@ -98,7 +105,7 @@ def generateAllPossibleApxScenarios(outputFile, lAllOpsInSrcFile):
     #this step is introduce to clear the content of the file left from that last run
     outputFileP = open(outputFile, "w")
     outputFileP.close()
-    outputFileP = open(outputFile, "a")
+    outputFileP = open(outputFile, "w")
     for element in joinedList:
         outputFileP.write("************start*******\n");
         for value in element:
@@ -106,7 +113,10 @@ def generateAllPossibleApxScenarios(outputFile, lAllOpsInSrcFile):
             outputFileP.write("\n")
         outputFileP.write("************end*******\n");
     outputFileP.close()
-    return len(joinedList)
+    if (totalNumberOfCombo == (permListIndex + 1)):
+        return "done"
+    else:
+        return "notDone"
 
 
 
@@ -118,9 +128,8 @@ def generateAllPossibleApxScenarios(outputFile, lAllOpsInSrcFile):
 # @param sourceFileName: the source to be parsed
 # 
 # @return 
-def src_parse_and_apx_op_space_gen(outputFolder, sourceFileName):
-    sourceFileParse(sourceFileName, lAllOpsInSrcFile)
-    #print lAllOpsInSrcFile
-    #generate different permutations, using the lAllOpsInSrcFile generated in the previous stage 
-    return generateAllPossibleApxScenarios(outputFolder + "/" + settings.AllPossibleApxOpScenarios, lAllOpsInSrcFile)
-
+#def src_parse_and_apx_op_space_gen(outputFolder, sourceFileName):
+#    #print lAllOpsInSrcFile
+#    #generate different permutations, using the lAllOpsInSrcFile generated in the previous stage 
+#    return generateAPossibleApxScenarios(outputFolder + "/" + settings.AllPossibleApxOpScenarios, lAllOpsInSrcFile)
+#

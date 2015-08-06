@@ -41,10 +41,9 @@ def calculateNoise(accurateValues, currentValues):
 # @param sourceFileName
 # 
 # @return 
-def extractNoiseForOneInput(sourceFileName):
+def extractNoiseForOneInput(sourceFileName, gotAccurateValue, accurateValues):
     start = 0 
     accurateValuesReached = True 
-    accurateValues = []
     currentValues = []
     #whether the file exist or no 
     if not(os.path.isfile(sourceFileName)):
@@ -57,19 +56,14 @@ def extractNoiseForOneInput(sourceFileName):
             if len(line.split()) >0: 
                 for words in line.rstrip().replace(',', ' ').replace('/',' ').replace(';', ' ').split(' '): #find the lines with key word and write it to another file
                     if "end" in words: 
-                        #the following statement happens, only the first time that we see values
-                        #this is because, the first values are always considered to be accurate
-                        if accurateValuesReached:
-                            accurateValuesReached = False
-                        start = 0
-                        noise.append(calculateNoise(accurateValues, currentValues))
-                        setup+=1 
+                        if not(gotAccurateValue): #if havn't gotten accurate values
+                            return currentValues
+                        else: 
+                            noise.append(calculateNoise(accurateValues, currentValues))
                         currentValues = [] 
+                        start = 0
                         break 
                     elif (start==1):
-                        if  (accurateValuesReached):
-                            accurateValues.append(words)
-                        #currentValues.append(''.join(words))
                         currentValues.append(words)
                         break 
                     elif "start" in words: 
@@ -185,7 +179,7 @@ def extractEnergyAndConfig(sourceFileName):
 # @param sourceFileName
 # 
 # @return 
-def extract_properties(all_possible_apx_operators_scenarios_file_name, rawResultsFolderName):
+def extract_properties(all_possible_apx_operators_scenarios_file_name, rawResultsFolderName, resultFileName, gotAccurateValue, accurateValues):
     inputFileNameList = [] 
     noise = [] 
     if not(os.path.isdir(rawResultsFolderName)):
@@ -194,11 +188,10 @@ def extract_properties(all_possible_apx_operators_scenarios_file_name, rawResult
  
     nameOfAllResultsList = getNameOfFilesInAFolder(rawResultsFolderName)
     energy,config = extractEnergyAndConfig(all_possible_apx_operators_scenarios_file_name)
-    for resultFileName in nameOfAllResultsList: 
-        noise.append(extractNoiseForOneInput(resultFileName))
-        inputFileNameList.append(extractInputFileName(resultFileName))
+    noise = extractNoiseForOneInput(resultFileName, gotAccurateValue, accurateValues)
+    inputFileNameList = extractInputFileName(resultFileName)
     
-    result = (energy, noise,config, inputFileNameList)
+    result = (energy, noise, config, [inputFileNameList])
 
     return result
 

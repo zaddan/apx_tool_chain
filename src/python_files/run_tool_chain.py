@@ -24,7 +24,7 @@
 import pylab
 import sys
 import os
-from src_parse_and_apx_op_space_gen import src_parse_and_apx_op_space_gen
+from src_parse_and_apx_op_space_gen import *
 from sample_apx_space_and_run import sample_apx_space_and_run
 from sample_operand_and_sweep_apx_space import *
 import settings 
@@ -190,16 +190,72 @@ def main():
     
     
     
-    #---------guide:::  1st: pase the C source file to collect all the operands that can 
+    #---------guide:::   parse the C source file to collect all the operands that can 
     #                        be approximatable
-    #                   2nd: generate all the possible apx setups
-    settings.totalNumberOfOpCombinations = src_parse_and_apx_op_space_gen(rootResultFolderName, CSrcFileAddress)
-    #---------guide:::  sample the operands and and find the result for evry apx setup 
-    sampleOperandAndSweepApxSpace(executableName, executableInputList, rootResultFolderName, settings.rawresultFileName, CBuildFolder, AllOperandScenariosInOneFiles, AllOperandsFolderName);
-   
-    #---------guide:::  extract the data(noise and energy)
-    energy, noise, config, inputFileNameList = extract_properties(rootResultFolderName + "/" + settings.AllPossibleApxOpScenarios, rootResultFolderName + "/" + settings.rawResultFolderName)
-     
+    lAllOpsInSrcFile = [] 
+    sourceFileParse(CSrcFileAddress, lAllOpsInSrcFile)
+    #---------guide:::  generate a list of all possible cases for each operator
+    allPossibleScenariosForEachOperator = generateAllPossibleScenariosForEachOperator(rootResultFolderName, lAllOpsInSrcFile)
+    
+    settings.totalNumberOfOpCombinations = 1;
+    energy = []
+    noise = []
+    config = []
+    inputFileNameList = []
+    
+    #---------guide:::  sampling operands
+    inputNumber = 0 
+    nameOfAllOperandFilesList = getNameOfFilesInAFolder(AllOperandsFolderName)
+    operandIndex = 0
+    
+    #---------guide::: go through operand files and sweep the apx space
+    for operandSampleFileName in nameOfAllOperandFilesList:
+        countSoFar = 0 
+        #clearly state where the new results associated with the new input starts 
+        rawResultFileName =  rootResultFolderName + "/" + settings.rawResultFolderName + "/" + settings.csourceOutputFileName + str(inputNumber) + ".txt" #where to collect C++ source results
+        accurateValues = []
+        noise.append([])
+        energy.append( [])
+        config.append( [])
+        inputFileNameList.append([])
+        #---------guide:::  make a apx set up and get values associated with it
+        gotAccurateValue = False 
+        while (True): 
+            status = generateAPossibleApxScenarios(rootResultFolderName + "/" + settings.AllPossibleApxOpScenarios, allPossibleScenariosForEachOperator, countSoFar) 
+            rawresultsP = open(rawResultFileName, "w")
+            rawresultsP.write("---------------------------------------------------------------------\n")
+            rawresultsP.write("---------------------------------------------------------------------\n")
+            rawresultsP.write("INPUT RELATED TO " + operandSampleFileName + "\n") 
+            rawresultsP.write("---------------------------------------------------------------------\n")
+            rawresultsP.write("---------------------------------------------------------------------\n")
+            rawresultsP.close()
+
+            #---------guide:::  sample the operands and and find the result for evry apx setup 
+            #this is now unnecessary, since we only have one set up in the AllPossibleApxOpScenarios 
+            sample_apx_space_and_run(executableName, executableInputList, rootResultFolderName, rawResultFileName, CBuildFolder, operandSampleFileName); #
+            #---------guide:::  extract the data(noise and energy)
+            energyValue, noiseValue, configValue, inputFileNameListValue = extract_properties(rootResultFolderName + "/" + settings.AllPossibleApxOpScenarios, rootResultFolderName + "/" + settings.rawResultFolderName, rawResultFileName, gotAccurateValue, accurateValues)
+
+            #---------guide:::  if havn't gotten the accurate value yet, the first value provided is. Thus, this value is the accurate value
+            if not(gotAccurateValue):
+                accurateValues = noiseValue #noise zero contains the accurate results
+                noise[operandIndex] +=(len(noiseValue)*[0]) #overwrite the noise[0] with zero
+                gotAccurateValue = True
+            else:
+                noise[operandIndex] += noiseValue
+            
+            energy[operandIndex] += energyValue
+            config[operandIndex] +=configValue
+            inputFileNameList[operandIndex] +=inputFileNameListValue
+            countSoFar +=1
+            if (status == "done"):
+                break;
+
+
+        operandIndex += 1
+        inputNumber +=1
+    
+    
     resultTuple = [] #this is a list of pareto Triplets(setup, noise, energy) associated with each 
                        #one of the inputs 
     #setting up the resultTupleList with the right length 
@@ -220,17 +276,17 @@ def main():
         paretoNoise = []  #cleaning the previous values if exist
         paretoEnergy = [] #cleaning the previous values if exist         
         #---------guide:::  get the pareto set
-        paretoNoise, paretoEnergy = pareto_frontier(noise[i], energy, maxX= False, maxY = False)
+        paretoNoise, paretoEnergy = pareto_frontier(noise[i], energy[i], maxX= False, maxY = False)
         #---------guide:::  find the setUps that corresponds to the pareto Points
         setUpNumberList = [] #contains the list of setUp numbers associated with the pareto set 
                              #this is used to avoid duplicate
         for j in range(0, len(paretoNoise), 1):
             pair =  (paretoNoise[j], paretoEnergy[j]) #pair to look for
-            setUpNumber = findPosition(pair, noise[i], energy, setUpNumberList)
+            setUpNumber = findPosition(pair, noise[i], energy[i], setUpNumberList)
             setUpNumberList.append(setUpNumber) 
             #---------guide:::  the reason that we are provided with a list is that it is possible
             #to find the pair (noise,energy) in multiple setUps (configurations)
-            resultTuple[i].append((setUpNumber,config[setUpNumber], paretoNoise[j], paretoEnergy[j]))
+            resultTuple[i].append((setUpNumber,config[i][setUpNumber], paretoNoise[j], paretoEnergy[j]))
 #        for k in range(0, len(noise[i]), 1):
 #            resultTuple2[i].append((k, noise[i][k], energy[k]))
 #        

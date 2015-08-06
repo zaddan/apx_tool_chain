@@ -71,7 +71,7 @@ int main(int argc, char* argv[]){
 
     ofstream resultFile;
     resultFile.open(resultFileNameCompleteAddress.c_str(), ios_base::app);
-    
+   // resultFile.open(resultFileNameCompleteAddress.c_str(), ios_base::app);
     
    
     resultFile<<"*****************start******"<<endl; 
@@ -89,8 +89,6 @@ int main(int argc, char* argv[]){
         cout << "here is the number of Operands necessary: " << numberOfOperandsNecessary <<endl;
         exit(0); 
     }
-    
-    
     //writing the result 
     resultFile<< e <<endl;
     //resultFile<< b <<endl;
