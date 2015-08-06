@@ -39,7 +39,7 @@ from clean_up import *
 # 
 # @return : no return
 def main():
-    #promting ther user regarding the required input 
+    #---------guide:::  promting ther user regarding the required input 
     print "the following inputs with the order mentioned needs to be provided"
     print "1.source folder address"
     print "2.source file address"
@@ -51,7 +51,9 @@ def main():
     print "7. finalResulstFileName"
 
     
-    #validating the number of inputs
+   
+
+    #---------guide:::  validating the number of inputs
     if len(sys.argv) < 8:
         print "***ERROR***"
         print "the following inputs with the order mentioned needs to be provided"
@@ -66,7 +68,10 @@ def main():
         print "7. finalResulstFileName"
         exit()
 
-    #-----acquaring the inputs
+    
+   
+
+    #---------guide:::  acquaring the inputs
     CSrcFolderAddress = sys.argv[1] #src file to be analyzet
     CSrcFileAddress = sys.argv[2] #src file to be analyzet
     #executableName = sys.argv[3] #src file to be analyzed
@@ -77,14 +82,16 @@ def main():
     finalResultFileName = sys.argv[7]
     
     
+    
+   
+    #---------guide:::  checking the validity of the input and making necessary files
+    #and folders
     rootResultFolderName = rootFolder + "/" + settings.generatedTextFolderName
     rootResultFolderBackupName =  rootFolder + "/" + settings.resultsBackups # is used to get a back up of the results generated in the previuos run of this program
     if not(os.path.isdir(rootResultFolderBackupName)):
         os.system("mkdir" + " " + rootResultFolderBackupName)
-
     os.system("rm -r " + rootResultFolderName)
     os.system("mkdir " + rootResultFolderName)
-    
     executableName = "tool_exe" #src file to be analyzed
     CBuildFolder = rootFolder + "/" + settings.CBuildFolderName
     #get the input to the executable 
@@ -94,8 +101,6 @@ def main():
     while (input != "done"):
         executableInputList.append(input)
         input = raw_input('provide the next input: ')
-    
-    
     
     #only the src file needs to be validated. The other inputs will be valideated in the lateer stages
     if not(os.path.isfile(CSrcFileAddress)):
@@ -112,8 +117,7 @@ def main():
             print "All OperandsDir does not exist"
             exit();
 
-    #---parse the C source files and collect all the operands (that have the potential to be apx) and generate all possible apx setups 
-    settings.totalNumberOfOpCombinations = src_parse_and_apx_op_space_gen(rootResultFolderName, CSrcFileAddress)
+    #---------guide:::  generate make file or no
     if not((generateMakeFile == "YES") or (generateMakeFile == "NO")): 
         print generateMakeFile 
         print "generateMakeFile can only take YES or NO value (capital letters)"
@@ -147,7 +151,6 @@ def main():
         #done generating the make file 
 
     
-    #---------guide:::  taking a copy of the previous results
     #---------guide:::  removing the results associated with the previous runs
     AllOperandScenariosFullAddress = AllOperandsFileOrDirectoryName
     inputNumber = 0 
@@ -184,6 +187,13 @@ def main():
         else: 
             AllOperandsFolderName = AllOperandsFileOrDirectoryName
 
+    
+    
+    
+    #---------guide:::  1st: pase the C source file to collect all the operands that can 
+    #                        be approximatable
+    #                   2nd: generate all the possible apx setups
+    settings.totalNumberOfOpCombinations = src_parse_and_apx_op_space_gen(rootResultFolderName, CSrcFileAddress)
     #---------guide:::  sample the operands and and find the result for evry apx setup 
     sampleOperandAndSweepApxSpace(executableName, executableInputList, rootResultFolderName, settings.rawresultFileName, CBuildFolder, AllOperandScenariosInOneFiles, AllOperandsFolderName);
    
