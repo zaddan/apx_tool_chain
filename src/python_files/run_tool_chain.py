@@ -25,7 +25,7 @@ import pylab
 import sys
 import os
 from src_parse_and_apx_op_space_gen import *
-from sample_apx_space_and_run import sample_apx_space_and_run
+from sample_apx_space_and_run import *
 from sample_operand_and_sweep_apx_space import *
 import settings 
 from extract_result_properties import *
@@ -194,8 +194,7 @@ def main():
     #                        be approximatable
     lAllOpsInSrcFile = [] 
     sourceFileParse(CSrcFileAddress, lAllOpsInSrcFile)
-    #---------guide:::  generate a list of all possible cases for each operator
-    allPossibleScenariosForEachOperator = generateAllPossibleScenariosForEachOperator(rootResultFolderName, lAllOpsInSrcFile)
+    
     
     settings.totalNumberOfOpCombinations = 1;
     energy = []
@@ -208,34 +207,45 @@ def main():
     nameOfAllOperandFilesList = getNameOfFilesInAFolder(AllOperandsFolderName)
     operandIndex = 0
     
+    
+   
+
+    #---------guide:::  generate a list of all possible cases for each operator
+    allPossibleScenariosForEachOperator = generateAllPossibleScenariosForEachOperator(rootResultFolderName, lAllOpsInSrcFile)
+    #---------guide:::  generate all possible apx setUps Possible (mainly used for full permutation design exploration, otherwise called exhustive search)
+    allPossibleApxScenarioursList = generateAllPossibleApxScenariousList(allPossibleScenariosForEachOperator)
+    
     #---------guide::: go through operand files and sweep the apx space
     for operandSampleFileName in nameOfAllOperandFilesList:
         countSoFar = 0 
         #clearly state where the new results associated with the new input starts 
-        rawResultFileName =  rootResultFolderName + "/" + settings.rawResultFolderName + "/" + settings.csourceOutputFileName + str(inputNumber) + ".txt" #where to collect C++ source results
+        CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings.rawResultFolderName + "/" + settings.csourceOutputFileName + str(inputNumber) + ".txt" #where to collect C++ source results
         accurateValues = []
         noise.append([])
         energy.append( [])
         config.append( [])
         inputFileNameList.append([])
-        #---------guide:::  make a apx set up and get values associated with it
         gotAccurateValue = False 
-        while (True): 
-            status = generateAPossibleApxScenarios(rootResultFolderName + "/" + settings.AllPossibleApxOpScenarios, allPossibleScenariosForEachOperator, countSoFar) 
-            rawresultsP = open(rawResultFileName, "w")
-            rawresultsP.write("---------------------------------------------------------------------\n")
-            rawresultsP.write("---------------------------------------------------------------------\n")
-            rawresultsP.write("INPUT RELATED TO " + operandSampleFileName + "\n") 
-            rawresultsP.write("---------------------------------------------------------------------\n")
-            rawresultsP.write("---------------------------------------------------------------------\n")
-            rawresultsP.close()
-
-            #---------guide:::  sample the operands and and find the result for evry apx setup 
-            #this is now unnecessary, since we only have one set up in the AllPossibleApxOpScenarios 
-            sample_apx_space_and_run(executableName, executableInputList, rootResultFolderName, rawResultFileName, CBuildFolder, operandSampleFileName); #
+        mode = "allPermutations" 
+        operatorSampleFileFullAddress = rootResultFolderName + "/" + settings.operatorSampleFileName
+        
+        #---------guide:::  make a apx set up and get values associated with it
+        while (True): #break when a signal is raised as done
+            #---------guide:::  get a possible setUp
+            status, setUp = generateAPossibleApxScenarios(rootResultFolderName + "/" + settings.AllPossibleApxOpScenarios, allPossibleApxScenarioursList , countSoFar, mode) 
+            
+            #---------guide:::  this is necessary to clean the previous file
+            CSourceOutputForVariousSetUpP = open(CSourceOutputForVariousSetUpFileName, "w")
+            CSourceOutputForVariousSetUpP.close()
+            
+            #---------guide:::  modify the operator sample file
+            modifyOperatorSampleFile(operatorSampleFileFullAddress, setUp)
+            #---------guide:::  run the CSrouce file with the new setUp(operators)
+            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName)
             #---------guide:::  extract the data(noise and energy)
-            energyValue, noiseValue, configValue, inputFileNameListValue = extract_properties(rootResultFolderName + "/" + settings.AllPossibleApxOpScenarios, rootResultFolderName + "/" + settings.rawResultFolderName, rawResultFileName, gotAccurateValue, accurateValues)
+            energyValue, noiseValue, configValue, inputFileNameListValue = extract_properties(rootResultFolderName + "/" + settings.operatorSampleFileName, rootResultFolderName + "/" + settings.rawResultFolderName, CSourceOutputForVariousSetUpFileName, gotAccurateValue, accurateValues, operandSampleFileName)
 
+            #---------guide:::  collect data
             #---------guide:::  if havn't gotten the accurate value yet, the first value provided is. Thus, this value is the accurate value
             if not(gotAccurateValue):
                 accurateValues = noiseValue #noise zero contains the accurate results
@@ -251,23 +261,19 @@ def main():
             if (status == "done"):
                 break;
 
-
         operandIndex += 1
         inputNumber +=1
     
     
+    
+    
+    #---------guide:::  find the pareto points and store them in resultTuple
     resultTuple = [] #this is a list of pareto Triplets(setup, noise, energy) associated with each 
                        #one of the inputs 
     #setting up the resultTupleList with the right length 
     for i in range(0, len(noise),1):
         resultTuple.append([])
    
-#    resultTuple2 = [] #this is a list of pareto Triplets(setup, noise, energy) associated with each 
-                       #one of the inputs 
-    #setting up the resultTupleList with the right length 
-#    for i in range(0, len(noise),1):
-#        resultTuple2.append([])
-#   
 
     symbolsToChooseFrom = ['*', 'x', "o", "+", "*", "-", "^"] #symbols to draw the plots with
     symbolsCollected = [] #this list contains the symbols collected for every new input 
@@ -287,9 +293,7 @@ def main():
             #---------guide:::  the reason that we are provided with a list is that it is possible
             #to find the pair (noise,energy) in multiple setUps (configurations)
             resultTuple[i].append((setUpNumber,config[i][setUpNumber], paretoNoise[j], paretoEnergy[j]))
-#        for k in range(0, len(noise[i]), 1):
-#            resultTuple2[i].append((k, noise[i][k], energy[k]))
-#        
+        
         #---------guide:::  generate pareto graph
         generateGraph(paretoNoise,paretoEnergy, "Noise", "Energy", symbolsToChooseFrom[i%len(symbolsToChooseFrom)])
         symbolsCollected.append(symbolsToChooseFrom[i%len(symbolsToChooseFrom)])
@@ -301,8 +305,7 @@ def main():
     writeReadableOutput(resultTuple, inputFileNameList, symbolsCollected, finalResultFileFullAddress)
     pylab.savefig(finalResultFileFullAddress[:-4]+".png") #saving the figure generated by generateGraph
     
-    
-     
+    #---------guide:::  getting back up of the results
     folderToCopyToNameProcessed = comeUpWithNewFolderNameAccordingly(rootFolder + "/" + settings.resultsBackups) 
     listOfFoldersToCopyFrom = [rootResultFolderName, CSrcFolderAddress]  
     generateBackup(rootResultFolderBackupName, listOfFoldersToCopyFrom, folderToCopyToNameProcessed) #generating a back of the results

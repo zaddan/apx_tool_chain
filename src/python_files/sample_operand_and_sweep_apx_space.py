@@ -1,7 +1,7 @@
 import settings
 import os
 import sys
-from sample_apx_space_and_run import sample_apx_space_and_run
+from sample_apx_space_and_run import * 
 from list_all_files_in_a_folder import *
 ## 
 # @brief sampling needs to be re written if the input changes. This function is responsible for sampling the operands and then sweeping the results for all apx configurations

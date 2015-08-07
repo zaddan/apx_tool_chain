@@ -128,7 +128,7 @@ def calculateEnergy(operatorNumberOfBitsList):
             result += calculateMultiplierEnergy(int(element[1])) 
         else:
             print "**************************ERROR*****************"
-            print "this operator is not defined"
+            print "the operator with the name: " + element[0] + " is operator is not defined"
             sys.exit()
     
     return result 
@@ -146,7 +146,9 @@ def extractEnergyAndConfig(sourceFileName):
     config = [] 
     #whether the file exist or no 
     if not(os.path.isfile(sourceFileName)):
-        print "the source file with the Name " + sourceFileName + " does not exist"
+        print "************EROR******" 
+        print "the source file with the Name " + sourceFileName + " necessary for calculateing energy does not exist"
+
         exit();
     energy = [] 
     
@@ -154,23 +156,12 @@ def extractEnergyAndConfig(sourceFileName):
         for line in f:
             if len(line.split()) > 0: 
                 for words in line.rstrip().replace(',', ' ').replace('/',' ').replace(';', ' ').split(' '): #find the lines with key word and write it to another file
-                    if "end" in words: 
-                        start = 0
-                        config.append(configValues) 
-                        energy.append(calculateEnergy(values))
-                        values = [] 
-                        configValues = [] 
-                        break 
-                    elif (start==1):
-                        values.append((line.split()[0], int(line.split()[1]) - int(line.split()[2])))
-                        configValues.append(line.rstrip())
-                        break 
-                    elif "start" in words: 
-                        start = 1 
-                        break
+                    values.append((line.split()[0], int(line.split()[1]) - int(line.split()[2])))
+                    configValues.append(line.rstrip())
+                    break
 
 
-    return energy, config
+    return [calculateEnergy(values)], [configValues]
 
 
 ## 
@@ -179,7 +170,7 @@ def extractEnergyAndConfig(sourceFileName):
 # @param sourceFileName
 # 
 # @return 
-def extract_properties(all_possible_apx_operators_scenarios_file_name, rawResultsFolderName, resultFileName, gotAccurateValue, accurateValues):
+def extract_properties(operatorSampleFileName, rawResultsFolderName, resultFileName, gotAccurateValue, accurateValues, operandFileName):
     inputFileNameList = [] 
     noise = [] 
     if not(os.path.isdir(rawResultsFolderName)):
@@ -187,10 +178,9 @@ def extract_properties(all_possible_apx_operators_scenarios_file_name, rawResult
         exit();
  
     nameOfAllResultsList = getNameOfFilesInAFolder(rawResultsFolderName)
-    energy,config = extractEnergyAndConfig(all_possible_apx_operators_scenarios_file_name)
+    energy,config = extractEnergyAndConfig(operatorSampleFileName)
     noise = extractNoiseForOneInput(resultFileName, gotAccurateValue, accurateValues)
-    inputFileNameList = extractInputFileName(resultFileName)
-    
+    inputFileNameList = operandFileName
     result = (energy, noise, config, [inputFileNameList])
 
     return result

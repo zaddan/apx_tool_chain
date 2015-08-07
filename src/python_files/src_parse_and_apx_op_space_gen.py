@@ -84,7 +84,19 @@ def generateAllPossibleScenariosForEachOperator(outputFile, lAllOpsInSrcFile):
             allPossibleScenariosForEachOperator.append(settings.OpTypeOpKind[element])
     return allPossibleScenariosForEachOperator
 
+def turnAListOfTuplesToAListOfLists(listOfTuples):
+    resultList = [] 
+    for element in [listOfTuples][0]:
+        resultList.append(element); 
+    
+    return resultList
 
+
+
+def generateAllPossibleApxScenariousList(allPossibleScenariosForEachOperator):
+    permutedList = list(itertools.product(*allPossibleScenariosForEachOperator))
+    listOfAllPossibleApxScenarious = map(turnAListOfTuplesToAListOfLists, permutedList)
+    return listOfAllPossibleApxScenarious
 ## 
 # @brief generate a possible apx scenario
 # 
@@ -92,32 +104,39 @@ def generateAllPossibleScenariosForEachOperator(outputFile, lAllOpsInSrcFile):
 # @param lAllOpsInSrcFile: list of ops that can be aproximated
 # 
 # @return  no return. outputFile is where all the results are written into
-def generateAPossibleApxScenarios(outputFile, allPossibleScenariosForEachOperator, permListIndex):
-    #generated the permuted version of all the operations
-    permutedList = list(itertools.product(*allPossibleScenariosForEachOperator))
-    joinedList = []
-    totalNumberOfCombo = len(permutedList) #delete later 
-    permutedList = [permutedList[permListIndex]]
-    for element in permutedList:
-        joinedList.append(list(element)); 
-
+def generateAPossibleApxScenarios(outputFile, allPossibleApxScenarioursList, permListIndex, mode ):
+    if(mode == "allPermutations"):
+        setUp = allPossibleApxScenarioursList[permListIndex]
+    
+    else:
+        print "***************ERROR****************"
+        print "this mode is not defined for generateAPossibleApxScenarios function"
+        exit()
     #writing the result to an output file
     #this step is introduce to clear the content of the file left from that last run
-    outputFileP = open(outputFile, "w")
-    outputFileP.close()
-    outputFileP = open(outputFile, "w")
-    for element in joinedList:
-        outputFileP.write("************start*******\n");
-        for value in element:
-            outputFileP.write(str(value).replace('[', '').replace(']', '').replace(',', '').replace("'", ''));
-            outputFileP.write("\n")
-        outputFileP.write("************end*******\n");
-    outputFileP.close()
-    if (totalNumberOfCombo == (permListIndex + 1)):
-        return "done"
+    if (len(allPossibleApxScenarioursList) == (permListIndex + 1)):
+        status = "done" 
     else:
-        return "notDone"
+        status = "undone" 
 
+    return status, setUp 
+#    outputFileP = open(outputFile, "w")
+#    outputFileP.close()
+#    outputFileP = open(outputFile, "w")
+#    for element in setUp:
+#        outputFileP.write("************start*******\n");
+#        print  
+#        for value in element:
+#             
+#            outputFileP.write(str(value).replace('[', '').replace(']', '').replace(',', '').replace("'", ''));
+#            outputFileP.write("\n")
+#        outputFileP.write("************end*******\n");
+#    outputFileP.close()
+#    if (len(allPossibleApxScenarioursList) == (permListIndex + 1)):
+#        return "done"
+#    else:
+#        return "notDone"
+#
 
 
 

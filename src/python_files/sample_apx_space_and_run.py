@@ -25,44 +25,16 @@ import os
 from make_run import make_run
 import settings
 
-## 
-# @brief this module samples one instance of the apxOpSpace and invokes make_run (which runs the module under test) in a loop (untill all of the space is exhusted)
-# 
-# @param rootResultFolderName
-# @param resultFileName
-# 
-# @return  no return value
-def sample_apx_space_and_run(executableName, executableInputList, rootResultFolderName, resultFileName, CBuildFolder, operandSampleFileName):
-    
-    
-    srcFileOpSpacePtr = open(rootResultFolderName + "/" + settings.AllPossibleApxOpScenarios, "r") #input file ptr
-    
-    operatorSampleFileNameP = open(rootResultFolderName + "/" +settings.operatorSampleFileName, "w")
-    operatorSampleFileNameP.close()
-    start = 0
-    numberOfRunsSoFar = 0 
-    for line in srcFileOpSpacePtr:
-        for words in line.replace(',', ' ').replace('/',' ').replace(';', ' ').split(' '): #find the lines with key word and write it to another file
-            if "end" in words: 
-                start = 0
-                operatorSampleFileNameP.close()
-                numberOfRunsSoFar +=1 
-                #if (float(numberOfRunsSoFar)/float(settings.totalNumberOfOpCombinations)
-                print "percentage of of runs So Far: " + str((float(numberOfRunsSoFar)/float(settings.totalNumberOfOpCombinations))*100)
-                make_run(executableName, executableInputList, rootResultFolderName, resultFileName, CBuildFolder, operandSampleFileName)
-                #os.system("python run_test.py"); #building and running the module under test
-                #print "*****done" 
-                if settings.GENERATE_ONE_OUTPUT == 1: 
-                    exit();
-                break;
-            if (start==1):
-                operatorSampleFileNameP.write(line); 
-                #print line #for debugging purposses
-                break; 
-            if "start" in words: 
-                operatorSampleFileNameP = open(rootResultFolderName + "/" + settings.operatorSampleFileName, "w")
-                start = 1
-                break;
 
-    operatorSampleFileNameP.close() 
-    #srcFileOpSpacePtr.close()              
+def modifyOperatorSampleFile(operatorSampleFileFullAddress, setUp):
+    
+    operatorSampleFileNameP = open(operatorSampleFileFullAddress, "w")
+    for operator in setUp:
+        for property in operator:
+            operatorSampleFileNameP.write(str(property).replace(',', ' ') + " ")
+        
+        operatorSampleFileNameP.write("\n")
+
+    operatorSampleFileNameP.close()
+    
+    
