@@ -34,6 +34,15 @@ import matplotlib.pyplot as plt
 from find_position import *
 from write_readable_output import *
 from clean_up import *
+from annealer import *
+
+def polishSetup(setUp):
+    result = []  
+    for element in setUp: 
+        resultElement = ' '.join(str(e) for e in element) 
+        result.append(resultElement)
+    return [result] 
+
 ## 
 # @brief this is the main function (which takes care of the description mentioned in the file description)
 # 
@@ -234,6 +243,11 @@ def main():
             #---------guide:::  get a possible setUp
             status, setUp = generateAPossibleApxScenarios(rootResultFolderName + "/" + settings.AllPossibleApxOpScenarios, allPossibleApxScenarioursList , countSoFar, mode) 
             
+            #---------guide:::  collect data
+            energyValue = [calculateEnergy(map(getFirstTwo, setUp))]
+            configValue = polishSetup(setUp) #just to make it more readable
+            inputFileNameListValue = [operandSampleFileName] 
+            
             #---------guide:::  this is necessary to clean the previous file
             CSourceOutputForVariousSetUpP = open(CSourceOutputForVariousSetUpFileName, "w")
             CSourceOutputForVariousSetUpP.close()
@@ -242,10 +256,10 @@ def main():
             modifyOperatorSampleFile(operatorSampleFileFullAddress, setUp)
             #---------guide:::  run the CSrouce file with the new setUp(operators)
             make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName)
-            #---------guide:::  extract the data(noise and energy)
-            energyValue, noiseValue, configValue, inputFileNameListValue = extract_properties(rootResultFolderName + "/" + settings.operatorSampleFileName, rootResultFolderName + "/" + settings.rawResultFolderName, CSourceOutputForVariousSetUpFileName, gotAccurateValue, accurateValues, operandSampleFileName)
-
-            #---------guide:::  collect data
+            
+            #---------guide::: noise
+            noiseValue = extractNoiseForOneInput(CSourceOutputForVariousSetUpFileName , gotAccurateValue, accurateValues)
+            
             #---------guide:::  if havn't gotten the accurate value yet, the first value provided is. Thus, this value is the accurate value
             if not(gotAccurateValue):
                 accurateValues = noiseValue #noise zero contains the accurate results

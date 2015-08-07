@@ -2,6 +2,11 @@ import random
 import math
 from extract_result_properties import *
 
+
+def getFirstTwo(myList):
+    return (myList[0].replace("'", ""),int(myList[1]) - int(myList[2]))
+
+
 def update_temperature(T, k):
     return int(T - k)
 
@@ -48,14 +53,12 @@ def make_move(oldSetUp, T):
     return newSetUp 
 
 
-def getFirstTwo(myList):
-    myListPolished = myList.replace("'", "").split() 
-    return (myListPolished[0], int(myListPolished[1]) - int(myListPolished[2]))
-
 def getEnergy(config):
     print config 
     energy = calculateEnergy(map(getFirstTwo, config))
     return energy 
+
+
 def simulated_annealing(initialSetup, noiseRequirements, initialTemprature, stepSize, stepNumber):
     temperature = initialTemprature 
     oldSetup = initialSetup
@@ -65,6 +68,8 @@ def simulated_annealing(initialSetup, noiseRequirements, initialTemprature, step
         newSetUp = make_move(bestSetUp, temperature)
         newEnergy = getEnergy(newSetUp) 
         bestSetUpEnergy = getEnergy(bestSetUpEnergy) 
+        
+        
         newNoise = getNoise(newSetUp)
         if (newNoise < noiseRequirements):
             if(newEnergy < bestSetUpEnergy):
@@ -81,7 +86,7 @@ def simulated_annealing(initialSetup, noiseRequirements, initialTemprature, step
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #---------guide::: testing
-myList = ['btm 32 0', 'bta 32 0 0 0', 'btm 32 0', 'bta 32 0 0 0', 'btm 32 4']
+myList = [['btm', 32, 0], ['bta', 32, 0, 0, 0], ['btm', 32, 0], ['bta', 32, 0, 0, 0], ['btm', 32, 4]]
 print getEnergy(myList)
 
 

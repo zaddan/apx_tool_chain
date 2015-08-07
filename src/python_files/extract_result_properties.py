@@ -161,7 +161,7 @@ def extractEnergyAndConfig(sourceFileName):
                     break
 
 
-    return [calculateEnergy(values)], [configValues]
+    return [configValues]
 
 
 ## 
@@ -170,21 +170,20 @@ def extractEnergyAndConfig(sourceFileName):
 # @param sourceFileName
 # 
 # @return 
-def extract_properties(operatorSampleFileName, rawResultsFolderName, resultFileName, gotAccurateValue, accurateValues, operandFileName):
-    inputFileNameList = [] 
-    noise = [] 
-    if not(os.path.isdir(rawResultsFolderName)):
-        print "rawResultFolder with the Name " + rawResultsFolderName + " does not exist"
-        exit();
- 
-    nameOfAllResultsList = getNameOfFilesInAFolder(rawResultsFolderName)
-    energy,config = extractEnergyAndConfig(operatorSampleFileName)
-    noise = extractNoiseForOneInput(resultFileName, gotAccurateValue, accurateValues)
-    inputFileNameList = operandFileName
-    result = (energy, noise, config, [inputFileNameList])
-
-    return result
-
+#def extract_properties(operatorSampleFileName, rawResultsFolderName, resultFileName, gotAccurateValue, accurateValues, operandFileName):
+#    inputFileNameList = [] 
+#    noise = [] 
+#    if not(os.path.isdir(rawResultsFolderName)):
+#        print "rawResultFolder with the Name " + rawResultsFolderName + " does not exist"
+#        exit();
+# 
+#    nameOfAllResultsList = getNameOfFilesInAFolder(rawResultsFolderName)
+#    #config = extractEnergyAndConfig(operatorSampleFileName)
+#    noise = extractNoiseForOneInput(resultFileName, gotAccurateValue, accurateValues)
+#    result = noise
+#    
+#    return result
+#
 
 
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
