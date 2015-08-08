@@ -24,13 +24,41 @@ def calculateNoise(accurateValues, currentValues):
         print "number of results subelements for currentValues and accuratValues are not the same"
         print "check the " + settings.rawresultFileName + " file"
         print "**********ERROR********" 
-        sys.exit()
+        exit()
     
     result = 0 
     for accurateValue,currentValue in zip(accurateValues,currentValues):
         result += pow(int(accurateValue) - int(currentValue), 2)
 
     return sqrt(result)/len(accurateValues)
+
+
+def extractAccurateValues(sourceFileName ):
+    start = 0 
+    currentValues = []
+    #whether the file exist or no 
+    if not(os.path.isfile(sourceFileName)):
+        print "source file with the name " + sourceFileName + "doesn't exist"
+        exit();
+    
+    with open(sourceFileName) as f:
+        for line in f:
+            if len(line.split()) >0: 
+                for words in line.rstrip().replace(',', ' ').replace('/',' ').replace(';', ' ').split(' '): #find the lines with key word and write it to another file
+                    if "end" in words: 
+                        return currentValues #if havn't gotten accurate values
+                    elif (start==1):
+                        currentValues.append(words)
+                        break 
+                    elif "start" in words: 
+                        start = 1 
+                        break
+                    else:
+                        break
+
+
+
+
 
 
 
@@ -41,9 +69,8 @@ def calculateNoise(accurateValues, currentValues):
 # @param sourceFileName
 # 
 # @return 
-def extractNoiseForOneInput(sourceFileName, gotAccurateValue, accurateValues):
+def extractNoiseForOneInput(sourceFileName, accurateValues):
     start = 0 
-    accurateValuesReached = True 
     currentValues = []
     #whether the file exist or no 
     if not(os.path.isfile(sourceFileName)):
@@ -56,10 +83,7 @@ def extractNoiseForOneInput(sourceFileName, gotAccurateValue, accurateValues):
             if len(line.split()) >0: 
                 for words in line.rstrip().replace(',', ' ').replace('/',' ').replace(';', ' ').split(' '): #find the lines with key word and write it to another file
                     if "end" in words: 
-                        if not(gotAccurateValue): #if havn't gotten accurate values
-                            return currentValues
-                        else: 
-                            noise.append(calculateNoise(accurateValues, currentValues))
+                        noise = calculateNoise(accurateValues, currentValues)
                         currentValues = [] 
                         start = 0
                         break 
@@ -129,7 +153,7 @@ def calculateEnergy(operatorNumberOfBitsList):
         else:
             print "**************************ERROR*****************"
             print "the operator with the name: " + element[0] + " is operator is not defined"
-            sys.exit()
+            exit()
     
     return result 
 

@@ -1,7 +1,7 @@
 import settings
 import os
 import sys
-from sample_apx_space_and_run import sample_apx_space_and_run
+from modify_operator_sample_file import modify_operator_sample_file
 ## 
 # @brief sampling needs to be re written if the input changes. This function is responsible for sampling the operands and then sweeping the results for all apx configurations
 # 
@@ -46,6 +46,6 @@ def sampleOperandAndSweepApxSpace(CSrcFolderName , executableName, executableInp
                 rawresultsP.write("inputNumber is " + str(inputNumber) + "\n") 
                 rawresultsP.close()
                 #starting sampling from the apx configurations and write the result
-                sample_apx_space_and_run(CSrcFolderName, executableName, executableInputList, resultFolderName, settings.rawresultFileName, CBuildFolder);
+                modify_operator_sample_file(CSrcFolderName, executableName, executableInputList, resultFolderName, settings.rawresultFileName, CBuildFolder);
             inputNumber += 1
 

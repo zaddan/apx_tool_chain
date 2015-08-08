@@ -105,13 +105,8 @@ def generateAllPossibleApxScenariousList(allPossibleScenariosForEachOperator):
 # 
 # @return  no return. outputFile is where all the results are written into
 def generateAPossibleApxScenarios(outputFile, allPossibleApxScenarioursList, permListIndex, mode ):
-    if(mode == "allPermutations"):
-        setUp = allPossibleApxScenarioursList[permListIndex]
+    setUp = allPossibleApxScenarioursList[permListIndex]
     
-    else:
-        print "***************ERROR****************"
-        print "this mode is not defined for generateAPossibleApxScenarios function"
-        exit()
     #writing the result to an output file
     #this step is introduce to clear the content of the file left from that last run
     if (len(allPossibleApxScenarioursList) == (permListIndex + 1)):

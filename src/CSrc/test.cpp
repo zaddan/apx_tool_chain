@@ -52,11 +52,14 @@ int main(int argc, char* argv[]){
     for (int i = 0; i<OpTypeVec.size(); i++) {
         int status = setOpSubTypeAndInputs(&myOp[i], OpTypeVec[i]);
         if (status == FAILURE) {
-            printf("this type is not acceptable \n"); 
-            return 1;// 0;
+            cout<< "this type: " <<endl;
+            for (int l =0; l <OpTypeVec[i].size(); l++) {
+                cout << OpTypeVec[i][l] << " ";
+            }
+            cout<< " is not acceptable" <<endl;
+            return 0;// 0;
         }
     }
-    
     
     //getting the operand values  
     string operandListFileName;
@@ -73,7 +76,6 @@ int main(int argc, char* argv[]){
     resultFile.open(resultFileNameCompleteAddress.c_str(), ios_base::app);
    // resultFile.open(resultFileNameCompleteAddress.c_str(), ios_base::app);
     
-   
     resultFile<<"*****************start******"<<endl; 
     //resultFile<<inputVar.size();
     int a = myOp[0]->calc(inputVar[0],inputVar[1]); //MultiplicationOp

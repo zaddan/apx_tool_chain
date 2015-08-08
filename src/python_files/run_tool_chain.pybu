@@ -26,7 +26,7 @@ import sys
 import os
 from src_parse_and_apx_op_space_gen import *
 from modify_operator_sample_file import *
-#from sample_operand_and_sweep_apx_space import *
+from sample_operand_and_sweep_apx_space import *
 import settings 
 from extract_result_properties import *
 from plot_generation import *
@@ -58,7 +58,7 @@ def main():
     print "5.AllOperandScenariosInOneFiles" #whether all the operand scenarios can be found in one file or no
     print "6. AllOperandsFileOrDirectoryName" #the user should be providing a file name if AllOperandScenariosInOneFiles is true and a direcoty other   
     print "7. finalResulstFileName"
-    print "8. noiseRequirement"
+
     
    
 
@@ -75,7 +75,6 @@ def main():
         print "5.AllOperandScenariosInOneFiles" #whether all the operand scenarios can be found in one file or no
         print "6. AllOperandsFileOrDirectoryName" #the user should be providing a file name if AllOperandScenariosInOneFiles is true and a direcoty other   
         print "7. finalResulstFileName"
-        print "8. noiseRequirement"
         exit()
 
     
@@ -90,7 +89,7 @@ def main():
     AllOperandScenariosInOneFiles = sys.argv[5]
     AllOperandsFileOrDirectoryName = sys.argv[6]
     finalResultFileName = sys.argv[7]
-    noiseRequirement = sys.argv[8]
+    
     
     
    
@@ -234,73 +233,53 @@ def main():
         energy.append( [])
         config.append( [])
         inputFileNameList.append([])
-        #mode = "allPermutations" 
-        mode = "simulated_annealing" 
+        gotAccurateValue = False 
+        mode = "allPermutations" 
         operatorSampleFileFullAddress = rootResultFolderName + "/" + settings.operatorSampleFileName
         
-        
-        #---------guide:::  getting accurate values associated with the CSource output
-        apxIndexSetUp = 0 #zero is associated with the accurate results (this is a contract that needs to be obeyed)
-        status, setUp = generateAPossibleApxScenarios(rootResultFolderName + "/" + settings.AllPossibleApxOpScenarios, allPossibleApxScenarioursList , apxIndexSetUp, mode) 
-        
-        #---------guide:::  erasing the previuos content of the file
-        CSourceOutputForVariousSetUpP = open(CSourceOutputForVariousSetUpFileName, "w").close()
-        #---------guide:::  modify the operator sample file
-        modifyOperatorSampleFile(operatorSampleFileFullAddress, setUp)
-        #---------guide:::  run the CSrouce file with the new setUp(operators)
-        make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName)
-
-        #---------guide::: noise
-        accurateValues = extractAccurateValues(CSourceOutputForVariousSetUpFileName)
-
-            #---------guide:::  make a apx set up and get values associated with it
-        if (mode == "allPermutations"): 
-            while (True): #break when a signal is raised as done
-                #---------guide:::  get a possible setUp
-                status, setUp = generateAPossibleApxScenarios(rootResultFolderName + "/" + settings.AllPossibleApxOpScenarios, allPossibleApxScenarioursList , apxIndexSetUp, mode) 
-
-                #---------guide:::  collect data
-                energyValue = [calculateEnergy(map(getFirstTwo, setUp))]
-                configValue = polishSetup(setUp) #just to make it more readable
-                inputFileNameListValue = [operandSampleFileName] 
-
-                #---------guide:::  erasing the previuos content of the file
-                CSourceOutputForVariousSetUpP = open(CSourceOutputForVariousSetUpFileName, "w").close()
-
-                #---------guide:::  modify the operator sample file
-                modifyOperatorSampleFile(operatorSampleFileFullAddress, setUp)
-                #---------guide:::  run the CSrouce file with the new setUp(operators)
-                make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName)
-
-                #---------guide::: noise
-                noiseValue = [extractNoiseForOneInput(CSourceOutputForVariousSetUpFileName , accurateValues)]
-
-                #---------guide:::  if havn't gotten the accurate value yet, the first value provided is. Thus, this value is the accurate value
-
+        #---------guide:::  make a apx set up and get values associated with it
+         
+         
+        while (True): #break when a signal is raised as done
+            #---------guide:::  get a possible setUp
+            status, setUp = generateAPossibleApxScenarios(rootResultFolderName + "/" + settings.AllPossibleApxOpScenarios, allPossibleApxScenarioursList , countSoFar, mode) 
+            
+            #---------guide:::  collect data
+            energyValue = [calculateEnergy(map(getFirstTwo, setUp))]
+            configValue = polishSetup(setUp) #just to make it more readable
+            inputFileNameListValue = [operandSampleFileName] 
+            
+            #---------guide:::  this is necessary to clean the previous file
+            CSourceOutputForVariousSetUpP = open(CSourceOutputForVariousSetUpFileName, "w")
+            CSourceOutputForVariousSetUpP.close()
+            
+            #---------guide:::  modify the operator sample file
+            modifyOperatorSampleFile(operatorSampleFileFullAddress, setUp)
+            #---------guide:::  run the CSrouce file with the new setUp(operators)
+            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName)
+            
+            #---------guide::: noise
+            noiseValue = extractNoiseForOneInput(CSourceOutputForVariousSetUpFileName , gotAccurateValue, accurateValues)
+            
+            #---------guide:::  if havn't gotten the accurate value yet, the first value provided is. Thus, this value is the accurate value
+            if not(gotAccurateValue):
+                accurateValues = noiseValue #noise zero contains the accurate results
+                noise[operandIndex] +=(len(noiseValue)*[0]) #overwrite the noise[0] with zero
+                gotAccurateValue = True
+            else:
                 noise[operandIndex] += noiseValue
+            
+            energy[operandIndex] += energyValue
+            config[operandIndex] +=configValue
+            inputFileNameList[operandIndex] +=inputFileNameListValue
+            countSoFar +=1
+            if (status == "done"):
+                break;
 
-                energy[operandIndex] += energyValue
-                config[operandIndex] +=configValue
-                inputFileNameList[operandIndex] +=inputFileNameListValue
-                apxIndexSetUp +=1
-                if (status == "done"):
-                    break;
-
-            operandIndex += 1
-            inputNumber +=1
-#	    
-        elif (mode == "simulated_annealing"):
-            simulatedAnnelaingResult  = [] #result of running the simulatedAnnealing()
-            initialSetUpIndex = random.choice(range(0, len(allPossibleApxScenarioursList)))
-            print "initialSetUpIndex: " +  str(allPossibleApxScenarioursList[initialSetUpIndex])
-            initialSetUp = allPossibleApxScenarioursList[initialSetUpIndex] 
-            stepSize = .05  #
-            initialTemperature = 1
-            simulatedAnnelaingResult = simulatedAnnealing(initialSetUp, noiseRequirement, initialTemperature, stepSize, operatorSampleFileFullAddress,executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, accurateValues)
-            print simulatedAnnelaingResult 
-            sys.exit()
-
-
+        operandIndex += 1
+        inputNumber +=1
+    
+    
     
     
     #---------guide:::  find the pareto points and store them in resultTuple

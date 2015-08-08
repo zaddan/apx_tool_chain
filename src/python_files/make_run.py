@@ -29,18 +29,18 @@ import make
 import run 
 import settings 
 
-def sourceFileParse(sourceFileName):
-    if not(os.path.isfile(sourceFileName)):
-        print sourceFileName 
-        print "the source file doesn't exist"
-        exit();
-    MV = [] 
-    with open(sourceFileName) as f:
-        for line in f:
-            if len(line.split()) >1: 
-                MV.append(sqrt(pow(int(line.split()[1]),2) + pow(int(line.split()[2]),2)))
-    return MV
-
+#def sourceFileParse(sourceFileName):
+#    if not(os.path.isfile(sourceFileName)):
+#        print sourceFileName 
+#        print "the source file doesn't exist"
+#        exit();
+#    MV = [] 
+#    with open(sourceFileName) as f:
+#        for line in f:
+#            if len(line.split()) >1: 
+#                MV.append(sqrt(pow(int(line.split()[1]),2) + pow(int(line.split()[2]),2)))
+#    return MV
+#
 def getVecDif(vec1, vec2):
     diff = 0; 
     counter = 0; 

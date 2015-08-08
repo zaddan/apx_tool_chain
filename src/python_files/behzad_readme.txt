@@ -8,3 +8,7 @@ for now, make sure that the src file does not return 0, (because that's what I a
 #things to do 
 at this time, if the number of input variables not the same as the ones provided in the operand, it does not error out
 
+
+later, have the stepSize and initilTemperature as an inupt to the run_tool_chain
+
+have the input of run_tool_chain to come from a file (instead of command line)
