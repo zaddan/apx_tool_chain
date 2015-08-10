@@ -6,4 +6,5 @@ src/python_files/*pyc
 /*.png
 all_backups
 src/CSrc/*
-
+src/python_files/annealer_progression_output.txt
+src/python_files/annealer_results.txt

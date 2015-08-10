@@ -100,3 +100,10 @@ resultsBackups = "all_backups"
 
 global totalNumberOfOpCombinations #total number of operator combinations possible
 
+
+global annealerOutputFileName 
+annealerOutputFileName = "annealer_output.txt" #this file contains the noiseRequirements, noise and energy result fo the annealer (less inclusvie comparing to the annealerProgressionOutputFileName"
+
+global annealerProgressionOutputFileName
+annealerProgressionOutputFileName = "annealer_progression_output.txt"  #the file that contains information regarding the output of the anneler
+

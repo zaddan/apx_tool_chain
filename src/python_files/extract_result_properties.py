@@ -89,6 +89,7 @@ def extractNoiseForOneInput(sourceFileName, accurateValues):
                         break 
                     elif (start==1):
                         currentValues.append(words)
+                        #print "\nfound currentValues; " + str(currentValues) 
                         break 
                     elif "start" in words: 
                         start = 1 

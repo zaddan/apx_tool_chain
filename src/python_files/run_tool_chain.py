@@ -58,7 +58,7 @@ def main():
     print "5.AllOperandScenariosInOneFiles" #whether all the operand scenarios can be found in one file or no
     print "6. AllOperandsFileOrDirectoryName" #the user should be providing a file name if AllOperandScenariosInOneFiles is true and a direcoty other   
     print "7. finalResulstFileName"
-    print "8. noiseRequirement"
+    #print "8. noiseRequirement"
     
    
 
@@ -75,7 +75,7 @@ def main():
         print "5.AllOperandScenariosInOneFiles" #whether all the operand scenarios can be found in one file or no
         print "6. AllOperandsFileOrDirectoryName" #the user should be providing a file name if AllOperandScenariosInOneFiles is true and a direcoty other   
         print "7. finalResulstFileName"
-        print "8. noiseRequirement"
+        #print "8. signalToNoiseRatio"
         exit()
 
     
@@ -90,7 +90,7 @@ def main():
     AllOperandScenariosInOneFiles = sys.argv[5]
     AllOperandsFileOrDirectoryName = sys.argv[6]
     finalResultFileName = sys.argv[7]
-    noiseRequirement = sys.argv[8]
+    #signalToNoiseRatio = float(sys.argv[8])
     
     
    
@@ -252,8 +252,9 @@ def main():
 
         #---------guide::: noise
         accurateValues = extractAccurateValues(CSourceOutputForVariousSetUpFileName)
-
-            #---------guide:::  make a apx set up and get values associated with it
+        
+        
+        #---------guide:::  make a apx set up and get values associated with it
         if (mode == "allPermutations"): 
             while (True): #break when a signal is raised as done
                 #---------guide:::  get a possible setUp
@@ -290,14 +291,37 @@ def main():
             inputNumber +=1
 #	    
         elif (mode == "simulated_annealing"):
-            simulatedAnnelaingResult  = [] #result of running the simulatedAnnealing()
-            initialSetUpIndex = random.choice(range(0, len(allPossibleApxScenarioursList)))
-            print "initialSetUpIndex: " +  str(allPossibleApxScenarioursList[initialSetUpIndex])
-            initialSetUp = allPossibleApxScenarioursList[initialSetUpIndex] 
-            stepSize = .05  #
-            initialTemperature = 1
-            simulatedAnnelaingResult = simulatedAnnealing(initialSetUp, noiseRequirement, initialTemperature, stepSize, operatorSampleFileFullAddress,executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, accurateValues)
-            print simulatedAnnelaingResult 
+            #---------guide:::  erasing the previous files associated with the annealer output
+            open(settings.annealerProgressionOutputFileName, "w").close()
+            open(settings.annealerOutputFileName, "w").close()
+            annealerOutputFileP = open(settings.annealerProgressionOutputFileName, "a").close()
+            simulatedAnnelaingResultDescription = ["noiseRequirements", "bestSetUp", "bestSetUpNoise", "bestSetUpEnergy"]
+            listOfSimulatedAnnelaingResult  = [] #result of running the simulatedAnnealing()
+            
+            #initialNoiseRequirement = int(accurateValues[0]) - signalToNoiseRatio*int(accurateValues[0])
+            for signalToNoiseRatio in pylab.frange(.3, .9, .3):
+                noiseRequirement = int(accurateValues[0]) - signalToNoiseRatio*int(accurateValues[0])
+                initialSetUpIndex = random.choice(range(0, len(allPossibleApxScenarioursList)))
+                print "initialSetUpIndex: " +  str(allPossibleApxScenarioursList[initialSetUpIndex])
+                initialSetUp = allPossibleApxScenarioursList[initialSetUpIndex] 
+                stepSize = .0002  #
+                initialTemperature = 1
+                listOfSimulatedAnnelaingResult += [simulatedAnnealing(initialSetUp, noiseRequirement, initialTemperature, stepSize, operatorSampleFileFullAddress,executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, accurateValues)]
+
+            
+            
+           
+#            print "noiseRequirement: " + str(noiseRequirement) 
+#            print simulatedAnnelaingResult 
+             
+             
+             
+            for results in listOfSimulatedAnnelaingResult:
+                resultPlusDescriptionList = zip(results, simulatedAnnelaingResultDescription)
+                for element in resultPlusDescriptionList:
+                    annealerOutputFileP.write( element + "\n")
+                    print element
+            
             sys.exit()
 
 

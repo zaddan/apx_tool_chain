@@ -3,13 +3,15 @@ import math
 from extract_result_properties import *
 from modify_operator_sample_file import *
 from src_parse_and_apx_op_space_gen import *
-
+import copy
 def getFirstTwo(myList):
     return (myList[0].replace("'", ""),int(myList[1]) - int(myList[2]))
 
 
 def update_temperature(T, k):
-    return T - k 
+    print "\n" 
+    percentageCompleted = (100 - 100*float((T-k)/T)) 
+    return (T - k, percentageCompleted) 
     #return int(math.ceil(T - k))
 
 def get_neighbors(i, L):
@@ -38,7 +40,11 @@ def modifyOperatorSubSetup(operator, T):
     
     upperBound = int(T*upperRadius)
     lowerBound = int(T*lowerRadius)
-    newNumberOfApxBits = oldNumberOfApxBits + random.choice(range(-lowerBound, upperBound))
+    randRange = range(-lowerBound, upperBound)
+    
+    if len(randRange) == 0:
+        randRange = [0]
+    newNumberOfApxBits = oldNumberOfApxBits + random.choice(randRange)
 #    print "here is the T" + str(T) 
 #    print "here is the upper " + str(upperRadius)
 #    print "here is the lower " + str(lowerRadius)
@@ -46,7 +52,6 @@ def modifyOperatorSubSetup(operator, T):
 #    print "lower bound " +str(lowerBound)
 #    print "her is the newNumber " + str(newNumberOfApxBits) 
     if newNumberOfApxBits < 0 or newNumberOfApxBits > 32:
-        print "#####################" 
         newNumberOfApxBits = oldNumberOfApxBits
     if operatorType == "btm":  
         return ['btm' , operator[1] , newNumberOfApxBits]
@@ -61,12 +66,13 @@ def modifyOperatorSubSetup(operator, T):
 
 
 def make_move(operatorList, T):
+    random.seed() 
     operatorIndex = chooseAnOperatorIndex(operatorList) #randomly choose an operator to modify
     operatorModified = modifyOperatorSubSetup(operatorList[operatorIndex], T) #randomly modify it (based on temperature)
     #modify the set up 
-    newSetUp = operatorList
+    newSetUp = copy.copy(operatorList)
     newSetUp[operatorIndex] = operatorModified
-    return newSetUp
+    return newSetUp, operatorModified, operatorIndex
 
 
 def getEnergy(config):
@@ -76,7 +82,11 @@ def getEnergy(config):
 
 def simulatedAnnealing(initialSetUp, noiseRequirements, initialTemperature, stepSize, operatorSampleFileFullAddress,executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, accurateValues):
     
-            
+    progressionList = [] 
+    annealerProgressionOutputFileP = open(settings.annealerProgressionOutputFileName, "a")
+    annealerProgressionOutputFileP = open(settings.annealerProgressionOutputFileName, "a")
+    
+    percentageCompleted = 0 
     stepNumber = 0 
     temperature = initialTemperature 
     oldSetUp = initialSetUp
@@ -101,8 +111,7 @@ def simulatedAnnealing(initialSetUp, noiseRequirements, initialTemperature, step
    #---------guide:::  start the iterative process of simulated_annealing
    #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
     while temperature > 0:
-        print "temperature is "+  str(temperature )
-        newSetUp = make_move(bestSetUp, temperature)
+        newSetUp, operatorModified, operatorModifiedIndex= make_move(bestSetUp, temperature)
         newEnergy = getEnergy(newSetUp) 
         #---------guide:::  erasing the previuos content of the file
         open(CSourceOutputForVariousSetUpFileName, "w").close()
@@ -111,20 +120,39 @@ def simulatedAnnealing(initialSetUp, noiseRequirements, initialTemperature, step
         #---------guide:::  run the csrouce file with the new setup(operators)
         make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName)
         #---------guide::: noise
-        newNoise = extractNoiseForOneInput(CSourceOutputForVariousSetUpFileName , accurateValues)
+        newNoise = int(extractNoiseForOneInput(CSourceOutputForVariousSetUpFileName , accurateValues))
 #        if len(newNoise) == 0:
 #            sys.exit()
 #        
        
         #---------guide:::  deciding whether the output associated with the new set up acceptable
-        print "newNoise is : " +str(newNoise) + "\n"
-        if (newNoise < noiseRequirements):
+        if (newNoise < int(noiseRequirements) and (newNoise > .85*int(noiseRequirements))):
             if(newEnergy < bestSetUpEnergy):
-                bestSetup = newSetUp
+                print "found one better setup"
+                print "old setUp: " + str(bestSetUp)
+                print "old Energy " + str(bestSetUpEnergy)
+                print "new setUp: " + str(newSetUp)
+                print "new Energy " + str(newEnergy)
+                print "new Noise " + str(newNoise)
+                print "noiseRequirements: " + str(noiseRequirements) 
+                print "percentageCompleted: " + str(percentageCompleted) + " %"
+                #---------guide:::  writing the output to a file
+                annealerProgressionOutputFileP.write("************************************************************************\n")
+                annealerProgressionOutputFileP.write("operatorModifiedIndex: " + "\\\\\\" + str(operatorModifiedIndex) + "////" +  "  operatorModified: " + str(operatorModified) +  "\n" )
+                annealerProgressionOutputFileP.write("new setUp: " + str(newSetUp) + "\n")
+                annealerProgressionOutputFileP.write("new Energy: " + str(newEnergy)+ "\n")
+                annealerProgressionOutputFileP.write("new Noise: " + str(newNoise) + "\n")
+                annealerProgressionOutputFileP.write("noiseRequirement: " + str(noiseRequirements) + "\n")
+                annealerProgressionOutputFileP.write("percentageCompleted: " + str(percentageCompleted) + " %" + "\n")
+                progressionList.append(operatorModifiedIndex) 
+                 
+                
+        
+                bestSetUp = newSetUp
                 bestSetUpEnergy = newEnergy
                 bestSetUpNoise = newNoise
 
-        temperature = update_temperature(initialTemperature, stepSize*stepNumber)
+        temperature, percentageCompleted = update_temperature(initialTemperature, stepSize*stepNumber)
         stepNumber += 1
 
     print "total number of iterations:", stepNumber
@@ -135,9 +163,12 @@ def simulatedAnnealing(initialSetUp, noiseRequirements, initialTemperature, step
         print "change the stepSize"
         print "change the initial Setup"
         print "change the noise requirements"
-        exit()
+        annealerProgressionOutputFileP.write("no config satisfied the Noie" + "\n")
+        #exit()
 
-    return bestSetUp, bestSetUpNoise, bestSetUpEnergy
+    annealerProgressionOutputFileP.write("progression of the operator progressions based on index: " + str(progressionList))
+    annealerProgressionOutputFileP.close()
+    return [noiseRequirements,bestSetUp, bestSetUpNoise, bestSetUpEnergy]
 
 
 
