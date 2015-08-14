@@ -342,9 +342,6 @@ def improvedSimulatedAnnealing(initialSetUp, noiseRequirements, numberOfApxBitsI
     #---------guide:::  start the iterative process of simulated_annealing
     #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
     while numberOfApxBitsTemperature > 0:
-        if (percentageCompleted > 30):
-            sys.exit()
-        #-----------------  
         #---------guide::: if we found a better set of operators, output in the command prompt and also to a file
         #-----------------  
         foundBetter = False 

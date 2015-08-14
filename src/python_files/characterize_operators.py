@@ -560,15 +560,16 @@ def main():
     lowerBoundOutputList =  operandInfoApxBitsLowerBoundsDic.values()
 
     cleanUpExtras(rootResultFolderName) 
+    
+    
+    print operandInfoApxBitsUpperBoundsDic
+    print operandInfoApxBitsLowerBoundsDic
+    
+    print "***************"
+    print upperBoundInputList
+    print upperBoundOutputList
     return upperBoundInputList, upperBoundOutputList, lowerBoundInputList, lowerBoundInputList 
     
-#    
-#    print operandInfoApxBitsUpperBoundsDic
-#    print operandInfoApxBitsLowerBoundsDic
-#    
-#    print "***************"
-#    print upperBoundInputList
-#    print upperBoundOutputList
     #---------guide::: show the graph
     #plt.show() 
 

@@ -318,7 +318,7 @@ def main():
             simulatedAnnelaingResultDescription = ["noiseRequirements", "bestSetUp", "bestSetUpNoise", "bestSetUpEnergy"]
             listOfSimulatedAnnelaingResult  = [] #result of running the simulatedAnnealing()
             #initialNoiseRequirement = int(accurateValues[0]) - signalToNoiseRatio*int(accurateValues[0])
-            signalToNoiseRationRange = settings.signalToNoiseRationRange 
+            signalToNoiseRatioRange = settings.signalToNoiseRatioRange 
             noiseRequirementsPosition = 0 
             #-----------------  
             
@@ -326,7 +326,7 @@ def main():
             #---------guide::: iterate through the signalToNoiseRatio and find the (Noise, Energy) pair (where energy is minized and noise satisfies
             #----------------: certain requirements. This numbers achieved using simulated annealing
             #-----------------  
-            for signalToNoiseRatio in signalToNoiseRationRange:
+            for signalToNoiseRatio in signalToNoiseRatioRange:
                 #----------------- 
                 #---------guide::: setting up the vars relavant to this specific signal to nosie ratio
                 #----------------- 
@@ -343,7 +343,7 @@ def main():
                 
                 #---------guide:::  calling the simulated_annealing function
                 #listOfSimulatedAnnelaingResult += [NaivesimulatedAnnealing(initialSetUp, noiseRequirement, numberOfApxBitsInitialTemperature, numberOfApxBitsStepSize, operatorSampleFileFullAddress,executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, accurateValues)]
-                simulatedAnnealingResults, numberOfTriesList[operandIndex][str(signalToNoiseRatio)], numberOfSuccessfulTriesList[operandIndex][str(signalToNoiseRatio)] =  improvedSimulatedAnnealing(initialSetUp, noiseRequirement, numberOfApxBitsInitialTemperature, numberOfApxBitsStepSize, operatorPickInitialTemperature, operatorPickStepSize, operatorSampleFileFullAddress,executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, accurateValues, noiseRequirementsPosition, len(signalToNoiseRationRange) - 1)
+                simulatedAnnealingResults, numberOfTriesList[operandIndex][str(signalToNoiseRatio)], numberOfSuccessfulTriesList[operandIndex][str(signalToNoiseRatio)] =  improvedSimulatedAnnealing(initialSetUp, noiseRequirement, numberOfApxBitsInitialTemperature, numberOfApxBitsStepSize, operatorPickInitialTemperature, operatorPickStepSize, operatorSampleFileFullAddress,executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, accurateValues, noiseRequirementsPosition, len(signalToNoiseRatioRange) - 1)
 #                
 #                #---------guide:::  collecting results
                 listOfSimulatedAnnelaingResult += [simulatedAnnealingResults]
@@ -382,9 +382,8 @@ def main():
     totalTime = findTotalTime(timeBeforeFindingResults, timeAfterFindingResults) 
     print totalTime 
     
-    for index1 in range(0,operandIndex,1):
-        for index2 in range(0, len(noise[index1]), 1):
-            noiseDiffList[index1][signalToNoiseRationRange[index2]] = (float(noise[index1][index2] - noiseRequirementList[index1][signalToNoiseRationRange[index2]])/ noiseRequirementList[index1][signalToNoiseRationRange[index2]])
+    
+    
     
     #---------guide::: populating the IOAndProcessCharP 
     IOAndProcessCharP.write("the mode is: " + mode + "\n")
@@ -394,7 +393,11 @@ def main():
     IOAndProcessCharP.write("numberOfSuccessfulTriesList: " + str(numberOfSuccessfulTriesList) + "\n")
     
     if (mode == "simulated_annealing"):
-        IOAndProcessCharP.write("signalToNoiseRationRange: " + str(signalToNoiseRationRange) + "\n")
+        for index1 in range(0,operandIndex,1):
+            for index2 in range(0, len(noise[index1]), 1):
+                noiseDiffList[index1][signalToNoiseRatioRange[index2]] = (float(noise[index1][index2] - noiseRequirementList[index1][signalToNoiseRatioRange[index2]])/ noiseRequirementList[index1][signalToNoiseRatioRange[index2]])
+        
+        IOAndProcessCharP.write("signalToNoiseRatioRange: " + str(signalToNoiseRatioRange) + "\n")
         IOAndProcessCharP.write("noiseDiffList: " + str(noiseDiffList)+  "\n")
         IOAndProcessCharP.write("numberOfApxBitsStepSize: " + str(numberOfApxBitsStepSize) + "\n")
         IOAndProcessCharP.write("numberOfApxBitsInitialTemperature: " + str(numberOfApxBitsInitialTemperature) + "\n")

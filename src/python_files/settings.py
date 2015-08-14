@@ -98,12 +98,12 @@ annealerProgressionOutputFileName = "annealer_progression_output.txt"  #the file
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 IOAndProcessCharFileName = "IOAndProcessChar.txt" #this file will contain the information about the input(operands, operators of the CSource) and output and process characteristics such as the time that it took or the number of the operators that were explored
-mode = "allPermutations" 
-#mode = "simulated_annealing"
-signalToNoiseRationRange =  floatRange(.5, .67, .1)
-numberOfApxBitsStepSize = .005
+#mode = "allPermutations" 
+mode = "simulated_annealing"
+signalToNoiseRatioRange =  floatRange(.5, .67, .1)
+numberOfApxBitsStepSize = .01
 numberOfApxBitsInitialTemperature = 1
-operatorPickInitialTemperature = 20 
+operatorPickInitialTemperature = 3
 operatorPickStepSize = 1
              
 
