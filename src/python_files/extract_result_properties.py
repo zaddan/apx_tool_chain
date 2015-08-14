@@ -131,7 +131,11 @@ def extractInputFileName(sourceFileName):
 
 
 def calculateAdderEnergy(numberOfBits):
+#    print "&&&" 
+#    print numberOfBits
+#    print "&&&" 
     return numberOfBits
+
 
 
 def calculateMultiplierEnergy(numberOfBits):
