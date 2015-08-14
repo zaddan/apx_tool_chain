@@ -2,14 +2,13 @@
 #include <complex>
 #include <vector>
 #include "bta.h"
-
 using namespace std;
 
 bta::bta(size_t Nt, size_t Nia, size_t msb, size_t lsb, bool table_gen) {
-	this->Nt = Nt; //total number of bits
-	this->Nia = Nia; //number of apx 
-    this->msb = Nia - 1; //most sig
-	this->lsb = 0; //least sig
+	this->Nt = Nt;
+	this->Nia = Nia;
+	this->msb = msb;
+	this->lsb = lsb;
 
 	if (table_gen) tbl_gen();
 
@@ -26,9 +25,17 @@ int bta::calc(const int &a, const int &b) {
 	// inaccurate part
 	int weight = pow(2, Nia) - 1;
 	int iap_a = weight&a;
+#ifdef BT_RND
 	int a_op = (iap_a >> (Nia - 1)) == 0x1 ? (a >> Nia) + 1 : (a >> Nia);
+#else
+	int a_op = (a >> Nia);
+#endif
 	int iap_b = weight&b;
+#ifdef BT_RND
 	int b_op = (iap_b >> (Nia - 1)) == 0x1 ? (b >> Nia) + 1 : (b >> Nia);
+#else
+	int b_op = (b >> Nia);
+#endif
 
 	// accurate part
 	return ((a_op) + (b_op)) << Nia;

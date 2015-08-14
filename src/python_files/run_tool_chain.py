@@ -35,6 +35,8 @@ from find_position import *
 from write_readable_output import *
 from clean_up import *
 from simulating_annealer import *
+from misc import *
+import datetime
 
 def polishSetup(setUp):
     result = []  
@@ -178,7 +180,7 @@ def main():
             exit();
 
         #make a directory for all operand inputs 
-        AllOperandsFolderName = rootResultFolderName + "/" + "all_operands_folder"
+        AllOperandsFolderName = rootResultFolderName + "/" + settings.AllOperandsFolderName
         os.system("mkdir " + AllOperandsFolderName)
         #---------guide::: separates operands and put in a folder 
         with open(AllOperandScenariosFullAddress) as f:
@@ -200,6 +202,7 @@ def main():
     
     
     
+                                                 #inputs. This means that we have multiple operand sets)
     #---------guide:::   parse the C source file to collect all the operands that can 
     #                        be approximatable
     lAllOpsInSrcFile = [] 
@@ -217,14 +220,32 @@ def main():
     nameOfAllOperandFilesList = getNameOfFilesInAFolder(AllOperandsFolderName)
     operandIndex = 0
     
+    numberOfTriesList = [] 
+    numberOfSuccessfulTriesList = []
+    noiseRequirementList = []
+    noiseDiffList =[] #contains the difference between the noise request and the noise recieved from simulated annealing ( in percentage)
+     
+
+
+    for i in range(0, len(nameOfAllOperandFilesList),1):
+        numberOfTriesList.append({})
+        numberOfSuccessfulTriesList.append({}) 
+        noiseRequirementList.append({})
+        noiseDiffList.append({})
     
    
     #---------guide:::  generate a list of all possible cases for each operator
     allPossibleScenariosForEachOperator = generateAllPossibleScenariosForEachOperator(rootResultFolderName, lAllOpsInSrcFile)
     #---------guide:::  generate all possible apx setUps Possible (mainly used for full permutation design exploration, otherwise called exhustive search)
     allPossibleApxScenarioursList = generateAllPossibleApxScenariousList(allPossibleScenariosForEachOperator)
+    IOAndProcessCharFileName = rootResultFolderName + "/" + settings.IOAndProcessCharFileName
+    IOAndProcessCharP = open(IOAndProcessCharFileName, "w")
+    
+    open(settings.annealerProgressionOutputFileName, "w").close()
+    open(rootResultFolderName +  "/" + settings.annealerOutputFileName, "w").close()
     
     #---------guide::: go through operand files and sweep the apx space
+    timeBeforeFindingResults = datetime.datetime.now()
     for operandSampleFileName in nameOfAllOperandFilesList:
         countSoFar = 0 
         #clearly state where the new results associated with the new input starts 
@@ -234,8 +255,7 @@ def main():
         energy.append( [])
         config.append( [])
         inputFileNameList.append([])
-        #mode = "allPermutations" 
-        mode = "simulated_annealing" 
+        mode = settings.mode 
         operatorSampleFileFullAddress = rootResultFolderName + "/" + settings.operatorSampleFileName
         
         
@@ -252,11 +272,11 @@ def main():
 
         #---------guide::: noise
         accurateValues = extractAccurateValues(CSourceOutputForVariousSetUpFileName)
-        
-        
         #---------guide:::  make a apx set up and get values associated with it
+
         if (mode == "allPermutations"): 
             while (True): #break when a signal is raised as done
+                print "\n" + str(100*float(apxIndexSetUp)/len(allPossibleApxScenarioursList)) + "% done" 
                 #---------guide:::  get a possible setUp
                 status, setUp = generateAPossibleApxScenarios(rootResultFolderName + "/" + settings.AllPossibleApxOpScenarios, allPossibleApxScenarioursList , apxIndexSetUp, mode) 
 
@@ -282,50 +302,114 @@ def main():
 
                 energy[operandIndex] += energyValue
                 config[operandIndex] +=configValue
-                inputFileNameList[operandIndex] +=inputFileNameListValue
+                inputFileNameList[operandIndex] += inputFileNameListValue
                 apxIndexSetUp +=1
                 if (status == "done"):
                     break;
 
             operandIndex += 1
             inputNumber +=1
-#	    
+        
         elif (mode == "simulated_annealing"):
-            #---------guide:::  erasing the previous files associated with the annealer output
-            open(settings.annealerProgressionOutputFileName, "w").close()
-            open(settings.annealerOutputFileName, "w").close()
-            annealerOutputFileP = open(settings.annealerProgressionOutputFileName, "a").close()
+            #-----------------  
+            #---------guide:::  initilizing some relevant variabels
+            #-----------------  
+            annealerOutputFileP = open(rootResultFolderName + "/" + settings.annealerOutputFileName, "a")
             simulatedAnnelaingResultDescription = ["noiseRequirements", "bestSetUp", "bestSetUpNoise", "bestSetUpEnergy"]
             listOfSimulatedAnnelaingResult  = [] #result of running the simulatedAnnealing()
-            
             #initialNoiseRequirement = int(accurateValues[0]) - signalToNoiseRatio*int(accurateValues[0])
-            for signalToNoiseRatio in pylab.frange(.3, .9, .3):
+            signalToNoiseRationRange = settings.signalToNoiseRationRange 
+            noiseRequirementsPosition = 0 
+            #-----------------  
+            
+            #-----------------  
+            #---------guide::: iterate through the signalToNoiseRatio and find the (Noise, Energy) pair (where energy is minized and noise satisfies
+            #----------------: certain requirements. This numbers achieved using simulated annealing
+            #-----------------  
+            for signalToNoiseRatio in signalToNoiseRationRange:
+                #----------------- 
+                #---------guide::: setting up the vars relavant to this specific signal to nosie ratio
+                #----------------- 
                 noiseRequirement = int(accurateValues[0]) - signalToNoiseRatio*int(accurateValues[0])
-                initialSetUpIndex = random.choice(range(0, len(allPossibleApxScenarioursList)))
-                print "initialSetUpIndex: " +  str(allPossibleApxScenarioursList[initialSetUpIndex])
-                initialSetUp = allPossibleApxScenarioursList[initialSetUpIndex] 
-                stepSize = .0002  #
-                initialTemperature = 1
-                listOfSimulatedAnnelaingResult += [simulatedAnnealing(initialSetUp, noiseRequirement, initialTemperature, stepSize, operatorSampleFileFullAddress,executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, accurateValues)]
-
+                noiseRequirementList[operandIndex][signalToNoiseRatio] = noiseRequirement
+                #initialSetUpIndex = random.choice(range(0, len(allPossibleApxScenarioursList)))
+                #initialSetUp = allPossibleApxScenarioursList[initialSetUpIndex] 
+                initialSetUp = pickInitialSetUpIndexForSimmulatedAnnelaing(allPossibleApxScenarioursList[0], noiseRequirement, operatorSampleFileFullAddress,executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, accurateValues)
+                
+                numberOfApxBitsStepSize =  settings.numberOfApxBitsStepSize 
+                numberOfApxBitsInitialTemperature = settings.numberOfApxBitsInitialTemperature 
+                operatorPickInitialTemperature = settings.operatorPickInitialTemperature 
+                operatorPickStepSize = settings.operatorPickStepSize 
+                
+                #---------guide:::  calling the simulated_annealing function
+                #listOfSimulatedAnnelaingResult += [NaivesimulatedAnnealing(initialSetUp, noiseRequirement, numberOfApxBitsInitialTemperature, numberOfApxBitsStepSize, operatorSampleFileFullAddress,executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, accurateValues)]
+                simulatedAnnealingResults, numberOfTriesList[operandIndex][str(signalToNoiseRatio)], numberOfSuccessfulTriesList[operandIndex][str(signalToNoiseRatio)] =  improvedSimulatedAnnealing(initialSetUp, noiseRequirement, numberOfApxBitsInitialTemperature, numberOfApxBitsStepSize, operatorPickInitialTemperature, operatorPickStepSize, operatorSampleFileFullAddress,executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, accurateValues, noiseRequirementsPosition, len(signalToNoiseRationRange) - 1)
+#                
+#                #---------guide:::  collecting results
+                listOfSimulatedAnnelaingResult += [simulatedAnnealingResults]
+                noiseRequirementsPosition +=1
+            #-----------------  
             
-            
-           
-#            print "noiseRequirement: " + str(noiseRequirement) 
-#            print simulatedAnnelaingResult 
-             
-             
-             
+            #----------------- 
+            #---------guide::: writing the results to output file and also screen
+            #----------------- 
             for results in listOfSimulatedAnnelaingResult:
                 resultPlusDescriptionList = zip(results, simulatedAnnelaingResultDescription)
+                annealerOutputFileP.write( str("*******************************") + "\n")
+                print "********************"
                 for element in resultPlusDescriptionList:
-                    annealerOutputFileP.write( element + "\n")
+                    annealerOutputFileP.write( str(element) + "\n")
                     print element
+                print "********************"
+                annealerOutputFileP.write( str("*******************************") + "\n")
             
-            sys.exit()
-
-
+                noise[operandIndex] += [results[2]]
+                energy[operandIndex] += [results[3]]
+                config[operandIndex].append(polishSetup(results[1])[0])
+                inputFileNameList[operandIndex] += [operandSampleFileName] 
+            #-----------------  
+            
+            
+            operandIndex += 1
+            inputNumber +=1
+            annealerOutputFileP.close()
     
+    
+   
+
+    #---------guide:::  getting the end time
+    timeAfterFindingResults = datetime.datetime.now()
+    totalTime = findTotalTime(timeBeforeFindingResults, timeAfterFindingResults) 
+    print totalTime 
+    
+    for index1 in range(0,operandIndex,1):
+        for index2 in range(0, len(noise[index1]), 1):
+            noiseDiffList[index1][signalToNoiseRationRange[index2]] = (float(noise[index1][index2] - noiseRequirementList[index1][signalToNoiseRationRange[index2]])/ noiseRequirementList[index1][signalToNoiseRationRange[index2]])
+    
+    #---------guide::: populating the IOAndProcessCharP 
+    IOAndProcessCharP.write("the mode is: " + mode + "\n")
+    IOAndProcessCharP.write("number of operators in the CSource file: " + str(len(lAllOpsInSrcFile)) + "\n")
+    IOAndProcessCharP.write("number of Operands: " + str(len(nameOfAllOperandFilesList)) +"\n")
+    IOAndProcessCharP.write("numberOfTriesList: " + str(numberOfTriesList) + "\n")
+    IOAndProcessCharP.write("numberOfSuccessfulTriesList: " + str(numberOfSuccessfulTriesList) + "\n")
+    
+    if (mode == "simulated_annealing"):
+        IOAndProcessCharP.write("signalToNoiseRationRange: " + str(signalToNoiseRationRange) + "\n")
+        IOAndProcessCharP.write("noiseDiffList: " + str(noiseDiffList)+  "\n")
+        IOAndProcessCharP.write("numberOfApxBitsStepSize: " + str(numberOfApxBitsStepSize) + "\n")
+        IOAndProcessCharP.write("numberOfApxBitsInitialTemperature: " + str(numberOfApxBitsInitialTemperature) + "\n")
+        IOAndProcessCharP.write("operatorPickInitialTemperature: " + str(operatorPickInitialTemperature)+  "\n")
+    IOAndProcessCharP.write("totalTime: " + str(totalTime) + " " + "minute" + "\n")
+    IOAndProcessCharP.close()
+   
+
+
+
+
+    print noise
+    print energy
+    print config
+    print inputFileNameList
     
     #---------guide:::  find the pareto points and store them in resultTuple
     resultTuple = [] #this is a list of pareto Triplets(setup, noise, energy) associated with each 
@@ -342,7 +426,11 @@ def main():
         paretoNoise = []  #cleaning the previous values if exist
         paretoEnergy = [] #cleaning the previous values if exist         
         #---------guide:::  get the pareto set
-        paretoNoise, paretoEnergy = pareto_frontier(noise[i], energy[i], maxX= False, maxY = False)
+        if (mode == "allPermutations"): 
+            paretoNoise, paretoEnergy = noise[i], energy[i]
+            #paretoNoise, paretoEnergy = pareto_frontier(noise[i], energy[i], maxX= False, maxY = False)
+        elif (mode == "simulated_annealing"):
+            paretoNoise, paretoEnergy = noise[i], energy[i]
         #---------guide:::  find the setUps that corresponds to the pareto Points
         setUpNumberList = [] #contains the list of setUp numbers associated with the pareto set 
                              #this is used to avoid duplicate

@@ -45,6 +45,9 @@ def pareto_frontier(Xs, Ys, maxX = True, maxY = True):
     # Turn resulting pairs back into a list of Xs and Ys
     p_frontX = [pair[0] for pair in p_front]
     p_frontY = [pair[1] for pair in p_front]
+#    print p_frontX
+#    print p_frontY
+#    sys.exit()
     return p_frontX, p_frontY
 
 

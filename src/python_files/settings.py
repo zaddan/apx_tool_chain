@@ -2,6 +2,9 @@ import itertools
 import sys
 from GenOpSpace import GenOpSpace
 import os.path
+import pylab
+import matplotlib.mlab as mlb
+from misc import *
 # Copyright (C) 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -24,29 +27,11 @@ import os.path
 # @date 2015-07-01
 
 
-
-#--------- only need to change the following lines, 
-#these are the flags that need to be mentioned by the src file author
-global lAccurateOpFlags
-lAccurateOpFlags = ["AdditionOp", "MultiplicationOp"] #all of the defined operations
-
-#given the boundaries generate all each ops space(this means, all the apx and accurate versions of one operation)
-global lAllApxVersionOfEachOps 
-
-lAllApxVersionOfEachOps = [GenOpSpace("bta", 8,[32,33, 0,3, 0,1, 0, 1]), GenOpSpace("btm", 4,[32, 33, 0, 3])]
-#lAllApxVersionOfEachOps = [GenOpSpace("bta", 8,[32,33, 0,2, 0,1, 0, 1]), GenOpSpace("btm", 4,[32, 33, 0, 1])]
-
-for element in lAllApxVersionOfEachOps:
-    element.sweepInput()
-
-
-global OpTypeOpKind 
-#OpTypeOpKind = { lAccurateOpFlags[0]: lAllApxVersionOfEachOps[0].permutedList + lAllApxVersionOfEachOps[1].permutedList, lAccurateOpFlags[1]: lAllApxVersionOfEachOps[2].permutedList} #various types of each of the opertions mentioned in the lAccurateOpFlags
-
-
-OpTypeOpKind = { lAccurateOpFlags[0]: lAllApxVersionOfEachOps[0].permutedList, lAccurateOpFlags[1]: lAllApxVersionOfEachOps[1].permutedList} #various types of each of the opertions mentioned in the lAccurateOpFlags
-
-
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#---------guide::: file and folder names
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 global AllPossibleApxOpScenarios
 AllPossibleApxOpScenarios =  "all_possible_apx_operators_scenarios.txt"
 
@@ -106,4 +91,49 @@ annealerOutputFileName = "annealer_output.txt" #this file contains the noiseRequ
 
 global annealerProgressionOutputFileName
 annealerProgressionOutputFileName = "annealer_progression_output.txt"  #the file that contains information regarding the output of the anneler
+
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#---------guide::: other variables 
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+IOAndProcessCharFileName = "IOAndProcessChar.txt" #this file will contain the information about the input(operands, operators of the CSource) and output and process characteristics such as the time that it took or the number of the operators that were explored
+mode = "allPermutations" 
+#mode = "simulated_annealing"
+signalToNoiseRationRange =  floatRange(.5, .67, .1)
+numberOfApxBitsStepSize = .005
+numberOfApxBitsInitialTemperature = 1
+operatorPickInitialTemperature = 20 
+operatorPickStepSize = 1
+             
+
+#--------- only need to change the following lines, 
+#these are the flags that need to be mentioned by the src file author
+global lAccurateOpFlags
+lAccurateOpFlags = ["AdditionOp", "MultiplicationOp"] #all of the defined operations
+
+#given the boundaries generate all each ops space(this means, all the apx and accurate versions of one operation)
+global lAllApxVersionOfEachOps 
+
+
+#lAllApxVersionOfEachOps = [GenOpSpace("bta", 8,[32,33, 0,10, 0,1, 0, 1]), GenOpSpace("btm", 4,[32, 33, 0, 10])]
+lAllApxVersionOfEachOps = [GenOpSpace("bta", 8,[32,33, 0,3, 0,1, 0, 1]), GenOpSpace("btm", 4,[32, 33, 0, 10])]
+#lAllApxVersionOfEachOps = [GenOpSpace("bta", 8,[32,33, 0,2, 0,1, 0, 1]), GenOpSpace("btm", 4,[32, 33, 0, 1])]
+
+for element in lAllApxVersionOfEachOps:
+    element.sweepInput()
+
+
+global OpTypeOpKind 
+#OpTypeOpKind = { lAccurateOpFlags[0]: lAllApxVersionOfEachOps[0].permutedList + lAllApxVersionOfEachOps[1].permutedList, lAccurateOpFlags[1]: lAllApxVersionOfEachOps[2].permutedList} #various types of each of the opertions mentioned in the lAccurateOpFlags
+
+
+OpTypeOpKind = { lAccurateOpFlags[0]: lAllApxVersionOfEachOps[0].permutedList, lAccurateOpFlags[1]: lAllApxVersionOfEachOps[1].permutedList} #various types of each of the opertions mentioned in the lAccurateOpFlags
+
+
+global annealersAcceptableEnergyMarginePercentage #sets the Energy margin that the annealer would accept in taking a specific setUp as a valid next step. Meaning, annealer only accepts this setup as a temporarily answer (a new anchor) if the difference between this setup's energy and previous setup's energy falls within the percent margin indicated by this variable
+annealersAcceptableEnergyMarginePercentage = 1
+
+global annealersAcceptableImprovementOnNoiseMarginePercentage #similar to annealersAcceptableEnergyMarginePercentage but for closeness to the noiseRequirment
+annealersAcceptableImprovementOnNoiseMarginePercentage = 1
 
