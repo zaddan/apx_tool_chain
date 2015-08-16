@@ -20,7 +20,7 @@
 # @brief  this file run the  the whole tool chain 
 # @author Behzad Boroujerdian
 # @date 2015-07-01
-
+from curve_fit import *
 import itertools
 import pylab
 import sys
@@ -38,6 +38,85 @@ from clean_up import *
 from simulating_annealer import *
 from misc import *
 import datetime
+
+
+def parseLowUpBounderyFile(lowUpBounderyFileName):
+    if not(os.path.isfile(lowUpBounderyFileName)):
+        print "the source file doesn't exist"
+        exit();
+
+    upperBoundInputTurn = False
+    upperBoundOutputTurn = False
+    lowerBoundOutputTurn = False
+    lowerBoundInputTurn = False
+   
+    upperBoundInput =[]
+    lowerBoundInput = []
+    upperBoundOutput = []
+    lowerBoundOutput = []
+    for i in range(0,4):
+        upperBoundInput.append([])
+        lowerBoundInput.append([])
+ 
+    with open(lowUpBounderyFileName) as f:
+        for line in f:
+            words =  line.replace(',', ' ').replace('/',' ').replace(';', ' ').split(' ') #find the lines with key word and write it to another file
+            if "upperBoundInput:" in words:
+                number = 0
+                upperBoundInputTurn = True
+                upperBoundOutputTurn = False
+                lowerBoundOutputTurn = False
+                lowerBoundInputTurn = False
+                continue
+            
+            if "upperBoundOutput:" in words:
+                number = 0
+                upperBoundInputTurn = False 
+                upperBoundOutputTurn = True
+                lowerBoundOutputTurn = False
+                lowerBoundInputTurn = False
+                continue
+
+
+            
+            if "lowerBoundOutput:" in words:
+                number = 0 
+                upperBoundInputTurn = False 
+                upperBoundOutputTurn = False 
+                lowerBoundOutputTurn = True 
+                lowerBoundInputTurn = False
+                continue
+            
+            if "lowerBoundInput:" in words:
+                number = 0 
+                upperBoundInputTurn = False 
+                upperBoundOutputTurn = False 
+                lowerBoundOutputTurn = False 
+                lowerBoundInputTurn = True 
+                continue
+        
+            if upperBoundInputTurn:
+                upperBoundInput[number] = [int(i) for i in words]
+                number +=1
+                continue
+            
+            if lowerBoundInputTurn:
+                lowerBoundInput[number] = [int(i) for i in words]
+                number +=1
+                continue
+
+            if upperBoundOutputTurn:
+                upperBoundOutput = [int(i) for i in words]
+                continue
+
+            
+            if lowerBoundOutputTurn:
+                lowerBoundOutput =  [int(i) for i in words]
+                continue
+
+            
+    
+    return upperBoundInput, upperBoundOutput, lowerBoundInput, lowerBoundOutput 
 
 def generateOperandList(numberOfOperands, operandExactValueLowerBound, operandExactValueUpperBound, maxDevPercentage, workWithNegativeNumbers, operandExactValueStep, numberOfValuesBetweenExactAndDeviation):
     
@@ -242,57 +321,9 @@ def polishSetup(setUp):
         result.append(resultElement)
     return [result] 
 
-## 
-# @brief this is the main function (which takes care of the description mentioned in the file description)
-# 
-# @return : no return
-def main():
-    #---------guide:::  promting ther user regarding the required input 
-    print "the following inputs with the order mentioned needs to be provided"
-    print "1.source folder address"
-    print "2.source file address"
-    print "3.generate Makefile (with YES or NO)"
-    print "4.CBuilderFolder"
-    print "***********"
-    print "5.AllOperandScenariosInOneFiles" #whether all the operand scenarios can be found in one file or no
-    print "6. AllOperandsFileOrDirectoryName" #the user should be providing a file name if AllOperandScenariosInOneFiles is true and a direcoty other   
-    print "7. finalResulstFileName"
-    #print "8. noiseRequirement"
-    
-   
 
-    #---------guide:::  validating the number of inputs
-    if len(sys.argv) < 8:
-        print "***ERROR***"
-        print "the following inputs with the order mentioned needs to be provided"
-        print "the following inputs with the order mentioned needs to be provided"
-        print "1.source folder address"
-        print "2.source file address"
-        print "3.generate Makefile (with YES or NO)"
-        print "4.CBuilderFolder"
-        print "***********"
-        print "5.AllOperandScenariosInOneFiles" #whether all the operand scenarios can be found in one file or no
-        print "6. AllOperandsFileOrDirectoryName" #the user should be providing a file name if AllOperandScenariosInOneFiles is true and a direcoty other   
-        print "7. finalResulstFileName"
-        #print "8. signalToNoiseRatio"
-        exit()
-
+def findLowAndUpBounderies(CSrcFolderAddress, CSrcFileAddress , generateMakeFile , finalResultFileName, rootFolder,operandDic):
     
-   
-
-    #---------guide:::  acquaring the inputs
-    CSrcFolderAddress = sys.argv[1] #src file to be analyzet
-    CSrcFileAddress = sys.argv[2] #src file to be analyzet
-    #executableName = sys.argv[3] #src file to be analyzed
-    generateMakeFile = sys.argv[3]
-    rootFolder = sys.argv[4] 
-    AllOperandScenariosInOneFiles = sys.argv[5]
-    AllOperandsFileOrDirectoryName = sys.argv[6]
-    finalResultFileName = sys.argv[7]
-    #signalToNoiseRatio = float(sys.argv[8])
-    
-    
-   
     #---------guide:::  checking the validity of the input and making necessary files
     #and folders
     rootResultFolderName = rootFolder + "/" + settings.generatedTextFolderName
@@ -316,16 +347,6 @@ def main():
         print "the file with the name: " + CSrcFileAddress + "which contains the csource file address does not exist"
         exit();
     
-    #checking whether the file (or directory) containging the operands(input) exist or no
-    if (AllOperandScenariosInOneFiles): #if a file
-        if not(os.path.isfile(AllOperandsFileOrDirectoryName)):
-                print "All OperandsFile does not exist"
-                exit();
-    else: #checking for the directory
-        if not(os.path.isdir(AllOperandsFileOrDirectoryName)):
-            print "All OperandsDir does not exist"
-            exit();
-
     #---------guide:::  generate make file or no
     if not((generateMakeFile == "YES") or (generateMakeFile == "NO")): 
         print generateMakeFile 
@@ -361,7 +382,6 @@ def main():
 
     
     #---------guide:::  removing the results associated with the previous runs
-    AllOperandScenariosFullAddress = AllOperandsFileOrDirectoryName
     os.system("rm -r" + " " +  rootResultFolderName + "/" +settings.AllOperandsFolderName)
     os.system("rm -r" + " " +  rootResultFolderName + "/" + settings.rawResultFolderName)
     os.system("mkdir" + " " + rootResultFolderName + "/" + settings.rawResultFolderName)
@@ -416,27 +436,7 @@ def main():
     
     desiredNoise = 4
     
-    workWithNegativeNumbers = False 
-    numberOfOperands = 2 
-    operandExactValueLowerBound = 3 
-    operandExactValueUpperBound = 7 
-    operandExactValueStep = 3 
-    maxInputOperandDeviation = .8
-    numberOfValuesBetweenExactAndDeviation = 2
-   
-    #---------guide::: uncomment the following lines only if your want to use generateOperandListEachOperandUnique. This function is used in situations where we want the input to the operator to 
-    #------------------have different properites (such as lowerBound, upperBound, etc)
-#    operandTwoExactValueLowerBound = 400
-
-#    operandTwoExactValueUpperBound = 600
-#    operandTwoExactValueStep = 100 
-#    maxInputOperandDeviationTwo = .2
-#    numberOfValuesBetweenExactAndDeviationTwo = 5 
-#    
-
-
-    #operandDic = generateOperandListEachOperandUnique(numberOfOperands, operandExactValueLowerBound, operandExactValueUpperBound, maxInputOperandDeviation, workWithNegativeNumbers, operandExactValueStep, numberOfValuesBetweenExactAndDeviation, operandTwoExactValueLowerBound, operandTwoExactValueUpperBound, maxInputOperandDeviationTwo, operandTwoExactValueStep, numberOfValuesBetweenExactAndDeviationTwo)
-    operandDic = generateOperandList(numberOfOperands, operandExactValueLowerBound, operandExactValueUpperBound, maxInputOperandDeviation, workWithNegativeNumbers, operandExactValueStep, numberOfValuesBetweenExactAndDeviation)
+    
 #    for  key in operandDic:
 #        print "*********" 
 #        print key 
@@ -466,7 +466,6 @@ def main():
         for operandElement in operandList:
             if not(firstTime): 
                 print ":::::::::::::::::::::::" 
-                print OneTimeImplementationTime 
                 print "\ntime remaining: " + str((numberOfKeys - keyIndex)*OneTimeImplementationTime) + " second   " + " or " +  str(((numberOfKeys - keyIndex)*OneTimeImplementationTime)/60) + " in minute"
                 print ":::::::::::::::::::::::" 
             operand = ' '.join(str(e) for e in operandElement)
@@ -562,17 +561,159 @@ def main():
     cleanUpExtras(rootResultFolderName) 
     
     
-    print operandInfoApxBitsUpperBoundsDic
-    print operandInfoApxBitsLowerBoundsDic
     
-    print "***************"
-    print upperBoundInputList
-    print upperBoundOutputList
-    return upperBoundInputList, upperBoundOutputList, lowerBoundInputList, lowerBoundInputList 
+    return upperBoundInputList, upperBoundOutputList, lowerBoundInputList, lowerBoundOutputList 
     
     #---------guide::: show the graph
     #plt.show() 
 
 
 
-main()
+
+
+
+## 
+# @brief this is the main function (which takes care of the description mentioned in the file description)
+# 
+# @return : no return
+def characterizeOperator():
+    #---------guide:::  promting ther user regarding the required input 
+    print "the following inputs with the order mentioned needs to be provided"
+    print "1.source folder address"
+    print "2.source file address"
+    print "3.generate Makefile (with YES or NO)"
+    print "4.CBuilderFolder"
+    print "***********"
+    print "5. finalResulstFileName"
+    print "6.top module functionality"
+    #print "8. noiseRequirement"
+    
+   
+
+    #---------guide:::  validating the number of inputs
+    if len(sys.argv) < 7:
+        print "***ERROR***"
+        print "the following inputs with the order mentioned needs to be provided"
+        print "1.source folder address"
+        print "2.source file address"
+        print "3.generate Makefile (with YES or NO)"
+        print "4.CBuilderFolder"
+        print "***********"
+        print "5. finalResulstFileName"
+        print "6.top module functionality"
+        #print "8. signalToNoiseRatio"
+        exit()
+
+    
+   
+
+    #---------guide:::  acquaring the inputs
+    CSrcFolderAddress = sys.argv[1] #src file to be analyzet
+    CSrcFileAddress = sys.argv[2] #src file to be analyzet
+    #executableName = sys.argv[3] #src file to be analyzed
+    generateMakeFile = sys.argv[3]
+    rootFolder = sys.argv[4] 
+    finalResultFileName = sys.argv[5]
+    moduleFunctionality = sys.argv[6] 
+    #signalToNoiseRatio = float(sys.argv[8])
+    if not(moduleFunctionality in ["all", "generateOperAndFindBoundery", "onlyFindFittedCurve"]):
+        print "****ERROR****"
+        print "module functionality needs to be one of the followings"
+        print  ["all", "generateOperAndFindBoundery", "onlyFindFittedCurve"]
+        sys.exit()
+
+    
+    if (moduleFunctionality == "all" or moduleFunctionality == "generateOperAndFindBoundery"):
+        #---------guide:::  genrate operands
+        workWithNegativeNumbers = False 
+        numberOfOperands = 2 
+        operandExactValueLowerBound = 3 
+        operandExactValueUpperBound = 8
+        operandExactValueStep = 3 
+        maxInputOperandDeviation = .8
+        numberOfValuesBetweenExactAndDeviation = 2
+        #---------guide::: uncomment the following lines only if your want to use generateOperandListEachOperandUnique. This function is used in situations where we want the input to the operator to 
+        #------------------have different properites (such as lowerBound, upperBound, etc)
+    #    operandTwoExactValueLowerBound = 400
+
+    #    operandTwoExactValueUpperBound = 600
+    #    operandTwoExactValueStep = 100 
+    #    maxInputOperandDeviationTwo = .2
+    #    numberOfValuesBetweenExactAndDeviationTwo = 5 
+    #    
+
+        #operandDic = generateOperandListEachOperandUnique(numberOfOperands, operandExactValueLowerBound, operandExactValueUpperBound, maxInputOperandDeviation, workWithNegativeNumbers, operandExactValueStep, numberOfValuesBetweenExactAndDeviation, operandTwoExactValueLowerBound, operandTwoExactValueUpperBound, maxInputOperandDeviationTwo, operandTwoExactValueStep, numberOfValuesBetweenExactAndDeviationTwo)
+      
+        operandDic = generateOperandList(numberOfOperands, operandExactValueLowerBound, operandExactValueUpperBound, maxInputOperandDeviation, workWithNegativeNumbers, operandExactValueStep, numberOfValuesBetweenExactAndDeviation)
+        upperBoundInputList, upperBoundOutputList, lowerBoundInputList, lowerBoundOutputList = findLowAndUpBounderies(CSrcFolderAddress, CSrcFileAddress , generateMakeFile , finalResultFileName, rootFolder, operandDic)
+        
+        reshapedUpperBoundInput = [] #we need to reshape the input so it can be fed to curv_fit
+        for variableNumber in range(0, len(upperBoundInputList[0])):
+            reshapedUpperBoundInput.append([])
+        
+        for variableNumber in range(0, len(upperBoundInputList[0])):
+            for inputNumber in range(0, len(upperBoundInputList)):
+                reshapedUpperBoundInput[variableNumber].append(upperBoundInputList[inputNumber][variableNumber])
+        
+       
+        reshapedLowerBoundInput = [] #we need to reshape the input so it can be fed to curv_fit
+        for variableNumber in range(0, len(lowerBoundInputList[0])):
+            reshapedLowerBoundInput.append([])
+        
+        for variableNumber in range(0, len(lowerBoundInputList[0])):
+            for inputNumber in range(0, len(lowerBoundInputList)):
+                reshapedLowerBoundInput[variableNumber].append(lowerBoundInputList[inputNumber][variableNumber])
+
+
+        #---------guide:::  writing the results to the output
+        rootResultFolderName = rootFolder + "/" + settings.generatedTextFolderName
+        lowUpBounderyFileP = open(rootResultFolderName + "/" + settings.lowUpBounderyFileName ,"w"); 
+        
+        lowUpBounderyFileP.write("upperBoundInput: \n")
+        for element in reshapedUpperBoundInput:
+            lowUpBounderyFileP.write(" ".join(str(e) for e in element))
+            lowUpBounderyFileP.write("\n")
+
+        lowUpBounderyFileP.write("upperBoundOutput: \n")
+        lowUpBounderyFileP.write(" ".join(str(e) for e in upperBoundOutputList))
+        lowUpBounderyFileP.write("\n")
+        
+        lowUpBounderyFileP.write("lowerBoundInput: \n")
+        for element in reshapedLowerBoundInput:
+            stringToWrite =  " ".join(str(e) for e in element)
+            lowUpBounderyFileP.write(stringToWrite)
+            lowUpBounderyFileP.write("\n")
+        
+        lowUpBounderyFileP.write("lowerBoundOutput: \n")
+        stringToWrite =  " ".join(str(e) for e in lowerBoundOutputList)
+        lowUpBounderyFileP.write(stringToWrite)
+        
+         
+        lowUpBounderyFileP.close()
+
+
+    if (moduleFunctionality == "all"): 
+        reshapedUpperBoundInput, upperBoundOutputList, reshapedLowerBoundInput, lowerBoundOutputList = parseLowUpBounderyFile(rootResultFolderName + "/" + settings.lowUpBounderyFileName)
+        #bestFittedFunc, funcCoeff, funcErrorDic = findBestFitFunction(inputTrainingData, outputTrainingData, inputTestData, outputTestData, all_funcs.funcNumberOfCoeffDic)
+
+
+    if(moduleFunctionality == "onlyFindFittedCurve"):
+        rootResultFolderName = rootFolder + "/" + settings.generatedTextFolderName
+        reshapedUpperBoundInput, upperBoundOutputList, reshapedLowerBoundInput, lowerBoundOutputList = parseLowUpBounderyFile(rootResultFolderName + "/" + settings.lowUpBounderyFileName)
+        #bestFittedFunc, funcCoeff, funcErrorDic = findBestFitFunction(inputTrainingData, outputTrainingData, inputTestData, outputTestData, all_funcs.funcNumberOfCoeffDic)
+
+    print "***************"
+    print "Upper stuff" 
+    #print upperBoundInputList
+    print upperBoundOutputList
+
+    print reshapedUpperBoundInput 
+    
+    print "***************"
+    print "lower stuff" 
+    #print lowerBoundInputList
+    print lowerBoundOutputList
+ 
+    print reshapedLowerBoundInput 
+#
+characterizeOperator()

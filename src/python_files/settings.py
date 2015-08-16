@@ -137,3 +137,6 @@ annealersAcceptableEnergyMarginePercentage = 1
 global annealersAcceptableImprovementOnNoiseMarginePercentage #similar to annealersAcceptableEnergyMarginePercentage but for closeness to the noiseRequirment
 annealersAcceptableImprovementOnNoiseMarginePercentage = 1
 
+global lowUpBounderyFileName 
+lowUpBounderyFileName = "lowUpBoundery.txt"
+
