@@ -5,6 +5,8 @@ from scipy.optimize import curve_fit
 from all_funcs import *
 import all_funcs
 import random
+from joblib import Parallel, delayed  
+import multiprocessing
 
 
 class degreeNPolyMultiVarClass:
@@ -37,7 +39,19 @@ def nCr(n,r):
 # 
 
 
+def run_curve_fit(xdataRaw, ydata, degree, func):
+    numberOfVar = len(xdataRaw) 
+    numberOfCoeff = nCr( degree + numberOfVar - 1, numberOfVar - 1)
+    CoeffInitialPoint = tuple([0]*numberOfCoeff)
+    extraArgAdded = [degree]*len(xdataRaw[0]) 
+    xdata = [extraArgAdded] + xdataRaw
+    popt, pcov = curve_fit(func, np.array(xdata),np.array(ydata), CoeffInitialPoint)
+    return popt
+
 def findCoefficients(xdataRaw, ydata, funcNumberOfCoeffDic, degreeNPolyMultiVarMaxDegree = 2, degreeNPolyMultiVarMinDegree = 1):
+    num_cores = multiprocessing.cpu_count()
+    print("numCores = " + str(num_cores))
+
     funcCoeffDic = {} 
     for func in funcNumberOfCoeffDic:
         #-----------------  
@@ -47,36 +61,9 @@ def findCoefficients(xdataRaw, ydata, funcNumberOfCoeffDic, degreeNPolyMultiVarM
         #-----------------  as reference
         #-----------------  
         if (func == degreeNPolyMultiVar):
-            for degree in range(degreeNPolyMultiVarMinDegree, degreeNPolyMultiVarMaxDegree): 
-                #degree = degreeNPolyMultiVarMaxDegree
-    #            numberOfCoeff = funcNumberOfCoeffDic[func] #this is necessary to pass to the curve_fit
-                numberOfVar = len(xdataRaw) 
-                numberOfCoeff = nCr( degree + numberOfVar - 1, numberOfVar - 1)
-                CoeffInitialPoint = tuple([0]*numberOfCoeff)
-                extraArgAdded = [degree]*len(xdataRaw[0]) 
-                xdata = [extraArgAdded] + xdataRaw
-                popt, pcov = curve_fit(func, np.array(xdata),np.array(ydata), CoeffInitialPoint)
-                funcCoeffDic[(func,degree)] =  popt
-
-            
-            
-            #---------guide:::  generating an object that has control over the degree
-            #-----------------  this degree is later used in the degreeOnePolyMultiVar function
-#            degreeNPolyMultiVarObject = degreeNPolyMultiVarClass(degreeNPolyMultiVarMaxDegree)
-
-#            for degree in range(1, degreeNPolyMultiVarObject.maxDegree):
-#                    print degreeNPolyMultiVarObject.maxDegree 
-#                    degreeNPolyMultiVarObject.degree = degree
-#                    print degreeNPolyMultiVarObject.degree
-#                    print xdata 
-#                    sys.exit() 
-#                    degreeNPolyMultiVarClass.degree = degree
-#                    numberOfCoeff = funcNumberOfCoeffDic[func] #this is necessary to pass to the curve_fit
-#                    CoeffInitialPoint = tuple([0]*numberOfCoeff)
-#                    popt, pcov = curve_fit(func, np.array(xdata),np.array(ydata), CoeffInitialPoint)
-#                    funcCoeffDic[func] =  popt
-#
-        
+            result =  Parallel(n_jobs=num_cores)(delayed(run_curve_fit)(xdataRaw,ydata, degree, func) for degree in range(degreeNPolyMultiVarMinDegree, degreeNPolyMultiVarMaxDegree))
+            for degree in range(degreeNPolyMultiVarMinDegree, degreeNPolyMultiVarMaxDegree):
+                funcCoeffDic[(func,degree)] = result[degree - degreeNPolyMultiVarMinDegree]
         else: 
             numberOfCoeff = funcNumberOfCoeffDic[func] #this is necessary to pass to the curve_fit
             CoeffInitialPoint = tuple([0]*numberOfCoeff)
@@ -198,7 +185,7 @@ def testBestFittedFunc():
     #---------guide:::  only applicable to degreeNPolyMultiVar
     foo = degreeNPolyMultiVar
     degree = 5 
-    maxDegree = 7 
+    maxDegree = 7
     minDegree = 4 
     numberOfVar = 4 
     inputTrainingLowerBound = 100
