@@ -4,7 +4,7 @@ from GenOpSpace import GenOpSpace
 import os.path
 import pylab
 import matplotlib.mlab as mlb
-from misc import *
+# from misc import *
 # Copyright (C) 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -25,6 +25,17 @@ from misc import *
 # @brief this file contains all the settings (or otherwise called config information for the tool_chain)
 # @author Behzad Boroujerdian
 # @date 2015-07-01
+
+
+def floatRange(start, stop, step):
+    result = []
+    i = start 
+    while i < stop:
+        result.append(i)
+        i += step
+
+    return result
+
 
 
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -139,4 +150,13 @@ annealersAcceptableImprovementOnNoiseMarginePercentage = 1
 
 global lowUpBounderyFileName 
 lowUpBounderyFileName = "lowUpBoundery.txt"
+
+global operatorsCoeffFile 
+operatorsCoeffFile  = "operatorsCoeffFile.txt"
+
+global logFileName 
+logFileName = "characterize_operators_log.txt"
+
+global operandsInfoForOperatorCharacterizationName
+operandsInfoForOperatorCharacterizationName = "operandsInfoForOperatorCharacterization.txt"
 

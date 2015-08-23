@@ -2,6 +2,14 @@ import numpy
 import sys
 import itertools
 import copy
+degreeNPolyMultiVarDivider = 100
+
+def polyOneUnBallenced(variableList, *Coeff):
+    return Coeff[0]*pow(variableList[0],1) + Coeff[1]*pow(variableList[1],5) + Coeff[2]*pow(variableList[2],1) + Coeff[3]*pow(variableList[3], 5)
+def polyOne(variableList, *Coeff):
+    return Coeff[0]*pow(variableList[0],1) + Coeff[1]*pow(variableList[1],1) + Coeff[2]*pow(variableList[2],1) + Coeff[3]*pow(variableList[3], 1) + Coeff[4]*pow(variableList[4], 1) + Coeff[5]
+ 
+ 
 def polyThree(variableList, *Coeff):
     return Coeff[0]*pow(variableList[0],3) + Coeff[1]*pow(variableList[0],2) + Coeff[2]*pow(variableList[0],1) + Coeff[3] 
  
@@ -15,33 +23,6 @@ def multiVarFoo3(variableList,*Coeff):
 def multiVarFoo2(variableList,*Coeff):
     return Coeff[0]*variableList[0] + variableList[1]
  
-
-def degreeOnePolyMultiVar(variableList, *Coeff):
-    if not(isinstance(variableList,list)):
-        variableModified = []
-        for rowNumber in range(0,variableList.shape[1]):
-            variableModified.append([])
-        for colNumber in range(0,variableList.shape[1]):
-            for rowNumber in range(0,variableList.shape[0]):
-                variableModified[colNumber].append(variableList[rowNumber][colNumber])
-    else:
-        variableModified = variableList
-    if not(isinstance(variableList,list)):
-        result = [] 
-        for element in variableModified:
-            result.append(degreeOnePolyMultiVar(element, *Coeff))
-        return result 
-    
-    varibleListModifiedArray1D = numpy.array(variableModified)
-    varibleListModifiedArray2D = varibleListModifiedArray1D.reshape((1,-1))
-    varibleListModifiedMatrix  = numpy.mat(varibleListModifiedArray2D.T)
-
-    CoeffArray1D = numpy.array(Coeff)
-    CoeffArray2D= CoeffArray1D.reshape((1,-1))
-    CoeffMatrix = numpy.mat(CoeffArray2D) 
-    return (CoeffMatrix*varibleListModifiedMatrix).item(0,0)
-
-
 
 def degreeNPolyMultiVar(variableList, *Coeff):
     if not(isinstance(variableList,list)):
@@ -73,7 +54,8 @@ def degreeNPolyMultiVar(variableList, *Coeff):
     powerList = []
     for element in powerListIterators:
         if sum(element) == degree: 
-            powerList.append(element)
+            powerList.insert(0,element) 
+            # powerList.append(element)
    
 
     variableModifiedAlsoIncludedPower =[]
@@ -83,37 +65,30 @@ def degreeNPolyMultiVar(variableList, *Coeff):
             variableModifiedAlsoIncludedPower[index]= numpy.float64(1)
 
     
-
+    # ---- values of variables are devided by a big value so they won't
+    # overflow
+    newVariableModified = [] 
+    for element in variableModified:
+        if  (isinstance(element, int) or isinstance(element, float)):
+            newVariableModified.append(float(element)/degreeNPolyMultiVarDivider)
+        else:
+            newVariableModified.append(element)
+    
     for index in range(0,len(powerList)):
         for variableIndex in range(1, numberOfVar + 1):
-            variableModifiedAlsoIncludedPower[index] *= pow(numpy.float64(variableModified[variableIndex]), numpy.float64(powerList[index][variableIndex - 1]))
-    
-#    print "*****************" 
-#    print "here is power list" + str(powerList)
-#    print "variableModified" + str(variableModified)
-#    print "modified include power" + str(variableModifiedAlsoIncludedPower) 
-#    print "***************" 
-    varibleListModifiedArray1D = numpy.array(variableModifiedAlsoIncludedPower)
-    varibleListModifiedArray2D = varibleListModifiedArray1D.reshape((1,-1))
-    varibleListModifiedMatrix  = numpy.mat(varibleListModifiedArray2D.T)
+            variableModifiedAlsoIncludedPower[index] *= pow(newVariableModified[variableIndex], powerList[index][variableIndex - 1])
 
-    CoeffArray1D = numpy.array(copy.copy(Coeff))
-    CoeffArray2D= CoeffArray1D.reshape((1,-1))
-    CoeffMatrix = numpy.mat(CoeffArray2D) 
-#    print "coeffMatrix" + str(CoeffMatrix)
-#    print "variblListModified Matrix" + str(varibleListModifiedMatrix)
-#    print (CoeffMatrix*varibleListModifiedMatrix).item(0,0)
-
-    return (CoeffMatrix*varibleListModifiedMatrix).item(0,0)
+    return numpy.dot(Coeff, variableModifiedAlsoIncludedPower)
 
 
 
 global funcNumberOfCoeffDic
 funcNumberOfCoeffDic = {}
-funcNumberOfCoeffDic[polyThree] = 4
-funcNumberOfCoeffDic[polyTwo] = 3
-funcNumberOfCoeffDic[multiVarFoo2] = 1
-#funcNumberOfCoeffDic[degreeOnePolyMultiVar] = 2
-#funcNumberOfCoeffDic[degreeNPolyMultiVar] = 3
-funcNumberOfCoeffDic[multiVarFoo3] = 1
+funcNumberOfCoeffDic[polyOne] = 6
+funcNumberOfCoeffDic[polyOneUnBallenced] = 4
+# funcNumberOfCoeffDi
+# funcNumberOfCoeffDic[polyThree] = 4
+# funcNumberOfCoeffDic[polyTwo] = 3
+# funcNumberOfCoeffDic[multiVarFoo2] = 1
+# funcNumberOfCoeffDic[multiVarFoo3] = 1
 funcNumberOfCoeffDic[degreeNPolyMultiVar] = 2

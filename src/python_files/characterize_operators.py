@@ -20,11 +20,15 @@
 # @brief  this file run the  the whole tool chain 
 # @author Behzad Boroujerdian
 # @date 2015-07-01
-from curve_fit import *
+import shutil
+from os.path import expanduser 
 import itertools
 import pylab
 import sys
 import os
+import datetime
+from collections import defaultdict 
+
 from src_parse_and_apx_op_space_gen import *
 from modify_operator_sample_file import *
 #from sample_operand_and_sweep_apx_space import *
@@ -37,10 +41,38 @@ from write_readable_output import *
 from clean_up import *
 from simulating_annealer import *
 from misc import *
-import datetime
+from curve_fit import *
+logFileAddress = "/home/polaris/behzad/apx_tool_chain/generated_text/" + settings.logFileName
 
 
-def parseLowUpBounderyFile(lowUpBounderyFileName):
+def getOperandsInfoForOperatorCharacterization(operandsInfoForOperatorCharacterizationFullAddress, requiredOperandsInfoLengh):
+    try:
+        f = open(operandsInfoForOperatorCharacterizationFullAddress)
+    except IOError:
+        handleIOError(operandsInfoForOperatorCharacterizationFullAddress,
+                "generating operands for characterization of operators")
+        exit()
+
+    else:
+        operatoIndex = 0 
+        operator_s_operandsInfoList = [] 
+        with f:
+            for line in f:
+                if len(line) != 0:
+                    operator_s_operandsInfoList.append([])
+                    operator_s_operandsInfoList[operatorIndex] += line.replace(',', ' ').replace('/',' ').replace(';', ' ').split(' ') #find the lines with key word and write it to another file
+                    assert(len(operator_s_operandsInfoList[operandIndex]) ==
+                            requiredOperandsInfoListLengh), "take a lookat at the "
+                    + str(operandsInfoForOperatorCharacterizationFullAddress) + " file. This file does not contain the correct format for the  operands. proper format needs to follow the listOfOperandOneGenValues variable order"
+                    operatoIndex += 1
+    
+      
+    print operator_s_operandsInfoList
+    sys.exit()
+    return operator_s_operandsInfoList
+    
+
+def parseLowUpBounderyFile(lowUpBounderyFileName, numberOfInputs):
     if not(os.path.isfile(lowUpBounderyFileName)):
         print "the source file doesn't exist"
         exit();
@@ -54,7 +86,7 @@ def parseLowUpBounderyFile(lowUpBounderyFileName):
     lowerBoundInput = []
     upperBoundOutput = []
     lowerBoundOutput = []
-    for i in range(0,4):
+    for i in range(numberOfInputs):
         upperBoundInput.append([])
         lowerBoundInput.append([])
  
@@ -96,6 +128,7 @@ def parseLowUpBounderyFile(lowUpBounderyFileName):
                 continue
         
             if upperBoundInputTurn:
+                print number 
                 upperBoundInput[number] = [int(i) for i in words]
                 number +=1
                 continue
@@ -120,14 +153,11 @@ def parseLowUpBounderyFile(lowUpBounderyFileName):
 
 def generateOperandList(numberOfOperands, operandExactValueLowerBound, operandExactValueUpperBound, maxDevPercentage, workWithNegativeNumbers, operandExactValueStep, numberOfValuesBetweenExactAndDeviation):
     
-    if (numberOfOperands != 2):
-        print "*************ERROR*********"
-        print "generateOperandList module is not functional for operators with more than 2 operands" 
-        exit()
+    assert (numberOfOperands == 2), "generateOperandList module is not functional for operators with more than 2 operands"
     
     results = {} 
     resultsPermutedDic = {}
-
+    
     #---------guide:::  go through the exact values
     for  operandExactValue in range(operandExactValueLowerBound, operandExactValueUpperBound, operandExactValueStep):
         #---------guide:::  find the boundaries for each exact values
@@ -199,15 +229,17 @@ def generateOperandListEachOperandUnique(numberOfOperands, operandOneExactValueL
         exit()
 
     
-    results = {} 
-    resultsPermutedDic = {}
-
     #---------guide:::  go through the exact values
-    for  operandOneExactValue in range(operandOneExactValueLowerBound, operandOneExactValueUpperBound, operandOneExactValueStep):
+    results = defaultdict(list)
+    for  operandOneExactValue in range(int(operandOneExactValueLowerBound),
+            int(operandOneExactValueUpperBound), int(operandOneExactValueStep)):
         #---------guide:::  find the boundaries for each exact values
         deviationUpperBound = int(maxOneDevPercentage*operandOneExactValue)
         deviationLowerBound = int(maxOneDevPercentage*operandOneExactValue)
         deviationStep =  int(deviationUpperBound/numberOfValuesBetweenExactAndDeviationOne)
+        if (deviationStep == 0):
+            deviationStep = 1
+
         operandValueUpperBound = operandOneExactValue + deviationUpperBound
         operandValueLowerBound = operandOneExactValue - deviationLowerBound
         if (operandValueLowerBound < 0):
@@ -215,48 +247,42 @@ def generateOperandListEachOperandUnique(numberOfOperands, operandOneExactValueL
         
         #---------guide:::  go through the values within the radius of the deviation for each exact value
         for value in range(operandValueLowerBound, operandValueUpperBound, deviationStep):
-            if not((operandOneExactValue, deviationUpperBound) in results.keys()):
-                results[(operandOneExactValue, deviationUpperBound)] = [value]
-            else:
-                results[(operandOneExactValue, deviationUpperBound)] += [value]
-
-
+            results[(operandOneExactValue, deviationUpperBound)].append(value)
     operandOneResults = copy.copy(results)
-    results = {} 
-    resultsPermutedDic = {}
-
-
+    
+    
     #---------guide:::  go through the exact values
-    for  operandTwoExactValue in range(operandTwoExactValueLowerBound, operandTwoExactValueUpperBound, operandTwoExactValueStep):
+    results = {} 
+    results = defaultdict(list)
+    for  operandTwoExactValue in range(int(operandTwoExactValueLowerBound),
+            int(operandTwoExactValueUpperBound), int(operandTwoExactValueStep)):
         #---------guide:::  find the boundaries for each exact values
         deviationUpperBound = int(maxTwoDevPercentage*operandTwoExactValue)
         deviationLowerBound = int(maxTwoDevPercentage*operandTwoExactValue)
         deviationStep =  int(deviationUpperBound/numberOfValuesBetweenExactAndDeviationTwo)
+        if (deviationStep == 0):
+            deviationStep = 1
         operandValueUpperBound = operandTwoExactValue + deviationUpperBound
         operandValueLowerBound = operandTwoExactValue - deviationLowerBound
         if (operandValueLowerBound < 0):
             operandValueLowerBound = 0
-        
+         
         #---------guide:::  go through the values within the radius of the deviation for each exact value
         for value in range(operandValueLowerBound, operandValueUpperBound, deviationStep):
-            if not((operandTwoExactValue, deviationUpperBound) in results.keys()):
-                results[(operandTwoExactValue, deviationUpperBound)] = [value]
-            else:
-                results[(operandTwoExactValue, deviationUpperBound)] += [value]
-
-
+            results[(operandTwoExactValue, deviationUpperBound)].append(value)
     operandTwoResults = copy.copy(results)
 
-#    #---------guide::: permuting the results
+    #---------guide::: permuting the results
+    resultsPermutedDic = {}
     for key1 in operandOneResults.keys():
         for key2 in operandTwoResults.keys(): 
             beforePermutationList = [operandOneResults[key1], operandTwoResults[key2]]
             beforePermutationTuple = tuple(beforePermutationList) 
+            print beforePermutationTuple
             #resultsPermuted = list(itertools.product(*(results[key], results[key])))
             resultsPermuted = list(itertools.product(*beforePermutationTuple))
             resultsPermutedDic[(key1[0], key1[1],key2[0],key2[1])] = resultsPermuted 
             #resultsPermutedDic[(key1,key2)] = resultsPermuted 
-
 
     return resultsPermutedDic 
 
@@ -334,14 +360,8 @@ def findLowAndUpBounderies(CSrcFolderAddress, CSrcFileAddress , generateMakeFile
     os.system("mkdir " + rootResultFolderName)
     executableName = "tool_exe" #src file to be analyzed
     CBuildFolder = rootFolder + "/" + settings.CBuildFolderName
-    #get the input to the executable 
-    executableInputList = []
-    print "please provide the inputs to the executable. when done, type type" 
-    input = raw_input('provide the input: ')
-    while (input != "done"):
-        executableInputList.append(input)
-        input = raw_input('provide the next input: ')
     
+    executableInputList = [] #not necessary anymore
     #only the src file needs to be validated. The other inputs will be valideated in the lateer stages
     if not(os.path.isfile(CSrcFileAddress)):
         print "the file with the name: " + CSrcFileAddress + "which contains the csource file address does not exist"
@@ -421,6 +441,13 @@ def findLowAndUpBounderies(CSrcFolderAddress, CSrcFileAddress , generateMakeFile
    
     #---------guide:::  generate a list of all possible cases for each operator
     allPossibleScenariosForEachOperator = generateAllPossibleScenariosForEachOperator(rootResultFolderName, lAllOpsInSrcFile)
+    
+    logFileP = open(logFileAddress, "w")
+    logFileP.write("all possible scenaris for each operator " +
+            str(allPossibleScenariosForEachOperator) + "\n")
+    logFileP.write("make sure that this list is tuned using settings file\n")
+    logFileP.close() 
+    
     #---------guide:::  generate all possible apx setUps Possible (mainly used for full permutation design exploration, otherwise called exhustive search)
     allPossibleApxScenarioursList = generateAllPossibleApxScenariousList(allPossibleScenariosForEachOperator)
     IOAndProcessCharFileName = rootResultFolderName + "/" + settings.IOAndProcessCharFileName
@@ -433,112 +460,110 @@ def findLowAndUpBounderies(CSrcFolderAddress, CSrcFileAddress , generateMakeFile
     timeBeforeFindingResults = datetime.datetime.now()
     
     mode = "allPermutations"
-    
     desiredNoise = 4
     
-    
-#    for  key in operandDic:
-#        print "*********" 
-#        print key 
-#        print operandDic[key]
-#
-
-#    for key in operandDic.keys(): 
-#        #operandList = [[2,4], [3,5]]
-#        operandList = operandDic[key]
-#        print key 
-#        print operandList 
-     
+        
     numberOfKeys = len(operandDic.keys()) 
     firstTime = True 
     keyIndex = 0 
     OneTimeImplementationTime = 0 
-    for key in operandDic.keys(): 
-        if not(firstTime): 
-            print "\n" 
-            print "\ntime remaining: " + str((numberOfKeys - keyIndex)*OneTimeImplementationTime) + " second   " + " or " +  str(((numberOfKeys - keyIndex)*OneTimeImplementationTime)/60) + " in minute"
-        else:
+    for operand,operandUnfolded in operandDic.items(): 
+        # ---- getting timing info
+        if (firstTime):
             timeBeforeFindingResults = datetime.datetime.now()
 
-        #operandList = [[2,4], [3,5]]
-        operandList = operandDic[key]
+        operandString = ' '.join(str(e) for e in [operand[0], operand[2]])
+        writeOperandInOperandFile(operandString, operandFileName)
+        CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings.rawResultFolderName + "/" + settings.csourceOutputFileName + str('0') + ".txt" #where to collect C++ source results
+        operatorSampleFileFullAddress = rootResultFolderName + "/" + settings.operatorSampleFileName
         
-        for operandElement in operandList:
+        #---------guide:::  getting accurate values associated with the CSource output
+        apxIndexSetUp = 0 #zero is associated with the accurate results (this is a contract that needs to be obeyed)
+        status, setUp = generateAPossibleApxScenarios(rootResultFolderName + "/" + settings.AllPossibleApxOpScenarios, allPossibleApxScenarioursList , apxIndexSetUp, mode) 
+        #---------guide:::  erasing the previuos content of the file
+        CSourceOutputForVariousSetUpP = open(CSourceOutputForVariousSetUpFileName, "w").close()
+        #---------guide:::  modify the operator sample file
+        modifyOperatorSampleFile(operatorSampleFileFullAddress, setUp)
+        #---------guide:::  run the CSrouce file with the new setUp(operators)
+        make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandFileName)
+        accurateValues = extractAccurateValues(CSourceOutputForVariousSetUpFileName)
+        
+        # ---- got through each operandElement and find noise with various apx
+        #    ops
+        lowerBounderyDic = defaultdict(list)        
+        upperBounderyDic = defaultdict(list)        
+        noise = [[] for i in range(len(operandUnfolded))]
+        config = [[] for i in range(len(operandUnfolded))]
+        operandIndex = 0 
+        for operandElement in operandUnfolded:
+            apxIndexSetUp = 0 #zero is associated with the accurate results (this is a contract that needs to be obeyed)
+            print operandElement 
             if not(firstTime): 
                 print ":::::::::::::::::::::::" 
                 print "\ntime remaining: " + str((numberOfKeys - keyIndex)*OneTimeImplementationTime) + " second   " + " or " +  str(((numberOfKeys - keyIndex)*OneTimeImplementationTime)/60) + " in minute"
                 print ":::::::::::::::::::::::" 
-            operand = ' '.join(str(e) for e in operandElement)
             
-            #---------guide:::  write the operand in the operandFile
-            writeOperandInOperandFile(operand, operandFileName)
-            
-            #clearly state where the new results associated with the new input starts 
-            CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings.rawResultFolderName + "/" + settings.csourceOutputFileName + str('0') + ".txt" #where to collect C++ source results
-            accurateValues = []
-            noise.append([])
-            config.append( [])
+           
             operatorSampleFileFullAddress = rootResultFolderName + "/" + settings.operatorSampleFileName
+            operandElementString = ' '.join(str(e) for e in operandElement)
             
-            #---------guide:::  getting accurate values associated with the CSource output
-            apxIndexSetUp = 0 #zero is associated with the accurate results (this is a contract that needs to be obeyed)
-            status, setUp = generateAPossibleApxScenarios(rootResultFolderName + "/" + settings.AllPossibleApxOpScenarios, allPossibleApxScenarioursList , apxIndexSetUp, mode) 
-            #---------guide:::  erasing the previuos content of the file
-            CSourceOutputForVariousSetUpP = open(CSourceOutputForVariousSetUpFileName, "w").close()
-            #---------guide:::  modify the operator sample file
-            modifyOperatorSampleFile(operatorSampleFileFullAddress, setUp)
-            #---------guide:::  run the CSrouce file with the new setUp(operators)
-            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandFileName)
-
-            #---------guide::: noise
-            accurateValues = extractAccurateValues(CSourceOutputForVariousSetUpFileName)
+            writeOperandInOperandFile(operandElementString, operandFileName)
+            CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings.rawResultFolderName + "/" + settings.csourceOutputFileName + str('0') + ".txt" #where to collect C++ source results
             
             #---------guide:::  make a apx set up and get values associated with it
             while (True): #break when a signal is raised as done
-                #---------guide:::  get a possible setUp
-                status, setUp = generateAPossibleApxScenarios(rootResultFolderName + "/" + settings.AllPossibleApxOpScenarios, allPossibleApxScenarioursList , apxIndexSetUp,  "allPermutations")
-
+                status, setUp = generateAPossibleApxScenarios(rootResultFolderName
+                        + "/" + settings.AllPossibleApxOpScenarios, allPossibleApxScenarioursList , apxIndexSetUp,  "allPermutations")
+                
                 #---------guide:::  collect data
                 configValue = polishSetup(setUp) #just to make it more readable
                 inputFileNameListValue = [operandFileName] 
-
-                #---------guide:::  erasing the previuos content of the file
                 CSourceOutputForVariousSetUpP = open(CSourceOutputForVariousSetUpFileName, "w").close()
-
-                #---------guide:::  modify the operator sample file
                 modifyOperatorSampleFile(operatorSampleFileFullAddress, setUp)
-                #---------guide:::  run the CSrouce file with the new setUp(operators)
                 make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandFileName)
-
-                #---------guide::: noise
-                noiseValue = [extractNoiseForOneInput(CSourceOutputForVariousSetUpFileName , accurateValues)]
-
-                #---------guide:::  if havn't gotten the accurate value yet, the first value provided is. Thus, this value is the accurate value
-
+                noiseValue = [int(extractNoiseForOneInput(CSourceOutputForVariousSetUpFileName
+                    , accurateValues))]
                 noise[operandIndex] += noiseValue
                 config[operandIndex] +=configValue
                 apxIndexSetUp +=1
                 if (status == "done"):
                     break;
-
+            
             #---------guide:::  collect the noise information
             operandInfoNoiseDic[operandIndex] = noise[operandIndex]
             #print operandInfoNoiseDic
             
             #---------guide:::  find the low and high bit that places the noise within the desired one
-            upperBound, lowerBound = findApxBitRange(config[operandIndex], noise[operandIndex], desiredNoise)
+            uniqueNoiseValues = list(set(noise[operandIndex])) 
+            for uniqueValue in uniqueNoiseValues: 
+                upperBounderyDic[uniqueValue].append(max([i for i,j in zip(count(), 
+                    noise[operandIndex])if j == uniqueValue]))
+                lowerBounderyDic[uniqueValue].append(min([i for i,j in zip(count(), 
+                    noise[operandIndex])if j == uniqueValue]))
+                # lowerBoundList.append(min([i for i,j in zip(count(), 
+                    # noise[operandIndex])if j == uniqueValue]))
             
-            upperBoundList.append(upperBound)
-            lowerBoundList.append(lowerBound)
+            # upperBound, lowerBound = findApxBitRange(config[operandIndex], noise[operandIndex], desiredNoise)
+            
+            # upperBoundList.append(upperBound)
+            # lowerBoundList.append(lowerBound)
 
             operandIndex += 1
         
         
-        operandInfoApxBitsUpperBoundsDic[key] = min(upperBoundList)
-        operandInfoApxBitsLowerBoundsDic[key] = max(lowerBoundList)
+        print  operandUnfolded
+        print noise 
+        print lowerBounderyDic
+        print upperBounderyDic
+        for deltaY in lowerBounderyDic:
+            operandInfoApxBitsLowerBoundsDic[operand + tuple([deltaY])] = max(lowerBounderyDic[deltaY])
+        for deltaY in upperBounderyDic:
+            operandInfoApxBitsUpperBoundsDic[operand + tuple([deltaY])] = min(upperBounderyDic[deltaY])
+        
+        # operandInfoApxBitsUpperBoundsDic[operand] = min(upperBoundList)
+        # operandInfoApxBitsLowerBoundsDic[operand] = max(lowerBoundList)
         upperBoundList = []
         lowerBoundList = []
-            
         
         if (firstTime): 
             timeAfterFindingResults = datetime.datetime.now()
@@ -561,7 +586,6 @@ def findLowAndUpBounderies(CSrcFolderAddress, CSrcFileAddress , generateMakeFile
     cleanUpExtras(rootResultFolderName) 
     
     
-    
     return upperBoundInputList, upperBoundOutputList, lowerBoundInputList, lowerBoundOutputList 
     
     #---------guide::: show the graph
@@ -576,78 +600,59 @@ def findLowAndUpBounderies(CSrcFolderAddress, CSrcFileAddress , generateMakeFile
 # @brief this is the main function (which takes care of the description mentioned in the file description)
 # 
 # @return : no return
-def characterizeOperator():
-    #---------guide:::  promting ther user regarding the required input 
-    print "the following inputs with the order mentioned needs to be provided"
-    print "1.source folder address"
-    print "2.source file address"
-    print "3.generate Makefile (with YES or NO)"
-    print "4.CBuilderFolder"
-    print "***********"
-    print "5. finalResulstFileName"
-    print "6.top module functionality"
-    #print "8. noiseRequirement"
+def characterizeOperator(CSrcFolderAddress, CSrcFileAddress, generateMakeFile,
+                rootFolder, finalResultFileName,moduleFunctionality, percentageOfDataUsedForTraining,
+            workWithNegativeNumbers , numberOfOperands , listOfOperandOneGenValues, listOfOperandTwoGenValues,
+            minDegree , maxDegree, signalToNoiseRatio):
+
+# characterizeOperator(CSrcFolderAddress, CSrcFileAddress, generateMakeFile,
+        # rootFolder, finalResultFileName, moduleFunctionality, percentageOfDataUsedForTraining,workWithNegativeNumbers = False,numberOfOperands = 2 
+        # ,operandExactValueLowerBound = 10
+        # ,operandExactValueUpperBound = 14
+        # ,operandExactValueStep = 3
+        # ,maxInputOperandDeviation = .2
+        # ,numberOfValuesBetweenExactAndDeviation = 2, minDegree=2, maxDegree = 4, signalToNoiseRatio = .1):
     
-   
-
-    #---------guide:::  validating the number of inputs
-    if len(sys.argv) < 7:
-        print "***ERROR***"
-        print "the following inputs with the order mentioned needs to be provided"
-        print "1.source folder address"
-        print "2.source file address"
-        print "3.generate Makefile (with YES or NO)"
-        print "4.CBuilderFolder"
-        print "***********"
-        print "5. finalResulstFileName"
-        print "6.top module functionality"
-        #print "8. signalToNoiseRatio"
-        exit()
-
-    
-   
-
-    #---------guide:::  acquaring the inputs
-    CSrcFolderAddress = sys.argv[1] #src file to be analyzet
-    CSrcFileAddress = sys.argv[2] #src file to be analyzet
-    #executableName = sys.argv[3] #src file to be analyzed
-    generateMakeFile = sys.argv[3]
-    rootFolder = sys.argv[4] 
-    finalResultFileName = sys.argv[5]
-    moduleFunctionality = sys.argv[6] 
-    #signalToNoiseRatio = float(sys.argv[8])
+    bestFittedFunc = lambda x: x
+    funcCoeff = [] 
+    funcErrorDic = {}
     if not(moduleFunctionality in ["all", "generateOperAndFindBoundery", "onlyFindFittedCurve"]):
         print "****ERROR****"
         print "module functionality needs to be one of the followings"
         print  ["all", "generateOperAndFindBoundery", "onlyFindFittedCurve"]
-        sys.exit()
+        exit()
 
     
+    if (moduleFunctionality == "onlyFindFittedCurve"): 
+        rootResultFolderName = rootFolder + "/" + settings.generatedTextFolderName
     if (moduleFunctionality == "all" or moduleFunctionality == "generateOperAndFindBoundery"):
         #---------guide:::  genrate operands
-        workWithNegativeNumbers = False 
-        numberOfOperands = 2 
-        operandExactValueLowerBound = 3 
-        operandExactValueUpperBound = 8
-        operandExactValueStep = 3 
-        maxInputOperandDeviation = .8
-        numberOfValuesBetweenExactAndDeviation = 2
+        # workWithNegativeNumbers = False 
+        # numberOfOperands = 2 
+        # operandExactValueLowerBound = 10
+        # operandExactValueUpperBound = 14
+        # operandExactValueStep = 3
+        # maxInputOperandDeviation = .2
+        # numberOfValuesBetweenExactAndDeviation = 2
         #---------guide::: uncomment the following lines only if your want to use generateOperandListEachOperandUnique. This function is used in situations where we want the input to the operator to 
         #------------------have different properites (such as lowerBound, upperBound, etc)
-    #    operandTwoExactValueLowerBound = 400
-
-    #    operandTwoExactValueUpperBound = 600
-    #    operandTwoExactValueStep = 100 
-    #    maxInputOperandDeviationTwo = .2
-    #    numberOfValuesBetweenExactAndDeviationTwo = 5 
-    #    
-
-        #operandDic = generateOperandListEachOperandUnique(numberOfOperands, operandExactValueLowerBound, operandExactValueUpperBound, maxInputOperandDeviation, workWithNegativeNumbers, operandExactValueStep, numberOfValuesBetweenExactAndDeviation, operandTwoExactValueLowerBound, operandTwoExactValueUpperBound, maxInputOperandDeviationTwo, operandTwoExactValueStep, numberOfValuesBetweenExactAndDeviationTwo)
-      
-        operandDic = generateOperandList(numberOfOperands, operandExactValueLowerBound, operandExactValueUpperBound, maxInputOperandDeviation, workWithNegativeNumbers, operandExactValueStep, numberOfValuesBetweenExactAndDeviation)
-        upperBoundInputList, upperBoundOutputList, lowerBoundInputList, lowerBoundOutputList = findLowAndUpBounderies(CSrcFolderAddress, CSrcFileAddress , generateMakeFile , finalResultFileName, rootFolder, operandDic)
+         
         
+
+        operandOneExactValueLowerBound, operandOneExactValueUpperBound,operandOneExactValueStep, maxInputOperandDeviationOne, numberOfValuesBetweenExactAndDeviationOne = listOfOperandOneGenValues
+
+        operandTwoExactValueLowerBound, operandTwoExactValueUpperBound, operandTwoExactValueStep, maxInputOperandDeviationTwo, numberOfValuesBetweenExactAndDeviationTwo = listOfOperandTwoGenValues
+        operandDic = generateOperandListEachOperandUnique(numberOfOperands,
+                operandOneExactValueLowerBound, operandOneExactValueUpperBound,
+                maxInputOperandDeviationOne, workWithNegativeNumbers,
+                operandOneExactValueStep,
+                numberOfValuesBetweenExactAndDeviationOne, operandTwoExactValueLowerBound, operandTwoExactValueUpperBound, maxInputOperandDeviationTwo, operandTwoExactValueStep, numberOfValuesBetweenExactAndDeviationTwo)
+      
+        #operandDic2 = generateOperandList(numberOfOperands, operandExactValueLowerBound, operandExactValueUpperBound, maxInputOperandDeviation, workWithNegativeNumbers, operandExactValueStep, numberOfValuesBetweenExactAndDeviation)
+
+        upperBoundInputList, upperBoundOutputList, lowerBoundInputList, lowerBoundOutputList = findLowAndUpBounderies(CSrcFolderAddress, CSrcFileAddress , generateMakeFile , finalResultFileName, rootFolder, operandDic)
         reshapedUpperBoundInput = [] #we need to reshape the input so it can be fed to curv_fit
+                
         for variableNumber in range(0, len(upperBoundInputList[0])):
             reshapedUpperBoundInput.append([])
         
@@ -690,30 +695,179 @@ def characterizeOperator():
         
          
         lowUpBounderyFileP.close()
+    numberOfInputs = 5
+    if (moduleFunctionality == "all" or moduleFunctionality ==
+    "onlyFindFittedCurve"): 
+        reshapedUpperBoundInput, upperBoundOutputList, reshapedLowerBoundInput,
+        lowerBoundOutputList = parseLowUpBounderyFile(rootResultFolderName +
+                "/" + settings.lowUpBounderyFileName, numberOfInputs)
+        numberOfInputsForTraining = int(percentageOfDataUsedForTraining * len(reshapedUpperBoundInput[0]))
+        
+        upperValuesInputTrainingDataRaw = [varValues[:numberOfInputsForTraining] for varValues in reshapedUpperBoundInput]  
+        upperValuesOutputTrainingData = [varValues[:numberOfInputsForTraining] for varValues in [upperBoundOutputList]][0]
+        print "upperValuesOutputTrainingData : " + str(upperValuesOutputTrainingData )
+        upperValuesInputTestDataRaw = [varValues[numberOfInputsForTraining:] for varValues in reshapedUpperBoundInput]  
+        upperValuesOutputTestData = [varValues[numberOfInputsForTraining:] for varValues in [upperBoundOutputList]][0]  
+        
+        lowerValuesInputTrainingDataRaw = [varValues[:numberOfInputsForTraining] for varValues in reshapedLowerBoundInput]  
+        lowerValuesOutputTrainingData = [varValues[:numberOfInputsForTraining] for varValues in [lowerBoundOutputList]][0]
+        lowerValuesInputTestDataRaw = [varValues[numberOfInputsForTraining:] for varValues in reshapedLowerBoundInput]  
+        lowerValuesOutputTestData = [varValues[numberOfInputsForTraining:] for varValues in [lowerBoundOutputList]][0]
 
-
-    if (moduleFunctionality == "all"): 
-        reshapedUpperBoundInput, upperBoundOutputList, reshapedLowerBoundInput, lowerBoundOutputList = parseLowUpBounderyFile(rootResultFolderName + "/" + settings.lowUpBounderyFileName)
-        #bestFittedFunc, funcCoeff, funcErrorDic = findBestFitFunction(inputTrainingData, outputTrainingData, inputTestData, outputTestData, all_funcs.funcNumberOfCoeffDic)
-
-
-    if(moduleFunctionality == "onlyFindFittedCurve"):
-        rootResultFolderName = rootFolder + "/" + settings.generatedTextFolderName
-        reshapedUpperBoundInput, upperBoundOutputList, reshapedLowerBoundInput, lowerBoundOutputList = parseLowUpBounderyFile(rootResultFolderName + "/" + settings.lowUpBounderyFileName)
-        #bestFittedFunc, funcCoeff, funcErrorDic = findBestFitFunction(inputTrainingData, outputTrainingData, inputTestData, outputTestData, all_funcs.funcNumberOfCoeffDic)
-
-    print "***************"
-    print "Upper stuff" 
-    #print upperBoundInputList
-    print upperBoundOutputList
-
-    print reshapedUpperBoundInput 
-    
-    print "***************"
-    print "lower stuff" 
-    #print lowerBoundInputList
-    print lowerBoundOutputList
- 
-    print reshapedLowerBoundInput 
+                
+        maximumAcceptableError = (1 - signalToNoiseRatio)*numpy.float64(sum(upperValuesOutputTestData)/len(upperValuesOutputTestData))
+        bestFittedFunc, funcCoeff, funcErrorDic = findBestFitFunction(upperValuesInputTrainingDataRaw, upperValuesOutputTrainingData, upperValuesInputTestDataRaw, upperValuesOutputTestData, all_funcs.funcNumberOfCoeffDic,maxDegree, minDegree, maximumAcceptableError)
+        
+        
+    return bestFittedFunc, funcCoeff, funcErrorDic
 #
-characterizeOperator()
+
+def characterize_all_operators(CSrcFolderAddress,
+        CSrcFileAddress,generateMakeFile, rootFolder, finalResultFileName,
+        operatorArchiveAddress,  percentageOfDataUsedForTraining,
+        workWithNegativeNumbers, degreeNPolyMultiVarMinDegree,
+        degreeNPolyMultiVarMaxDegree, signalToNoiseRatio,
+        listOfOperandOneGenValues, listOfOperandTwoGenValues):
+
+    numberOfOperands = 2 
+    # degreeNPolyMultiVarMinDegree = 2
+    # degreeNPolyMultiVarMaxDegree = 4
+    # signalToNoiseRatio = .1
+
+
+    # operandOneExactValueLowerBound = 13
+    # operandOneExactValueUpperBound = 20 
+    # operandOneExactValueStep = 3
+    # maxInputOperandDeviationOne = .2
+    # numberOfValuesBetweenExactAndDeviationOne = 2
+
+    # operandTwoExactValueLowerBound = 10 
+    # operandTwoExactValueUpperBound = 20 
+    # operandTwoExactValueStep = 3
+    # maxInputOperandDeviationTwo = .2
+    # numberOfValuesBetweenExactAndDeviationTwo = 5
+        
+        
+    moduleFunctionality = "all"
+    rootResultFolderName = rootFolder + "/" + settings.generatedTextFolderName
+    operandsInfoForOperatorCharacterizationFullAddress = rootFolder + "/" + settings.operandsInfoForOperatorCharacterizationName
+    
+    # requiredOperandsInfoLengh =  10 
+    
+
+  #   write_operands_info_for_operator_characterization()
+    # listOfOperandOneGenValues, listOfOperandTwoGenValues = retrieve_operands_info_for_operator_characterization()
+
+
+    
+    # moduleFunctionality = "onlyFindFittedCurve"
+    # moduleFunctionality = "generateOperAndFindBoundery"
+    lAllOpsInSrcFile = [] 
+    sourceFileParse(CSrcFileAddress, lAllOpsInSrcFile)
+    
+    # operatorsCoeffFileFullAddress = rootFolder + "/" + settings.generatedTextFolderName + "/" + settings.operatorsCoeffFile
+    # print operatorsCoeffFileFullAddress 
+    # operatorsCoeffFileP = open(operatorsCoeffFileFullAddress, "w")
+    
+    write_operands_info_for_operator_characterization()
+    listOfOperandOneGenValues, listOfOperandTwoGenValues = retrieve_operands_info_for_operator_characterization()
+
+
+    for index,item in enumerate(lAllOpsInSrcFile):
+        assert(item in ['MultiplicationOp', 'AdditionOp']), str(item) + " is not a valid operator" 
+        try:
+            operatorAddress = operatorArchiveAddress + "/" + str(item) + ".cpp"
+            print operatorAddress 
+            shutil.copy(operatorAddress, CSrcFileAddress) 
+        except IOError:
+            print "*****************ERROR*********************" 
+            print "can not copy " + str(operatorAddress) + " to " + str(CSrcFileAddress)
+            exit()
+    
+        
+        bestFittedFunc, funcCoeff, funcErrorDic = characterizeOperator(CSrcFolderAddress, CSrcFileAddress, generateMakeFile,
+                rootFolder, finalResultFileName,moduleFunctionality, percentageOfDataUsedForTraining,
+            workWithNegativeNumbers, numberOfOperands,
+            listOfOperandOneGenValues[index], listOfOperandTwoGenValues[index],
+              degreeNPolyMultiVarMinDegree, degreeNPolyMultiVarMaxDegree, signalToNoiseRatio)
+        
+        operatorsCoeffFileP.write("function: \n")
+        operatorsCoeffFileP.write(str(bestFittedFunc[0].__name__) + " " +
+                str(bestFittedFunc[1]) + "\n")
+
+        print bestFittedFunc 
+        
+        # stringToWrite =  " ".join(str(e) for e in funcCoeff)
+        # operatorsCoeffFileP.write("coeffs: \n")
+        # operatorsCoeffFileP.write(stringToWrite + " \n")
+        # operatorsCoeffFileP.write("functionError: \n")
+        # operatorsCoeffFileP.write(str(funcErrorDic[bestFittedFunc]))
+        # sys.exit()
+
+
+    # characterizeOperator(CSrcFolderAddress, CSrcFileAddress, generateMakeFile, rootFolder, finalResultFileName, moduleFunctionality, percentageOfDataUsedForTraining)
+    operatorsCoeffFileP.close() 
+    # print funcCoeff
+    #
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+test1 = True
+# test1 = False
+
+if (test1):
+    home = expanduser("~") 
+    CSrcFolderAddress =  home + "/apx_tool_chain/src/CSrc/"
+    CSrcFileAddress = home + "/apx_tool_chain/src/CSrc/test.cpp"
+    generateMakeFile = "YES"
+    rootFolder  = home +  "/apx_tool_chain"
+    finalResultFileName =  "finalResult2.txt"
+    moduleFunctionality = "all"
+    #moduleFunctionality = "onlyFindFittedCurve"
+    # moduleFunctionality = "generateOperAndFindBoundery"
+    percentageOfDataUsedForTraining = .7
+    workWithNegativeNumbers = False
+    numberOfOperands = 2 
+    signalToNoiseRatio = .1
+    
+    write_operands_info_for_operator_characterization()
+    listOfOperandOneGenValues, listOfOperandTwoGenValues = retrieve_operands_info_for_operator_characterization()
+    degreeNPolyMultiVarMinDegree = 2
+    degreeNPolyMultiVarMaxDegree = 4
+
+    bestFittedFunc, funcCoeff, funcErrorDic = characterizeOperator(CSrcFolderAddress, CSrcFileAddress, generateMakeFile,
+            rootFolder, finalResultFileName,moduleFunctionality, percentageOfDataUsedForTraining,
+            workWithNegativeNumbers, numberOfOperands,
+            listOfOperandOneGenValues[0], listOfOperandTwoGenValues[0],
+              degreeNPolyMultiVarMinDegree, degreeNPolyMultiVarMaxDegree, signalToNoiseRatio)
+    
+    print bestFittedFunc
+    # print funcCoeff
+    # funcErrorDic 
+
+# test2 = True
+# test2 = False
+if (test2):
+    home = expanduser("~") 
+    CSrcFolderAddress =  home + "/apx_tool_chain/src/CSrc/"
+    CSrcFileAddress = home + "/apx_tool_chain/src/CSrc/test.cpp"
+    generateMakeFile = "YES"
+    rootFolder  = home +  "/apx_tool_chain"
+    finalResultFileName =  "finalResult2.txt"
+    
+    percentageOfDataUsedForTraining = .7
+    workWithNegativeNumbers = False
+    degreeNPolyMultiVarMinDegree = 2
+    degreeNPolyMultiVarMaxDegree = 5 
+    signalToNoiseRatio = .1
+    operatorArchiveAddress = home + "/apx_tool_chain/operator_archive"
+    
+    write_operands_info_for_operator_characterization()
+    listOfOperandOneGenValues, listOfOperandTwoGenValues = retrieve_operands_info_for_operator_characterization()
+
+    characterize_all_operators(CSrcFolderAddress, CSrcFileAddress, generateMakeFile,
+            rootFolder, finalResultFileName, operatorArchiveAddress,  percentageOfDataUsedForTraining,
+            workWithNegativeNumbers, degreeNPolyMultiVarMinDegree,
+            degreeNPolyMultiVarMaxDegree, signalToNoiseRatio,
+            listOfOperandOneGenValues, listOfOperandTwoGenValues)
+
+

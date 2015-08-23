@@ -7,17 +7,11 @@ import all_funcs
 import random
 from joblib import Parallel, delayed  
 import multiprocessing
-
-
-class degreeNPolyMultiVarClass:
-    def __init__(self, maxDegree):
-        self.maxDegree = maxDegree
-        self.degree = 1 
-   
-
-
+from collections import defaultdict
+from operator import *
+from itertools import *
 ## 
-# @brief combination
+# @brief finding combination
 # 
 # @param n
 # @param r
@@ -30,36 +24,56 @@ def nCr(n,r):
     f = math.factorial
     return f(n) / f(r) / f(n-r)
 
-#def polyThree(variableList, coeffList):
-#    return coeffList[0]*pow(variableList[0],3) + coeffList[1]*pow(variableList[0],2) + coeffList[2]*pow(variableList[0],1) + coeffList[3]
-#    
-#def polyTwo(variableList, coeffList):
-#    return coeffList[0]*pow(variableList[0],2) + coeffList[1]*pow(variableList[0],1) + coeffList[2]
-# 
-# 
 
-
+## 
+# @brief running curve_fit. This function is intended for  parallelism is
+# otherwise the functionality intented in this function could be unfolded
+# 
+# @param xdataRaw
+# @param ydata
+# @param degree: only applicable if the func is degreeNPolyMultiVar
+# @param func
+# 
+# @return coefs of the func of concern
 def run_curve_fit(xdataRaw, ydata, degree, func):
+    
     numberOfVar = len(xdataRaw) 
     numberOfCoeff = nCr( degree + numberOfVar - 1, numberOfVar - 1)
     CoeffInitialPoint = tuple([0]*numberOfCoeff)
     extraArgAdded = [degree]*len(xdataRaw[0]) 
     xdata = [extraArgAdded] + xdataRaw
+    
     popt, pcov = curve_fit(func, np.array(xdata),np.array(ydata), CoeffInitialPoint)
+    
     return popt
 
-def findCoefficients(xdataRaw, ydata, funcNumberOfCoeffDic, degreeNPolyMultiVarMaxDegree = 2, degreeNPolyMultiVarMinDegree = 1):
+
+## 
+# @brief this module finds the coefficients for the func keys of the
+# funcNumberOfCoeffDic dictionary, considering the x and y data
+# 
+# @param xdataRaw
+# @param ydata
+# @param funcNumberOfCoeffDic: a dic with the key,value of func,
+#                                              numberOfFuncCoeff
+# @param degreeNPolyMultiVarMaxDegree: the max Degree considerd for degreeNPoly
+# @param degreeNPolyMultiVarMinDegree: the min Degree considered for degreeNPoly 
+# 
+# @return 
+def findCoefficients(xdataRaw, ydata, funcNumberOfCoeffDic,
+        degreeNPolyMultiVarMaxDegree = 2, degreeNPolyMultiVarMinDegree = 1):
+    
+    # ---- an attempt for parallelizing the implementation
     num_cores = multiprocessing.cpu_count()
     print("numCores = " + str(num_cores))
-
     funcCoeffDic = {} 
+    
+    # ---- an attempt for parallelizing the implementation
     for func in funcNumberOfCoeffDic:
-        #-----------------  
-        #---------guide:::  numberOfCoeff is necessary to pass to curvefit (if you want to pass 
-        #-----------------  the coeff as a list. a tuple with this number of elements needs to be
-        #-----------------  generated and passed as initial points to curve_fit. look at CoeffInitialPoint
-        #-----------------  as reference
-        #-----------------  
+        # ---- numberOfCoeff is necessary to pass to curvefit (if you want to pass 
+        # the coeff as a list. a tuple with this number of elements needs to be
+        # generated and passed as initial points to curve_fit. look at
+        # CoeffInitialPoint as reference
         if (func == degreeNPolyMultiVar):
             result =  Parallel(n_jobs=num_cores)(delayed(run_curve_fit)(xdataRaw,ydata, degree, func) for degree in range(degreeNPolyMultiVarMinDegree, degreeNPolyMultiVarMaxDegree))
             for degree in range(degreeNPolyMultiVarMinDegree, degreeNPolyMultiVarMaxDegree):
@@ -72,31 +86,32 @@ def findCoefficients(xdataRaw, ydata, funcNumberOfCoeffDic, degreeNPolyMultiVarM
     
     return funcCoeffDic
     
-def square(list):
-        return [i ** 2 for i in list]
+
+def square(list): return [i ** 2 for i in list]
 
 
 ## 
-# @brief this module is use to generate the list of functions that 
-#        is later used to pick the best function from
+# @brief this function uses the coeffs found previously (using the 
+# inputTraning inputTraining) to implement the function on the inputTestdata
+# The function with the least error (least deviation from the outputTestData
+# wins
+# 
+# @param funcCoeffDic: (func:Coeff)
+# @param inputTestDataRaw: 
+# @param outputTestData:
 # 
 # @return 
-#def funcGenerator(maxDegreeN = 2):
-#    funcNumberOfCoeffDic = {} 
-#    funcNumberOfCoeffDic = copy.copy(all_funcs.funcNumberOfCoeffDic)
-#    
-#    for degree in range(0, len(maxDegreeN)):
-#
-
-
-
-
-def pickBestFit(funcCoeffDic, inputTestDataRaw, outputTestData, degreeNPolyMultiVarMaxDegree = 2):
-    funcErrorListDic = {}
+def pickBestFit(funcCoeffDic, inputTestDataRaw, outputTestData, degreeNPolyMultiVarMaxDegree = 2, maximumAcceptableError = 1000):
+    funcErrorListDic = defaultdict(list)
     funcErrorDic = {}
+    inputReshaped = []
     
-    #---------guide::: go through all functions and find the list of error for each one. This list contains the errors corresponding to each inputTestData
+    # ---- go through all functions and find the list of error for each one. This
+    # list contains the errors corresponding to each inputTestData
     for func in funcCoeffDic.keys():
+        inputReshaped = []
+        
+        # ---- modify the input for degreeNPolyMultivar
         if (func[0] == degreeNPolyMultiVar):
             degree = func[1] 
             numberOfVar = len(inputTestDataRaw) 
@@ -107,45 +122,31 @@ def pickBestFit(funcCoeffDic, inputTestDataRaw, outputTestData, degreeNPolyMulti
         else:
             inputTestData = copy.copy(inputTestDataRaw)
        
+        numberOfTestData =  len(inputTestData[0])
+        numberOfVar = len(inputTestData) 
+        inputReshaped = [[] for _ in range(numberOfTestData)]
         
-        inputReshaped = []
-        for inputNumber in range(0, len(inputTestData[0])):
-            inputReshaped.append([])
-        
-        for index in range(0, len(inputTestData[0])):
-            for inputNumber in range(0, len(inputTestData)):
-                inputReshaped[index].append(inputTestData[inputNumber][index])
+        # ---- reshape the input for the sake of functions compatibility
+        for testDataIndex in range(numberOfTestData):
+            for varIndex in range(numberOfVar):
+                inputReshaped[testDataIndex].append(inputTestData[varIndex][testDataIndex])
 
-        for index in range(0,len(inputReshaped)):
-            #---------guide:::  reshaping the input acceptable for func
-#            for inputNumber in range(0, len(inputTestData)): 
-#                funcInput.append(inputTestData[inputNumber][index])
-#           
-            funcInput = inputReshaped[index]
-            if func in funcErrorListDic: 
-                funcErrorListDic[func].append(math.fabs(outputTestData[index] - func[0](funcInput, *funcCoeffDic[func])))
-            else:
-                funcErrorListDic[func] = [(math.fabs(outputTestData[index] - func[0](funcInput, *funcCoeffDic[func])))]
-    
-    #---------guide::: use sqrt of sum of squre of all error in the error list for each function to calculate the error
-    for func in funcCoeffDic.keys(): 
-        funcErrorDic[func] = math.sqrt(sum(square(funcErrorListDic[func])))
-    
-    #---------guide:::  foo is only defined to initialize bestFittedFunc
-    def foo():
-        return 0
-    
-    bestFittedFunc = foo 
-    minimumError = 10000
+        # ---- find the list of errors associated with each func error
+        for index,inputElement in enumerate(inputReshaped):
+            funcErrorListDic[func].append(math.fabs(outputTestData[index] - func[0](inputElement, *funcCoeffDic[func])))
+                
+    # ---- generate the sqrt of all error for each function
+    funcErrorDic = {key: math.sqrt(sum(square(value)))/len(value) for  key,value in
+            funcErrorListDic.items()} 
    
     #---------guide:::  find the min error
-    for func in funcErrorDic:
-        if funcErrorDic[func] <= minimumError:
-            minimumError = funcErrorDic[func]
-            bestFittedFunc = func
-
-   #assert(bestFittedFunc == foo), "something went wrong because the best fitted function was found to be foo. Note: foo is a dummy function"
-        
+    bestFittedFunc = min(funcErrorDic.items(), key=itemgetter(1))[0]
+   
+    #assert(funcErrorDic[bestFittedFunc] < maximumAcceptableError), str(funcErrorDic[bestFittedFunc])+ " is too big of an error to be acceptable. maximumAcceptableError is " + str(maximumAcceptableError)
+    print bestFittedFunc 
+    print funcCoeffDic[bestFittedFunc] 
+    print funcErrorDic[bestFittedFunc] 
+    sys.exit() 
     return bestFittedFunc, funcErrorDic
 
 
@@ -165,93 +166,68 @@ def pickBestFit(funcCoeffDic, inputTestDataRaw, outputTestData, degreeNPolyMulti
 # @param outputTestData: to test the found coeffs of the funcs and deduce the best fit
 # 
 # @return 
-def findBestFitFunction(inputTrainingData, outputTrainingData, inputTestData, outputTestData, funcNumberOfCoeffDic, degreeNPolyMultiVarMaxDegree, degreeNPolyMultiVarMinDegree):
-    #---------guide:::  find the coeffs for all the functions
+def findBestFitFunction(inputTrainingData, outputTrainingData, inputTestData, outputTestData, funcNumberOfCoeffDic, degreeNPolyMultiVarMaxDegree, degreeNPolyMultiVarMinDegree, maximumAcceptableError):
+    
+    # ---- find coeffs for each function
     funcCoeffDic = findCoefficients(inputTrainingData, outputTrainingData, funcNumberOfCoeffDic, degreeNPolyMultiVarMaxDegree, degreeNPolyMultiVarMinDegree)
-    #---------guide:::  find the bestFittedFunc
-    bestFittedFunc, funcErrorDic = pickBestFit(funcCoeffDic, inputTestData, outputTestData, degreeNPolyMultiVarMaxDegree)
-#    for func in funcErrorDic:
-#        print func
-#        print funcErrorDic[func]
-#     
-#    sys.exit()
+   
+    # ---- find the best function that fits the data using the coeffs above and
+    # testdata
+    bestFittedFunc, funcErrorDic = pickBestFit(funcCoeffDic, inputTestData, outputTestData, degreeNPolyMultiVarMaxDegree, maximumAcceptableError)
+    
     return bestFittedFunc,funcCoeffDic[bestFittedFunc] ,funcErrorDic
+
+
+
+
 
 
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #---------guide::: testing
-def testBestFittedFunc():
+def main():
     #---------guide:::  only applicable to degreeNPolyMultiVar
     foo = degreeNPolyMultiVar
-    degree = 5 
-    maxDegree = 7
-    minDegree = 4 
-    numberOfVar = 4 
-    inputTrainingLowerBound = 100
-    inputTrainingUpperBound = 320
     
-    inputTestLowerBound = 10 
-    inputTestUpperBound = 200
+    degree = 4
+    maxDegree = 5 
+    minDegree = 2
+    
+    numberOfVar = 5 # make sure that this variable is set properly 
+    inputTrainingLowerBound = 10
+    inputTrainingUpperBound = 100 
+    
+    inputTestLowerBound = 80 
+    inputTestUpperBound = 120 
+    
     coeffLowerBound = 5
     coeffUpperBound = 21
     #----------------- 
     
-
-    #----------------- 
-    #---------guide:::  things to change for testing different functions
-    #----------------- 
-    #coeff = [10,14,13,25] 
-    #coeff = [1,14,25] 
-    #coeff = [9, 8, 12] 
-    #coeff = [9, 8, 12] 
     
-    #foo = polyThree 
-    #foo = multiVarFoo2
-    #foo = degreeOnePolyMultiVar
-   
-    
-    #inputTrainingData = [range(0,10)]
-    #inputTrainingData = [[2,4,5,6], [4,5,6,7]]
-    #inputTrainingData = [[2,4,5,6], [4,5,6,7], [3,4,2,7]]
-    #inputTrainingDataRaw = [[2,4,5,6,11, 12,7], [4,5,6,7,10,14,11]]
-            
-
-    #inputTestData = [range(200, 400, 2)]
-    #inputTestData = [range(200, 400, 2), range(300, 500,2)]
-    #inputTestData = [range(200, 400, 2), range(300, 500,2), range(600,800,2)]
-    
-    #inputTestDataRaw = [range(200, 400, 2), range(300, 500,2)]
-        
     maxNumberOfReqCoeff = nCr(maxDegree + numberOfVar - 1, numberOfVar-1)
     inputTestDataLength = random.randrange(maxNumberOfReqCoeff, maxNumberOfReqCoeff+ 1)
     inputTrainingDataLength = random.randrange(maxNumberOfReqCoeff, maxNumberOfReqCoeff+ 1)
-    coeff = [] 
     numberOfReqCoeff = nCr(degree + numberOfVar - 1, numberOfVar-1)
-    for i in range(0, numberOfReqCoeff):
-        coeff.append(random.randrange(coeffLowerBound, coeffUpperBound))
+    
+    # ---- sets coeffs
+    coeff = [random.randrange(coeffLowerBound, coeffUpperBound) for i in range(numberOfReqCoeff)]
     print "coeff is " + str(coeff)
-    #coeff = [ 8, 12, 15,5,8] 
-    inputTrainingDataRaw =[] 
-    for varNumber in range(0, numberOfVar):
-        inputTrainingDataRaw.append([])
-
-    #coeff = [ 8, 12, 15,5,8] 
+    
+    # ---- set training data
+    inputTrainingDataRaw = [[] for _ in range(numberOfVar)]
     for i in range(0, inputTrainingDataLength):
         for varNumber in range(0, numberOfVar):
-            inputTrainingDataRaw[varNumber].append(random.randrange(inputTrainingLowerBound, inputTrainingUpperBound)/float(inputTrainingUpperBound))
-   
-    inputTestDataRaw =[] 
-    for varNumber in range(0, numberOfVar):
-        inputTestDataRaw.append([])
+             #inputTrainingDataRaw[varNumber].append(random.randrange(inputTrainingLowerBound, inputTrainingUpperBound)/float(inputTrainingUpperBound))
+             inputTrainingDataRaw[varNumber].append(random.randrange(inputTrainingLowerBound, inputTrainingUpperBound))
     
+    # ---- set test data
+    inputTestDataRaw =[] 
+    inputTestDataRaw = [[] for _ in range(numberOfVar)]
     for i in range(0, inputTestDataLength):
         for varNumber in range(0, numberOfVar):
-            inputTestDataRaw[varNumber].append(numpy.float64(random.randrange(inputTestLowerBound, inputTestUpperBound))/inputTestUpperBound)
+            inputTestDataRaw[varNumber].append(numpy.float64(random.randrange(inputTestLowerBound, inputTestUpperBound)))
    
-    #-----------------  
-    #-----------------  
-    
          
     #----------------- 
     #---------guide::: this check makes sure to adjust the number of input for 
@@ -272,27 +248,22 @@ def testBestFittedFunc():
         inputTrainingData = inputTrainingDataRaw
         inputTestData = inputTestDataRaw
     
-    outputTrainingData = [] 
     #---------guide:::  the input and output training data should also be given. In this case we are genrating it for functionality verification
     
     #---------guide:::  reshape the training data. This is necessary since 
     #-----------------  the format that curve_fit accept data is odd. 
     inputTrainingReshaped = []
-    for inputNumber in range(0, len(inputTrainingData[0])):
-        inputTrainingReshaped.append([])
+    inputTrainingReshaped = [[] for _ in range(inputTrainingDataLength)]
     
     for index in range(0, len(inputTrainingData[0])):
         for inputNumber in range(0, len(inputTrainingData)):
             inputTrainingReshaped[index].append(inputTrainingData[inputNumber][index])
     
+    outputTrainingData = [] 
     for index in range(0, len(inputTrainingReshaped)):
         outputTrainingData.append(foo(inputTrainingReshaped[index], *coeff))
-    #---------guide:::  the input and output test data should also be given. In this case we are genrating it for functionality verification
-    outputTestData = [] 
-   
+
     
-    #---------guide:::  reshape the test data. This is necessary since 
-    #-----------------  the format that curve_fit accept data is odd. 
     inputTestingReshaped = []
     for inputNumber in range(0, len(inputTestData[0])):
         inputTestingReshaped.append([])
@@ -300,18 +271,27 @@ def testBestFittedFunc():
     for index in range(0, len(inputTestData[0])):
         for inputNumber in range(0, len(inputTestData)):
             inputTestingReshaped[index].append(inputTestData[inputNumber][index])
-
+    
+    outputTestData = [] 
     for index in range(0, len(inputTestData[0])):
         outputTestData.append(numpy.float64(foo(inputTestingReshaped[index], *coeff)))
    
-    bestFittedFunc, funcCoeff, funcErrorDic = findBestFitFunction(inputTrainingDataRaw, outputTrainingData, inputTestDataRaw, outputTestData, all_funcs.funcNumberOfCoeffDic,maxDegree, minDegree)
+    
+    maximumAcceptableError = .1*numpy.float64(sum(outputTestData)/len(outputTestData))
+    print "maximumAcceptableError : " + str(maximumAcceptableError )
+    
+    bestFittedFunc, funcCoeff, funcErrorDic = findBestFitFunction(inputTrainingDataRaw, outputTrainingData, inputTestDataRaw, outputTestData, all_funcs.funcNumberOfCoeffDic,maxDegree, minDegree, maximumAcceptableError)
     
     # print funcError 
-    print "the function that we used: " + str(foo.__name__) +","+ str(degree)
+    print "the function that we used: " + str(foo.__name__) +", "+ str(degree)
     print "the coeff that we started with:" + str(coeff) 
-    print str(bestFittedFunc[0].__name__) + ","+str(bestFittedFunc[1])
+    print funcErrorDic 
+    print str(bestFittedFunc[0].__name__) + ", "+str(bestFittedFunc[1])
     print funcCoeff
+    return bestFittedFunc, funcCoeffDic, funcErrorListDic
 
-test = True
+
+# test = True
+test = False
 if (test): 
-    testBestFittedFunc()
+    main()

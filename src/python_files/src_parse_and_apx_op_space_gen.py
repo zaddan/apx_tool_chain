@@ -31,7 +31,7 @@ import sys
 from GenOpSpace import GenOpSpace
 import os.path
 import settings
-
+from misc import * 
 #CSrcDir = "../MotionEstimation/"
 #CSrcDir = "./"
 #global variables
@@ -60,17 +60,22 @@ def subtract(a, b):
 # 
 # @return no return, infact, lAllOpsInSrcFile is where we store the output
 def sourceFileParse(sourceFileName, lAllOpsInSrcFile):
-    if not(os.path.isfile(sourceFileName)):
-        print "the source file doesn't exist"
-        exit();
-
-    with open(sourceFileName) as f:
-        for line in f:
-            for words in line.replace(',', ' ').replace('/',' ').replace(';', ' ').split(' '): #find the lines with key word and write it to another file
-                if words.strip() in settings.lAccurateOpFlags:
-                    lAllOpsInSrcFile.append(words.strip())
-                if "Ignore" in words.strip() and subtract(words.strip(), "Ignore") in settings.lAccurateOpFlags: #if ignore is part of the words, that means you can ignore that operator, but still add it
-                    lAllOpsInSrcFile.append(words.strip())
+    # if not(os.path.isfile(sourceFileName)):
+        # print "the source file doesn't exist"
+        # exit();
+    try:
+        f = open(sourceFileName)
+    except IOError:
+        handleIOError(sourceFileName, "csource file")
+        exit()
+    else:
+        with f:
+            for line in f:
+                for words in line.replace(',', ' ').replace('/',' ').replace(';', ' ').split(' '): #find the lines with key word and write it to another file
+                    if words.strip() in settings.lAccurateOpFlags:
+                        lAllOpsInSrcFile.append(words.strip())
+                    if "Ignore" in words.strip() and subtract(words.strip(), "Ignore") in settings.lAccurateOpFlags: #if ignore is part of the words, that means you can ignore that operator, but still add it
+                        lAllOpsInSrcFile.append(words.strip())
 
 
 
@@ -106,10 +111,10 @@ def generateAllPossibleApxScenariousList(allPossibleScenariosForEachOperator):
 # @return  no return. outputFile is where all the results are written into
 def generateAPossibleApxScenarios(outputFile, allPossibleApxScenarioursList, permListIndex, mode ):
     setUp = allPossibleApxScenarioursList[permListIndex]
-    
     #writing the result to an output file
     #this step is introduce to clear the content of the file left from that last run
     if (len(allPossibleApxScenarioursList) == (permListIndex + 1)):
+        print permListIndex 
         status = "done" 
     else:
         status = "undone" 

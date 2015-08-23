@@ -110,15 +110,12 @@ def main():
     executableInputList = []
     print "please provide the inputs to the executable. when done, type type" 
     input = raw_input('provide the input: ')
+    
     while (input != "done"):
         executableInputList.append(input)
         input = raw_input('provide the next input: ')
     
-    #only the src file needs to be validated. The other inputs will be valideated in the lateer stages
-    if not(os.path.isfile(CSrcFileAddress)):
-        print "the file with the name: " + CSrcFileAddress + "which contains the csource file address does not exist"
-        exit();
-    
+   
     #checking whether the file (or directory) containging the operands(input) exist or no
     if (AllOperandScenariosInOneFiles): #if a file
         if not(os.path.isfile(AllOperandsFileOrDirectoryName)):
@@ -235,6 +232,7 @@ def main():
     
    
     #---------guide:::  generate a list of all possible cases for each operator
+    
     allPossibleScenariosForEachOperator = generateAllPossibleScenariosForEachOperator(rootResultFolderName, lAllOpsInSrcFile)
     #---------guide:::  generate all possible apx setUps Possible (mainly used for full permutation design exploration, otherwise called exhustive search)
     allPossibleApxScenarioursList = generateAllPossibleApxScenariousList(allPossibleScenariosForEachOperator)
