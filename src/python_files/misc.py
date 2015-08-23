@@ -2,6 +2,7 @@ import math
 from os.path import expanduser 
 import settings 
 import os
+from db_misc import *
 from db_create_table_python_IP import *
 from db_retrieve_table_python_IP import *
 
@@ -21,7 +22,7 @@ def findTotalTime(timeBeforeFindingResults, timeAfterFindingResults):
 
 
 
-def write_operands_info_for_operator_characterizatioa():
+def write_operands_info_for_operator_characterization():
     home = expanduser("~")
     rootFolder =  home +"/" + "apx_tool_chain"
     rootResultFolderName = rootFolder + "/" + settings.generatedTextFolderName
