@@ -2,7 +2,7 @@ import numpy
 import sys
 import itertools
 import copy
-degreeNPolyMultiVarDivider = 100
+degreeNPolyMultiVarDivider = 1
 
 def polyOneUnBallenced(variableList, *Coeff):
     return Coeff[0]*pow(variableList[0],1) + Coeff[1]*pow(variableList[1],5) + Coeff[2]*pow(variableList[2],1) + Coeff[3]*pow(variableList[3], 5)

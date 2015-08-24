@@ -22,14 +22,18 @@ def findTotalTime(timeBeforeFindingResults, timeAfterFindingResults):
 
 
 
-def write_operands_info_for_operator_characterization():
+def write_operands_info_for_operator_characterization_for_one_operator():
     home = expanduser("~")
     rootFolder =  home +"/" + "apx_tool_chain"
     rootResultFolderName = rootFolder + "/" + settings.generatedTextFolderName
     if not os.path.exists(rootResultFolderName):
         handleIOError(rootResultFolderName, "for writing the operands info for operator characterization")
         exit()
-    dbFileName = rootFolder + "/" + settings.operandsInfoForOperatorCharacterizationName
+    
+    
+    dbFileFullAddress = rootFolder + "/" + settings.operandsInfoForOperatorCharacterizationName
+    
+    
     operandOneExactValueLowerBound = 13
     operandOneExactValueUpperBound = 20 
     operandOneExactValueStep = 3
@@ -45,8 +49,11 @@ def write_operands_info_for_operator_characterization():
     tableName = "operandsInfo"
     propsName =  ["names","operandOneInfo" , "operandTwoInfo"]
     propsType = ["int"] +["listFloat"] + ["listFloat"] 
+   
     
     names = range(1)
+    
+    
     operandOneInfo = [[operandOneExactValueLowerBound,operandOneExactValueUpperBound,operandOneExactValueStep, maxInputOperandDeviationOne, numberOfValuesBetweenExactAndDeviationOne]]
     operandTwoInfo = [[operandTwoExactValueLowerBound,operandTwoExactValueUpperBound,operandTwoExactValueStep, maxInputOperandDeviationTwo, numberOfValuesBetweenExactAndDeviationTwo]]
     propList = [names, operandOneInfo, operandTwoInfo]
@@ -57,6 +64,52 @@ def write_operands_info_for_operator_characterization():
         if "list" in argType:
             propList[index] = [' '.join(map(str, element)) for element in propList[index]] 
     createDB(dbFileName, tableName, propsName, propsTypeConverted,propList)
+
+def write_operands_info_for_operator_characterization():
+    home = expanduser("~")
+    rootFolder =  home +"/" + "apx_tool_chain"
+    rootResultFolderName = rootFolder + "/" + settings.generatedTextFolderName
+    if not os.path.exists(rootResultFolderName):
+        handleIOError(rootResultFolderName, "for writing the operands info for operator characterization")
+        exit()
+    
+    
+    dbFileFullAddress = rootFolder + "/" + settings.operandsInfoForOperatorCharacterizationName
+    
+     
+    operandOneExactValueLowerBound = [13, 12]
+    operandOneExactValueUpperBound = [17, 16]
+    operandOneExactValueStep = [3, 3]
+    maxInputOperandDeviationOne = [.2, .2]
+    numberOfValuesBetweenExactAndDeviationOne = [2, 2]
+
+    operandTwoExactValueLowerBound = [10, 12]
+    operandTwoExactValueUpperBound = [14, 16]
+    operandTwoExactValueStep = [3, 3]
+    maxInputOperandDeviationTwo = [.2, .2]
+    numberOfValuesBetweenExactAndDeviationTwo = [2, 2]
+     
+    tableName = "operandsInfo"
+    propsName =  ["names","operandOneInfo" , "operandTwoInfo"]
+    propsType = ["int"] +["listFloat"] + ["listFloat"] 
+   
+    
+    names = range(len(operandOneExactValueLowerBound))
+    operandOneInfo = [] 
+    operandTwoInfo = [] 
+    for index in range(len(operandOneExactValueLowerBound)):
+        operandOneInfo.append([operandOneExactValueLowerBound[index],operandOneExactValueUpperBound[index],operandOneExactValueStep[index], maxInputOperandDeviationOne[index], numberOfValuesBetweenExactAndDeviationOne[index]])
+        operandTwoInfo.append([operandTwoExactValueLowerBound[index],operandTwoExactValueUpperBound[index],operandTwoExactValueStep[index], maxInputOperandDeviationTwo[index], numberOfValuesBetweenExactAndDeviationTwo[index]])
+    
+    propList = [names, operandOneInfo, operandTwoInfo]
+    
+    # ---- body (copy paste the rest)
+    propsTypeConverted = [convert_python_types_to_sqlite(argType) for argType in propsType]
+    for index, argType in enumerate(propsType):
+        if "list" in argType:
+            propList[index] = [' '.join(map(str, element)) for element in propList[index]] 
+     
+    createDB(dbFileFullAddress, tableName, propsName, propsTypeConverted,propList)
 
 
 def retrieve_operands_info_for_operator_characterization():
@@ -72,10 +125,8 @@ def retrieve_operands_info_for_operator_characterization():
     # ---- body (copy past only the line bellow)
     props, propNames, propType = retrieveDB(dbFileName, tableName)
     # names, city, friends, age = [impose_type(propType[index + 1], prop) for index,prop in enumerate(props)]
-    
     # ---- this line changes based on the properties
     names, operandsOneInfo, operandTwoInfo = [impose_type(propsType[index], prop) for index,prop in enumerate(props)]
-
     return operandsOneInfo, operandTwoInfo 
 
 

@@ -143,10 +143,6 @@ def pickBestFit(funcCoeffDic, inputTestDataRaw, outputTestData, degreeNPolyMulti
     bestFittedFunc = min(funcErrorDic.items(), key=itemgetter(1))[0]
    
     #assert(funcErrorDic[bestFittedFunc] < maximumAcceptableError), str(funcErrorDic[bestFittedFunc])+ " is too big of an error to be acceptable. maximumAcceptableError is " + str(maximumAcceptableError)
-    print bestFittedFunc 
-    print funcCoeffDic[bestFittedFunc] 
-    print funcErrorDic[bestFittedFunc] 
-    sys.exit() 
     return bestFittedFunc, funcErrorDic
 
 

@@ -42,6 +42,9 @@ from clean_up import *
 from simulating_annealer import *
 from misc import *
 from curve_fit import *
+from db_create_table_python_IP import *
+from db_retrieve_table_python_IP import *
+
 logFileAddress = "/home/polaris/behzad/apx_tool_chain/generated_text/" + settings.logFileName
 
 
@@ -67,8 +70,6 @@ def getOperandsInfoForOperatorCharacterization(operandsInfoForOperatorCharacteri
                     operatoIndex += 1
     
       
-    print operator_s_operandsInfoList
-    sys.exit()
     return operator_s_operandsInfoList
     
 
@@ -331,7 +332,7 @@ def findApxBitRange(config, noiseList, desiredNoise):
         if not(i in acceptableIndexArray):
             print "****ERROR****"
             print "this operator is not continuous. This means that there are some bits in the middle of the range that do not satisfy the nosie requirements. this means that the operator is not completely increasing or decreasing"
-            print exit()
+            exit()
 
     upperBound = acceptableIndexArray.max()
     lowerBound = acceptableIndexArray.min()
@@ -605,80 +606,48 @@ def characterizeOperator(CSrcFolderAddress, CSrcFileAddress, generateMakeFile,
             workWithNegativeNumbers , numberOfOperands , listOfOperandOneGenValues, listOfOperandTwoGenValues,
             minDegree , maxDegree, signalToNoiseRatio):
 
-# characterizeOperator(CSrcFolderAddress, CSrcFileAddress, generateMakeFile,
-        # rootFolder, finalResultFileName, moduleFunctionality, percentageOfDataUsedForTraining,workWithNegativeNumbers = False,numberOfOperands = 2 
-        # ,operandExactValueLowerBound = 10
-        # ,operandExactValueUpperBound = 14
-        # ,operandExactValueStep = 3
-        # ,maxInputOperandDeviation = .2
-        # ,numberOfValuesBetweenExactAndDeviation = 2, minDegree=2, maxDegree = 4, signalToNoiseRatio = .1):
-    
-    bestFittedFunc = lambda x: x
-    funcCoeff = [] 
-    funcErrorDic = {}
-    if not(moduleFunctionality in ["all", "generateOperAndFindBoundery", "onlyFindFittedCurve"]):
-        print "****ERROR****"
-        print "module functionality needs to be one of the followings"
-        print  ["all", "generateOperAndFindBoundery", "onlyFindFittedCurve"]
-        exit()
+    bestFittedFunc  = []
+    funcCoeff = []
+    funcErrorDic = [] 
+    acceptableModes =  ["genOperandFindBounderiesFindBestFittedCurve", "genOperandFindBounderies", "FindBestFittedCurve"]
+    assert(moduleFunctionality in acceptableModes), str(moduleFunctionality) + " is not an acceptable Mode"
+    rootResultFolderName = rootFolder + "/" + settings.generatedTextFolderName
+    assert(os.path.isdir(rootResultFolderName)), rootResultFolderName + " is not a valid directory"
 
-    
-    if (moduleFunctionality == "onlyFindFittedCurve"): 
-        rootResultFolderName = rootFolder + "/" + settings.generatedTextFolderName
-    if (moduleFunctionality == "all" or moduleFunctionality == "generateOperAndFindBoundery"):
-        #---------guide:::  genrate operands
-        # workWithNegativeNumbers = False 
-        # numberOfOperands = 2 
-        # operandExactValueLowerBound = 10
-        # operandExactValueUpperBound = 14
-        # operandExactValueStep = 3
-        # maxInputOperandDeviation = .2
-        # numberOfValuesBetweenExactAndDeviation = 2
-        #---------guide::: uncomment the following lines only if your want to use generateOperandListEachOperandUnique. This function is used in situations where we want the input to the operator to 
-        #------------------have different properites (such as lowerBound, upperBound, etc)
-         
-        
-
+    if (moduleFunctionality == "genOperandFindBounderiesFindBestFittedCurve" or moduleFunctionality == "genOperandFindBounderies"):
+        # ---- unpacking
         operandOneExactValueLowerBound, operandOneExactValueUpperBound,operandOneExactValueStep, maxInputOperandDeviationOne, numberOfValuesBetweenExactAndDeviationOne = listOfOperandOneGenValues
-
         operandTwoExactValueLowerBound, operandTwoExactValueUpperBound, operandTwoExactValueStep, maxInputOperandDeviationTwo, numberOfValuesBetweenExactAndDeviationTwo = listOfOperandTwoGenValues
+        # ---- generating the operand dictionary
         operandDic = generateOperandListEachOperandUnique(numberOfOperands,
                 operandOneExactValueLowerBound, operandOneExactValueUpperBound,
                 maxInputOperandDeviationOne, workWithNegativeNumbers,
                 operandOneExactValueStep,
                 numberOfValuesBetweenExactAndDeviationOne, operandTwoExactValueLowerBound, operandTwoExactValueUpperBound, maxInputOperandDeviationTwo, operandTwoExactValueStep, numberOfValuesBetweenExactAndDeviationTwo)
       
-        #operandDic2 = generateOperandList(numberOfOperands, operandExactValueLowerBound, operandExactValueUpperBound, maxInputOperandDeviation, workWithNegativeNumbers, operandExactValueStep, numberOfValuesBetweenExactAndDeviation)
-
+    # ---- finding the bounderis
+    if (moduleFunctionality == "genOperandFindBounderiesFindBestFittedCurve" or moduleFunctionality == "genOperandFindBounderies"):
         upperBoundInputList, upperBoundOutputList, lowerBoundInputList, lowerBoundOutputList = findLowAndUpBounderies(CSrcFolderAddress, CSrcFileAddress , generateMakeFile , finalResultFileName, rootFolder, operandDic)
+        
+        # ---- reshaping and writing the boundery result
         reshapedUpperBoundInput = [] #we need to reshape the input so it can be fed to curv_fit
-                
-        for variableNumber in range(0, len(upperBoundInputList[0])):
-            reshapedUpperBoundInput.append([])
-        
-        for variableNumber in range(0, len(upperBoundInputList[0])):
-            for inputNumber in range(0, len(upperBoundInputList)):
-                reshapedUpperBoundInput[variableNumber].append(upperBoundInputList[inputNumber][variableNumber])
-        
-       
         reshapedLowerBoundInput = [] #we need to reshape the input so it can be fed to curv_fit
+        for variableNumber in range(0, len(upperBoundInputList[0])):
+              reshapedUpperBoundInput.append([])
+              for inputNumber in range(0, len(upperBoundInputList)):
+                reshapedUpperBoundInput[variableNumber].append(upperBoundInputList[inputNumber][variableNumber])
         for variableNumber in range(0, len(lowerBoundInputList[0])):
             reshapedLowerBoundInput.append([])
-        
-        for variableNumber in range(0, len(lowerBoundInputList[0])):
             for inputNumber in range(0, len(lowerBoundInputList)):
                 reshapedLowerBoundInput[variableNumber].append(lowerBoundInputList[inputNumber][variableNumber])
-
-
-        #---------guide:::  writing the results to the output
-        rootResultFolderName = rootFolder + "/" + settings.generatedTextFolderName
+        
         lowUpBounderyFileP = open(rootResultFolderName + "/" + settings.lowUpBounderyFileName ,"w"); 
         
         lowUpBounderyFileP.write("upperBoundInput: \n")
         for element in reshapedUpperBoundInput:
             lowUpBounderyFileP.write(" ".join(str(e) for e in element))
             lowUpBounderyFileP.write("\n")
-
+        
         lowUpBounderyFileP.write("upperBoundOutput: \n")
         lowUpBounderyFileP.write(" ".join(str(e) for e in upperBoundOutputList))
         lowUpBounderyFileP.write("\n")
@@ -693,11 +662,13 @@ def characterizeOperator(CSrcFolderAddress, CSrcFileAddress, generateMakeFile,
         stringToWrite =  " ".join(str(e) for e in lowerBoundOutputList)
         lowUpBounderyFileP.write(stringToWrite)
         
-         
         lowUpBounderyFileP.close()
+    
     numberOfInputs = 5
-    if (moduleFunctionality == "all" or moduleFunctionality ==
-    "onlyFindFittedCurve"): 
+    
+    # ---- get the reshaped results back from the file that we wrote into
+    if (moduleFunctionality == "genOperandFindBounderiesFindBestFittedCurve" or moduleFunctionality ==
+    "FindBestFittedCurve"): 
         reshapedUpperBoundInput, upperBoundOutputList, reshapedLowerBoundInput,
         lowerBoundOutputList = parseLowUpBounderyFile(rootResultFolderName +
                 "/" + settings.lowUpBounderyFileName, numberOfInputs)
@@ -705,7 +676,6 @@ def characterizeOperator(CSrcFolderAddress, CSrcFileAddress, generateMakeFile,
         
         upperValuesInputTrainingDataRaw = [varValues[:numberOfInputsForTraining] for varValues in reshapedUpperBoundInput]  
         upperValuesOutputTrainingData = [varValues[:numberOfInputsForTraining] for varValues in [upperBoundOutputList]][0]
-        print "upperValuesOutputTrainingData : " + str(upperValuesOutputTrainingData )
         upperValuesInputTestDataRaw = [varValues[numberOfInputsForTraining:] for varValues in reshapedUpperBoundInput]  
         upperValuesOutputTestData = [varValues[numberOfInputsForTraining:] for varValues in [upperBoundOutputList]][0]  
         
@@ -718,7 +688,6 @@ def characterizeOperator(CSrcFolderAddress, CSrcFileAddress, generateMakeFile,
         maximumAcceptableError = (1 - signalToNoiseRatio)*numpy.float64(sum(upperValuesOutputTestData)/len(upperValuesOutputTestData))
         bestFittedFunc, funcCoeff, funcErrorDic = findBestFitFunction(upperValuesInputTrainingDataRaw, upperValuesOutputTrainingData, upperValuesInputTestDataRaw, upperValuesOutputTestData, all_funcs.funcNumberOfCoeffDic,maxDegree, minDegree, maximumAcceptableError)
         
-        
     return bestFittedFunc, funcCoeff, funcErrorDic
 #
 
@@ -727,52 +696,18 @@ def characterize_all_operators(CSrcFolderAddress,
         operatorArchiveAddress,  percentageOfDataUsedForTraining,
         workWithNegativeNumbers, degreeNPolyMultiVarMinDegree,
         degreeNPolyMultiVarMaxDegree, signalToNoiseRatio,
-        listOfOperandOneGenValues, listOfOperandTwoGenValues):
+        listOfOperandOneGenValues, listOfOperandTwoGenValues, moduleFunctionality):
 
+    lOfbestFittedFunc_degree_tuple = [] 
+    funcCoeffList = []
+    funcErrorDicList = [] 
     numberOfOperands = 2 
-    # degreeNPolyMultiVarMinDegree = 2
-    # degreeNPolyMultiVarMaxDegree = 4
-    # signalToNoiseRatio = .1
-
-
-    # operandOneExactValueLowerBound = 13
-    # operandOneExactValueUpperBound = 20 
-    # operandOneExactValueStep = 3
-    # maxInputOperandDeviationOne = .2
-    # numberOfValuesBetweenExactAndDeviationOne = 2
-
-    # operandTwoExactValueLowerBound = 10 
-    # operandTwoExactValueUpperBound = 20 
-    # operandTwoExactValueStep = 3
-    # maxInputOperandDeviationTwo = .2
-    # numberOfValuesBetweenExactAndDeviationTwo = 5
-        
-        
-    moduleFunctionality = "all"
     rootResultFolderName = rootFolder + "/" + settings.generatedTextFolderName
     operandsInfoForOperatorCharacterizationFullAddress = rootFolder + "/" + settings.operandsInfoForOperatorCharacterizationName
-    
-    # requiredOperandsInfoLengh =  10 
-    
-
-  #   write_operands_info_for_operator_characterization()
-    # listOfOperandOneGenValues, listOfOperandTwoGenValues = retrieve_operands_info_for_operator_characterization()
-
-
-    
-    # moduleFunctionality = "onlyFindFittedCurve"
-    # moduleFunctionality = "generateOperAndFindBoundery"
     lAllOpsInSrcFile = [] 
     sourceFileParse(CSrcFileAddress, lAllOpsInSrcFile)
-    
-    # operatorsCoeffFileFullAddress = rootFolder + "/" + settings.generatedTextFolderName + "/" + settings.operatorsCoeffFile
-    # print operatorsCoeffFileFullAddress 
-    # operatorsCoeffFileP = open(operatorsCoeffFileFullAddress, "w")
-    
-    write_operands_info_for_operator_characterization()
-    listOfOperandOneGenValues, listOfOperandTwoGenValues = retrieve_operands_info_for_operator_characterization()
-
-
+   
+    assert(len(lAllOpsInSrcFile) == len(listOfOperandOneGenValues)), "number of operators in the src file need to be the same as the number of GenValues for operandOne(or two)"
     for index,item in enumerate(lAllOpsInSrcFile):
         assert(item in ['MultiplicationOp', 'AdditionOp']), str(item) + " is not a valid operator" 
         try:
@@ -783,20 +718,41 @@ def characterize_all_operators(CSrcFolderAddress,
             print "*****************ERROR*********************" 
             print "can not copy " + str(operatorAddress) + " to " + str(CSrcFileAddress)
             exit()
+        else: 
+            bestFittedFunc, funcCoeff, funcErrorDic = characterizeOperator(CSrcFolderAddress, CSrcFileAddress, generateMakeFile,
+                    rootFolder, finalResultFileName,moduleFunctionality, percentageOfDataUsedForTraining,
+                workWithNegativeNumbers, numberOfOperands,
+                listOfOperandOneGenValues[index], listOfOperandTwoGenValues[index],
+                  degreeNPolyMultiVarMinDegree, degreeNPolyMultiVarMaxDegree, signalToNoiseRatio)
+            
+            lOfbestFittedFunc_degree_tuple.append(str((bestFittedFunc[0].__name__, bestFittedFunc[1])))
+            funcCoeffList.append(funcCoeff)
+            funcErrorDicList.append(funcErrorDic)
+            
+          
+   #      operatorsCoeffFileP.write("function: \n")
+        # operatorsCoeffFileP.write(str(bestFittedFunc[0].__name__) + " " +
+                # str(bestFittedFunc[1]) + "\n")
     
+    print "lOfbestFittedFunc_degree_tuple: " + str(lOfbestFittedFunc_degree_tuple)
+    print "funcCoeffList: " + str(funcCoeffList)
+    print "funcErrorDicList: " + str(funcErrorDicList)
+    
+    # ---- writing the results in a DB file
+    dbFileName = "funcInfo.db" 
+    tableName = "funcInfo"
+    propsName = ["opNumber", "funcName", "funcCoeff"]
+    propsType = ["integer", "text", "listFloat"]
+    propsTypeConverted = [convert_python_types_to_sqlite(argType) for argType in propsType]
+    propList = [range(len(lOfbestFittedFunc_degree_tuple)), [func for func in lOfbestFittedFunc_degree_tuple], funcCoeffList]
+    for index, argType in enumerate(propsType):
+        if "list" in argType:
+            propList[index] = [' '.join(map(str, element)) for element in propList[index]]      
         
-        bestFittedFunc, funcCoeff, funcErrorDic = characterizeOperator(CSrcFolderAddress, CSrcFileAddress, generateMakeFile,
-                rootFolder, finalResultFileName,moduleFunctionality, percentageOfDataUsedForTraining,
-            workWithNegativeNumbers, numberOfOperands,
-            listOfOperandOneGenValues[index], listOfOperandTwoGenValues[index],
-              degreeNPolyMultiVarMinDegree, degreeNPolyMultiVarMaxDegree, signalToNoiseRatio)
-        
-        operatorsCoeffFileP.write("function: \n")
-        operatorsCoeffFileP.write(str(bestFittedFunc[0].__name__) + " " +
-                str(bestFittedFunc[1]) + "\n")
+    print "should be it" 
+    createDB(dbFileName, tableName, propsName, propsTypeConverted, propList)
+    return lOfbestFittedFunc_degree_tuple, funcCoeffList, funcErrorDicList
 
-        print bestFittedFunc 
-        
         # stringToWrite =  " ".join(str(e) for e in funcCoeff)
         # operatorsCoeffFileP.write("coeffs: \n")
         # operatorsCoeffFileP.write(stringToWrite + " \n")
@@ -806,34 +762,38 @@ def characterize_all_operators(CSrcFolderAddress,
 
 
     # characterizeOperator(CSrcFolderAddress, CSrcFileAddress, generateMakeFile, rootFolder, finalResultFileName, moduleFunctionality, percentageOfDataUsedForTraining)
-    operatorsCoeffFileP.close() 
+    # operatorsCoeffFileP.close() 
     # print funcCoeff
     #
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-test1 = True
-# test1 = False
+# test1 = True
+test1 = False
 
 if (test1):
+    # ---- set variables
     home = expanduser("~") 
     CSrcFolderAddress =  home + "/apx_tool_chain/src/CSrc/"
     CSrcFileAddress = home + "/apx_tool_chain/src/CSrc/test.cpp"
     generateMakeFile = "YES"
     rootFolder  = home +  "/apx_tool_chain"
     finalResultFileName =  "finalResult2.txt"
-    moduleFunctionality = "all"
-    #moduleFunctionality = "onlyFindFittedCurve"
-    # moduleFunctionality = "generateOperAndFindBoundery"
+    
+    acceptableModes =  ["genOperandFindBounderiesFindBestFittedCurve", "genOperandFindBounderies", "FindBestFittedCurve"]
+    moduleFunctionality = "genOperandFindBounderiesFindBestFittedCurve"
+    #moduleFunctionality = genOperandFindFindBounderisBestFittedCurve 
+    # moduleFunctionality = "FindBestFittedCurve"
     percentageOfDataUsedForTraining = .7
     workWithNegativeNumbers = False
     numberOfOperands = 2 
     signalToNoiseRatio = .1
-    
-    write_operands_info_for_operator_characterization()
-    listOfOperandOneGenValues, listOfOperandTwoGenValues = retrieve_operands_info_for_operator_characterization()
     degreeNPolyMultiVarMinDegree = 2
     degreeNPolyMultiVarMaxDegree = 4
 
+    # ---- prepare inputs for operand generation and write in a table
+    write_operands_info_for_operator_characterization()
+    # ---- retrieve the infr from the table above
+    listOfOperandOneGenValues, listOfOperandTwoGenValues = retrieve_operands_info_for_operator_characterization()
     bestFittedFunc, funcCoeff, funcErrorDic = characterizeOperator(CSrcFolderAddress, CSrcFileAddress, generateMakeFile,
             rootFolder, finalResultFileName,moduleFunctionality, percentageOfDataUsedForTraining,
             workWithNegativeNumbers, numberOfOperands,
@@ -844,9 +804,22 @@ if (test1):
     # print funcCoeff
     # funcErrorDic 
 
-# test2 = True
-test2 = False
+test2 = True
+# test2 = False
 if (test2):
+    lOfFunc_degree_tuple = [] #contains the (func, degree) tuple
+    props, propNames, propsType = retrieveDB("funcInfo.db" , "funcInfo")
+    propsName = ["opNumber", "funcName", "funcCoeff"]
+    propsType = ["int"] +["text"] + ["listFloat"] 
+    opNumber,lOffuncName_degree_string_tuple, funcCoeff= [impose_type(propsType[index], prop) for index,prop in enumerate(props)]
+    print opNumber
+    print funcCoeff 
+    for funcName_degree_tuple_string_tuple in lOffuncName_degree_string_tuple: 
+        lOfFunc_degree_tuple.append(tuple((eval(eval(funcName_degree_tuple_string_tuple)[0]), eval(funcName_degree_tuple_string_tuple)[1])))
+    
+    sys.exit() 
+     
+    # ---- set variables
     home = expanduser("~") 
     CSrcFolderAddress =  home + "/apx_tool_chain/src/CSrc/"
     CSrcFileAddress = home + "/apx_tool_chain/src/CSrc/test.cpp"
@@ -854,20 +827,26 @@ if (test2):
     rootFolder  = home +  "/apx_tool_chain"
     finalResultFileName =  "finalResult2.txt"
     
+    acceptableModes =  ["genOperandFindBounderiesFindBestFittedCurve", "genOperandFindBounderies", "FindBestFittedCurve"]
+    moduleFunctionality = "genOperandFindBounderiesFindBestFittedCurve"
+    #moduleFunctionality = genOperandFindFindBounderisBestFittedCurve 
+    # moduleFunctionality = "FindBestFittedCurve"
     percentageOfDataUsedForTraining = .7
     workWithNegativeNumbers = False
-    degreeNPolyMultiVarMinDegree = 2
-    degreeNPolyMultiVarMaxDegree = 5 
+    numberOfOperands = 2 
     signalToNoiseRatio = .1
+    degreeNPolyMultiVarMinDegree = 1 
+    degreeNPolyMultiVarMaxDegree = 2 
+    # ---- prepare inputs for operand generation and write in a table
+    write_operands_info_for_operator_characterization()
+    # ---- retrieve the infr from the table above
+    listOfOperandOneGenValues, listOfOperandTwoGenValues = retrieve_operands_info_for_operator_characterization()
     operatorArchiveAddress = home + "/apx_tool_chain/operator_archive"
     
-    write_operands_info_for_operator_characterization()
-    listOfOperandOneGenValues, listOfOperandTwoGenValues = retrieve_operands_info_for_operator_characterization()
-
     characterize_all_operators(CSrcFolderAddress, CSrcFileAddress, generateMakeFile,
             rootFolder, finalResultFileName, operatorArchiveAddress,  percentageOfDataUsedForTraining,
             workWithNegativeNumbers, degreeNPolyMultiVarMinDegree,
             degreeNPolyMultiVarMaxDegree, signalToNoiseRatio,
-            listOfOperandOneGenValues, listOfOperandTwoGenValues)
+            listOfOperandOneGenValues, listOfOperandTwoGenValues, moduleFunctionality)
 
 
