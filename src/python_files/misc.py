@@ -22,49 +22,6 @@ def findTotalTime(timeBeforeFindingResults, timeAfterFindingResults):
 
 
 
-def write_operands_info_for_operator_characterization_for_one_operator():
-    home = expanduser("~")
-    rootFolder =  home +"/" + "apx_tool_chain"
-    rootResultFolderName = rootFolder + "/" + settings.generatedTextFolderName
-    if not os.path.exists(rootResultFolderName):
-        handleIOError(rootResultFolderName, "for writing the operands info for operator characterization")
-        exit()
-    
-    
-    dbFileFullAddress = rootFolder + "/" + settings.operandsInfoForOperatorCharacterizationName
-    
-    
-    operandOneExactValueLowerBound = 13
-    operandOneExactValueUpperBound = 20 
-    operandOneExactValueStep = 3
-    maxInputOperandDeviationOne = .2
-    numberOfValuesBetweenExactAndDeviationOne = 2
-
-    operandTwoExactValueLowerBound = 10 
-    operandTwoExactValueUpperBound = 20 
-    operandTwoExactValueStep = 3
-    maxInputOperandDeviationTwo = .2
-    numberOfValuesBetweenExactAndDeviationTwo = 5
-     
-    tableName = "operandsInfo"
-    propsName =  ["names","operandOneInfo" , "operandTwoInfo"]
-    propsType = ["int"] +["listFloat"] + ["listFloat"] 
-   
-    
-    names = range(1)
-    
-    
-    operandOneInfo = [[operandOneExactValueLowerBound,operandOneExactValueUpperBound,operandOneExactValueStep, maxInputOperandDeviationOne, numberOfValuesBetweenExactAndDeviationOne]]
-    operandTwoInfo = [[operandTwoExactValueLowerBound,operandTwoExactValueUpperBound,operandTwoExactValueStep, maxInputOperandDeviationTwo, numberOfValuesBetweenExactAndDeviationTwo]]
-    propList = [names, operandOneInfo, operandTwoInfo]
-    
-    # ---- body (copy paste the rest)
-    propsTypeConverted = [convert_python_types_to_sqlite(argType) for argType in propsType]
-    for index, argType in enumerate(propsType):
-        if "list" in argType:
-            propList[index] = [' '.join(map(str, element)) for element in propList[index]] 
-    createDB(dbFileName, tableName, propsName, propsTypeConverted,propList)
-
 def write_operands_info_for_operator_characterization():
     home = expanduser("~")
     rootFolder =  home +"/" + "apx_tool_chain"
@@ -105,11 +62,8 @@ def write_operands_info_for_operator_characterization():
     
     # ---- body (copy paste the rest)
     propsTypeConverted = [convert_python_types_to_sqlite(argType) for argType in propsType]
-    for index, argType in enumerate(propsType):
-        if "list" in argType:
-            propList[index] = [' '.join(map(str, element)) for element in propList[index]] 
-     
-    createDB(dbFileFullAddress, tableName, propsName, propsTypeConverted,propList)
+    propsValuesConverted = [convert_python_values_to_sqlite_compatible_values(argType,value) for argType,value in zip(propsType, propList)] 
+    createDB(dbFileFullAddress, tableName, propsName, propsTypeConverted,propsValuesConverted)
 
 
 def retrieve_operands_info_for_operator_characterization():

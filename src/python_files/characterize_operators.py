@@ -48,109 +48,7 @@ from db_retrieve_table_python_IP import *
 logFileAddress = "/home/polaris/behzad/apx_tool_chain/generated_text/" + settings.logFileName
 
 
-def getOperandsInfoForOperatorCharacterization(operandsInfoForOperatorCharacterizationFullAddress, requiredOperandsInfoLengh):
-    try:
-        f = open(operandsInfoForOperatorCharacterizationFullAddress)
-    except IOError:
-        handleIOError(operandsInfoForOperatorCharacterizationFullAddress,
-                "generating operands for characterization of operators")
-        exit()
 
-    else:
-        operatoIndex = 0 
-        operator_s_operandsInfoList = [] 
-        with f:
-            for line in f:
-                if len(line) != 0:
-                    operator_s_operandsInfoList.append([])
-                    operator_s_operandsInfoList[operatorIndex] += line.replace(',', ' ').replace('/',' ').replace(';', ' ').split(' ') #find the lines with key word and write it to another file
-                    assert(len(operator_s_operandsInfoList[operandIndex]) ==
-                            requiredOperandsInfoListLengh), "take a lookat at the "
-                    + str(operandsInfoForOperatorCharacterizationFullAddress) + " file. This file does not contain the correct format for the  operands. proper format needs to follow the listOfOperandOneGenValues variable order"
-                    operatoIndex += 1
-    
-      
-    return operator_s_operandsInfoList
-    
-
-def parseLowUpBounderyFile(lowUpBounderyFileName, numberOfInputs):
-    if not(os.path.isfile(lowUpBounderyFileName)):
-        print "the source file doesn't exist"
-        exit();
-
-    upperBoundInputTurn = False
-    upperBoundOutputTurn = False
-    lowerBoundOutputTurn = False
-    lowerBoundInputTurn = False
-   
-    upperBoundInput =[]
-    lowerBoundInput = []
-    upperBoundOutput = []
-    lowerBoundOutput = []
-    for i in range(numberOfInputs):
-        upperBoundInput.append([])
-        lowerBoundInput.append([])
- 
-    with open(lowUpBounderyFileName) as f:
-        for line in f:
-            words =  line.replace(',', ' ').replace('/',' ').replace(';', ' ').split(' ') #find the lines with key word and write it to another file
-            if "upperBoundInput:" in words:
-                number = 0
-                upperBoundInputTurn = True
-                upperBoundOutputTurn = False
-                lowerBoundOutputTurn = False
-                lowerBoundInputTurn = False
-                continue
-            
-            if "upperBoundOutput:" in words:
-                number = 0
-                upperBoundInputTurn = False 
-                upperBoundOutputTurn = True
-                lowerBoundOutputTurn = False
-                lowerBoundInputTurn = False
-                continue
-
-
-            
-            if "lowerBoundOutput:" in words:
-                number = 0 
-                upperBoundInputTurn = False 
-                upperBoundOutputTurn = False 
-                lowerBoundOutputTurn = True 
-                lowerBoundInputTurn = False
-                continue
-            
-            if "lowerBoundInput:" in words:
-                number = 0 
-                upperBoundInputTurn = False 
-                upperBoundOutputTurn = False 
-                lowerBoundOutputTurn = False 
-                lowerBoundInputTurn = True 
-                continue
-        
-            if upperBoundInputTurn:
-                print number 
-                upperBoundInput[number] = [int(i) for i in words]
-                number +=1
-                continue
-            
-            if lowerBoundInputTurn:
-                lowerBoundInput[number] = [int(i) for i in words]
-                number +=1
-                continue
-
-            if upperBoundOutputTurn:
-                upperBoundOutput = [int(i) for i in words]
-                continue
-
-            
-            if lowerBoundOutputTurn:
-                lowerBoundOutput =  [int(i) for i in words]
-                continue
-
-            
-    
-    return upperBoundInput, upperBoundOutput, lowerBoundInput, lowerBoundOutput 
 
 def generateOperandList(numberOfOperands, operandExactValueLowerBound, operandExactValueUpperBound, maxDevPercentage, workWithNegativeNumbers, operandExactValueStep, numberOfValuesBetweenExactAndDeviation):
     
@@ -593,111 +491,13 @@ def findLowAndUpBounderies(CSrcFolderAddress, CSrcFileAddress , generateMakeFile
     #plt.show() 
 
 
-
-
-
-
-## 
-# @brief this is the main function (which takes care of the description mentioned in the file description)
-# 
-# @return : no return
-def characterizeOperator(CSrcFolderAddress, CSrcFileAddress, generateMakeFile,
-                rootFolder, finalResultFileName,moduleFunctionality, percentageOfDataUsedForTraining,
-            workWithNegativeNumbers , numberOfOperands , listOfOperandOneGenValues, listOfOperandTwoGenValues,
-            minDegree , maxDegree, signalToNoiseRatio):
-
-    bestFittedFunc  = []
-    funcCoeff = []
-    funcErrorDic = [] 
-    acceptableModes =  ["genOperandFindBounderiesFindBestFittedCurve", "genOperandFindBounderies", "FindBestFittedCurve"]
-    assert(moduleFunctionality in acceptableModes), str(moduleFunctionality) + " is not an acceptable Mode"
-    rootResultFolderName = rootFolder + "/" + settings.generatedTextFolderName
-    assert(os.path.isdir(rootResultFolderName)), rootResultFolderName + " is not a valid directory"
-
-    if (moduleFunctionality == "genOperandFindBounderiesFindBestFittedCurve" or moduleFunctionality == "genOperandFindBounderies"):
-        # ---- unpacking
-        operandOneExactValueLowerBound, operandOneExactValueUpperBound,operandOneExactValueStep, maxInputOperandDeviationOne, numberOfValuesBetweenExactAndDeviationOne = listOfOperandOneGenValues
-        operandTwoExactValueLowerBound, operandTwoExactValueUpperBound, operandTwoExactValueStep, maxInputOperandDeviationTwo, numberOfValuesBetweenExactAndDeviationTwo = listOfOperandTwoGenValues
-        # ---- generating the operand dictionary
-        operandDic = generateOperandListEachOperandUnique(numberOfOperands,
-                operandOneExactValueLowerBound, operandOneExactValueUpperBound,
-                maxInputOperandDeviationOne, workWithNegativeNumbers,
-                operandOneExactValueStep,
-                numberOfValuesBetweenExactAndDeviationOne, operandTwoExactValueLowerBound, operandTwoExactValueUpperBound, maxInputOperandDeviationTwo, operandTwoExactValueStep, numberOfValuesBetweenExactAndDeviationTwo)
-      
-    # ---- finding the bounderis
-    if (moduleFunctionality == "genOperandFindBounderiesFindBestFittedCurve" or moduleFunctionality == "genOperandFindBounderies"):
-        upperBoundInputList, upperBoundOutputList, lowerBoundInputList, lowerBoundOutputList = findLowAndUpBounderies(CSrcFolderAddress, CSrcFileAddress , generateMakeFile , finalResultFileName, rootFolder, operandDic)
-        
-        # ---- reshaping and writing the boundery result
-        reshapedUpperBoundInput = [] #we need to reshape the input so it can be fed to curv_fit
-        reshapedLowerBoundInput = [] #we need to reshape the input so it can be fed to curv_fit
-        for variableNumber in range(0, len(upperBoundInputList[0])):
-              reshapedUpperBoundInput.append([])
-              for inputNumber in range(0, len(upperBoundInputList)):
-                reshapedUpperBoundInput[variableNumber].append(upperBoundInputList[inputNumber][variableNumber])
-        for variableNumber in range(0, len(lowerBoundInputList[0])):
-            reshapedLowerBoundInput.append([])
-            for inputNumber in range(0, len(lowerBoundInputList)):
-                reshapedLowerBoundInput[variableNumber].append(lowerBoundInputList[inputNumber][variableNumber])
-        
-        lowUpBounderyFileP = open(rootResultFolderName + "/" + settings.lowUpBounderyFileName ,"w"); 
-        
-        lowUpBounderyFileP.write("upperBoundInput: \n")
-        for element in reshapedUpperBoundInput:
-            lowUpBounderyFileP.write(" ".join(str(e) for e in element))
-            lowUpBounderyFileP.write("\n")
-        
-        lowUpBounderyFileP.write("upperBoundOutput: \n")
-        lowUpBounderyFileP.write(" ".join(str(e) for e in upperBoundOutputList))
-        lowUpBounderyFileP.write("\n")
-        
-        lowUpBounderyFileP.write("lowerBoundInput: \n")
-        for element in reshapedLowerBoundInput:
-            stringToWrite =  " ".join(str(e) for e in element)
-            lowUpBounderyFileP.write(stringToWrite)
-            lowUpBounderyFileP.write("\n")
-        
-        lowUpBounderyFileP.write("lowerBoundOutput: \n")
-        stringToWrite =  " ".join(str(e) for e in lowerBoundOutputList)
-        lowUpBounderyFileP.write(stringToWrite)
-        
-        lowUpBounderyFileP.close()
-    
-    numberOfInputs = 5
-    
-    # ---- get the reshaped results back from the file that we wrote into
-    if (moduleFunctionality == "genOperandFindBounderiesFindBestFittedCurve" or moduleFunctionality ==
-    "FindBestFittedCurve"): 
-        reshapedUpperBoundInput, upperBoundOutputList, reshapedLowerBoundInput,
-        lowerBoundOutputList = parseLowUpBounderyFile(rootResultFolderName +
-                "/" + settings.lowUpBounderyFileName, numberOfInputs)
-        numberOfInputsForTraining = int(percentageOfDataUsedForTraining * len(reshapedUpperBoundInput[0]))
-        
-        upperValuesInputTrainingDataRaw = [varValues[:numberOfInputsForTraining] for varValues in reshapedUpperBoundInput]  
-        upperValuesOutputTrainingData = [varValues[:numberOfInputsForTraining] for varValues in [upperBoundOutputList]][0]
-        upperValuesInputTestDataRaw = [varValues[numberOfInputsForTraining:] for varValues in reshapedUpperBoundInput]  
-        upperValuesOutputTestData = [varValues[numberOfInputsForTraining:] for varValues in [upperBoundOutputList]][0]  
-        
-        lowerValuesInputTrainingDataRaw = [varValues[:numberOfInputsForTraining] for varValues in reshapedLowerBoundInput]  
-        lowerValuesOutputTrainingData = [varValues[:numberOfInputsForTraining] for varValues in [lowerBoundOutputList]][0]
-        lowerValuesInputTestDataRaw = [varValues[numberOfInputsForTraining:] for varValues in reshapedLowerBoundInput]  
-        lowerValuesOutputTestData = [varValues[numberOfInputsForTraining:] for varValues in [lowerBoundOutputList]][0]
-
-                
-        maximumAcceptableError = (1 - signalToNoiseRatio)*numpy.float64(sum(upperValuesOutputTestData)/len(upperValuesOutputTestData))
-        bestFittedFunc, funcCoeff, funcErrorDic = findBestFitFunction(upperValuesInputTrainingDataRaw, upperValuesOutputTrainingData, upperValuesInputTestDataRaw, upperValuesOutputTestData, all_funcs.funcNumberOfCoeffDic,maxDegree, minDegree, maximumAcceptableError)
-        
-    return bestFittedFunc, funcCoeff, funcErrorDic
-#
-
 def characterize_all_operators(CSrcFolderAddress,
         CSrcFileAddress,generateMakeFile, rootFolder, finalResultFileName,
         operatorArchiveAddress,  percentageOfDataUsedForTraining,
         workWithNegativeNumbers, degreeNPolyMultiVarMinDegree,
         degreeNPolyMultiVarMaxDegree, signalToNoiseRatio,
         listOfOperandOneGenValues, listOfOperandTwoGenValues, moduleFunctionality):
-
+    operandDicList = []
     lOfbestFittedFunc_degree_tuple = [] 
     funcCoeffList = []
     funcErrorDicList = [] 
@@ -705,52 +505,175 @@ def characterize_all_operators(CSrcFolderAddress,
     rootResultFolderName = rootFolder + "/" + settings.generatedTextFolderName
     operandsInfoForOperatorCharacterizationFullAddress = rootFolder + "/" + settings.operandsInfoForOperatorCharacterizationName
     lAllOpsInSrcFile = [] 
+    
+    assert(os.path.isfile(originalCSrcFileAddress)), str(originalCSrcFileAddress) + " does not exist" 
+    # CSrcFileAddress = originalCSrcFileAddress + "copy" 
+    # shutil.copy(originalCSrcFileAddress, CSrcFileAddress) 
     sourceFileParse(CSrcFileAddress, lAllOpsInSrcFile)
    
     assert(len(lAllOpsInSrcFile) == len(listOfOperandOneGenValues)), "number of operators in the src file need to be the same as the number of GenValues for operandOne(or two)"
-    for index,item in enumerate(lAllOpsInSrcFile):
-        assert(item in ['MultiplicationOp', 'AdditionOp']), str(item) + " is not a valid operator" 
-        try:
-            operatorAddress = operatorArchiveAddress + "/" + str(item) + ".cpp"
-            print operatorAddress 
-            shutil.copy(operatorAddress, CSrcFileAddress) 
-        except IOError:
-            print "*****************ERROR*********************" 
-            print "can not copy " + str(operatorAddress) + " to " + str(CSrcFileAddress)
-            exit()
-        else: 
-            bestFittedFunc, funcCoeff, funcErrorDic = characterizeOperator(CSrcFolderAddress, CSrcFileAddress, generateMakeFile,
-                    rootFolder, finalResultFileName,moduleFunctionality, percentageOfDataUsedForTraining,
-                workWithNegativeNumbers, numberOfOperands,
-                listOfOperandOneGenValues[index], listOfOperandTwoGenValues[index],
-                  degreeNPolyMultiVarMinDegree, degreeNPolyMultiVarMaxDegree, signalToNoiseRatio)
+    lOfAcceptableModes = [ "all", "findLowUpBounery", "genOperandDicAndFindLowUpBounery", "genOperandDic"]
+    assert(moduleFunctionality in lOfAcceptableModes), str(moduleFunctionality) + " is not and acceptable mode"
+    #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
+    # ---- generating operands
+    #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
+    dbFileName = "operandDic.db"
+    tableName = "operandDic" 
+    if (moduleFunctionality == "all" or moduleFunctionality == "genOperandDic"):
+        for index,item in enumerate(lAllOpsInSrcFile):
+            assert(item in ['MultiplicationOp', 'AdditionOp']), str(item) + " is not a valid operator" 
+            operandOneExactValueLowerBound, operandOneExactValueUpperBound,operandOneExactValueStep, maxInputOperandDeviationOne, numberOfValuesBetweenExactAndDeviationOne = listOfOperandOneGenValues[index]
+            operandTwoExactValueLowerBound, operandTwoExactValueUpperBound, operandTwoExactValueStep, maxInputOperandDeviationTwo, numberOfValuesBetweenExactAndDeviationTwo = listOfOperandTwoGenValues[index]
+            # ---- generating the operand dictionary
+            operandDic = generateOperandListEachOperandUnique(numberOfOperands, operandOneExactValueLowerBound, operandOneExactValueUpperBound, maxInputOperandDeviationOne, workWithNegativeNumbers, operandOneExactValueStep, numberOfValuesBetweenExactAndDeviationOne, operandTwoExactValueLowerBound, operandTwoExactValueUpperBound, maxInputOperandDeviationTwo, operandTwoExactValueStep, numberOfValuesBetweenExactAndDeviationTwo)
+            operandDicList.append(operandDic) 
+        print "operandDicList: " + str(operandDicList)
+         
+        # ---- writing operandDIc in a DB
+        
+        propsName = ["operandNumber", "operandGen", "LOfOperandCombo"]
+        propsType = ["int", "listTuple", "listList"]
+        propList = [range(len(operandDicList)), [operandDic.keys() for operandDic in operandDicList], [operandDic.values() for operandDic in operandDicList]]
+        
+        # ---- body
+        propsTypeConverted = [convert_python_types_to_sqlite(argType) for argType in propsType]
+        propsValuesConverted = [convert_python_values_to_sqlite_compatible_values(argType,value) for argType,value in zip(propsType,propList)] 
+        # ---- creating
+        createDB(dbFileName, tableName, propsName, propsTypeConverted, propsValuesConverted)
+        
+       
+
+    # ---- retreiving
+    props, propNames, _= retrieveDB(dbFileName , tableName)
+    operatorNumber,lOfOperandGens,lOfOperandCombo= [impose_type(propsType[index], prop) for index,prop in enumerate(props)]
+    operandDicList = []
+    for index in range(len(lOfOperandGens)):
+        operandDicList.append(dict(zip(lOfOperandGens[index], lOfOperandCombo[index])))
+    
+    #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
+    # ---- finding lower and upper bounds 
+    #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
+    dbFileName = "lowUpBoundery.db" 
+    tableName = "lowUpBoundery"
+    if (moduleFunctionality == "all" or moduleFunctionality == "findLowUpBounery"  or moduleFunctionality == "genOperandDicAndFindLowUpBounery"):
+        reshapedUpperBoundInput = []
+        reshapedLowerBoundInput = []
+        upperBoundOutputList = []  
+        lowerBoundOutputList = []  
+        for index,item in enumerate(lAllOpsInSrcFile):
+            assert(item in ['MultiplicationOp', 'AdditionOp']), str(item) + " is not a valid operator" 
+            try:
+                operatorAddress = operatorArchiveAddress + "/" + str(item) + ".cpp"
+                shutil.copy(operatorAddress, CSrcFileAddress) 
+            except IOError:
+                print "*****************ERROR*********************" 
+                print "can not copy " + str(operatorAddress) + " to " + str(CSrcFileAddress)
+                exit()
+            else: 
+                # ---- probably can loop here
+                reshapedUpperBoundInputTemp = [] #we need to reshape the input so it can be fed to curv_fit
+                reshapedLowerBoundInputTemp = []
+                upperBoundOutputTempList = [] 
+                lowerBoundOutputTempList = [] 
+                upperBoundInputList, upperBoundOutputTempList, lowerBoundInputList, lowerBoundOutputTempList = findLowAndUpBounderies(CSrcFolderAddress, CSrcFileAddress , generateMakeFile ,
+                        finalResultFileName, rootFolder, operandDicList[index])
+                upperBoundOutputList.append(upperBoundOutputTempList)
+                lowerBoundOutputList.append(lowerBoundOutputTempList)
+                # ---- reshaping and writing the boundery result
+                for variableNumber in range(0, len(upperBoundInputList[0])):
+                      reshapedUpperBoundInputTemp.append([])
+                      for inputNumber in range(0, len(upperBoundInputList)):
+                        reshapedUpperBoundInputTemp[variableNumber].append(upperBoundInputList[inputNumber][variableNumber])
+                for variableNumber in range(0, len(lowerBoundInputList[0])):
+                    reshapedLowerBoundInputTemp.append([])
+                    for inputNumber in range(0, len(lowerBoundInputList)):
+                        reshapedLowerBoundInputTemp[variableNumber].append(lowerBoundInputList[inputNumber][variableNumber])
+                
+                reshapedUpperBoundInput.append(reshapedUpperBoundInputTemp) #we need to reshape the input so it can be fed to curv_fit
+                reshapedLowerBoundInput.append(reshapedLowerBoundInputTemp) #we need to reshape the input so it can be fed to curv_fit
+                
+            # ---- writing
             
+        propsName = ["operatorNumber", "reshapedUpperBoundInput", "upperBoundOutputList", "reshapedLowerBoundInput", "lowerBoundOutputList"]
+        propsType = ["int", "listList", "listInt", "listList", "listInt" ]
+        propList = [range(len(reshapedUpperBoundInput)), reshapedUpperBoundInput, upperBoundOutputList, reshapedLowerBoundInput, lowerBoundOutputList]
+        
+        propsTypeConverted = [convert_python_types_to_sqlite(argType) for argType in propsType]
+        propsValuesConverted = [convert_python_values_to_sqlite_compatible_values(argType,value) for argType,value in zip(propsType,propList)] 
+       
+        # ---- creating
+        createDB(dbFileName, tableName, propsName, propsTypeConverted, propsValuesConverted)
+
+    # ---- retreiving
+    props, propNames, _= retrieveDB(dbFileName , tableName)
+    operatorNumber, reshapedUpperBoundInput, upperBoundOutputList, reshapedLowerBoundInput, lowerBoundOutputList = [impose_type(propsType[index], prop) for index,prop in enumerate(props)]
+    # print "lowerBoundOutputList : " + str(lowerBoundOutputList )
+    # print "reshapedLowerBoundInput: " + str(reshapedLowerBoundInput)
+    # print "upperBoundOutputList: " + str(upperBoundOutputList)
+    # print "reshapedUpperBoundInput: " + str(reshapedUpperBoundInput)
+    #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
+    # ---- finding the best fitted graph
+    #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
+    dbFileName = "funcInfo.db" 
+    tableName = "funcInfo"
+    if (moduleFunctionality == "all"  or moduleFunctionality =="FindBestFittedCurve"): 
+        lOfbestFittedFunc_degree_tuple =[]
+        funcCoeffList = []
+        funcErrorDicList =[]
+        for index,item in enumerate(lAllOpsInSrcFile):
+            # reshapedUpperBoundInput, upperBoundOutputList, reshapedLowerBoundInput,
+            # lowerBoundOutputList = parseLowUpBounderyFile(rootResultFolderName +
+                    # "/" + settings.lowUpBounderyFileName, numberOfInputs)
+            numberOfInputsForTraining = int(percentageOfDataUsedForTraining * len(reshapedUpperBoundInput[index][0]))
+            
+            upperValuesInputTrainingDataRaw =  [varValues[:numberOfInputsForTraining] for varValues in reshapedUpperBoundInput[index]]  
+            print "upperValuesInputTrainingDataRaw : " + str(upperValuesInputTrainingDataRaw )
+            upperValuesOutputTrainingData = [varValues[:numberOfInputsForTraining] for varValues in [upperBoundOutputList[index]]][0]
+            print "upperValuesOutputTrainingData : " + str(upperValuesOutputTrainingData)
+            upperValuesInputTestDataRaw = [varValues[numberOfInputsForTraining:] for varValues in reshapedUpperBoundInput[index]]  
+            print "upperValuesInputTestDataRaw : " + str(upperValuesInputTestDataRaw )
+            upperValuesOutputTestData = [varValues[numberOfInputsForTraining:] for varValues in [upperBoundOutputList[index]]][0]  
+            print "upperValuesOutputTestData : " + str(upperValuesOutputTestData )
+            
+            lowerValuesInputTrainingDataRaw = [varValues[:numberOfInputsForTraining] for varValues in reshapedLowerBoundInput[index]]  
+            print "lowerValuesInputTrainingDataRaw : " + str(lowerValuesInputTrainingDataRaw )
+            lowerValuesOutputTrainingData = [varValues[:numberOfInputsForTraining] for varValues in [lowerBoundOutputList[index]]][0]
+            print "lowerValuesOutputTrainingData : " + str(lowerValuesOutputTrainingData )
+            lowerValuesInputTestDataRaw = [varValues[numberOfInputsForTraining:] for varValues in reshapedLowerBoundInput[index]]  
+            print "lowerValuesInputTestDataRaw : " + str(lowerValuesInputTestDataRaw )
+            lowerValuesOutputTestData = [varValues[numberOfInputsForTraining:] for varValues in [lowerBoundOutputList[index]]][0]
+            print "lowerValuesOutputTestData : " + str(lowerValuesOutputTestData )
+
+             
+            minDegree = degreeNPolyMultiVarMinDegree
+            maxDegree = degreeNPolyMultiVarMaxDegree
+            
+            maximumAcceptableError = (1 - signalToNoiseRatio)*numpy.float64(sum(upperValuesOutputTestData)/len(upperValuesOutputTestData))
+            bestFittedFunc, funcCoeff, funcErrorDic = findBestFitFunction(upperValuesInputTrainingDataRaw, upperValuesOutputTrainingData, upperValuesInputTestDataRaw, upperValuesOutputTestData, all_funcs.funcNumberOfCoeffDic,maxDegree, minDegree, maximumAcceptableError)
             lOfbestFittedFunc_degree_tuple.append(str((bestFittedFunc[0].__name__, bestFittedFunc[1])))
             funcCoeffList.append(funcCoeff)
             funcErrorDicList.append(funcErrorDic)
-            
-          
-   #      operatorsCoeffFileP.write("function: \n")
-        # operatorsCoeffFileP.write(str(bestFittedFunc[0].__name__) + " " +
-                # str(bestFittedFunc[1]) + "\n")
-    
-    print "lOfbestFittedFunc_degree_tuple: " + str(lOfbestFittedFunc_degree_tuple)
-    print "funcCoeffList: " + str(funcCoeffList)
-    print "funcErrorDicList: " + str(funcErrorDicList)
-    
-    # ---- writing the results in a DB file
-    dbFileName = "funcInfo.db" 
-    tableName = "funcInfo"
+
+        # ---- writing the results in a DB file
+        propsName = ["opNumber", "funcName", "funcCoeff"]
+        propsType = ["integer", "tuple", "listFloat"]
+        propList = [range(len(lOfbestFittedFunc_degree_tuple)),lOfbestFittedFunc_degree_tuple, [list(arrayElement) for arrayElement in funcCoeffList]]
+        propsTypeConverted = [convert_python_types_to_sqlite(argType) for argType in propsType]
+        propsValuesConverted = [convert_python_values_to_sqlite_compatible_values(argType,value) for argType,value in zip(propsType,propList)] 
+        # ---- creating
+        createDB(dbFileName, tableName, propsName, propsTypeConverted, propsValuesConverted)
+       
+    lOfFunc_degree_tuple = [] #contains the (func, degree) tuple
+    props, propNames, _= retrieveDB("funcInfo.db" , "funcInfo")
     propsName = ["opNumber", "funcName", "funcCoeff"]
-    propsType = ["integer", "text", "listFloat"]
-    propsTypeConverted = [convert_python_types_to_sqlite(argType) for argType in propsType]
-    propList = [range(len(lOfbestFittedFunc_degree_tuple)), [func for func in lOfbestFittedFunc_degree_tuple], funcCoeffList]
-    for index, argType in enumerate(propsType):
-        if "list" in argType:
-            propList[index] = [' '.join(map(str, element)) for element in propList[index]]      
-        
-    print "should be it" 
-    createDB(dbFileName, tableName, propsName, propsTypeConverted, propList)
+    propsType = ["int"] +["tuple"] + ["listFloat"] 
+    # props, propNames, _= retrieveDB(dbFileName , tableName)
+    lOfOpNumber, lOffuncName_degree_tuple, lOfFuncCoeff = [impose_type(propsType[index], prop) for index,prop in enumerate(props)]
+    print "done"
+    print lOfOpNumber
+    print lOffuncName_degree_tuple
+    print lOfFuncCoeff
+    print funcErrorDicList 
     return lOfbestFittedFunc_degree_tuple, funcCoeffList, funcErrorDicList
 
         # stringToWrite =  " ".join(str(e) for e in funcCoeff)
@@ -767,82 +690,41 @@ def characterize_all_operators(CSrcFolderAddress,
     #
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# test1 = True
-test1 = False
-
-if (test1):
-    # ---- set variables
-    home = expanduser("~") 
-    CSrcFolderAddress =  home + "/apx_tool_chain/src/CSrc/"
-    CSrcFileAddress = home + "/apx_tool_chain/src/CSrc/test.cpp"
-    generateMakeFile = "YES"
-    rootFolder  = home +  "/apx_tool_chain"
-    finalResultFileName =  "finalResult2.txt"
-    
-    acceptableModes =  ["genOperandFindBounderiesFindBestFittedCurve", "genOperandFindBounderies", "FindBestFittedCurve"]
-    moduleFunctionality = "genOperandFindBounderiesFindBestFittedCurve"
-    #moduleFunctionality = genOperandFindFindBounderisBestFittedCurve 
-    # moduleFunctionality = "FindBestFittedCurve"
-    percentageOfDataUsedForTraining = .7
-    workWithNegativeNumbers = False
-    numberOfOperands = 2 
-    signalToNoiseRatio = .1
-    degreeNPolyMultiVarMinDegree = 2
-    degreeNPolyMultiVarMaxDegree = 4
-
-    # ---- prepare inputs for operand generation and write in a table
-    write_operands_info_for_operator_characterization()
-    # ---- retrieve the infr from the table above
-    listOfOperandOneGenValues, listOfOperandTwoGenValues = retrieve_operands_info_for_operator_characterization()
-    bestFittedFunc, funcCoeff, funcErrorDic = characterizeOperator(CSrcFolderAddress, CSrcFileAddress, generateMakeFile,
-            rootFolder, finalResultFileName,moduleFunctionality, percentageOfDataUsedForTraining,
-            workWithNegativeNumbers, numberOfOperands,
-            listOfOperandOneGenValues[0], listOfOperandTwoGenValues[0],
-              degreeNPolyMultiVarMinDegree, degreeNPolyMultiVarMaxDegree, signalToNoiseRatio)
-    
-    print bestFittedFunc
-    # print funcCoeff
-    # funcErrorDic 
 
 test2 = True
 # test2 = False
 if (test2):
-    lOfFunc_degree_tuple = [] #contains the (func, degree) tuple
-    props, propNames, propsType = retrieveDB("funcInfo.db" , "funcInfo")
-    propsName = ["opNumber", "funcName", "funcCoeff"]
-    propsType = ["int"] +["text"] + ["listFloat"] 
-    opNumber,lOffuncName_degree_string_tuple, funcCoeff= [impose_type(propsType[index], prop) for index,prop in enumerate(props)]
-    print opNumber
-    print funcCoeff 
-    for funcName_degree_tuple_string_tuple in lOffuncName_degree_string_tuple: 
-        lOfFunc_degree_tuple.append(tuple((eval(eval(funcName_degree_tuple_string_tuple)[0]), eval(funcName_degree_tuple_string_tuple)[1])))
-    
-    sys.exit() 
-     
-    # ---- set variables
     home = expanduser("~") 
+    
+    originalCSrcFileAddress = home + "/apx_tool_chain/CSrc_examples/simple_dfg_2_operator.cpp"
+    assert(os.path.isfile(originalCSrcFileAddress)), str(originalCSrcFileAddress) + " does not exist" 
+    
     CSrcFolderAddress =  home + "/apx_tool_chain/src/CSrc/"
     CSrcFileAddress = home + "/apx_tool_chain/src/CSrc/test.cpp"
+    # ---- copying because characterize_operators will modify the source file that it uses
+    # ---- thus we keep the original file somewhere else and copy it over
+    shutil.copy(originalCSrcFileAddress, CSrcFileAddress) 
+    
     generateMakeFile = "YES"
     rootFolder  = home +  "/apx_tool_chain"
     finalResultFileName =  "finalResult2.txt"
     
-    acceptableModes =  ["genOperandFindBounderiesFindBestFittedCurve", "genOperandFindBounderies", "FindBestFittedCurve"]
-    moduleFunctionality = "genOperandFindBounderiesFindBestFittedCurve"
-    #moduleFunctionality = genOperandFindFindBounderisBestFittedCurve 
-    # moduleFunctionality = "FindBestFittedCurve"
+    lOfAcceptableModes = [ "all", "findLowUpBounery", "genOperandDicAndFindLowUpBounery", "genOperandDic"]
+    moduleFunctionality = "all"
+    # moduleFunctionality = "findLowUpBounery" 
+    # moduleFunctionality = "genOperandDicAndFindLowUpBounery"
+    # moduleFunctionality = "genOperandDic"
     percentageOfDataUsedForTraining = .7
     workWithNegativeNumbers = False
     numberOfOperands = 2 
     signalToNoiseRatio = .1
     degreeNPolyMultiVarMinDegree = 1 
-    degreeNPolyMultiVarMaxDegree = 2 
+    degreeNPolyMultiVarMaxDegree = 3
     # ---- prepare inputs for operand generation and write in a table
     write_operands_info_for_operator_characterization()
     # ---- retrieve the infr from the table above
     listOfOperandOneGenValues, listOfOperandTwoGenValues = retrieve_operands_info_for_operator_characterization()
     operatorArchiveAddress = home + "/apx_tool_chain/operator_archive"
-    
     characterize_all_operators(CSrcFolderAddress, CSrcFileAddress, generateMakeFile,
             rootFolder, finalResultFileName, operatorArchiveAddress,  percentageOfDataUsedForTraining,
             workWithNegativeNumbers, degreeNPolyMultiVarMinDegree,
@@ -850,3 +732,23 @@ if (test2):
             listOfOperandOneGenValues, listOfOperandTwoGenValues, moduleFunctionality)
 
 
+    
+    # # ---- retievig the data from the dbfile
+    # lOfFunc_degree_tuple = [] #contains the (func, degree) tuple
+    # props, propNames, _= retrieveDB("funcInfo.db" , "funcInfo")
+    # propsName = ["opNumber", "funcName", "funcCoeff"]
+    # propsType = ["int"] +["tuple"] + ["listFloat"] 
+    # # props, propNames, _= retrieveDB(dbFileName , tableName)
+    # lOfOpNumber, lOffuncName_degree_tuple, lOfFuncCoeff = [impose_type(propsType[index], prop) for index,prop in enumerate(props)]
+    
+    # print "last round" 
+    # print lOfOpNumber
+    # print lOffuncName_degree_tuple
+    # print lOfFuncCoeff
+
+    # for funcName_degree_tuple_string_tuple in lOffuncName_degree_string_tuple: 
+        # lOfFunc_degree_tuple.append(tuple((eval(eval(funcName_degree_tuple_string_tuple)[0]), eval(funcName_degree_tuple_string_tuple)[1])))
+    
+    # print lOfFunc_degree_tuple
+    
+   
