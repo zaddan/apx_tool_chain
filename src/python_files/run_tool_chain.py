@@ -63,7 +63,6 @@ def main():
     #print "8. noiseRequirement"
     
    
-
     #---------guide:::  validating the number of inputs
     if len(sys.argv) < 8:
         print "***ERROR***"
@@ -81,8 +80,6 @@ def main():
         exit()
 
     
-   
-
     #---------guide:::  acquaring the inputs
     CSrcFolderAddress = sys.argv[1] #src file to be analyzet
     CSrcFileAddress = sys.argv[2] #src file to be analyzet
@@ -254,7 +251,7 @@ def main():
         config.append( [])
         inputFileNameList.append([])
         mode = settings.mode 
-        operatorSampleFileFullAddress = rootResultFolderName + "/" + settings.operatorSampleFileName
+        operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings.operatorSampleFileName
         
         
         #---------guide:::  getting accurate values associated with the CSource output
@@ -381,8 +378,6 @@ def main():
     print totalTime 
     
     
-    
-    
     #---------guide::: populating the IOAndProcessCharP 
     IOAndProcessCharP.write("the mode is: " + mode + "\n")
     IOAndProcessCharP.write("number of operators in the CSource file: " + str(len(lAllOpsInSrcFile)) + "\n")
@@ -403,9 +398,6 @@ def main():
     IOAndProcessCharP.write("totalTime: " + str(totalTime) + " " + "minute" + "\n")
     IOAndProcessCharP.close()
    
-
-
-
 
     print noise
     print energy
@@ -429,7 +421,7 @@ def main():
         #---------guide:::  get the pareto set
         if (mode == "allPermutations"): 
             paretoNoise, paretoEnergy = noise[i], energy[i]
-            #paretoNoise, paretoEnergy = pareto_frontier(noise[i], energy[i], maxX= False, maxY = False)
+            # paretoNoise, paretoEnergy = pareto_frontier(noise[i], energy[i], maxX= False, maxY = False)
         elif (mode == "simulated_annealing"):
             paretoNoise, paretoEnergy = noise[i], energy[i]
         #---------guide:::  find the setUps that corresponds to the pareto Points

@@ -25,4 +25,5 @@ TODO:
 later, have the stepSize and initilTemperature as an inupt to the run_tool_chain
 have the input of run_tool_chain to come from a file (instead of command line)
 
-
+in the annealer, introduce a tabu list(which indicates which nodes where visited)
+and avoid revisiting those nodes again

@@ -47,63 +47,6 @@ from db_retrieve_table_python_IP import *
 
 logFileAddress = "/home/polaris/behzad/apx_tool_chain/generated_text/" + settings.logFileName
 
-
-
-
-def generateOperandList(numberOfOperands, operandExactValueLowerBound, operandExactValueUpperBound, maxDevPercentage, workWithNegativeNumbers, operandExactValueStep, numberOfValuesBetweenExactAndDeviation):
-    
-    assert (numberOfOperands == 2), "generateOperandList module is not functional for operators with more than 2 operands"
-    
-    results = {} 
-    resultsPermutedDic = {}
-    
-    #---------guide:::  go through the exact values
-    for  operandExactValue in range(operandExactValueLowerBound, operandExactValueUpperBound, operandExactValueStep):
-        #---------guide:::  find the boundaries for each exact values
-        deviationUpperBound = int(maxDevPercentage*operandExactValue)
-        deviationLowerBound = int(maxDevPercentage*operandExactValue)
-        deviationStep =  int(deviationUpperBound/numberOfValuesBetweenExactAndDeviation)
-        if (deviationStep == 0):
-            deviationStep = 1
-        operandValueUpperBound = operandExactValue + deviationUpperBound + deviationStep
-        operandValueLowerBound = operandExactValue - deviationLowerBound
-        if (operandValueLowerBound < 0):
-            operandValueLowerBound = 0
-        
-        #---------guide:::  go through the values within the radius of the deviation for each exact value
-        for value in range(operandValueLowerBound, operandValueUpperBound, deviationStep):
-            if not((operandExactValue, deviationUpperBound) in results.keys()):
-                results[(operandExactValue, deviationUpperBound)] = [value]
-            else:
-                results[(operandExactValue, deviationUpperBound)] += [value]
-
-    
-    
-    for key1 in results.keys():
-        for key2 in results.keys(): 
-            beforePermutationList = [results[key1], results[key2]]
-            beforePermutationTuple = tuple(beforePermutationList) 
-            #resultsPermuted = list(itertools.product(*(results[key], results[key])))
-            resultsPermuted = list(itertools.product(*beforePermutationTuple))
-            resultsPermutedDic[(key1[0], key1[1],key2[0],key2[1])] = resultsPermuted 
-
-   
-#    #---------guide::: permuting the results
-#    for key in results.keys(): 
-#        beforePermutationList = []
-#        for i in range(0, numberOfOperands + 1, 1):
-#            beforePermutationList += [results[key]]
-#        beforePermutationTuple = tuple(beforePermutationList) 
-#        #resultsPermuted = list(itertools.product(*(results[key], results[key])))
-#        resultsPermuted = list(itertools.product(*beforePermutationTuple))
-##        print "********" 
-##        print resultsPermuted
-#        resultsPermutedDic[key] = resultsPermuted 
-#
-
-    return resultsPermutedDic 
-
-
 ## 
 # @brief generates operands if the operands do not have the same lower,upper bounds, etc. For now, it is only functional for two input operators
 # 
@@ -121,7 +64,8 @@ def generateOperandList(numberOfOperands, operandExactValueLowerBound, operandEx
 # @param numberOfValuesBetweenExactAndDeviationTwo
 # 
 # @return 
-def generateOperandListEachOperandUnique(numberOfOperands, operandOneExactValueLowerBound, operandOneExactValueUpperBound, maxOneDevPercentage, workWithNegativeNumbers, operandOneExactValueStep, numberOfValuesBetweenExactAndDeviationOne,  operandTwoExactValueLowerBound, operandTwoExactValueUpperBound, maxTwoDevPercentage, operandTwoExactValueStep, numberOfValuesBetweenExactAndDeviationTwo):
+def generateOperandListEachOperandUnique(numberOfOperands,
+        operandOneExactValueLowerBound, operandOneExactValueUpperBound, maxOneDevPercentage, workWithNegativeNumbers, operandOneExactValueStep, numberOfValuesBetweenExactAndDeviationOne,  operandTwoExactValueLowerBound, operandTwoExactValueUpperBound, maxTwoDevPercentage, operandTwoExactValueStep, numberOfValuesBetweenExactAndDeviationTwo):
     if (numberOfOperands != 2):
         print "*************ERROR*********"
         print "generateOperandListEachOperandUnique module is not functional for operators with more than 2 operands" 
@@ -191,53 +135,6 @@ def writeOperandInOperandFile(operand, operandFileName):
     operandFileP = open(operandFileName ,"w");  
     operandFileP.write(operand) 
     operandFileP.close()
-
-
-def findApxBitRange(config, noiseList, desiredNoise):
-    #        for setUp in config[operandIndex]:
-#             apxBitList[operandIndex].append(getApxBit(setUp))
-#
-    
-    noiseArray = numpy.array(noiseList)
-    sortedNoiseArray = numpy.sort(noiseArray)        
-    sortedNoiseArrayIndex = numpy.argsort(noiseArray)
-
-    #print "\nnoise is: " +str(noiseList) 
-    #sortedNoiseIndexList = [sortedNoise.index(x) for x in sortedNoise)
-
-
-
-
-    upBoundary = -1
-    lowBoundary = -1
-    for noiseIndex in range(0, len(sortedNoiseArray)):
-        if (sortedNoiseArray[noiseIndex] > desiredNoise):
-            if (noiseIndex == 0):
-                print "*****ERROR***"
-                print "no noise satisfied the condition" 
-                exit()
-
-
-            upBoundary = noiseIndex
-            break;   
-        if (noiseIndex == len(sortedNoiseArray)-1):
-            upBoundary = len(sortedNoiseArray)
-            break;  
-
-    acceptableIndexArray = sortedNoiseArrayIndex[:upBoundary]
-
-    for i in range(acceptableIndexArray.min(), acceptableIndexArray.max()+ 1,1):
-        if not(i in acceptableIndexArray):
-            print "****ERROR****"
-            print "this operator is not continuous. This means that there are some bits in the middle of the range that do not satisfy the nosie requirements. this means that the operator is not completely increasing or decreasing"
-            exit()
-
-    upperBound = acceptableIndexArray.max()
-    lowerBound = acceptableIndexArray.min()
-    #print upperBound
-    #print lowerBound
-    return upperBound, lowerBound
-
 
 def polishSetup(setUp):
     result = []  
@@ -506,19 +403,20 @@ def characterize_all_operators(CSrcFolderAddress,
     operandsInfoForOperatorCharacterizationFullAddress = rootFolder + "/" + settings.operandsInfoForOperatorCharacterizationName
     lAllOpsInSrcFile = [] 
     
-    assert(os.path.isfile(originalCSrcFileAddress)), str(originalCSrcFileAddress) + " does not exist" 
+    assert(os.path.isfile(CSrcFileAddress)), str(CSrcFileAddress) + " does not exist" 
     # CSrcFileAddress = originalCSrcFileAddress + "copy" 
     # shutil.copy(originalCSrcFileAddress, CSrcFileAddress) 
     sourceFileParse(CSrcFileAddress, lAllOpsInSrcFile)
    
     assert(len(lAllOpsInSrcFile) == len(listOfOperandOneGenValues)), "number of operators in the src file need to be the same as the number of GenValues for operandOne(or two)"
-    lOfAcceptableModes = [ "all", "findLowUpBounery", "genOperandDicAndFindLowUpBounery", "genOperandDic"]
+    lOfAcceptableModes = [ "all", "findLowUpBounery", "genOperandDicAndFindLowUpBounery", "genOperandDic","FindBestFittedCurve"]
     assert(moduleFunctionality in lOfAcceptableModes), str(moduleFunctionality) + " is not and acceptable mode"
     #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
     # ---- generating operands
     #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
     dbFileName = "operandDic.db"
     tableName = "operandDic" 
+    propsType = ["int", "listTuple", "listList"]
     if (moduleFunctionality == "all" or moduleFunctionality == "genOperandDic"):
         for index,item in enumerate(lAllOpsInSrcFile):
             assert(item in ['MultiplicationOp', 'AdditionOp']), str(item) + " is not a valid operator" 
@@ -532,7 +430,6 @@ def characterize_all_operators(CSrcFolderAddress,
         # ---- writing operandDIc in a DB
         
         propsName = ["operandNumber", "operandGen", "LOfOperandCombo"]
-        propsType = ["int", "listTuple", "listList"]
         propList = [range(len(operandDicList)), [operandDic.keys() for operandDic in operandDicList], [operandDic.values() for operandDic in operandDicList]]
         
         # ---- body
@@ -555,6 +452,7 @@ def characterize_all_operators(CSrcFolderAddress,
     #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
     dbFileName = "lowUpBoundery.db" 
     tableName = "lowUpBoundery"
+    propsType = ["int", "listList", "listInt", "listList", "listInt" ]
     if (moduleFunctionality == "all" or moduleFunctionality == "findLowUpBounery"  or moduleFunctionality == "genOperandDicAndFindLowUpBounery"):
         reshapedUpperBoundInput = []
         reshapedLowerBoundInput = []
@@ -595,7 +493,6 @@ def characterize_all_operators(CSrcFolderAddress,
             # ---- writing
             
         propsName = ["operatorNumber", "reshapedUpperBoundInput", "upperBoundOutputList", "reshapedLowerBoundInput", "lowerBoundOutputList"]
-        propsType = ["int", "listList", "listInt", "listList", "listInt" ]
         propList = [range(len(reshapedUpperBoundInput)), reshapedUpperBoundInput, upperBoundOutputList, reshapedLowerBoundInput, lowerBoundOutputList]
         
         propsTypeConverted = [convert_python_types_to_sqlite(argType) for argType in propsType]
@@ -616,6 +513,7 @@ def characterize_all_operators(CSrcFolderAddress,
     #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
     dbFileName = "funcInfo.db" 
     tableName = "funcInfo"
+    propsType = ["integer", "tuple", "listFloat"]
     if (moduleFunctionality == "all"  or moduleFunctionality =="FindBestFittedCurve"): 
         lOfbestFittedFunc_degree_tuple =[]
         funcCoeffList = []
@@ -656,24 +554,22 @@ def characterize_all_operators(CSrcFolderAddress,
 
         # ---- writing the results in a DB file
         propsName = ["opNumber", "funcName", "funcCoeff"]
-        propsType = ["integer", "tuple", "listFloat"]
         propList = [range(len(lOfbestFittedFunc_degree_tuple)),lOfbestFittedFunc_degree_tuple, [list(arrayElement) for arrayElement in funcCoeffList]]
         propsTypeConverted = [convert_python_types_to_sqlite(argType) for argType in propsType]
         propsValuesConverted = [convert_python_values_to_sqlite_compatible_values(argType,value) for argType,value in zip(propsType,propList)] 
         # ---- creating
         createDB(dbFileName, tableName, propsName, propsTypeConverted, propsValuesConverted)
        
-    lOfFunc_degree_tuple = [] #contains the (func, degree) tuple
-    props, propNames, _= retrieveDB("funcInfo.db" , "funcInfo")
-    propsName = ["opNumber", "funcName", "funcCoeff"]
-    propsType = ["int"] +["tuple"] + ["listFloat"] 
+    # lOfFunc_degree_tuple = [] #contains the (func, degree) tuple
+    # props, propNames, _= retrieveDB("funcInfo.db" , "funcInfo")
+    # propsName = ["opNumber", "funcName", "funcCoeff"]
+    # propsType = ["int"] +["tuple"] + ["listFloat"] 
     # props, propNames, _= retrieveDB(dbFileName , tableName)
-    lOfOpNumber, lOffuncName_degree_tuple, lOfFuncCoeff = [impose_type(propsType[index], prop) for index,prop in enumerate(props)]
-    print "done"
-    print lOfOpNumber
-    print lOffuncName_degree_tuple
-    print lOfFuncCoeff
-    print funcErrorDicList 
+    # lOfOpNumber, lOffuncName_degree_tuple, lOfFuncCoeff = [impose_type(propsType[index], prop) for index,prop in enumerate(props)]
+    # print lOfOpNumber
+    # print lOffuncName_degree_tuple
+    # print lOfFuncCoeff
+    # print funcErrorDicList 
     return lOfbestFittedFunc_degree_tuple, funcCoeffList, funcErrorDicList
 
         # stringToWrite =  " ".join(str(e) for e in funcCoeff)
@@ -691,11 +587,10 @@ def characterize_all_operators(CSrcFolderAddress,
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-test2 = True
-# test2 = False
+# test2 = True
+test2 = False
 if (test2):
     home = expanduser("~") 
-    
     originalCSrcFileAddress = home + "/apx_tool_chain/CSrc_examples/simple_dfg_2_operator.cpp"
     assert(os.path.isfile(originalCSrcFileAddress)), str(originalCSrcFileAddress) + " does not exist" 
     
@@ -709,11 +604,12 @@ if (test2):
     rootFolder  = home +  "/apx_tool_chain"
     finalResultFileName =  "finalResult2.txt"
     
-    lOfAcceptableModes = [ "all", "findLowUpBounery", "genOperandDicAndFindLowUpBounery", "genOperandDic"]
+    lOfAcceptableModes = [ "all", "findLowUpBounery", "genOperandDicAndFindLowUpBounery", "genOperandDic","FindBestFittedCurve"]
     moduleFunctionality = "all"
+    # moduleFunctionality = "genOperandDic"
     # moduleFunctionality = "findLowUpBounery" 
     # moduleFunctionality = "genOperandDicAndFindLowUpBounery"
-    # moduleFunctionality = "genOperandDic"
+    # moduleFunctionality = "FindBestFittedCurve"
     percentageOfDataUsedForTraining = .7
     workWithNegativeNumbers = False
     numberOfOperands = 2 
@@ -730,9 +626,8 @@ if (test2):
             workWithNegativeNumbers, degreeNPolyMultiVarMinDegree,
             degreeNPolyMultiVarMaxDegree, signalToNoiseRatio,
             listOfOperandOneGenValues, listOfOperandTwoGenValues, moduleFunctionality)
-
-
     
+
     # # ---- retievig the data from the dbfile
     # lOfFunc_degree_tuple = [] #contains the (func, degree) tuple
     # props, propNames, _= retrieveDB("funcInfo.db" , "funcInfo")

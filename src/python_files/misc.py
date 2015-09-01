@@ -20,7 +20,74 @@ def findTotalTime(timeBeforeFindingResults, timeAfterFindingResults):
 
     return (afterDay - beforeDay)*1440 + (afterHour - beforeHour)*60 + (afterMinute - beforeMinute)
 
+def write_operands_info_for_max_boundary_determination():
+     
+    # ---- only change the following
+    x = sympy.symbols('x[0]')
+    
+    operandOne = [23, 35]
+    operandTwo = [12,17]
+    deltaOperandOne = [3, x]
+    deltaOperandTwo = [2,3]
+    deltaOutput = [x, 5]
+    
+    
+    # x = sympy.symbols('x[0] x[1] x[2] x[3] x[4] x[5] x[6] x[7] x[8] x[9]')
+   #  operandOne = [x[0],x[1]]
+    # operandTwo = [x[2],x[3]]
+    # deltaOperandOne = [x[5], x[4]]
+    # deltaOperandTwo = [x[6],x[7]]
+   #  deltaOutput = [x[9], x[8]]
+    # ---- only change above vars
+    
+    assert(len(operandOne) == len(operandTwo) == len(deltaOperandOne) == 
+            len(deltaOperandTwo) == len(deltaOutput)), "all the inputs need to \
+                    have he same length"
 
+    dbFileName = "operands_info_for_max_boundary.db"
+    tableName = "operands_info_for_max_boundary"
+    propsName = ["operandOne", "operandTwo", "deltaOperandOne", "deltaOperandTwo", "deltaOutput"]
+    # propsType = ["int"]*len(propsName) 
+    #propsType = ["int"]*(len(propsName) - 1) + ["string"] 
+    propsType = ["mix"]*(len(propsName)) 
+    propList = [ operandOne,  operandTwo,  deltaOperandOne,  deltaOperandTwo,  deltaOutput]
+
+    # ----body 
+    propsTypeConverted = [convert_python_types_to_sqlite(argType) for argType in propsType]
+    propsValuesConverted = [convert_python_values_to_sqlite_compatible_values(argType,value) for argType,value in zip(propsType,propList)]
+
+    # ---- creating  
+    createDB(dbFileName, tableName, propsName, propsTypeConverted, propsValuesConverted)
+ 
+    
+def read_operands_info_for_max_boundary_determination():
+    
+    dbFileName = "operands_info_for_max_boundary.db"
+    tableName = "operands_info_for_max_boundary"
+    propsName = ["operandOne", "operandTwo", "deltaOperandOne", "deltaOperandTwo", "deltaOutput"]
+    
+    x = sympy.symbols('x[0]')
+    if not(isinstance(x,list)):
+        x = [x]
+    propsType = ["mix"]*(len(propsName)) 
+    # propsType = ["int"]*(len(propsName) - 1) + ["string"] 
+    props, propNames, _= retrieveDB(dbFileName , tableName)
+    operandOne, operandTwo, deltaOperandOne, deltaOperandTwo, deltaOutput  = [impose_type(propsType[index], prop) for index,prop in enumerate(props)]
+    
+    
+    operandOne =[eval(element) for element in operandOne]
+    operandTwo = [eval(element) for element in operandTwo]
+    deltaOperandOne = [eval(element) for element in deltaOperandOne]
+    deltaOperandTwo = [eval(element) for element in deltaOperandTwo]
+    deltaOutput = [eval(element) for element in deltaOutput]
+    
+    print operandOne 
+    print operandTwo 
+    print deltaOperandOne 
+    print deltaOperandTwo 
+    print deltaOutput 
+    
+    return operandOne, operandTwo, deltaOperandOne, deltaOperandTwo, deltaOutput, x
 
 def write_operands_info_for_operator_characterization():
     home = expanduser("~")
@@ -34,14 +101,14 @@ def write_operands_info_for_operator_characterization():
     dbFileFullAddress = rootFolder + "/" + settings.operandsInfoForOperatorCharacterizationName
     
      
-    operandOneExactValueLowerBound = [13, 12]
-    operandOneExactValueUpperBound = [17, 16]
+    operandOneExactValueLowerBound = [21, 33]
+    operandOneExactValueUpperBound = [25, 37]
     operandOneExactValueStep = [3, 3]
     maxInputOperandDeviationOne = [.2, .2]
     numberOfValuesBetweenExactAndDeviationOne = [2, 2]
 
-    operandTwoExactValueLowerBound = [10, 12]
-    operandTwoExactValueUpperBound = [14, 16]
+    operandTwoExactValueLowerBound = [10, 14]
+    operandTwoExactValueUpperBound = [14, 18]
     operandTwoExactValueStep = [3, 3]
     maxInputOperandDeviationTwo = [.2, .2]
     numberOfValuesBetweenExactAndDeviationTwo = [2, 2]
