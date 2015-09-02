@@ -107,12 +107,13 @@ def main():
     CBuildFolder = rootFolder + "/" + settings.CBuildFolderName
     #get the input to the executable 
     executableInputList = []
-    print "please provide the inputs to the executable. when done, type type" 
-    input = raw_input('provide the input: ')
     
-    while (input != "done"):
-        executableInputList.append(input)
-        input = raw_input('provide the next input: ')
+    
+    # print "please provide the inputs to the executable. when done, type type" 
+    # input = raw_input('provide the input: ')
+    # while (input != "done"):
+        # executableInputList.append(input)
+        # input = raw_input('provide the next input: ')
     
    
     #checking whether the file (or directory) containging the operands(input) exist or no
@@ -264,6 +265,7 @@ def main():
         accurateValues = extractAccurateValues(CSourceOutputForVariousSetUpFileName)
         #---------guide:::  make a apx set up and get values associated with it
 
+        
         if (mode == "allPermutations"): 
             while (True): #break when a signal is raised as done
                 print "\n" + str(100*float(apxIndexSetUp)/len(allPossibleApxScenarioursList)) + "% done" 
@@ -283,9 +285,9 @@ def main():
                 newPoint.set_setUp_number(apxIndexSetUp)
                 lOfPoints.append(copy.deepcopy(newPoint)) 
                 
-                noise[operandIndex] += noiseValue
-                energy[operandIndex] += energyValue
-                config[operandIndex] +=configValue
+                # noise[operandIndex] += noiseValue
+                # energy[operandIndex] += energyValue
+                # config[operandIndex] +=configValue
                 inputFileNameList[operandIndex] += inputFileNameListValue
                 apxIndexSetUp +=1
                 if (status == "done"):
@@ -294,52 +296,62 @@ def main():
             lOfOperandSet[operandIndex].set_lOfPoints(copy.deepcopy(lOfPoints))
             operandIndex += 1
             inputNumber +=1
-        
         elif (mode == "simulated_annealing"):
-            #-----------------  
-            #---------guide:::  initilizing some relevant variabels
-            #-----------------  
-            annealerOutputFileP = open(rootResultFolderName + "/" + settings.annealerOutputFileName, "a")
-            simulatedAnnelaingResultDescription = ["noiseRequirements", "bestSetUp", "bestSetUpNoise", "bestSetUpEnergy"]
-            listOfSimulatedAnnelaingResult  = [] #result of running the simulatedAnnealing()
-            noiseToSignalRatioRange = settings.noiseToSignalRatioRange 
-            noiseRequirementsPosition = 0 
-            #-----------------  
-            
-            #-----------------  
-            #---------guide::: iterate through the noiseToSignalRatio and find the (Noise, Energy) pair (where energy is minized and noise satisfies
-            #----------------: certain requirements. This numbers achieved using simulated annealing
-            #-----------------  
+            outP = open("out", "w") 
+            annealerOutputFileP = open(rootResultFolderName + "/" + 
+                    settings.annealerOutputFileName, "a")
             lOfNoiseDiff = []  
             lOfNoiseRequirement = [] 
-            for noiseToSignalRatio in noiseToSignalRatioRange:
-                #----------------- 
-                #---------guide::: setting up the vars relavant to this specific signal to nosie ratio
-                #----------------- 
+            
+            # symbolsToChooseFrom = ['1', 'x', "o", "+", "*", "-", "^", "*"] #symbols to draw the plots with
+            
+            # symbolsToChooseFrom = ['1', '2', "3", "4", "o", "+", "^", "*", "x", "-"] #symbols to draw the plots with
+            
+            symbolsToChooseFrom = ['g1', 'rx', "bo", "y+", "*", "-", "^", "*"] #symbols to draw the plots with
+            for noiseRequirementsPosition, noiseToSignalRatio in enumerate(
+                    settings.noiseToSignalRatioRange):
+                
                 noiseRequirement = noiseToSignalRatio*int(accurateValues[0])
-                initialSetUp = pickInitialSetUpIndexForSimmulatedAnnelaing(allPossibleApxScenarioursList[0], noiseRequirement, operatorSampleFileFullAddress,executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, accurateValues)
+                outP.write(str(noiseRequirement) + "\n") 
+                initialSetUp = pickInitialSetUpIndexForSimmulatedAnnelaing(
+                        allPossibleApxScenarioursList[0], noiseRequirement,
+                        operatorSampleFileFullAddress,executableName, 
+                        executableInputList, rootResultFolderName, 
+                        CSourceOutputForVariousSetUpFileName, CBuildFolder, 
+                        operandSampleFileName, accurateValues)
+                
                 numberOfApxBitsStepSize =  settings.numberOfApxBitsStepSize 
                 numberOfApxBitsInitialTemperature = settings.numberOfApxBitsInitialTemperature 
                 operatorPickInitialTemperature = settings.operatorPickInitialTemperature 
                 operatorPickStepSize = settings.operatorPickStepSize 
                 
-                resultPoint, otherPointsTried, noiseRequirement, simulatedAnnealingResults,numberOfTriesList, numberOfSuccessfulTriesList =improvedSimulatedAnnealing2(initialSetUp, noiseRequirement, numberOfApxBitsInitialTemperature, numberOfApxBitsStepSize, operatorPickInitialTemperature, operatorPickStepSize, operatorSampleFileFullAddress,executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, accurateValues, noiseRequirementsPosition, len(noiseToSignalRatioRange) - 1)
-#                
-                lOfPoints.append(resultPoint)
+                resultPoint, otherPointsTried, noiseRequirement, simulatedAnnealingResults,numberOfTriesList, numberOfSuccessfulTriesList = improvedSimulatedAnnealing2(
+                        initialSetUp, noiseRequirement, 
+                        numberOfApxBitsInitialTemperature, 
+                        numberOfApxBitsStepSize, operatorPickInitialTemperature,
+                        operatorPickStepSize, operatorSampleFileFullAddress,
+                        executableName, executableInputList, rootResultFolderName, 
+                        CSourceOutputForVariousSetUpFileName, CBuildFolder, 
+                        operandSampleFileName, accurateValues, noiseRequirementsPosition,
+                        len(settings.noiseToSignalRatioRange) - 1)
+                
+                
+                outP.write("here is the noise" + str(resultPoint.get_noise()) + "\n") 
+                lOfPoints.append(copy.deepcopy(resultPoint))
                 noiseDiffPercentage =  math.fabs(noiseRequirement - resultPoint.get_noise())/(noiseRequirement)
                 lOfNoiseDiff.append(noiseDiffPercentage)
                 lOfNoiseRequirement.append(noiseRequirement)
-                noiseRequirementsPosition +=1
         
-                # # ---- here
-                # generateGraph(map(lambda x: x.get_noise(),lOfPoints), map(lambda x: x.get_energy(),lOfPoints),"Noise", "Energy", 'o')
-                # generateGraph(map(lambda x: x.get_noise(),otherPointsTried), map(lambda x: x.get_energy(),otherPointsTried),"Noise", "Energy", 'x')
+            # # ---- here
+                generateGraph(map(lambda x: x.get_noise(),otherPointsTried), map(lambda x: x.get_energy(),otherPointsTried),"Noise", "Energy", 'gx') 
             
-                 
-                # finalResultFileFullAddress = rootResultFolderName + "/" + finalResultFileName
-                # pylab.savefig(finalResultFileFullAddress[:-4]+".png") #saving the figure generated by generateGraph
-                # sys.exit() 
-                # # --- here
+             
+            for index, element in enumerate(lOfPoints): 
+                generateGraph(map(lambda x: x.get_noise(),[element]), map(lambda x: x.get_energy(),[element]),"Noise", "Energy",  symbolsToChooseFrom[index])
+            finalResultFileFullAddress = rootResultFolderName + "/" + finalResultFileName
+            pylab.savefig(finalResultFileFullAddress[:-4]+".png") #saving the figure generated by generateGraph
+            sys.exit() 
+             
             for index, pointItem in enumerate(lOfPoints):
                 annealerOutputFileP.write( str("*******************************") + "\n")
                 print "********************"
@@ -376,29 +388,15 @@ def main():
     IOAndProcessCharP.write("numberOfTriesList: " + str(numberOfTriesList) + "\n")
     IOAndProcessCharP.write("numberOfSuccessfulTriesList: " + str(numberOfSuccessfulTriesList) + "\n")
     
-    # if (mode == "simulated_annealing"):
-        # for index1 in range(0,operandIndex,1):
-            # for index2 in range(0, len(noise[index1]), 1):
-                # noiseDiffList[index1][noiseToSignalRatioRange[index2]] = (float(noise[index1][index2] - noiseRequirementList[index1][noiseToSignalRatioRange[index2]])/ noiseRequirementList[index1][noiseToSignalRatioRange[index2]])
-        
-        # IOAndProcessCharP.write("noiseToSignalRatioRange: " + str(noiseToSignalRatioRange) + "\n")
-        # IOAndProcessCharP.write("noiseDiffList: " + str(noiseDiffList)+  "\n")
-        # IOAndProcessCharP.write("numberOfApxBitsStepSize: " + str(numberOfApxBitsStepSize) + "\n")
-        # IOAndProcessCharP.write("numberOfApxBitsInitialTemperature: " + str(numberOfApxBitsInitialTemperature) + "\n")
-        # IOAndProcessCharP.write("operatorPickInitialTemperature: " + str(operatorPickInitialTemperature)+  "\n")
-    # IOAndProcessCharP.write("totalTime: " + str(totalTime) + " " + "minute" + "\n")
-    # IOAndProcessCharP.close()
-   
-
     #---------guide:::  find the pareto points and store them in resultTuple
-    resultTuple = [] #this is a list of pareto Triplets(setup, noise, energy) associated with each 
+    # resultTuple = [] #this is a list of pareto Triplets(setup, noise, energy) associated with each 
                        #one of the inputs 
     #setting up the resultTupleList with the right length 
-    for i in range(0, len(noise),1):
-        resultTuple.append([])
+    # for i in range(0, len(noise),1):
+        # resultTuple.append([])
    
 
-    symbolsToChooseFrom = ['*', 'x', "o", "+", "*", "-", "^"] #symbols to draw the plots with
+    symbolsToChooseFrom = ['*', 'x', "o", "+", "*", "-", "^", "1", "2", "3", "4"] #symbols to draw the plots with
     symbolsCollected = [] #this list contains the symbols collected for every new input 
     #---------guide:::  get the noise for each input
     for i,operandSetItem in enumerate(lOfOperandSet):
@@ -440,7 +438,9 @@ def main():
                         print type(ex).__name__ 
                         print ex.args
                     break
+    resultTuple = [] 
     for index, operandSetItem in enumerate(lOfOperandSet):
+        resultTuple.append([]) 
         for j,point in enumerate(operandSetItem.get_lOf_pareto_points()):
             resultTuple[index].append((point.get_setUp_number(), point.get_setUp(), point.get_noise(), point.get_energy()))
         
