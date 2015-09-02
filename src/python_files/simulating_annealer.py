@@ -111,7 +111,7 @@ def modifyOperatorSubSetup(operator, T):
     if len(randRange) == 0:
         randRange = [0]
     
-    newNumberOfApxBits = random.choice(range(0,4, 1))
+    newNumberOfApxBits = random.choice(range(0,5, 1))
     #newNumberOfApxBits = oldNumberOfApxBits + random.choice(randRange)
 #    print "here is the T" + str(T) 
 #    print "here is the upper " + str(upperRadius)
@@ -491,6 +491,8 @@ def improvedSimulatedAnnealing2(initialSetUp, noiseRequirement, numberOfApxBitsI
     #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
     tabuList = []  
     maxNumberOfIteation = 100 
+    otherPoinst = []  
+    lOfPoints = []  
     while numberOfApxBitsTemperature > 0:
         foundBetter = False 
         for i in range(0, operatorPickTemperature, 1): 
@@ -513,8 +515,9 @@ def improvedSimulatedAnnealing2(initialSetUp, noiseRequirement, numberOfApxBitsI
             newPoint.set_setUp(newSetUp)
             newPoint.set_setUp_number(0)
             if (newNoise < int(noiseRequirement)):
-                lOfParetoPoints.append(copy.deepcopy(newPoint))
-                lOfParetoPoints = pareto_frontier(lOfParetoPoints, maxX= False, maxY = False)
+                lOfPoints.append(copy.deepcopy(newPoint))
+                otherPoinst.append(newPoint) 
+                lOfParetoPoints = pareto_frontier(lOfPoints, maxX= False, maxY = False)
                 print "*****" 
                 for element in lOfParetoPoints:
                     print "here is the list of pareto Points"
@@ -522,7 +525,11 @@ def improvedSimulatedAnnealing2(initialSetUp, noiseRequirement, numberOfApxBitsI
                 
                 print "done with the list" 
                 print "*****" 
-                bestSetUp = lOfParetoPoints[-1].get_setUp() 
+                bestPoint =  max(lOfParetoPoints, key= lambda x: x.get_noise())
+                bestSetUp = bestPoint.get_setUp() 
+                bestSetUpNoise = bestPoint.get_noise()
+                bestSetUpEnergy = bestPoint.get_energy()
+
                 printToProgressor(annealerProgressionOutputFileP, operatorModifiedIndex, oldSetUp, oldSetUpEnergy, oldSetUpNoise, newSetUp, newEnergy, newNoise, noiseRequirement, percentageCompleted) 
                 if (bestSetUp == newPoint.get_setUp()): 
                     print "here we go" 
@@ -564,7 +571,7 @@ def improvedSimulatedAnnealing2(initialSetUp, noiseRequirement, numberOfApxBitsI
     resultPoint.set_energy(bestSetUpEnergy)
     resultPoint.set_setUp(bestSetUp)
     resultPoint.set_setUp_number(0)
-    return resultPoint,noiseRequirement,[noiseRequirement,bestSetUp, bestSetUpNoise, bestSetUpEnergy], numberOfTries, numberOfSuccessfulTries
+    return resultPoint,otherPoinst, noiseRequirement,[noiseRequirement,bestSetUp, bestSetUpNoise, bestSetUpEnergy], numberOfTries, numberOfSuccessfulTries
 
 
 

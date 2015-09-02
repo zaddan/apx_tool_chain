@@ -78,7 +78,7 @@ def main():
         print "5.AllOperandScenariosInOneFiles" #whether all the operand scenarios can be found in one file or no
         print "6. AllOperandsFileOrDirectoryName" #the user should be providing a file name if AllOperandScenariosInOneFiles is true and a direcoty other   
         print "7. finalResulstFileName"
-        #print "8. signalToNoiseRatio"
+        #print "8. noiseToSignalRatio"
         exit()
 
     
@@ -91,7 +91,7 @@ def main():
     AllOperandScenariosInOneFiles = sys.argv[5]
     AllOperandsFileOrDirectoryName = sys.argv[6]
     finalResultFileName = sys.argv[7]
-    #signalToNoiseRatio = float(sys.argv[8])
+    #noiseToSignalRatio = float(sys.argv[8])
     
     
    
@@ -221,17 +221,6 @@ def main():
     noiseRequirementList = []
     noiseDiffList =[] #contains the difference between the noise request and the noise recieved from simulated annealing ( in percentage)
      
-
-
-    for i in range(0, len(nameOfAllOperandFilesList),1):
-        numberOfTriesList.append({})
-        numberOfSuccessfulTriesList.append({}) 
-        noiseRequirementList.append({})
-        noiseDiffList.append({})
-    
-   
-    #---------guide:::  generate a list of all possible cases for each operator
-    
     allPossibleScenariosForEachOperator = generateAllPossibleScenariosForEachOperator(rootResultFolderName, lAllOpsInSrcFile)
     #---------guide:::  generate all possible apx setUps Possible (mainly used for full permutation design exploration, otherwise called exhustive search)
     allPossibleApxScenarioursList = generateAllPossibleApxScenariousList(allPossibleScenariosForEachOperator)
@@ -313,63 +302,64 @@ def main():
             annealerOutputFileP = open(rootResultFolderName + "/" + settings.annealerOutputFileName, "a")
             simulatedAnnelaingResultDescription = ["noiseRequirements", "bestSetUp", "bestSetUpNoise", "bestSetUpEnergy"]
             listOfSimulatedAnnelaingResult  = [] #result of running the simulatedAnnealing()
-            #initialNoiseRequirement = int(accurateValues[0]) - signalToNoiseRatio*int(accurateValues[0])
-            signalToNoiseRatioRange = settings.signalToNoiseRatioRange 
+            noiseToSignalRatioRange = settings.noiseToSignalRatioRange 
             noiseRequirementsPosition = 0 
             #-----------------  
             
             #-----------------  
-            #---------guide::: iterate through the signalToNoiseRatio and find the (Noise, Energy) pair (where energy is minized and noise satisfies
+            #---------guide::: iterate through the noiseToSignalRatio and find the (Noise, Energy) pair (where energy is minized and noise satisfies
             #----------------: certain requirements. This numbers achieved using simulated annealing
             #-----------------  
-            for signalToNoiseRatio in signalToNoiseRatioRange:
+            lOfNoiseDiff = []  
+            lOfNoiseRequirement = [] 
+            for noiseToSignalRatio in noiseToSignalRatioRange:
                 #----------------- 
                 #---------guide::: setting up the vars relavant to this specific signal to nosie ratio
                 #----------------- 
-                noiseRequirement = int(accurateValues[0]) - signalToNoiseRatio*int(accurateValues[0])
-                noiseRequirementList[operandIndex][signalToNoiseRatio] = noiseRequirement
-                #initialSetUpIndex = random.choice(range(0, len(allPossibleApxScenarioursList)))
-                #initialSetUp = allPossibleApxScenarioursList[initialSetUpIndex] 
+                noiseRequirement = noiseToSignalRatio*int(accurateValues[0])
                 initialSetUp = pickInitialSetUpIndexForSimmulatedAnnelaing(allPossibleApxScenarioursList[0], noiseRequirement, operatorSampleFileFullAddress,executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, accurateValues)
-                
                 numberOfApxBitsStepSize =  settings.numberOfApxBitsStepSize 
                 numberOfApxBitsInitialTemperature = settings.numberOfApxBitsInitialTemperature 
                 operatorPickInitialTemperature = settings.operatorPickInitialTemperature 
                 operatorPickStepSize = settings.operatorPickStepSize 
                 
-                #---------guide:::  calling the simulated_annealing function
-                #listOfSimulatedAnnelaingResult += [NaivesimulatedAnnealing(initialSetUp, noiseRequirement, numberOfApxBitsInitialTemperature, numberOfApxBitsStepSize, operatorSampleFileFullAddress,executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, accurateValues)]
-                simulatedAnnealingResults, numberOfTriesList[operandIndex][str(signalToNoiseRatio)], numberOfSuccessfulTriesList[operandIndex][str(signalToNoiseRatio)] =  improvedSimulatedAnnealing(initialSetUp, noiseRequirement, numberOfApxBitsInitialTemperature, numberOfApxBitsStepSize, operatorPickInitialTemperature, operatorPickStepSize, operatorSampleFileFullAddress,executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, accurateValues, noiseRequirementsPosition, len(signalToNoiseRatioRange) - 1)
+                resultPoint, otherPointsTried, noiseRequirement, simulatedAnnealingResults,numberOfTriesList, numberOfSuccessfulTriesList =improvedSimulatedAnnealing2(initialSetUp, noiseRequirement, numberOfApxBitsInitialTemperature, numberOfApxBitsStepSize, operatorPickInitialTemperature, operatorPickStepSize, operatorSampleFileFullAddress,executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, accurateValues, noiseRequirementsPosition, len(noiseToSignalRatioRange) - 1)
 #                
-#                #---------guide:::  collecting results
-                listOfSimulatedAnnelaingResult += [simulatedAnnealingResults]
+                lOfPoints.append(resultPoint)
+                noiseDiffPercentage =  math.fabs(noiseRequirement - resultPoint.get_noise())/(noiseRequirement)
+                lOfNoiseDiff.append(noiseDiffPercentage)
+                lOfNoiseRequirement.append(noiseRequirement)
                 noiseRequirementsPosition +=1
-            #-----------------  
+        
+                # # ---- here
+                # generateGraph(map(lambda x: x.get_noise(),lOfPoints), map(lambda x: x.get_energy(),lOfPoints),"Noise", "Energy", 'o')
+                # generateGraph(map(lambda x: x.get_noise(),otherPointsTried), map(lambda x: x.get_energy(),otherPointsTried),"Noise", "Energy", 'x')
             
-            #----------------- 
-            #---------guide::: writing the results to output file and also screen
-            #----------------- 
-            for results in listOfSimulatedAnnelaingResult:
-                resultPlusDescriptionList = zip(results, simulatedAnnelaingResultDescription)
+                 
+                # finalResultFileFullAddress = rootResultFolderName + "/" + finalResultFileName
+                # pylab.savefig(finalResultFileFullAddress[:-4]+".png") #saving the figure generated by generateGraph
+                # sys.exit() 
+                # # --- here
+            for index, pointItem in enumerate(lOfPoints):
                 annealerOutputFileP.write( str("*******************************") + "\n")
                 print "********************"
-                for element in resultPlusDescriptionList:
-                    annealerOutputFileP.write( str(element) + "\n")
-                    print element
-                print "********************"
+                annealerOutputFileP.write("noiseRequirement: " + str(lOfNoiseRequirement[index]) + "\n") 
+                annealerOutputFileP.write("noise: " + str(pointItem.get_noise()) + "\n") 
+                annealerOutputFileP.write("noiseDiffPercentage: " + str(lOfNoiseDiff[index])+ "\n") 
+                annealerOutputFileP.write("energy: " + str(pointItem.get_energy()) + "\n") 
+                annealerOutputFileP.write("setUp: " + str(pointItem.get_setUp()) + "\n") 
+                # annealerOutputFileP.write("setUp: " + str(pointItem.get_setUp()) + "\n") 
+
+                
                 annealerOutputFileP.write( str("*******************************") + "\n")
-            
-                noise[operandIndex] += [results[2]]
-                energy[operandIndex] += [results[3]]
-                config[operandIndex].append(polishSetup(results[1])[0])
+                
                 inputFileNameList[operandIndex] += [operandSampleFileName] 
-            #-----------------  
             
+            lOfOperandSet[operandIndex].set_lOfPoints(copy.deepcopy(lOfPoints))
             
             operandIndex += 1
             inputNumber +=1
             annealerOutputFileP.close()
-    
     
    
 
@@ -386,25 +376,20 @@ def main():
     IOAndProcessCharP.write("numberOfTriesList: " + str(numberOfTriesList) + "\n")
     IOAndProcessCharP.write("numberOfSuccessfulTriesList: " + str(numberOfSuccessfulTriesList) + "\n")
     
-    if (mode == "simulated_annealing"):
-        for index1 in range(0,operandIndex,1):
-            for index2 in range(0, len(noise[index1]), 1):
-                noiseDiffList[index1][signalToNoiseRatioRange[index2]] = (float(noise[index1][index2] - noiseRequirementList[index1][signalToNoiseRatioRange[index2]])/ noiseRequirementList[index1][signalToNoiseRatioRange[index2]])
+    # if (mode == "simulated_annealing"):
+        # for index1 in range(0,operandIndex,1):
+            # for index2 in range(0, len(noise[index1]), 1):
+                # noiseDiffList[index1][noiseToSignalRatioRange[index2]] = (float(noise[index1][index2] - noiseRequirementList[index1][noiseToSignalRatioRange[index2]])/ noiseRequirementList[index1][noiseToSignalRatioRange[index2]])
         
-        IOAndProcessCharP.write("signalToNoiseRatioRange: " + str(signalToNoiseRatioRange) + "\n")
-        IOAndProcessCharP.write("noiseDiffList: " + str(noiseDiffList)+  "\n")
-        IOAndProcessCharP.write("numberOfApxBitsStepSize: " + str(numberOfApxBitsStepSize) + "\n")
-        IOAndProcessCharP.write("numberOfApxBitsInitialTemperature: " + str(numberOfApxBitsInitialTemperature) + "\n")
-        IOAndProcessCharP.write("operatorPickInitialTemperature: " + str(operatorPickInitialTemperature)+  "\n")
-    IOAndProcessCharP.write("totalTime: " + str(totalTime) + " " + "minute" + "\n")
-    IOAndProcessCharP.close()
+        # IOAndProcessCharP.write("noiseToSignalRatioRange: " + str(noiseToSignalRatioRange) + "\n")
+        # IOAndProcessCharP.write("noiseDiffList: " + str(noiseDiffList)+  "\n")
+        # IOAndProcessCharP.write("numberOfApxBitsStepSize: " + str(numberOfApxBitsStepSize) + "\n")
+        # IOAndProcessCharP.write("numberOfApxBitsInitialTemperature: " + str(numberOfApxBitsInitialTemperature) + "\n")
+        # IOAndProcessCharP.write("operatorPickInitialTemperature: " + str(operatorPickInitialTemperature)+  "\n")
+    # IOAndProcessCharP.write("totalTime: " + str(totalTime) + " " + "minute" + "\n")
+    # IOAndProcessCharP.close()
    
 
-    print noise
-    print energy
-    print config
-    print inputFileNameList
-    
     #---------guide:::  find the pareto points and store them in resultTuple
     resultTuple = [] #this is a list of pareto Triplets(setup, noise, energy) associated with each 
                        #one of the inputs 
@@ -425,7 +410,8 @@ def main():
             lOfParetoPoints = pareto_frontier(operandSetItem.get_lOfPoints(), maxX= False, maxY = False)
             operandSetItem.set_lOf_pareto_points(lOfParetoPoints)
         elif (mode == "simulated_annealing"):
-            paretoNoise, paretoEnergy = noise[i], energy[i]
+            lOfParetoPoints = operandSetItem.get_lOfPoints() 
+            operandSetItem.set_lOf_pareto_points(lOfParetoPoints)
         #---------guide:::  find the setUps that corresponds to the pareto Points
         setUpNumberList = [] #contains the list of setUp numbers associated with the pareto set 
                              #this is used to avoid duplicate
