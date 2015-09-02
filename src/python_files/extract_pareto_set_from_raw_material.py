@@ -1,4 +1,6 @@
 import matplotlib.pyplot as plt
+import sys
+import math
 # Copyright (C) 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -29,9 +31,15 @@ Default behaviour is to find the maximum for both X and Y, but the option is
 available to specify maxX = False or maxY = False to find the minimum for either
 or both of the parameters.
 '''
-def pareto_frontier(Xs, Ys, maxX = True, maxY = True):
+def pareto_frontier(lOfPoints , maxX = True, maxY = True):
     # Sort the list in either ascending or descending order of X
-    myList = sorted([[Xs[i], Ys[i]] for i in range(len(Xs))], reverse=maxX)
+    Xs = []  
+    Ys = []  
+    for point in lOfPoints:
+        Xs.append(point.get_noise())
+        Ys.append(point.get_energy())
+    
+    myList = sorted([[Xs[i], Ys[i], i] for i in range(len(Xs))], reverse=maxX)
     # Start the Pareto frontier with the first value in the sorted list
     p_front = [myList[0]]    
     # Loop through the sorted list
@@ -45,12 +53,45 @@ def pareto_frontier(Xs, Ys, maxX = True, maxY = True):
     # Turn resulting pairs back into a list of Xs and Ys
     p_frontX = [pair[0] for pair in p_front]
     p_frontY = [pair[1] for pair in p_front]
-#    print p_frontX
-#    print p_frontY
-#    sys.exit()
-    return p_frontX, p_frontY
+    p_index = [pair[2] for pair in p_front] 
+    # return p_frontX, p_frontY
+    lOfParetoPoints = [] 
+    for index in sorted(p_index):
+        lOfParetoPoints.append(lOfPoints[index])
+    return lOfParetoPoints
 
 
+
+def pareto_frontier_revised(lOfPoints , maxX = True, maxY = True):
+    # Sort the list in either ascending or descending order of X
+    Xs = []  
+    Ys = []  
+    for point in lOfPoints:
+        Xs.append(point.get_noise())
+        Ys.append(point.get_energy())
+    
+    myList = sorted([[Xs[i], Ys[i], i] for i in range(len(Xs))], reverse=maxX)
+    # Start the Pareto frontier with the first value in the sorted list
+    numberOfDevisions = 100  
+    upperBoundX = myList[-1][0]
+    lowerBoundX =  myList[0][0]
+    devisionSize = math.fabs(upperBoundX - lowerBoundX)/numberOfDevisions
+    rangeList = [[] for i in range(numberOfDevisions)] 
+    for devNum in range(numberOfDevisions):
+        lowerBoundX = devNum*devisionSize
+        upperBoundX = (devNum+1)*devisionSize
+        for element in myList:
+            if lowerBoundX < element[0] <= upperBoundX:
+                rangeList[devNum].append(element)
+            if element[0] >  upperBoundX:
+                break
+    lOfParetoPoints = [] 
+    for listValues in rangeList:
+        if (listValues):
+            lOfParetoPoints.append(lOfPoints[min(listValues, key= lambda x: x[1])[2]])
+    print lOfParetoPoints
+    print "*******"
+    return lOfParetoPoints
 
 
 

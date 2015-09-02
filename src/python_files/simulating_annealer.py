@@ -1,9 +1,10 @@
 import random
 import math
-
+from points_class import *
 from extract_result_properties import *
 from modify_operator_sample_file import *
 from src_parse_and_apx_op_space_gen import *
+from extract_pareto_set_from_raw_material import *
 import copy
 from misc import *
 def getFirstTwo(myList):
@@ -110,7 +111,7 @@ def modifyOperatorSubSetup(operator, T):
     if len(randRange) == 0:
         randRange = [0]
     
-    newNumberOfApxBits = random.choice(range(0,3, 1))
+    newNumberOfApxBits = random.choice(range(0,4, 1))
     #newNumberOfApxBits = oldNumberOfApxBits + random.choice(randRange)
 #    print "here is the T" + str(T) 
 #    print "here is the upper " + str(upperRadius)
@@ -147,13 +148,21 @@ def changeAllOperators(operatorList, numberOfApxBits):
 
 
 
-def make_move(operatorList, T):
+def make_move(tabuList, operatorList, T, maxNumberOfIteation):
     random.seed() 
-    operatorIndex = chooseAnOperatorIndex(operatorList) #randomly choose an operator to modify
-    operatorModified = modifyOperatorSubSetup(operatorList[operatorIndex], T) #randomly modify it (based on temperature)
-    #modify the set up 
-    newSetUp = copy.copy(operatorList)
-    newSetUp[operatorIndex] = operatorModified
+    numberOfIteration = 0 
+    while(True): 
+        operatorIndex = chooseAnOperatorIndex(operatorList) #randomly choose an operator to modify
+        operatorModified = modifyOperatorSubSetup(operatorList[operatorIndex], T) #randomly modify it (based on temperature)
+        #modify the set up 
+        newSetUp = copy.copy(operatorList)
+        newSetUp[operatorIndex] = operatorModified
+        if not(newSetUp in tabuList): 
+            tabuList.append(newSetUp)
+            break
+        elif numberOfIteration > maxNumberOfIteation:
+            break
+        numberOfIteration +=1
     return newSetUp, operatorModified, operatorIndex
 
 
@@ -208,7 +217,8 @@ def naiveSimulatedAnnealing(initialSetUp, noiseRequirements, initialTemperature,
 #        
        
         #---------guide:::  deciding whether the output associated with the new set up acceptable
-        if (newNoise < int(noiseRequirements) and (newNoise > .85*int(noiseRequirements))):
+        if (newNoise < int(noiseRequirements) and (newNoise > .4*int(noiseRequirements))):
+        # if (newNoise < int(noiseRequirements) and (newNoise > .85*int(noiseRequirements))):
             if(newEnergy < bestSetUpEnergy):
                 print "found one better setup"
                 print "old setUp: " + str(bestSetUp)
@@ -307,8 +317,7 @@ def pickInitialSetUpIndexForSimmulatedAnnelaing(initialSetUp, noiseRequirements,
 
 
 
-def improvedSimulatedAnnealing(initialSetUp, noiseRequirements, numberOfApxBitsInitialTemperature, numberOfApxBitsStepSize, operatorPickInitialTemperature, operatorPickStepSize, operatorSampleFileFullAddress,executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, accurateValues, noiseRequirementsPosition, totalNumberOfNoiseRequirements):
-    
+def improvedSimulatedAnnealing(initialSetUp, noiseRequirement, numberOfApxBitsInitialTemperature, numberOfApxBitsStepSize, operatorPickInitialTemperature, operatorPickStepSize, operatorSampleFileFullAddress,executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, accurateValues, noiseRequirementPosition, totalNumberOfNoiseRequirements):
     #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
     #---------guide:::  variables
     #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
@@ -321,7 +330,6 @@ def improvedSimulatedAnnealing(initialSetUp, noiseRequirements, numberOfApxBitsI
     bestSetUp = initialSetUp  #setting the bestSetUp to initialSetup
     numberOfTries = 0 #indicates the number of times that we have try a new set of operator to acquire a better result. (note that this is not the number of time that we have been succesfully changed the operators)
     numberOfSuccessfulTries = 0 #number of tries that our operator substituion resulted in a better set of oprators (satisifes some constaint and took us closer to the final result)
-
 
     #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
     #---------guide:::  get information regarding the initial Setup
@@ -341,13 +349,15 @@ def improvedSimulatedAnnealing(initialSetUp, noiseRequirements, numberOfApxBitsI
     #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
     #---------guide:::  start the iterative process of simulated_annealing
     #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
+    tabuList = []  
+    maxNumberOfIteation = 100 
     while numberOfApxBitsTemperature > 0:
         #---------guide::: if we found a better set of operators, output in the command prompt and also to a file
         #-----------------  
         foundBetter = False 
         for i in range(0, operatorPickTemperature, 1): 
             numberOfTries += 1 
-            newSetUp, operatorModified, operatorModifiedIndex= make_move(bestSetUp, numberOfApxBitsTemperature)
+            newSetUp, operatorModified, operatorModifiedIndex= make_move(tabuList,bestSetUp, numberOfApxBitsTemperature, maxNumberOfIteation)
             newEnergy = getEnergy(newSetUp) 
             
             #---------guide:::  erasing the previuos content of the file
@@ -375,25 +385,25 @@ def improvedSimulatedAnnealing(initialSetUp, noiseRequirements, numberOfApxBitsI
             #1. make sure new noise satisfies the requirement
             #2. if new new is closer to the requirement than oldnoise or if it falls within a certain margin
             #3. if energy of the new set up is smaller than the energy of the old set up of falls within a certain margin
-            if (newNoise < int(noiseRequirements)):
-                if withinSomePercent(math.fabs(newNoise - int(noiseRequirements)), math.fabs(bestSetUpNoise - int(noiseRequirements)),settings.annealersAcceptableImprovementOnNoiseMarginePercentage) or (math.fabs(newNoise - int(noiseRequirements)) < math.fabs(bestSetUpNoise - int(noiseRequirements))):
+            if (newNoise < int(noiseRequirement)):
+                if withinSomePercent(math.fabs(newNoise - int(noiseRequirement)), math.fabs(bestSetUpNoise - int(noiseRequirement)),settings.annealersAcceptableImprovementOnNoiseMarginePercentage) or (math.fabs(newNoise - int(noiseRequirement)) < math.fabs(bestSetUpNoise - int(noiseRequirement))):
                     if(withinSomePercent(newEnergy, bestSetUpEnergy, settings.annealersAcceptableEnergyMarginePercentage)) or (newEnergy < bestSetUpEnergy):
-#                        print "new noise diff: " + str(math.fabs(newNoise - int(noiseRequirements)))
-#                        print "old noise diff:" + str(math.fabs(bestSetUpNoise - int(noiseRequirements)))
+#                        print "new noise diff: " + str(math.fabs(newNoise - int(noiseRequirement)))
+#                        print "old noise diff:" + str(math.fabs(bestSetUpNoise - int(noiseRequirement)))
                         
-#                        printToCommandPrompt(operatorModifiedIndex, oldSetUp, oldSetUpEnergy, oldSetUpNoise, newSetUp, newEnergy, newNoise, noiseRequirements, percentageCompleted) 
+#                        printToCommandPrompt(operatorModifiedIndex, oldSetUp, oldSetUpEnergy, oldSetUpNoise, newSetUp, newEnergy, newNoise, noiseRequirement, percentageCompleted) 
 #                        sys.exit() 
                         bestSetUp = newSetUp
                         bestSetUpEnergy = newEnergy
                         bestSetUpNoise = newNoise
                         
                         
-                        printToProgressor(annealerProgressionOutputFileP, operatorModifiedIndex, oldSetUp, oldSetUpEnergy, oldSetUpNoise, newSetUp, newEnergy, newNoise, noiseRequirements, percentageCompleted) 
+                        printToProgressor(annealerProgressionOutputFileP, operatorModifiedIndex, oldSetUp, oldSetUpEnergy, oldSetUpNoise, newSetUp, newEnergy, newNoise, noiseRequirement, percentageCompleted) 
                         foundBetter = True 
 
                         numberOfSuccessfulTries += 1
                    
-            #printToCommandPrompt(operatorModifiedIndex, oldSetUp, oldSetUpEnergy, oldSetUpNoise, newSetUp, newEnergy, newNoise, noiseRequirements, percentageCompleted) 
+            #printToCommandPrompt(operatorModifiedIndex, oldSetUp, oldSetUpEnergy, oldSetUpNoise, newSetUp, newEnergy, newNoise, noiseRequirement, percentageCompleted) 
         #-----------------  
         
         #-----------------  
@@ -401,9 +411,9 @@ def improvedSimulatedAnnealing(initialSetUp, noiseRequirements, numberOfApxBitsI
         #-----------------  
         if (foundBetter):
              
-            printToCommandPrompt(operatorModifiedIndex, oldSetUp, oldSetUpEnergy, oldSetUpNoise, newSetUp, newEnergy, newNoise, noiseRequirements, percentageCompleted) 
+            printToCommandPrompt(operatorModifiedIndex, oldSetUp, oldSetUpEnergy, oldSetUpNoise, newSetUp, newEnergy, newNoise, noiseRequirement, percentageCompleted) 
             annealerProgressionOutputFileP.write("&&&&&&&&&&&&&&&&&&&&&&&&&&&")
-            printToProgressor(annealerProgressionOutputFileP, operatorModifiedIndex, oldSetUp, oldSetUpEnergy, oldSetUpNoise, newSetUp, newEnergy, newNoise, noiseRequirements, percentageCompleted) 
+            printToProgressor(annealerProgressionOutputFileP, operatorModifiedIndex, oldSetUp, oldSetUpEnergy, oldSetUpNoise, newSetUp, newEnergy, newNoise, noiseRequirement, percentageCompleted) 
             annealerProgressionOutputFileP.write("&&&&&&&&&&&&&&&&&&&&&&&&&&&")
             progressionList.append(operatorModifiedIndex) 
         #-----------------  
@@ -412,7 +422,7 @@ def improvedSimulatedAnnealing(initialSetUp, noiseRequirements, numberOfApxBitsI
         #---------guide::: updating the temperature
         #-----------------  
         numberOfApxBitsTemperature, percentageCompleted = updateNumberOfApxBitsTemperature(numberOfApxBitsInitialTemperature, numberOfApxBitsStepSize*stepNumber)
-        print "percentage completed: " + str(percentageCompleted) + " for " + str(noiseRequirementsPosition) + " out of " + str(totalNumberOfNoiseRequirements) + " noiseRequirements"
+        print "percentage completed: " + str(percentageCompleted) + " for " + str(noiseRequirementPosition) + " out of " + str(totalNumberOfNoiseRequirements) + " noiseRequirement"
         stepNumber += 1
         #operatorPickTemperature = updateOperatorPickTemperature(operatorPickInitialTemperature, operatorPickStepSize*stepNumber)
         operatorPickTemperature = int(numberOfApxBitsTemperature*operatorPickInitialTemperature)
@@ -434,7 +444,128 @@ def improvedSimulatedAnnealing(initialSetUp, noiseRequirements, numberOfApxBitsI
     #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
     #---------guide::: return
     #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
-    return [noiseRequirements,bestSetUp, bestSetUpNoise, bestSetUpEnergy], numberOfTries, numberOfSuccessfulTries
+    resultPoint = points()
+    resultPoint.set_noise(bestSetUpNoise)
+    resultPoint.set_energy(bestSetUpEnergy)
+    resultPoint.set_setUp(bestSetUp)
+    resultPoint.set_setUp_number(0)
+    return resultPoint,noiseRequirement,[noiseRequirement,bestSetUp, bestSetUpNoise, bestSetUpEnergy], numberOfTries, numberOfSuccessfulTries
+
+
+
+def improvedSimulatedAnnealing2(initialSetUp, noiseRequirement, numberOfApxBitsInitialTemperature, numberOfApxBitsStepSize, operatorPickInitialTemperature, operatorPickStepSize, operatorSampleFileFullAddress,executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, accurateValues, noiseRequirementPosition, totalNumberOfNoiseRequirements):
+    #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
+    #---------guide:::  variables
+    #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
+    progressionList = []  #this list helps us understand the progression of the oeprators that were swapped
+    annealerProgressionOutputFileP = open(rootResultFolderName + "/" + settings.annealerProgressionOutputFileName, "a") #this file contains the informatino about the progression of the operators that were swapped
+    percentageCompleted = 0  #what percentage of the iterations are completed (this is hard to calculate sometimes) as the number of iterations can vary dynamically (not always linearly)
+    stepNumber = 0 #is used in modifying the temperature
+    numberOfApxBitsTemperature = numberOfApxBitsInitialTemperature #one of the temperatures
+    operatorPickTemperature = operatorPickInitialTemperature #one of the temperatues
+    bestSetUp = initialSetUp  #setting the bestSetUp to initialSetup
+    numberOfTries = 0 #indicates the number of times that we have try a new set of operator to acquire a better result. (note that this is not the number of time that we have been succesfully changed the operators)
+    numberOfSuccessfulTries = 0 #number of tries that our operator substituion resulted in a better set of oprators (satisifes some constaint and took us closer to the final result)
+
+    #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
+    #---------guide:::  get information regarding the initial Setup
+    #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
+    bestSetUpEnergy = getEnergy(initialSetUp) 
+    #---------guide:::  erasing the previuos content of the file
+    open(CSourceOutputForVariousSetUpFileName, "w").close()
+    #---------guide:::  modify the operator sample file
+    modifyOperatorSampleFile(operatorSampleFileFullAddress, initialSetUp)
+    #---------guide:::  run the csrouce file with the new setup(operators)
+    make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName)
+    #---------guide::: get the noise
+    bestSetUpNoise = extractNoiseForOneInput(CSourceOutputForVariousSetUpFileName , accurateValues)
+
+    newPoint = points()
+    newPoint.set_noise(bestSetUpNoise)
+    newPoint.set_energy(bestSetUpEnergy)
+    newPoint.set_setUp(bestSetUp)
+    newPoint.set_setUp_number(0)
+    lOfParetoPoints = [newPoint]
+    #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
+    #---------guide:::  start the iterative process of simulated_annealing
+    #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
+    tabuList = []  
+    maxNumberOfIteation = 100 
+    while numberOfApxBitsTemperature > 0:
+        foundBetter = False 
+        for i in range(0, operatorPickTemperature, 1): 
+            numberOfTries += 1 
+            newSetUp, operatorModified, operatorModifiedIndex= make_move(tabuList,bestSetUp, numberOfApxBitsTemperature, maxNumberOfIteation)
+            newEnergy = getEnergy(newSetUp) 
+            
+            open(CSourceOutputForVariousSetUpFileName, "w").close()
+            modifyOperatorSampleFile(operatorSampleFileFullAddress, newSetUp)
+            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName)
+            newNoise = int(extractNoiseForOneInput(CSourceOutputForVariousSetUpFileName , accurateValues))
+                
+            oldSetUp = bestSetUp 
+            oldSetUpEnergy =  bestSetUpEnergy
+            oldSetUpNoise = bestSetUpNoise
+            
+            newPoint = points()
+            newPoint.set_noise(newNoise)
+            newPoint.set_energy(newEnergy)
+            newPoint.set_setUp(newSetUp)
+            newPoint.set_setUp_number(0)
+            if (newNoise < int(noiseRequirement)):
+                lOfParetoPoints.append(copy.deepcopy(newPoint))
+                lOfParetoPoints = pareto_frontier(lOfParetoPoints, maxX= False, maxY = False)
+                print "*****" 
+                for element in lOfParetoPoints:
+                    print "here is the list of pareto Points"
+                    print element.get_noise()
+                
+                print "done with the list" 
+                print "*****" 
+                bestSetUp = lOfParetoPoints[-1].get_setUp() 
+                printToProgressor(annealerProgressionOutputFileP, operatorModifiedIndex, oldSetUp, oldSetUpEnergy, oldSetUpNoise, newSetUp, newEnergy, newNoise, noiseRequirement, percentageCompleted) 
+                if (bestSetUp == newPoint.get_setUp()): 
+                    print "here we go" 
+                    foundBetter = True 
+                    numberOfSuccessfulTries += 1
+                   
+        if (foundBetter):
+            annealerProgressionOutputFileP.write("&&&&&&&&&&&&&&&&&&&&&&&&&&&")
+            printToProgressor(annealerProgressionOutputFileP, operatorModifiedIndex, oldSetUp, oldSetUpEnergy, oldSetUpNoise, newSetUp, newEnergy, newNoise, noiseRequirement, percentageCompleted) 
+            annealerProgressionOutputFileP.write("&&&&&&&&&&&&&&&&&&&&&&&&&&&")
+            progressionList.append(operatorModifiedIndex) 
+        
+        #---- updating the temperature
+        numberOfApxBitsTemperature, percentageCompleted = updateNumberOfApxBitsTemperature(numberOfApxBitsInitialTemperature, numberOfApxBitsStepSize*stepNumber)
+        print "percentage completed: " + str(percentageCompleted) + " for " + str(noiseRequirementPosition) + " out of " + str(totalNumberOfNoiseRequirements) + " noiseRequirement"
+        stepNumber += 1
+        #operatorPickTemperature = updateOperatorPickTemperature(operatorPickInitialTemperature, operatorPickStepSize*stepNumber)
+        operatorPickTemperature = int(numberOfApxBitsTemperature*operatorPickInitialTemperature)
+        #-----------------  
+    
+
+
+    #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
+    #---------guide::: final outputing and closing file ptrs
+    #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
+    print "total number of iterations:", stepNumber
+    if (numberOfSuccessfulTries == 0):
+        annealerProgressionOutputFileP.write("no config satisfied the Noie" + "\n")
+    annealerProgressionOutputFileP.write("progression of the operator progressions based on index: " + str(progressionList))
+    annealerProgressionOutputFileP.close()
+    
+
+    
+    #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
+    #---------guide::: return
+    #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
+    resultPoint = points()
+    resultPoint.set_noise(bestSetUpNoise)
+    resultPoint.set_energy(bestSetUpEnergy)
+    resultPoint.set_setUp(bestSetUp)
+    resultPoint.set_setUp_number(0)
+    return resultPoint,noiseRequirement,[noiseRequirement,bestSetUp, bestSetUpNoise, bestSetUpEnergy], numberOfTries, numberOfSuccessfulTries
+
 
 
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

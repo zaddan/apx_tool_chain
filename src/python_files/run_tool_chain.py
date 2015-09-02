@@ -20,7 +20,8 @@
 # @brief  this file run the  the whole tool chain 
 # @author Behzad Boroujerdian
 # @date 2015-07-01
-
+import pickle
+import copy
 import pylab
 import sys
 import os
@@ -37,6 +38,7 @@ from clean_up import *
 from simulating_annealer import *
 from misc import *
 import datetime
+from points_class import *
 
 def polishSetup(setUp):
     result = []  
@@ -240,11 +242,15 @@ def main():
     open(rootResultFolderName +  "/" + settings.annealerOutputFileName, "w").close()
     
     #---------guide::: go through operand files and sweep the apx space
+    lOfOperandSet = [] 
     timeBeforeFindingResults = datetime.datetime.now()
     for operandSampleFileName in nameOfAllOperandFilesList:
         countSoFar = 0 
         #clearly state where the new results associated with the new input starts 
         CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings.rawResultFolderName + "/" + settings.csourceOutputFileName + str(inputNumber) + ".txt" #where to collect C++ source results
+        lOfPoints = []  
+        lOfOperandSet.append(operandSet(get_operand_values(operandSampleFileName))) 
+        
         accurateValues = []
         noise.append([])
         energy.append( [])
@@ -272,29 +278,23 @@ def main():
         if (mode == "allPermutations"): 
             while (True): #break when a signal is raised as done
                 print "\n" + str(100*float(apxIndexSetUp)/len(allPossibleApxScenarioursList)) + "% done" 
-                #---------guide:::  get a possible setUp
                 status, setUp = generateAPossibleApxScenarios(rootResultFolderName + "/" + settings.AllPossibleApxOpScenarios, allPossibleApxScenarioursList , apxIndexSetUp, mode) 
-
-                #---------guide:::  collect data
                 energyValue = [calculateEnergy(map(getFirstTwo, setUp))]
                 configValue = polishSetup(setUp) #just to make it more readable
                 inputFileNameListValue = [operandSampleFileName] 
-
-                #---------guide:::  erasing the previuos content of the file
                 CSourceOutputForVariousSetUpP = open(CSourceOutputForVariousSetUpFileName, "w").close()
-
-                #---------guide:::  modify the operator sample file
                 modifyOperatorSampleFile(operatorSampleFileFullAddress, setUp)
-                #---------guide:::  run the CSrouce file with the new setUp(operators)
                 make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName)
-
-                #---------guide::: noise
                 noiseValue = [extractNoiseForOneInput(CSourceOutputForVariousSetUpFileName , accurateValues)]
 
-                #---------guide:::  if havn't gotten the accurate value yet, the first value provided is. Thus, this value is the accurate value
-
+                newPoint = points()
+                newPoint.set_noise(noiseValue[0])
+                newPoint.set_energy(energyValue[0])
+                newPoint.set_setUp(configValue[0])
+                newPoint.set_setUp_number(apxIndexSetUp)
+                lOfPoints.append(copy.deepcopy(newPoint)) 
+                
                 noise[operandIndex] += noiseValue
-
                 energy[operandIndex] += energyValue
                 config[operandIndex] +=configValue
                 inputFileNameList[operandIndex] += inputFileNameListValue
@@ -302,6 +302,7 @@ def main():
                 if (status == "done"):
                     break;
 
+            lOfOperandSet[operandIndex].set_lOfPoints(copy.deepcopy(lOfPoints))
             operandIndex += 1
             inputNumber +=1
         
@@ -415,35 +416,54 @@ def main():
     symbolsToChooseFrom = ['*', 'x', "o", "+", "*", "-", "^"] #symbols to draw the plots with
     symbolsCollected = [] #this list contains the symbols collected for every new input 
     #---------guide:::  get the noise for each input
-    for i in range(0, len(noise), 1):
+    for i,operandSetItem in enumerate(lOfOperandSet):
         paretoNoise = []  #cleaning the previous values if exist
         paretoEnergy = [] #cleaning the previous values if exist         
         #---------guide:::  get the pareto set
         if (mode == "allPermutations"): 
-            paretoNoise, paretoEnergy = noise[i], energy[i]
-            # paretoNoise, paretoEnergy = pareto_frontier(noise[i], energy[i], maxX= False, maxY = False)
+            # lOfParetoPoints =  operand.get_lOfPoints()
+            lOfParetoPoints = pareto_frontier(operandSetItem.get_lOfPoints(), maxX= False, maxY = False)
+            operandSetItem.set_lOf_pareto_points(lOfParetoPoints)
         elif (mode == "simulated_annealing"):
             paretoNoise, paretoEnergy = noise[i], energy[i]
         #---------guide:::  find the setUps that corresponds to the pareto Points
         setUpNumberList = [] #contains the list of setUp numbers associated with the pareto set 
                              #this is used to avoid duplicate
-        for j in range(0, len(paretoNoise), 1):
-            pair =  (paretoNoise[j], paretoEnergy[j]) #pair to look for
-            setUpNumber = findPosition(pair, noise[i], energy[i], setUpNumberList)
-            setUpNumberList.append(setUpNumber) 
-            #---------guide:::  the reason that we are provided with a list is that it is possible
-            #to find the pair (noise,energy) in multiple setUps (configurations)
-            resultTuple[i].append((setUpNumber,config[i][setUpNumber], paretoNoise[j], paretoEnergy[j]))
         
-        #---------guide:::  generate pareto graph
-        generateGraph(paretoNoise,paretoEnergy, "Noise", "Energy", symbolsToChooseFrom[i%len(symbolsToChooseFrom)])
-        symbolsCollected.append(symbolsToChooseFrom[i%len(symbolsToChooseFrom)])
-         
-      
-    #---------guide:::  writing the result back
+# mode = "only_read_values"
+# mode = "read_values_and_get_pareto"
+    PIK = "pickle_stuff.dat"
+    if not(mode == "only_read_values" or mode == "read_values_and_get_pareto"):
+        for operandSetItem in lOfOperandSet: 
+            with open(PIK, "wb") as f:
+                pickle.dump(operandSetItem, f)
+
+    
+    # ---- reading the values back
+    if (mode == "only_read_values" or mode == "read_values_and_get_pareto"):
+        lOfOperandSet = [] 
+        with open(PIK, "rb") as f:
+            # pickle.load(f)
+            while True: 
+                try: 
+                    operandSetItem = pickle.load(f)# 
+                    lOfOperandSet.append(operandSetItem)# 
+                    # listOfPeople.append(copy.copy(person))# 
+                except Exception as ex:
+                    if not (type(ex).__name__ == "EOFError"):
+                        print type(ex).__name__ 
+                        print ex.args
+                    break
+    for index, operandSetItem in enumerate(lOfOperandSet):
+        for j,point in enumerate(operandSetItem.get_lOf_pareto_points()):
+            resultTuple[index].append((point.get_setUp_number(), point.get_setUp(), point.get_noise(), point.get_energy()))
+        
+    #---- generate pareto graph
+    generateGraph(map(lambda x: x.get_noise(),lOfParetoPoints), map(lambda x: x.get_energy(),lOfParetoPoints),"Noise", "Energy", symbolsToChooseFrom[i%len(symbolsToChooseFrom)])
+    symbolsCollected.append(symbolsToChooseFrom[i%len(symbolsToChooseFrom)])
+     
     finalResultFileFullAddress = rootResultFolderName + "/" + finalResultFileName
-    #---------guide:::  writing the result in human readable format to a file
-    writeReadableOutput(resultTuple, inputFileNameList, symbolsCollected, finalResultFileFullAddress)
+    writeReadableOutput(resultTuple,  symbolsCollected, finalResultFileFullAddress)
     pylab.savefig(finalResultFileFullAddress[:-4]+".png") #saving the figure generated by generateGraph
     
     #---------guide:::  getting back up of the results

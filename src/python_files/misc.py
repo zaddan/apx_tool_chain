@@ -6,6 +6,23 @@ from db_misc import *
 from db_create_table_python_IP import *
 from db_retrieve_table_python_IP import *
 
+def get_operand_values(sourceFileName):
+    try:
+        f = open(sourceFileName)
+    except IOError:
+        handleIOError(sourceFileName, "csource file")
+        exit()
+    else:
+        with f:
+            for line in f:
+                operandValues = line.replace(',', ' ').replace('/',' ').replace(';', ' ').split(' ')
+                if not(operandValues):
+                    "*******Error *****"
+                    print "file with the address" + str(sourceFileName) + " required for gettign the operand values's first is blank"
+                    exit()
+                break;
+    return operandValues 
+
 def handleIOError(fileAddress, filePurpose):
     print "file with the address of " + str(fileAddress) + " " + "for the purpose of " + str(filePurpose)  + " is not found"
 
