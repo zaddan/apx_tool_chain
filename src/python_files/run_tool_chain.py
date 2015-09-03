@@ -52,7 +52,7 @@ def polishSetup(setUp):
 # 
 # @return : no return
 def main():
-    #---------guide:::  promting ther user regarding the required input 
+    #---------guide:::  promting ther user regarding the required input
     print "the following inputs with the order mentioned needs to be provided"
     print "1.source folder address"
     print "2.source file address"
