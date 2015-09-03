@@ -28,7 +28,6 @@ import sys
 import os
 import datetime
 from collections import defaultdict 
-
 from src_parse_and_apx_op_space_gen import *
 from modify_operator_sample_file import *
 #from sample_operand_and_sweep_apx_space import *
@@ -38,7 +37,7 @@ from plot_generation import *
 import matplotlib.pyplot as plt
 from find_position import *
 from write_readable_output import *
-from clean_up import *
+from Clean_up import *
 from simulating_annealer import *
 from misc import *
 from curve_fit import *
@@ -46,8 +45,7 @@ from db_create_table_python_IP import *
 from db_retrieve_table_python_IP import *
 
 logFileAddress = "/home/polaris/behzad/apx_tool_chain/generated_text/" + settings.logFileName
-
-## 
+##
 # @brief generates operands if the operands do not have the same lower,upper bounds, etc. For now, it is only functional for two input operators
 # 
 # @param numberOfOperands

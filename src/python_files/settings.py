@@ -111,10 +111,12 @@ annealerProgressionOutputFileName = "annealer_progression_output.txt"  #the file
 IOAndProcessCharFileName = "IOAndProcessChar.txt" #this file will contain the information about the input(operands, operators of the CSource) and output and process characteristics such as the time that it took or the number of the operators that were explored
 mode = "allPermutations" 
 # mode = "simulated_annealing"
-signalToNoiseRatioRange =  floatRange(.5, .67, .1)
-numberOfApxBitsStepSize = .01
+# mode = "only_read_values"
+# mode = "read_values_and_get_pareto"
+noiseToSignalRatioRange =  floatRange(0.001, .07, .01)
+numberOfApxBitsStepSize = .3
 numberOfApxBitsInitialTemperature = 1
-operatorPickInitialTemperature = 3
+operatorPickInitialTemperature = 10 
 operatorPickStepSize = 1
              
 
@@ -128,8 +130,8 @@ global lAllApxVersionOfEachOps
 
 
 #lAllApxVersionOfEachOps = [GenOpSpace("bta", 8,[32,33, 0,10, 0,1, 0, 1]), GenOpSpace("btm", 4,[32, 33, 0, 10])]
-# lAllApxVersionOfEachOps = [GenOpSpace("bta", 8,[32,33, 0,3, 0,1, 0, 1]), GenOpSpace("btm", 4,[32, 33, 0, 10])]
-lAllApxVersionOfEachOps = [GenOpSpace("bta", 8,[32,33, 0,3, 0,1, 0, 1]), GenOpSpace("btm", 4,[32, 33, 0, 1])]
+lAllApxVersionOfEachOps = [GenOpSpace("bta", 8,[32,33, 0,3, 0,1, 0, 1]), GenOpSpace("btm", 4,[32, 33, 0, 2])]
+# lAllApxVersionOfEachOps = [GenOpSpace("bta", 8,[32,33, 0,3, 0,1, 0, 1]), GenOpSpace("btm", 4,[32, 33, 0, 3])]
 
 for element in lAllApxVersionOfEachOps:
     element.sweepInput()
