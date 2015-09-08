@@ -21,6 +21,8 @@ from matplotlib import cm
 def calculateNoise(accurateValues, currentValues):
     if not(len(accurateValues) == len(currentValues)):
         print "**********ERROR********" 
+        print "here is the accurate values: " + str(accurateValues)
+        print "here is the current values: " + str(currentValues)
         print "number of results subelements for currentValues and accuratValues are not the same"
         print "check the " + settings.rawresultFileName + " file"
         print "**********ERROR********" 

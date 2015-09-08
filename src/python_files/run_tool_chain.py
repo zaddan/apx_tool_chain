@@ -26,6 +26,12 @@ import pylab
 import sys
 import os
 
+from genetic_algorithm import *
+from deap import algorithms
+from points_class import *
+from deap import base
+from deap import creator
+from deap import tools
 from src_parse_and_apx_op_space_gen import *
 from modify_operator_sample_file import *
 #from sample_operand_and_sweep_apx_space import *
@@ -305,6 +311,50 @@ def main():
             lOfOperandSet[operandIndex].set_lOfPoints(copy.deepcopy(lOfPoints))
             operandIndex += 1
             inputNumber +=1
+        
+        elif (mode == "genetic_algorithm"):
+            allConfs = [] #first generation
+            remainingPopulation = allPossibleApxScenarioursList[:]
+            numberOfIndividualsToStartWith = min(settings.numberOfIndividualsToStartWith, len(allPossibleApxScenarioursList)) 
+            for index in range(numberOfIndividualsToStartWith):
+                indexToChoose =  random.choice(range(0, len(remainingPopulation), 1))
+                sampleSetUp =  remainingPopulation[indexToChoose]
+                remainingPopulation.pop(indexToChoose) 
+                allConfs.append(sampleSetUp)
+            
+            creator.create("FitnessMax", base.Fitness, weights=(-1.0, -1.0))
+            creator.create("Individual", list, fitness=creator.FitnessMax)
+            toolbox = base.Toolbox()
+
+            # Operator registering
+            toolbox.register("individual", tools.initRepeat, creator.Individual)
+            # toolbox.register("population", tools.initRepeat, list, toolbox.individual )
+            population = []
+            for index in range(len(allConfs)):
+                myGenerator = return_conf(allConfs[index])
+                population.append(toolbox.individual(lambda: next(myGenerator), len(allConfs[index])))
+            NGEN = 10 
+            MU = 100  #number of indi for the next gen
+            LAMBDA = 30 #number of children
+            CXPB = 0.7
+            MUTPB = 0.3
+            population = run_spea2(NGEN, MU, LAMBDA, CXPB, MUTPB, population,
+                    CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress,
+                    executableName, executableInputList, rootResultFolderName, CBuildFolder,
+                    operandSampleFileName, accurateValues, toolbox)
+            
+            lOfPoints = []  
+            for individual in population:
+                newPoint = points()
+                newPoint.set_noise(individual.fitness.values[1])
+                newPoint.set_energy(individual.fitness.values[0])
+
+                newPoint.set_setUp(individual)
+                newPoint.set_setUp_number(0)
+                lOfPoints.append(newPoint)
+            
+            lOfOperandSet[operandIndex].set_lOfPoints(copy.deepcopy(lOfPoints))
+            operandIndex += 1
         elif (mode == "simulated_annealing"):
             outP = open("out", "w") 
             annealerOutputFileP = open(rootResultFolderName + "/" + 
@@ -413,6 +463,9 @@ def main():
         if (mode == "allPermutations"): 
             # lOfParetoPoints =  operand.get_lOfPoints()
             lOfParetoPoints = pareto_frontier(operandSetItem.get_lOfPoints(), maxX= False, maxY = False)
+            operandSetItem.set_lOf_pareto_points(lOfParetoPoints)
+        elif (mode == "genetic_algorithm"):
+            lOfParetoPoints = operandSetItem.get_lOfPoints() 
             operandSetItem.set_lOf_pareto_points(lOfParetoPoints)
         elif (mode == "simulated_annealing"):
             lOfParetoPoints = operandSetItem.get_lOfPoints() 
