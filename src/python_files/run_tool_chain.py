@@ -342,7 +342,7 @@ def main():
                         executableName, executableInputList, rootResultFolderName, 
                         CSourceOutputForVariousSetUpFileName, CBuildFolder, 
                         operandSampleFileName, accurateValues, noiseRequirementsPosition,
-                        len(settings.noiseToSignalRatioRange) - 1)
+                        len(settings.noiseToSignalRatioRange) - 1, allPossibleScenariosForEachOperator)
                 
                 
                 outP.write("here is the noise" + str(resultPoint.get_noise()) + "\n") 
@@ -450,6 +450,8 @@ def main():
         for j,point in enumerate(operandSetItem.get_lOf_pareto_points()):
             resultTuple[index].append((point.get_setUp_number(), point.get_setUp(), point.get_noise(), point.get_energy()))
         generateGraph(map(lambda x: x.get_noise(),operandSetItem.get_lOf_pareto_points()), map(lambda x: x.get_energy(),operandSetItem.get_lOf_pareto_points()),"Noise", "Energy", symbolsToChooseFrom[i%len(symbolsToChooseFrom)])
+        # generateGraph(map(lambda x: x.get_noise(),otherPointsTried), map(lambda x: x.get_energy(),otherPointsTried),"Noise", "Energy", "yx")
+
         symbolsCollected.append(symbolsToChooseFrom[index%len(symbolsToChooseFrom)])
 
         
