@@ -69,7 +69,7 @@ def main():
     print "5.AllOperandScenariosInOneFiles" #whether all the operand scenarios can be found in one file or no
     print "6. AllOperandsFileOrDirectoryName" #the user should be providing a file name if AllOperandScenariosInOneFiles is true and a direcoty other   
     print "7. finalResulstFileName"
-    #print "8. noiseRequirement"
+    #print "8. errorRequirement"
     
    
     #---------guide:::  validating the number of inputs
@@ -86,7 +86,7 @@ def main():
         print "6. AllOperandsFileOrDirectoryName" #the user should be providing a file name if AllOperandScenariosInOneFiles is true and a direcoty other   
         print "7. finalResulstFileName"
         print "8. pickled_file"
-        #print "8. noiseToSignalRatio"
+        #print "8. errorToSignalRatio"
         exit()
 
 
@@ -105,7 +105,7 @@ def main():
     AllOperandsFileOrDirectoryName = sys.argv[6]
     finalResultFileName = sys.argv[7]
     PIK = sys.argv[8]  
-    #noiseToSignalRatio = float(sys.argv[8])
+    #errorToSignalRatio = float(sys.argv[8])
     
     
    
@@ -223,7 +223,7 @@ def main():
     
     settings.totalNumberOfOpCombinations = 1;
     energy = []
-    noise = []
+    error = []
     config = []
     inputFileNameList = []
     
@@ -234,8 +234,8 @@ def main():
     
     numberOfTriesList = [] 
     numberOfSuccessfulTriesList = []
-    noiseRequirementList = []
-    noiseDiffList =[] #contains the difference between the noise request and the noise recieved from simulated annealing ( in percentage)
+    errorRequirementList = []
+    errorDiffList =[] #contains the difference between the error request and the error recieved from simulated annealing ( in percentage)
      
     allPossibleScenariosForEachOperator = generateAllPossibleScenariosForEachOperator(rootResultFolderName, lAllOpsInSrcFile)
     #---------guide:::  generate all possible apx setUps Possible (mainly used for full permutation design exploration, otherwise called exhustive search)
@@ -247,17 +247,16 @@ def main():
     open(rootResultFolderName +  "/" + settings.annealerOutputFileName, "w").close()
     
     #---------guide::: go through operand files and sweep the apx space
-    lOfOperandSet = [] 
+    # lOfOperandSet = [] 
     timeBeforeFindingResults = datetime.datetime.now()
     for operandSampleFileName in nameOfAllOperandFilesList:
         countSoFar = 0 
         #clearly state where the new results associated with the new input starts 
         CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings.rawResultFolderName + "/" + settings.csourceOutputFileName + str(inputNumber) + ".txt" #where to collect C++ source results
-        lOfPoints = []  
-        lOfOperandSet.append(operandSet(get_operand_values(operandSampleFileName))) 
-        
+        # newOperand =  operandSet(get_operand_values(operandSampleFileName))
+        lOfAccurateValues = []  
         accurateValues = []
-        noise.append([])
+        error.append([])
         energy.append( [])
         config.append( [])
         inputFileNameList.append([])
@@ -276,159 +275,162 @@ def main():
         #---------guide:::  run the CSrouce file with the new setUp(operators)
         make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName)
 
-        #---------guide::: noise
+        #---------guide::: error
         accurateValues = extractAccurateValues(CSourceOutputForVariousSetUpFileName)
+        lOfAccurateValues.append(accurateValues)
+        # lOfOperandSet.append(newOperand)
         #---------guide:::  make a apx set up and get values associated with it
 
-        
-        if (mode == "allPermutations"): 
-            while (True): #break when a signal is raised as done
+    lOfPoints = []  
+    if (mode == "allPermutations"): 
+        while (True): #break when a signal is raised as done
+            newPoint = points()
+            status, setUp = generateAPossibleApxScenarios(rootResultFolderName + "/" + settings.AllPossibleApxOpScenarios, allPossibleApxScenarioursList , apxIndexSetUp, mode) 
+            for operandIndex, operandSampleFileName in enumerate(nameOfAllOperandFilesList):
                 print "\n" + str(100*float(apxIndexSetUp)/len(allPossibleApxScenarioursList)) + "% done" 
-                status, setUp = generateAPossibleApxScenarios(rootResultFolderName + "/" + settings.AllPossibleApxOpScenarios, allPossibleApxScenarioursList , apxIndexSetUp, mode) 
                 energyValue = [calculateEnergy(map(getFirstTwo, setUp))]
                 configValue = polishSetup(setUp) #just to make it more readable
                 inputFileNameListValue = [operandSampleFileName] 
                 CSourceOutputForVariousSetUpP = open(CSourceOutputForVariousSetUpFileName, "w").close()
                 modifyOperatorSampleFile(operatorSampleFileFullAddress, setUp)
                 make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName)
-                noiseValue = [extractNoiseForOneInput(CSourceOutputForVariousSetUpFileName , accurateValues)]
+                errorValue = [extractErrorForOneInput(CSourceOutputForVariousSetUpFileName , lOfAccurateValues[operandIndex])]
 
-                newPoint = points()
-                newPoint.set_noise(noiseValue[0])
+                newPoint.append_error(errorValue[0])
                 newPoint.set_energy(energyValue[0])
                 newPoint.set_setUp(configValue[0])
                 newPoint.set_setUp_number(apxIndexSetUp)
-                lOfPoints.append(copy.deepcopy(newPoint)) 
+                newPoint.append_lOf_operand(get_operand_values(operandSampleFileName))
+                newPoint.append_accurate_values(lOfAccurateValues[operandIndex])
+                newPoint.calculate_SNR()
                 
-                # noise[operandIndex] += noiseValue
-                # energy[operandIndex] += energyValue
-                # config[operandIndex] +=configValue
                 inputFileNameList[operandIndex] += inputFileNameListValue
-                apxIndexSetUp +=1
-                if (status == "done"):
-                    break;
+                lOfPoints.append(newPoint)
 
-            lOfOperandSet[operandIndex].set_lOfPoints(copy.deepcopy(lOfPoints))
-            operandIndex += 1
-            inputNumber +=1
-        
-        elif (mode == "genetic_algorithm"):
-            allConfs = [] #first generation
-            remainingPopulation = allPossibleApxScenarioursList[:]
-            numberOfIndividualsToStartWith = min(settings.numberOfIndividualsToStartWith, len(allPossibleApxScenarioursList)) 
-            for index in range(numberOfIndividualsToStartWith):
-                indexToChoose =  random.choice(range(0, len(remainingPopulation), 1))
-                sampleSetUp =  remainingPopulation[indexToChoose]
-                remainingPopulation.pop(indexToChoose) 
-                allConfs.append(sampleSetUp)
+            apxIndexSetUp += 1  
+            if (status == "done"):
+                break;
+ 
+    elif (mode == "genetic_algorithm"):
+        allConfs = [] #first generation
+        remainingPopulation = allPossibleApxScenarioursList[:]
+        numberOfIndividualsToStartWith = min(settings.numberOfIndividualsToStartWith, len(allPossibleApxScenarioursList)) 
+        for index in range(numberOfIndividualsToStartWith):
+            indexToChoose =  random.choice(range(0, len(remainingPopulation), 1))
+            sampleSetUp =  remainingPopulation[indexToChoose]
+            remainingPopulation.pop(indexToChoose) 
+            allConfs.append(sampleSetUp)
             
-            creator.create("FitnessMax", base.Fitness, weights=(-1.0, -1.0))
-            creator.create("Individual", list, fitness=creator.FitnessMax)
-            toolbox = base.Toolbox()
+        creator.create("FitnessMax", base.Fitness, weights=(-1.0, -1.0))
+        creator.create("Individual", list, fitness=creator.FitnessMax)
+        toolbox = base.Toolbox()
 
-            # Operator registering
-            toolbox.register("individual", tools.initRepeat, creator.Individual)
-            # toolbox.register("population", tools.initRepeat, list, toolbox.individual )
-            population = []
-            for index in range(len(allConfs)):
-                myGenerator = return_conf(allConfs[index])
-                population.append(toolbox.individual(lambda: next(myGenerator), len(allConfs[index])))
-            NGEN = 10 
-            MU = 100  #number of indi for the next gen
-            LAMBDA = 30 #number of children
-            CXPB = 0.7
-            MUTPB = 0.3
-            population = run_spea2(NGEN, MU, LAMBDA, CXPB, MUTPB, population,
+        # Operator registering
+        toolbox.register("individual", tools.initRepeat, creator.Individual)
+        # toolbox.register("population", tools.initRepeat, list, toolbox.individual )
+        population = []
+        for index in range(len(allConfs)):
+            myGenerator = return_conf(allConfs[index])
+            population.append(toolbox.individual(lambda: next(myGenerator), len(allConfs[index])))
+        NGEN = 2 
+        MU = 20  #number of indi for the next gen
+        LAMBDA = 10 #number of children
+        CXPB = 0.7
+        MUTPB = 0.3
+        
+        population = run_spea2(NGEN, MU, LAMBDA, CXPB, MUTPB, population,
                     CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress,
                     executableName, executableInputList, rootResultFolderName, CBuildFolder,
-                    operandSampleFileName, accurateValues, toolbox)
+                    operandSampleFileName, lOfAccurateValues, toolbox, nameOfAllOperandFilesList)
             
-            lOfPoints = []  
-            for individual in population:
-                newPoint = points()
-                newPoint.set_noise(individual.fitness.values[1])
-                newPoint.set_energy(individual.fitness.values[0])
+        lOfPoints = []  
+        for individual in population:
+            newPoint = points()
+            newPoint.set_SNR(individual.fitness.values[1])
+            newPoint.set_energy(individual.fitness.values[0])
 
-                newPoint.set_setUp(individual)
-                newPoint.set_setUp_number(0)
-                lOfPoints.append(newPoint)
-            
-            lOfOperandSet[operandIndex].set_lOfPoints(copy.deepcopy(lOfPoints))
-            operandIndex += 1
-        elif (mode == "simulated_annealing"):
-            outP = open("out", "w") 
-            annealerOutputFileP = open(rootResultFolderName + "/" + 
-                    settings.annealerOutputFileName, "a")
-            lOfNoiseDiff = []  
-            lOfNoiseRequirement = [] 
-            
-            # symbolsToChooseFrom = ['1', 'x', "o", "+", "*", "-", "^", "*"] #symbols to draw the plots with
-            
-            # symbolsToChooseFrom = ['1', '2', "3", "4", "o", "+", "^", "*", "x", "-"] #symbols to draw the plots with
-            
-            symbolsToChooseFrom = ['g1', 'rx', "bo", "y+", "*", "-", "^", "*"] #symbols to draw the plots with
-            for noiseRequirementsPosition, noiseToSignalRatio in enumerate(
-                    settings.noiseToSignalRatioRange):
-                
-                noiseRequirement = noiseToSignalRatio*int(accurateValues[0])
-                outP.write(str(noiseRequirement) + "\n") 
-                initialSetUp = pickInitialSetUpIndexForSimmulatedAnnelaing(
-                        allPossibleApxScenarioursList[0], noiseRequirement,
-                        operatorSampleFileFullAddress,executableName, 
-                        executableInputList, rootResultFolderName, 
-                        CSourceOutputForVariousSetUpFileName, CBuildFolder, 
-                        operandSampleFileName, accurateValues)
-                
-                numberOfApxBitsStepSize =  settings.numberOfApxBitsStepSize 
-                numberOfApxBitsInitialTemperature = settings.numberOfApxBitsInitialTemperature 
-                operatorPickInitialTemperature = settings.operatorPickInitialTemperature 
-                operatorPickStepSize = settings.operatorPickStepSize 
-                
-                resultPoint, otherPointsTried, noiseRequirement, simulatedAnnealingResults,numberOfTriesList, numberOfSuccessfulTriesList = improvedSimulatedAnnealing2(
-                        initialSetUp, noiseRequirement, 
-                        numberOfApxBitsInitialTemperature, 
-                        numberOfApxBitsStepSize, operatorPickInitialTemperature,
-                        operatorPickStepSize, operatorSampleFileFullAddress,
-                        executableName, executableInputList, rootResultFolderName, 
-                        CSourceOutputForVariousSetUpFileName, CBuildFolder, 
-                        operandSampleFileName, accurateValues, noiseRequirementsPosition,
-                        len(settings.noiseToSignalRatioRange) - 1, allPossibleScenariosForEachOperator)
-                
-                
-                outP.write("here is the noise" + str(resultPoint.get_noise()) + "\n") 
-                lOfPoints.append(copy.deepcopy(resultPoint))
-                noiseDiffPercentage =  math.fabs(noiseRequirement - resultPoint.get_noise())/(noiseRequirement)
-                lOfNoiseDiff.append(noiseDiffPercentage)
-                lOfNoiseRequirement.append(noiseRequirement)
+            newPoint.set_setUp(individual)
+            newPoint.set_setUp_number(0)
+            lOfPoints.append(newPoint)
         
-            # # ---- here
-                # generateGraph(map(lambda x: x.get_noise(),otherPointsTried), map(lambda x: x.get_energy(),otherPointsTried),"Noise", "Energy", 'gx') 
-            # for index, element in enumerate(lOfPoints): 
-                # generateGraph(map(lambda x: x.get_noise(),[element]), map(lambda x: x.get_energy(),[element]),"Noise", "Energy",  symbolsToChooseFrom[index])
-            # finalResultFileFullAddress = rootResultFolderName + "/" + finalResultFileName
-            # pylab.savefig(finalResultFileFullAddress[:-4]+".png") #saving the figure generated by generateGraph
-            # sys.exit() 
-            # # ---- here
-            for index, pointItem in enumerate(lOfPoints):
-                annealerOutputFileP.write( str("*******************************") + "\n")
-                print "********************"
-                annealerOutputFileP.write("noiseRequirement: " + str(lOfNoiseRequirement[index]) + "\n") 
-                annealerOutputFileP.write("noise: " + str(pointItem.get_noise()) + "\n") 
-                annealerOutputFileP.write("noiseDiffPercentage: " + str(lOfNoiseDiff[index])+ "\n") 
-                annealerOutputFileP.write("energy: " + str(pointItem.get_energy()) + "\n") 
-                annealerOutputFileP.write("setUp: " + str(pointItem.get_setUp()) + "\n") 
+        # lOfOperandSet[operandIndex].set_lOfPoints(copy.deepcopy(lOfPoints))
+        operandIndex += 1
+    
+    #kir 
+    #   elif (mode == "simulated_annealing"):
+            # outP = open("out", "w") 
+            # annealerOutputFileP = open(rootResultFolderName + "/" + 
+                    # settings.annealerOutputFileName, "a")
+            # lOfErrorDiff = []  
+            # lOfErrorRequirement = [] 
+            
+            # # symbolsToChooseFrom = ['1', 'x', "o", "+", "*", "-", "^", "*"] #symbols to draw the plots with
+            
+            # # symbolsToChooseFrom = ['1', '2', "3", "4", "o", "+", "^", "*", "x", "-"] #symbols to draw the plots with
+            
+            # symbolsToChooseFrom = ['g1', 'rx', "bo", "y+", "*", "-", "^", "*"] #symbols to draw the plots with
+            # for errorRequirementsPosition, errorToSignalRatio in enumerate(
+                    # settings.errorToSignalRatioRange):
+                
+                # errorRequirement = errorToSignalRatio*int(accurateValues[0])
+                # outP.write(str(errorRequirement) + "\n") 
+                # initialSetUp = pickInitialSetUpIndexForSimmulatedAnnelaing(
+                        # allPossibleApxScenarioursList[0], errorRequirement,
+                        # operatorSampleFileFullAddress,executableName, 
+                        # executableInputList, rootResultFolderName, 
+                        # CSourceOutputForVariousSetUpFileName, CBuildFolder, 
+                        # operandSampleFileName, accurateValues)
+                
+                # numberOfApxBitsStepSize =  settings.numberOfApxBitsStepSize 
+                # numberOfApxBitsInitialTemperature = settings.numberOfApxBitsInitialTemperature 
+                # operatorPickInitialTemperature = settings.operatorPickInitialTemperature 
+                # operatorPickStepSize = settings.operatorPickStepSize 
+                
+                # resultPoint, otherPointsTried, errorRequirement, simulatedAnnealingResults,numberOfTriesList, numberOfSuccessfulTriesList = improvedSimulatedAnnealing2(
+                        # initialSetUp, errorRequirement, 
+                        # numberOfApxBitsInitialTemperature, 
+                        # numberOfApxBitsStepSize, operatorPickInitialTemperature,
+                        # operatorPickStepSize, operatorSampleFileFullAddress,
+                        # executableName, executableInputList, rootResultFolderName, 
+                        # CSourceOutputForVariousSetUpFileName, CBuildFolder, 
+                        # operandSampleFileName, accurateValues, errorRequirementsPosition,
+                        # len(settings.errorToSignalRatioRange) - 1, allPossibleScenariosForEachOperator)
+                
+                
+                # outP.write("here is the error" + str(resultPoint.get_error()) + "\n") 
+                # lOfPoints.append(copy.deepcopy(resultPoint))
+                # errorDiffPercentage =  math.fabs(errorRequirement - resultPoint.get_error())/(errorRequirement)
+                # lOfErrorDiff.append(errorDiffPercentage)
+                # lOfErrorRequirement.append(errorRequirement)
+        
+            # # # ---- here
+                # # generateGraph(map(lambda x: x.get_error(),otherPointsTried), map(lambda x: x.get_energy(),otherPointsTried),"Error", "Energy", 'gx') 
+            # # for index, element in enumerate(lOfPoints): 
+                # # generateGraph(map(lambda x: x.get_error(),[element]), map(lambda x: x.get_energy(),[element]),"Error", "Energy",  symbolsToChooseFrom[index])
+            # # finalResultFileFullAddress = rootResultFolderName + "/" + finalResultFileName
+            # # pylab.savefig(finalResultFileFullAddress[:-4]+".png") #saving the figure generated by generateGraph
+            # # sys.exit() 
+            # # # ---- here
+            # for index, pointItem in enumerate(lOfPoints):
+                # annealerOutputFileP.write( str("*******************************") + "\n")
+                # print "********************"
+                # annealerOutputFileP.write("errorRequirement: " + str(lOfErrorRequirement[index]) + "\n") 
+                # annealerOutputFileP.write("error: " + str(pointItem.get_error()) + "\n") 
+                # annealerOutputFileP.write("errorDiffPercentage: " + str(lOfErrorDiff[index])+ "\n") 
+                # annealerOutputFileP.write("energy: " + str(pointItem.get_energy()) + "\n") 
                 # annealerOutputFileP.write("setUp: " + str(pointItem.get_setUp()) + "\n") 
+                # # annealerOutputFileP.write("setUp: " + str(pointItem.get_setUp()) + "\n") 
 
                 
-                annealerOutputFileP.write( str("*******************************") + "\n")
+                # annealerOutputFileP.write( str("*******************************") + "\n")
                 
-                inputFileNameList[operandIndex] += [operandSampleFileName] 
+                # inputFileNameList[operandIndex] += [operandSampleFileName] 
             
-            lOfOperandSet[operandIndex].set_lOfPoints(copy.deepcopy(lOfPoints))
+            # lOfOperandSet[operandIndex].set_lOfPoints(copy.deepcopy(lOfPoints))
             
-            operandIndex += 1
-            inputNumber +=1
-            annealerOutputFileP.close()
+            # operandIndex += 1
+            # inputNumber +=1
+            # annealerOutputFileP.close()
     
    
 
@@ -446,40 +448,42 @@ def main():
     IOAndProcessCharP.write("numberOfSuccessfulTriesList: " + str(numberOfSuccessfulTriesList) + "\n")
     
     #---------guide:::  find the pareto points and store them in resultTuple
-    # resultTuple = [] #this is a list of pareto Triplets(setup, noise, energy) associated with each 
+    # resultTuple = [] #this is a list of pareto Triplets(setup, error, energy) associated with each 
                        #one of the inputs 
     #setting up the resultTupleList with the right length 
-    # for i in range(0, len(noise),1):
+    # for i in range(0, len(error),1):
         # resultTuple.append([])
    
 
     symbolsToChooseFrom = ['*', 'x', "o", "+", "*", "-", "^", "1", "2", "3", "4"] #symbols to draw the plots with
     symbolsCollected = [] #this list contains the symbols collected for every new input 
-    #---------guide:::  get the noise for each input
-    for i,operandSetItem in enumerate(lOfOperandSet):
-        paretoNoise = []  #cleaning the previous values if exist
-        paretoEnergy = [] #cleaning the previous values if exist         
-        #---------guide:::  get the pareto set
-        if (mode == "allPermutations"): 
-            # lOfParetoPoints =  operand.get_lOfPoints()
-            lOfParetoPoints = pareto_frontier(operandSetItem.get_lOfPoints(), maxX= False, maxY = False)
-            operandSetItem.set_lOf_pareto_points(lOfParetoPoints)
-        elif (mode == "genetic_algorithm"):
-            lOfParetoPoints = operandSetItem.get_lOfPoints() 
-            operandSetItem.set_lOf_pareto_points(lOfParetoPoints)
-        elif (mode == "simulated_annealing"):
-            lOfParetoPoints = operandSetItem.get_lOfPoints() 
-            operandSetItem.set_lOf_pareto_points(lOfParetoPoints)
-        #---------guide:::  find the setUps that corresponds to the pareto Points
-        setUpNumberList = [] #contains the list of setUp numbers associated with the pareto set 
-                             #this is used to avoid duplicate
+    #---------guide:::  get the error for each input
+
+    # for i,operandSetItem in enumerate(lOfOperandSet):
+        # paretoError = []  #cleaning the previous values if exist
+        # paretoEnergy = [] #cleaning the previous values if exist         
+        # #---------guide:::  get the pareto set
+        # if (mode == "allPermutations"): 
+            # # lOfParetoPoints =  operand.get_lOfPoints()
+            # lOfParetoPoints = pareto_frontier(lOfParetoPoints, maxX= False, maxY = False)
+            # lOfParetoPoints = pareto_frontier(operandSetItem.get_lOfPoints(), maxX= False, maxY = False)
+            # operandSetItem.set_lOf_pareto_points(lOfParetoPoints)
+        # # elif (mode == "genetic_algorithm"):
+            # # lOfParetoPoints = operandSetItem.get_lOfPoints() 
+            # # operandSetItem.set_lOf_pareto_points(lOfParetoPoints)
+        # # elif (mode == "simulated_annealing"):
+            # # lOfParetoPoints = operandSetItem.get_lOfPoints() 
+        # #     operandSetItem.set_lOf_pareto_points(lOfParetoPoints)
+        # #---------guide:::  find the setUps that corresponds to the pareto Points
+        # setUpNumberList = [] #contains the list of setUp numbers associated with the pareto set 
+                             # #this is used to avoid duplicate
         
 # mode = "only_read_values"
 # mode = "read_values_and_get_pareto"
     if not(mode == "only_read_values" or mode == "read_values_and_get_pareto"):
-        for operandSetItem in lOfOperandSet: 
+        for point in lOfPoints: 
             with open(PIK, "wb") as f:
-                pickle.dump(operandSetItem, f)
+                pickle.dump(point, f)
 
     
     # ---- reading the values back
@@ -489,23 +493,34 @@ def main():
             # pickle.load(f)
             while True: 
                 try: 
-                    operandSetItem = pickle.load(f)# 
-                    lOfOperandSet.append(operandSetItem)# 
+                    point = pickle.load(f)
+                    lOfPoints.append(point) 
                     # listOfPeople.append(copy.copy(person))# 
                 except Exception as ex:
                     if not (type(ex).__name__ == "EOFError"):
                         print type(ex).__name__ 
                         print ex.args
                     break
+    
     resultTuple = [] 
-    for index, operandSetItem in enumerate(lOfOperandSet):
-        resultTuple.append([]) 
-        for j,point in enumerate(operandSetItem.get_lOf_pareto_points()):
-            resultTuple[index].append((point.get_setUp_number(), point.get_setUp(), point.get_noise(), point.get_energy()))
-        generateGraph(map(lambda x: x.get_noise(),operandSetItem.get_lOf_pareto_points()), map(lambda x: x.get_energy(),operandSetItem.get_lOf_pareto_points()),"Noise", "Energy", symbolsToChooseFrom[i%len(symbolsToChooseFrom)])
-        # generateGraph(map(lambda x: x.get_noise(),otherPointsTried), map(lambda x: x.get_energy(),otherPointsTried),"Noise", "Energy", "yx")
+    # for index, point in enumerate(lOfPoints):
+    #     resultTuple.append([]) 
+    
+    i = 0 
+    if(mode == "allPermutations"):    
+        lOfParetoPoints = pareto_frontier(lOfPoints, maxX= False, maxY = False)
+    elif(mode == "genetic_algorithm"):
+        lOfParetoPoints = lOfPoints
+    generateGraph(map(lambda x: x.get_SNR(), lOfParetoPoints), map(lambda x: x.get_energy(), lOfParetoPoints), "Noise", "Energy", symbolsToChooseFrom[i%len(symbolsToChooseFrom)])
+    # generateGraph(map(lambda x: x.get_lOfError(), lOfParetoPoints), map(lambda x: x.get_energy(), lOfParetoPoints), "Noise", "Energy", symbolsToChooseFrom[i])
+        
+        
+       #  for j,point in enumerate(operandSetItem.get_lOf_pareto_points()):
+            # resultTuple[index].append((point.get_setUp_number(), point.get_setUp(), point.get_error(), point.get_energy()))
+        # generateGraph(map(lambda x: x.get_error(),operandSetItem.get_lOf_pareto_points()), map(lambda x: x.get_energy(),operandSetItem.get_lOf_pareto_points()),"Error", "Energy", symbolsToChooseFrom[i%len(symbolsToChooseFrom)])
+        # # generateGraph(map(lambda x: x.get_error(),otherPointsTried), map(lambda x: x.get_energy(),otherPointsTried),"Error", "Energy", "yx")
 
-        symbolsCollected.append(symbolsToChooseFrom[index%len(symbolsToChooseFrom)])
+        # symbolsCollected.append(symbolsToChooseFrom[index%len(symbolsToChooseFrom)])
 
         
     #---- generate pareto graph
@@ -523,6 +538,79 @@ def main():
     cleanUpExtras(rootResultFolderName) 
     #---------guide::: show the graph
     #plt.show() 
+
+
+
+    
+    
+    # for i,operandSetItem in enumerate(lOfOperandSet):
+        # paretoError = []  #cleaning the previous values if exist
+        # paretoEnergy = [] #cleaning the previous values if exist         
+        # #---------guide:::  get the pareto set
+        # if (mode == "allPermutations"): 
+            # # lOfParetoPoints =  operand.get_lOfPoints()
+            # lOfParetoPoints = pareto_frontier(lOfParetoPoints, maxX= False, maxY = False)
+            # lOfParetoPoints = pareto_frontier(operandSetItem.get_lOfPoints(), maxX= False, maxY = False)
+            # operandSetItem.set_lOf_pareto_points(lOfParetoPoints)
+        # # elif (mode == "genetic_algorithm"):
+            # # lOfParetoPoints = operandSetItem.get_lOfPoints() 
+            # # operandSetItem.set_lOf_pareto_points(lOfParetoPoints)
+        # # elif (mode == "simulated_annealing"):
+            # # lOfParetoPoints = operandSetItem.get_lOfPoints() 
+        # #     operandSetItem.set_lOf_pareto_points(lOfParetoPoints)
+        # #---------guide:::  find the setUps that corresponds to the pareto Points
+        # setUpNumberList = [] #contains the list of setUp numbers associated with the pareto set 
+                             # #this is used to avoid duplicate
+        
+# # mode = "only_read_values"
+# # mode = "read_values_and_get_pareto"
+    # if not(mode == "only_read_values" or mode == "read_values_and_get_pareto"):
+        # for operandSetItem in lOfOperandSet: 
+            # with open(PIK, "wb") as f:
+                # pickle.dump(operandSetItem, f)
+
+    
+    # # ---- reading the values back
+    # if (mode == "only_read_values" or mode == "read_values_and_get_pareto"):
+        # lOfOperandSet = [] 
+        # with open(PIK, "rb") as f:
+            # # pickle.load(f)
+            # while True: 
+                # try: 
+                    # operandSetItem = pickle.load(f)# 
+                    # lOfOperandSet.append(operandSetItem)# 
+                    # # listOfPeople.append(copy.copy(person))# 
+                # except Exception as ex:
+                    # if not (type(ex).__name__ == "EOFError"):
+                        # print type(ex).__name__ 
+                        # print ex.args
+                    # break
+    # resultTuple = [] 
+    # for index, operandSetItem in enumerate(lOfOperandSet):
+        # resultTuple.append([]) 
+        # for j,point in enumerate(operandSetItem.get_lOf_pareto_points()):
+            # resultTuple[index].append((point.get_setUp_number(), point.get_setUp(), point.get_error(), point.get_energy()))
+        # generateGraph(map(lambda x: x.get_error(),operandSetItem.get_lOf_pareto_points()), map(lambda x: x.get_energy(),operandSetItem.get_lOf_pareto_points()),"Error", "Energy", symbolsToChooseFrom[i%len(symbolsToChooseFrom)])
+        # # generateGraph(map(lambda x: x.get_error(),otherPointsTried), map(lambda x: x.get_energy(),otherPointsTried),"Error", "Energy", "yx")
+
+        # symbolsCollected.append(symbolsToChooseFrom[index%len(symbolsToChooseFrom)])
+
+        
+    # #---- generate pareto graph
+    
+         
+    # finalResultFileFullAddress = rootResultFolderName + "/" + finalResultFileName
+    # writeReadableOutput(resultTuple,  symbolsCollected, finalResultFileFullAddress)
+    # pylab.savefig(finalResultFileFullAddress[:-4]+".png") #saving the figure generated by generateGraph
+    
+    # #---------guide:::  getting back up of the results
+    # folderToCopyToNameProcessed = comeUpWithNewFolderNameAccordingly(rootFolder + "/" + settings.resultsBackups) 
+    # listOfFoldersToCopyFrom = [rootResultFolderName, CSrcFolderAddress]  
+    # generateBackup(rootResultFolderBackupName, listOfFoldersToCopyFrom, folderToCopyToNameProcessed) #generating a back of the results
+
+    # cleanUpExtras(rootResultFolderName) 
+    # #---------guide::: show the graph
+    # #plt.show() 
 
 
 

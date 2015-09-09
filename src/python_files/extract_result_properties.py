@@ -18,7 +18,7 @@ from matplotlib import cm
 # @param currentValues
 # 
 # @return 
-def calculateNoise(accurateValues, currentValues):
+def calculateError(accurateValues, currentValues):
     if not(len(accurateValues) == len(currentValues)):
         print "**********ERROR********" 
         print "here is the accurate values: " + str(accurateValues)
@@ -71,21 +71,21 @@ def extractAccurateValues(sourceFileName ):
 # @param sourceFileName
 # 
 # @return 
-def extractNoiseForOneInput(sourceFileName, accurateValues):
+def extractErrorForOneInput(sourceFileName, accurateValues):
     start = 0 
     currentValues = []
     #whether the file exist or no 
     if not(os.path.isfile(sourceFileName)):
         print "source file with the name " + sourceFileName + "doesn't exist"
         exit();
-    noise = [] 
+    error = [] 
     setup = 0 #the specific setup(same configuration but different type of operators) 
     with open(sourceFileName) as f:
         for line in f:
             if len(line.split()) >0: 
                 for words in line.rstrip().replace(',', ' ').replace('/',' ').replace(';', ' ').split(' '): #find the lines with key word and write it to another file
                     if "end" in words: 
-                        noise = calculateNoise(accurateValues, currentValues)
+                        error = calculateError(accurateValues, currentValues)
                         currentValues = [] 
                         start = 0
                         break 
@@ -100,7 +100,7 @@ def extractNoiseForOneInput(sourceFileName, accurateValues):
                         break
 
 
-    return noise 
+    return error 
 
 
 
@@ -203,15 +203,15 @@ def extractEnergyAndConfig(sourceFileName):
 # @return 
 #def extract_properties(operatorSampleFileName, rawResultsFolderName, resultFileName, gotAccurateValue, accurateValues, operandFileName):
 #    inputFileNameList = [] 
-#    noise = [] 
+#    error = [] 
 #    if not(os.path.isdir(rawResultsFolderName)):
 #        print "rawResultFolder with the Name " + rawResultsFolderName + " does not exist"
 #        exit();
 # 
 #    nameOfAllResultsList = getNameOfFilesInAFolder(rawResultsFolderName)
 #    #config = extractEnergyAndConfig(operatorSampleFileName)
-#    noise = extractNoiseForOneInput(resultFileName, gotAccurateValue, accurateValues)
-#    result = noise
+#    error = extractErrorForOneInput(resultFileName, gotAccurateValue, accurateValues)
+#    result = error
 #    
 #    return result
 #
@@ -227,20 +227,20 @@ def energyTest():
 	print extractEnergyAndConfig("/home/polaris/behzad/apx_tool_chain/input_output_text_files/all_possible_apx_operators_scenarios.txt")
 	
 	
-def noiseTest():
+def errorTest():
 	#testing the modules defined in this file
-	#print calculateNoise([4,6],[4,0,3])
-	print extractNoiseForOne("/home/polaris/behzad/apx_tool_chain/input_output_text_files/raw_result_foraw_results.txt")
+	#print calculateError([4,6],[4,0,3])
+	print extractErrorForOne("/home/polaris/behzad/apx_tool_chain/input_output_text_files/raw_result_foraw_results.txt")
 
 
 
 
 def extractPropertyTest():
-    energy, noise= extract_properties("/home/polaris/behzad/apx_tool_chain/input_output_text_files/all_possible_apx_operators_scenarios.txt","/home/polaris/behzad/apx_tool_chain/input_output_text_files/raw_result_folder")
+    energy, error= extract_properties("/home/polaris/behzad/apx_tool_chain/input_output_text_files/all_possible_apx_operators_scenarios.txt","/home/polaris/behzad/apx_tool_chain/input_output_text_files/raw_result_folder")
     print energy
-    for noiseElement in noise:
-        print noiseElement
+    for errorElement in error:
+        print errorElement
 
 #energyTest()
-#noiseTest()
+#errorTest()
 #extractPropertyTest()

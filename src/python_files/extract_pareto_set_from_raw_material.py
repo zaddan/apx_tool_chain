@@ -36,7 +36,7 @@ def pareto_frontier(lOfPoints , maxX = True, maxY = True):
     Xs = []  
     Ys = []  
     for point in lOfPoints:
-        Xs.append(point.get_noise())
+        Xs.append(point.get_SNR())
         Ys.append(point.get_energy())
     
     myList = sorted([[Xs[i], Ys[i], i] for i in range(len(Xs))], reverse=maxX)
@@ -67,7 +67,7 @@ def pareto_frontier_revised(lOfPoints , maxX = True, maxY = True):
     Xs = []  
     Ys = []  
     for point in lOfPoints:
-        Xs.append(point.get_noise())
+        Xs.append(point.get_error())
         Ys.append(point.get_energy())
     
     myList = sorted([[Xs[i], Ys[i], i] for i in range(len(Xs))], reverse=maxX)

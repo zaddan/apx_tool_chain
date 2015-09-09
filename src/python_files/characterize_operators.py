@@ -211,7 +211,7 @@ def findLowAndUpBounderies(CSrcFolderAddress, CSrcFileAddress , generateMakeFile
     
     settings.totalNumberOfOpCombinations = 1;
     energy = []
-    noise = []
+    error = []
     config = []
     inputFileNameList = []
     
@@ -228,7 +228,7 @@ def findLowAndUpBounderies(CSrcFolderAddress, CSrcFileAddress , generateMakeFile
         
 
 
-    operandInfoNoiseDic = {} 
+    operandInfoErrorDic = {} 
     for i in range(0, len(nameOfAllOperandFilesList),1):
         apxBitList.append([])
     
@@ -254,7 +254,7 @@ def findLowAndUpBounderies(CSrcFolderAddress, CSrcFileAddress , generateMakeFile
     timeBeforeFindingResults = datetime.datetime.now()
     
     mode = "allPermutations"
-    desiredNoise = 4
+    desiredError = 4
     
         
     numberOfKeys = len(operandDic.keys()) 
@@ -282,11 +282,11 @@ def findLowAndUpBounderies(CSrcFolderAddress, CSrcFileAddress , generateMakeFile
         make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandFileName)
         accurateValues = extractAccurateValues(CSourceOutputForVariousSetUpFileName)
         
-        # ---- got through each operandElement and find noise with various apx
+        # ---- got through each operandElement and find error with various apx
         #    ops
         lowerBounderyDic = defaultdict(list)        
         upperBounderyDic = defaultdict(list)        
-        noise = [[] for i in range(len(operandUnfolded))]
+        error = [[] for i in range(len(operandUnfolded))]
         config = [[] for i in range(len(operandUnfolded))]
         operandIndex = 0 
         for operandElement in operandUnfolded:
@@ -315,29 +315,29 @@ def findLowAndUpBounderies(CSrcFolderAddress, CSrcFileAddress , generateMakeFile
                 CSourceOutputForVariousSetUpP = open(CSourceOutputForVariousSetUpFileName, "w").close()
                 modifyOperatorSampleFile(operatorSampleFileFullAddress, setUp)
                 make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandFileName)
-                noiseValue = [int(extractNoiseForOneInput(CSourceOutputForVariousSetUpFileName
+                errorValue = [int(extractErrorForOneInput(CSourceOutputForVariousSetUpFileName
                     , accurateValues))]
-                noise[operandIndex] += noiseValue
+                error[operandIndex] += errorValue
                 config[operandIndex] +=configValue
                 apxIndexSetUp +=1
                 if (status == "done"):
                     break;
             
-            #---------guide:::  collect the noise information
-            operandInfoNoiseDic[operandIndex] = noise[operandIndex]
-            #print operandInfoNoiseDic
+            #---------guide:::  collect the error information
+            operandInfoErrorDic[operandIndex] = error[operandIndex]
+            #print operandInfoErrorDic
             
-            #---------guide:::  find the low and high bit that places the noise within the desired one
-            uniqueNoiseValues = list(set(noise[operandIndex])) 
-            for uniqueValue in uniqueNoiseValues: 
+            #---------guide:::  find the low and high bit that places the error within the desired one
+            uniqueErrorValues = list(set(error[operandIndex])) 
+            for uniqueValue in uniqueErrorValues: 
                 upperBounderyDic[uniqueValue].append(max([i for i,j in zip(count(), 
-                    noise[operandIndex])if j == uniqueValue]))
+                    error[operandIndex])if j == uniqueValue]))
                 lowerBounderyDic[uniqueValue].append(min([i for i,j in zip(count(), 
-                    noise[operandIndex])if j == uniqueValue]))
+                    error[operandIndex])if j == uniqueValue]))
                 # lowerBoundList.append(min([i for i,j in zip(count(), 
-                    # noise[operandIndex])if j == uniqueValue]))
+                    # error[operandIndex])if j == uniqueValue]))
             
-            # upperBound, lowerBound = findApxBitRange(config[operandIndex], noise[operandIndex], desiredNoise)
+            # upperBound, lowerBound = findApxBitRange(config[operandIndex], error[operandIndex], desiredError)
             
             # upperBoundList.append(upperBound)
             # lowerBoundList.append(lowerBound)
@@ -346,7 +346,7 @@ def findLowAndUpBounderies(CSrcFolderAddress, CSrcFileAddress , generateMakeFile
         
         
         print  operandUnfolded
-        print noise 
+        print error 
         print lowerBounderyDic
         print upperBounderyDic
         for deltaY in lowerBounderyDic:
@@ -390,7 +390,7 @@ def characterize_all_operators(CSrcFolderAddress,
         CSrcFileAddress,generateMakeFile, rootFolder, finalResultFileName,
         operatorArchiveAddress,  percentageOfDataUsedForTraining,
         workWithNegativeNumbers, degreeNPolyMultiVarMinDegree,
-        degreeNPolyMultiVarMaxDegree, signalToNoiseRatio,
+        degreeNPolyMultiVarMaxDegree, signalToErrorRatio,
         listOfOperandOneGenValues, listOfOperandTwoGenValues, moduleFunctionality):
     operandDicList = []
     lOfbestFittedFunc_degree_tuple = [] 
@@ -544,7 +544,7 @@ def characterize_all_operators(CSrcFolderAddress,
             minDegree = degreeNPolyMultiVarMinDegree
             maxDegree = degreeNPolyMultiVarMaxDegree
             
-            maximumAcceptableError = (1 - signalToNoiseRatio)*numpy.float64(sum(upperValuesOutputTestData)/len(upperValuesOutputTestData))
+            maximumAcceptableError = (1 - signalToErrorRatio)*numpy.float64(sum(upperValuesOutputTestData)/len(upperValuesOutputTestData))
             bestFittedFunc, funcCoeff, funcErrorDic = findBestFitFunction(upperValuesInputTrainingDataRaw, upperValuesOutputTrainingData, upperValuesInputTestDataRaw, upperValuesOutputTestData, all_funcs.funcNumberOfCoeffDic,maxDegree, minDegree, maximumAcceptableError)
             lOfbestFittedFunc_degree_tuple.append(str((bestFittedFunc[0].__name__, bestFittedFunc[1])))
             funcCoeffList.append(funcCoeff)
@@ -611,7 +611,7 @@ if (test2):
     percentageOfDataUsedForTraining = .7
     workWithNegativeNumbers = False
     numberOfOperands = 2 
-    signalToNoiseRatio = .1
+    signalToErrorRatio = .1
     degreeNPolyMultiVarMinDegree = 1 
     degreeNPolyMultiVarMaxDegree = 3
     # ---- prepare inputs for operand generation and write in a table
@@ -622,7 +622,7 @@ if (test2):
     characterize_all_operators(CSrcFolderAddress, CSrcFileAddress, generateMakeFile,
             rootFolder, finalResultFileName, operatorArchiveAddress,  percentageOfDataUsedForTraining,
             workWithNegativeNumbers, degreeNPolyMultiVarMinDegree,
-            degreeNPolyMultiVarMaxDegree, signalToNoiseRatio,
+            degreeNPolyMultiVarMaxDegree, signalToErrorRatio,
             listOfOperandOneGenValues, listOfOperandTwoGenValues, moduleFunctionality)
     
 

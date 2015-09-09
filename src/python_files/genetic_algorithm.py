@@ -47,7 +47,6 @@ def specializedMutate(setUp):
     numberOfApxBits = int(random.gauss(10 , 5.2))
     operatorModified = modifyOperatorSubSetupExactly(setUp[operatorToChooseIndex], numberOfApxBits) 
     newSetUp[operatorToChooseIndex] = operatorModified
-    
     return newSetUp,
     
     
@@ -81,16 +80,26 @@ def eaMuPlusLambda_redefined(population, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN)
 def run_spea2(NGEN, MU, LAMBDA, CXPB, MUTPB, population, 
         CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress, 
         executableName, executableInputList, rootResultFolderName, 
-        CBuildFolder, operandSampleFileName, accurateValues, toolbox):
+        CBuildFolder, operandSampleFileName, lOfAccurateValues, toolbox, nameOfAllOperandFilesList):
      
     def specializedEval(individual):
-        newEnergy = getEnergy(individual) 
-        open(CSourceOutputForVariousSetUpFileName, "w").close()
-        modifyOperatorSampleFile(operatorSampleFileFullAddress, individual)
-        make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName)
-        newNoise = int(extractNoiseForOneInput(CSourceOutputForVariousSetUpFileName , accurateValues))
+        newPoint = points() 
+        for operandIndex, operandSampleFileName in enumerate(nameOfAllOperandFilesList):
+            energyValue = [getEnergy(individual)]
+            open(CSourceOutputForVariousSetUpFileName, "w").close()
+            modifyOperatorSampleFile(operatorSampleFileFullAddress, individual)
+            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName)
+            errorValue = [extractErrorForOneInput(CSourceOutputForVariousSetUpFileName , lOfAccurateValues[operandIndex])]
+            configValue = [individual]
 
-        return (newEnergy, newNoise)
+            newPoint.append_error(errorValue[0])
+            newPoint.set_energy(energyValue[0])
+            newPoint.set_setUp(configValue[0])
+            newPoint.append_lOf_operand(get_operand_values(operandSampleFileName))
+            newPoint.append_accurate_values(lOfAccurateValues[operandIndex])
+            newPoint.calculate_SNR()
+                
+        return (newPoint.get_energy(), newPoint.get_SNR())
 
        
     stats = tools.Statistics(lambda ind: ind.fitness.values)

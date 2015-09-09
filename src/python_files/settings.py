@@ -113,7 +113,10 @@ mode = "allPermutations"
 # mode = "simulated_annealing"
 # mode = "only_read_values"
 # mode = "read_values_and_get_pareto"
-noiseToSignalRatioRange =  floatRange(0.001, .07, .01)
+# mode = "genetic_algorithm"
+numberOfIndividualsToStartWith = 100
+
+noiseToSignalRatioRange =  floatRange(0.001, .5, .07)
 numberOfApxBitsStepSize = .3
 numberOfApxBitsInitialTemperature = 1
 operatorPickInitialTemperature = 10 
@@ -129,9 +132,9 @@ lAccurateOpFlags = ["AdditionOp", "MultiplicationOp"] #all of the defined operat
 global lAllApxVersionOfEachOps 
 
 
-#lAllApxVersionOfEachOps = [GenOpSpace("bta", 8,[32,33, 0,10, 0,1, 0, 1]), GenOpSpace("btm", 4,[32, 33, 0, 10])]
-lAllApxVersionOfEachOps = [GenOpSpace("bta", 8,[32,33, 0,3, 0,1, 0, 1]), GenOpSpace("btm", 4,[32, 33, 0, 2])]
-# lAllApxVersionOfEachOps = [GenOpSpace("bta", 8,[32,33, 0,3, 0,1, 0, 1]), GenOpSpace("btm", 4,[32, 33, 0, 3])]
+# lAllApxVersionOfEachOps = [GenOpSpace("bta", 8,[32,33, 0,10, 0,1, 0, 1]), GenOpSpace("btm", 4,[32, 33, 0, 10])]
+lAllApxVersionOfEachOps = [GenOpSpace("bta", 8,[32,33, 0,3, 0,1, 0, 1]), GenOpSpace("btm", 4,[32, 33, 0, 3])]
+# lAllApxVersionOfEachOps = [GenOpSpace("bta", 8,[32,33, 0,1, 0,1, 0, 1]), GenOpSpace("btm", 4,[32, 33, 0, 2])]
 
 for element in lAllApxVersionOfEachOps:
     element.sweepInput()
@@ -161,4 +164,3 @@ logFileName = "characterize_operators_log.txt"
 
 global operandsInfoForOperatorCharacterizationName
 operandsInfoForOperatorCharacterizationName = "operandsInfoForOperatorCharacterization.txt"
-
