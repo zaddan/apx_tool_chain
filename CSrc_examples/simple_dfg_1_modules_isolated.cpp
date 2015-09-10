@@ -14,21 +14,19 @@
 #include "setSubType.h"
 #include "operandFile_parser.h"
 #include "globals.h"
+#include "foo.h"
+
 using namespace std;
 extern hw_ac **myOp;   
-extern vector<int> inputVar;
+//extern vector<int> inputVar;
 
-int foo(int a){
-    int b = myOp[0]->calc(a,inputVar[2]); //AdditionOp
-    return b;
-}
 //int notMain(){ //uncomment when you want to run the run_unit_tests
 int main(int argc, char* argv[]){
     string resultFolderName; 
     string resultFileName; 
     string operatorFileName;
-    string operandFileName;
-    if (argc != 5) {
+    //string operandFileName;
+    if (argc < 4) {
         cout<< "provide the name of the file that you want the result to be written to"<<endl;
         cout<< "Example: resultFolderName.txt resultFile.txt operatorFile.txt"<<endl; 
         return 0; 
@@ -36,37 +34,36 @@ int main(int argc, char* argv[]){
         resultFolderName= argv[1]; 
         resultFileName = argv[2]; 
         operatorFileName = argv[3]; 
-        operandFileName = argv[4]; 
     }
-
-    assign_global_variables(resultFolderName, operatorFileName, operandFileName);
+    assign_global_variables(resultFolderName, operatorFileName);
     string resultFileNameCompleteAddress = resultFileName;
     ofstream resultFile;
     resultFile.open(resultFileNameCompleteAddress.c_str(), ios_base::app);
-    
-   
     resultFile<<"*****************start******"<<endl; 
-    //resultFile<<inputVar.size();
-    int a = myOp[1]->calc(inputVar[0],inputVar[1]); //MultiplicationOp
-    int b = foo(a); 
-    int d = myOp[2]->calc(b,inputVar[3]); //MultiplicationOp
-    int c = myOp[3]->calc(inputVar[4],inputVar[5]); //AdditionOp
-    int e = myOp[4]->calc(c,d); //MultiplicationOp
     
-    int numberOfOperandsNecessary = 6; 
-    if (numberOfOperandsNecessary != inputVar.size()){
-        cout << "the number of operands do not match what is necesary in the source file"<<endl;
-        cout << "here is the number of operands provided: " << inputVar.size() <<endl;
-        cout << "here is the number of Operands necessary: " << numberOfOperandsNecessary <<endl;
-        exit(0); 
+    //get the input from the user 
+    const int inputSize = 6; 
+    int inputVar[inputSize] = {}; 
+    assert(argc == inputSize + 4);
+    for (int i =0 ; i < 6; i++) {
+        inputVar[i] = atoi(argv[4 + i]);
     }
+   
+    //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+    //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+    //keep the bellow part of the main file intact for various files 
+    int a = myOp[0]->calc(inputVar[0],inputVar[1]); //MultiplicationOp
+    int b = foo(a, inputVar[2]); 
+    int d = myOp[1]->calc(b,inputVar[3]); //MultiplicationOp
+    int c = myOp[2]->calc(inputVar[4],inputVar[5]); //AdditionOp
+    int e = myOp[3]->calc(c,d); //MultiplicationOp
+    //keep the above part of the main file intact for various files 
     //writing the result 
-    resultFile<< e <<endl;
-    //resultFile<< b <<endl;
-    //resultFile<< d <<endl;
+     //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+    //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+    int overAllOutput = e; 
+    resultFile<< overAllOutput <<endl;
     resultFile<<"*****************end******"<<endl; 
-    
-    
     resultFile.close();
     return 10;
 }    

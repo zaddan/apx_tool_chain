@@ -265,12 +265,12 @@ def main():
     #---------guide::: go through operand files and sweep the apx space
     # lOfOperandSet = [] 
     timeBeforeFindingResults = datetime.datetime.now()
-    for operandSampleFileName in nameOfAllOperandFilesList:
+    lOfAccurateValues = []
+    for inputNumber,operandSampleFileName in enumerate(nameOfAllOperandFilesList):
         countSoFar = 0 
         #clearly state where the new results associated with the new input starts 
         CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings.rawResultFolderName + "/" + settings.csourceOutputFileName + str(inputNumber) + ".txt" #where to collect C++ source results
         # newOperand =  operandSet(get_operand_values(operandSampleFileName))
-        lOfAccurateValues = []  
         accurateValues = []
         error.append([])
         energy.append( [])

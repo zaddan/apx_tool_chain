@@ -123,7 +123,7 @@ operatorPickInitialTemperature = 10
 operatorPickStepSize = 1
              
 NGEN = 5
-MU = 40  #number of indi for the next gen
+MU = 50  #number of indi for the next gen
 LAMBDA = 30 #number of children
 CXPB = 0.7
 MUTPB = 0.3

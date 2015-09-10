@@ -102,7 +102,7 @@ if (!fin.good()){
         } 
    } 
   }
-
+  return SUCCESS;
 //  for (int i =0; i<VTypeInfo.size(); i++){
 //     for(int j= 0; j <VTypeInfo[i].size(); j++){
 //        cout<<VTypeInfo[i][j]<<endl;
