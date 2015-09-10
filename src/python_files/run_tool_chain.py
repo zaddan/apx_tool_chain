@@ -26,6 +26,7 @@ import pylab
 import sys
 import os
 
+from inputs import *#this file contains all the inputs
 from genetic_algorithm import *
 from deap import algorithms
 from points_class import *
@@ -73,41 +74,52 @@ def main():
     
    
     #---------guide:::  validating the number of inputs
-    if len(sys.argv) < 9:
-        print "***ERROR***"
-        print "the following inputs with the order mentioned needs to be provided"
-        print "the following inputs with the order mentioned needs to be provided"
-        print "1.source folder address"
-        print "2.source file address"
-        print "3.generate Makefile (with YES or NO)"
-        print "4.CBuilderFolder"
-        print "***********"
-        print "5.AllOperandScenariosInOneFiles" #whether all the operand scenarios can be found in one file or no
-        print "6. AllOperandsFileOrDirectoryName" #the user should be providing a file name if AllOperandScenariosInOneFiles is true and a direcoty other   
-        print "7. finalResulstFileName"
-        print "8. pickled_file"
-        #print "8. errorToSignalRatio"
-        exit()
+    # if len(sys.argv) < 9:
+        # print "***ERROR***"
+        # print "the following inputs with the order mentioned needs to be provided"
+        # print "the following inputs with the order mentioned needs to be provided"
+        # print "1.source folder address"
+        # print "2.source file address"
+        # print "3.generate Makefile (with YES or NO)"
+        # print "4.CBuilderFolder"
+        # print "***********"
+        # print "5.AllOperandScenariosInOneFiles" #whether all the operand scenarios can be found in one file or no
+        # print "6. AllOperandsFileOrDirectoryName" #the user should be providing a file name if AllOperandScenariosInOneFiles is true and a direcoty other   
+        # print "7. finalResulstFileName"
+        # print "8. pickled_file"
+        # #print "8. errorToSignalRatio"
+        # exit()
 
+    inputObj = inputClass()
+    inputObj.expandAddress()
+    
+   #  home = expanduser("~")
+    # #---------guide:::  acquaring the inputs
+    # for index, element in enumerate(sys.argv):
+        # if element.split("/")[0] == "~":
+            # sys.argv[index] = home + sys.argv[index][1:]
 
-    home = expanduser("~")
-    #---------guide:::  acquaring the inputs
-    for index, element in enumerate(sys.argv):
-        if element.split("/")[0] == "~":
-            sys.argv[index] = home + sys.argv[index][1:]
-
-    CSrcFolderAddress = sys.argv[1] #src file to be analyzet
-    CSrcFileAddress = sys.argv[2] #src file to be analyzet
-    #executableName = sys.argv[3] #src file to be analyzed
-    generateMakeFile = sys.argv[3]
-    rootFolder = sys.argv[4] 
-    AllOperandScenariosInOneFiles = sys.argv[5]
-    AllOperandsFileOrDirectoryName = sys.argv[6]
-    finalResultFileName = sys.argv[7]
-    PIK = sys.argv[8]  
+    # CSrcFolderAddress = sys.argv[1] #src file to be analyzet
+    
+    # # CSrcFileAddress = sys.argv[2] #src file to be analyzet
+    # lOfCSrcFileAddress = inputs.lOfCSrcFileAddress 
+    # #executableName = sys.argv[3] #src file to be analyzed
+    # generateMakeFile = sys.argv[3]
+    # rootFolder = sys.argv[4] 
+    # AllOperandScenariosInOneFiles = sys.argv[5]
+    # AllOperandsFileOrDirectoryName = sys.argv[6]
+    # finalResultFileName = sys.argv[7]
+    # PIK = sys.argv[8]  
     #errorToSignalRatio = float(sys.argv[8])
     
-    
+    CSrcFolderAddress = inputObj.CSrcFolderAddress
+    lOfCSrcFileAddress = inputObj.lOfCSrcFileAddress 
+    generateMakeFile = inputObj.generateMakeFile
+    rootFolder = inputObj.rootFolder 
+    AllOperandScenariosInOneFiles = inputObj.AllOperandScenariosInOneFiles
+    AllOperandsFileOrDirectoryName = inputObj.AllOperandsFileOrDirectoryName 
+    finalResultFileName = inputObj.finalResultFileName
+    PIK = inputObj.PIK
    
     #---------guide:::  checking the validity of the input and making necessary files
     #and folders
@@ -156,7 +168,7 @@ def main():
         currentDir = os.getcwd() #getting the current directory
         #CBuildFolder = "./../../" 
         os.chdir(rootFolder) #chaning the directory
-        os.system("cp CMakeLists_tool_chain.txt CMakeLists.txt") #restoring the correct CMakeLists.txt file
+        # os.system("cp CMakeLists_tool_chain.txt CMakeLists.txt") #restoring the correct CMakeLists.txt file
         os.chdir(currentDir) 
         #generate the makefile using CMAKE 
         print "**********************************************************************"
@@ -218,9 +230,8 @@ def main():
     #---------guide:::   parse the C source file to collect all the operands that can 
     #                        be approximatable
     lAllOpsInSrcFile = [] 
-    sourceFileParse(CSrcFileAddress, lAllOpsInSrcFile)
-    
-    
+    for CSrcFileAddressItem in lOfCSrcFileAddress:
+        lAllOpsInSrcFile += sourceFileParse(CSrcFileAddressItem)
     settings.totalNumberOfOpCombinations = 1;
     energy = []
     error = []

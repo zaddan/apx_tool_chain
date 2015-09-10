@@ -13,10 +13,11 @@
 #include "operatorFile_parser.h"
 #include "setSubType.h"
 #include "operandFile_parser.h"
-#include "globals.h"
 using namespace std;
-extern hw_ac **myOp;   
-extern vector<int> inputVar;
+
+vector<vector<string> > OpTypeVec;
+enum status {SUCCESS, FAILURE}; 
+hw_ac **myOp;   
 
 //int notMain(){ //uncomment when you want to run the run_unit_tests
 int main(int argc, char* argv[]){
@@ -24,6 +25,7 @@ int main(int argc, char* argv[]){
     string resultFileName; 
     string operatorFileName;
     string operandFileName;
+    
     if (argc != 5) {
         cout<< "provide the name of the file that you want the result to be written to"<<endl;
         cout<< "Example: resultFolderName.txt resultFile.txt operatorFile.txt"<<endl; 
@@ -35,21 +37,48 @@ int main(int argc, char* argv[]){
         operandFileName = argv[4]; 
     }
 
-    assign_global_variables(resultFolderName, operatorFileName, operandFileName);
+    
+    string OpListFile = resultFolderName;
+    OpListFile += "/";
+    OpListFile += operatorFileName;
+    
+    //    
+//    //getting the operators 
+    int status = operatorFileParser(OpListFile, OpTypeVec);
+    //defiing an array of MyOps 
+    myOp = new hw_ac*[OpTypeVec.size()];
+    //instantiating the array elements to the values of OpTypeVec 
+    //note: OpTypeVec is populated with the parsed values in the OpListFile 
+    for (int i = 0; i<OpTypeVec.size(); i++) {
+        int status = setOpSubTypeAndInputs(&myOp[i], OpTypeVec[i]);
+        if (status == FAILURE) {
+            printf("this type is not acceptable \n"); 
+            return 1;// 0;
+        }
+    }
+    
+    
+    //getting the operand values  
+    string operandListFileName;
+    
+    operandListFileName = operandFileName;
+    //operandListFileName += "operandFile_parser_example.txt";
+    vector<int> inputVar;
+    status = operandFileParser(operandListFileName, inputVar);
+    
     string resultFileNameCompleteAddress = resultFileName;
+    cout<< resultFileName;
+
     ofstream resultFile;
     resultFile.open(resultFileNameCompleteAddress.c_str(), ios_base::app);
+    
     
    
     resultFile<<"*****************start******"<<endl; 
     //resultFile<<inputVar.size();
-    int a = myOp[0]->calc(inputVar[0],inputVar[1]); //MultiplicationOp
-    int b = myOp[1]->calc(a,inputVar[2]); //AdditionOp
-    int d = myOp[2]->calc(b,inputVar[3]); //MultiplicationOp
-    int c = myOp[3]->calc(inputVar[4],inputVar[5]); //AdditionOp
-    int e = myOp[4]->calc(c,d); //MultiplicationOp
-    
-    int numberOfOperandsNecessary = 6; 
+    int a = myOp[0]->calc(inputVar[0],inputVar[1]); //AdditionOp
+    int b = myOp[1]->calc(a, inputVar[2]); //AdditionOp
+    int numberOfOperandsNecessary = 2; 
     if (numberOfOperandsNecessary != inputVar.size()){
         cout << "the number of operands do not match what is necesary in the source file"<<endl;
         cout << "here is the number of operands provided: " << inputVar.size() <<endl;
@@ -57,7 +86,7 @@ int main(int argc, char* argv[]){
         exit(0); 
     }
     //writing the result 
-    resultFile<< e <<endl;
+    resultFile<< b <<endl;
     //resultFile<< b <<endl;
     //resultFile<< d <<endl;
     resultFile<<"*****************end******"<<endl; 

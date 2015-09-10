@@ -138,7 +138,7 @@ global lAllApxVersionOfEachOps
 
 
 # lAllApxVersionOfEachOps = [GenOpSpace("bta", 8,[32,33, 0,10, 0,1, 0, 1]), GenOpSpace("btm", 4,[32, 33, 0, 10])]
-lAllApxVersionOfEachOps = [GenOpSpace("bta", 8,[32,33, 0,4, 0,1, 0, 1]), GenOpSpace("btm", 4,[32, 33, 0, 4])]
+lAllApxVersionOfEachOps = [GenOpSpace("bta", 8,[32,33, 0,3, 0,1, 0, 1]), GenOpSpace("btm", 4,[32, 33, 0, 1])]
 # lAllApxVersionOfEachOps = [GenOpSpace("bta", 8,[32,33, 0,1, 0,1, 0, 1]), GenOpSpace("btm", 4,[32, 33, 0, 2])]
 
 for element in lAllApxVersionOfEachOps:

@@ -176,7 +176,7 @@ def findLowAndUpBounderies(CSrcFolderAddress, CSrcFileAddress , generateMakeFile
         currentDir = os.getcwd() #getting the current directory
         #CBuildFolder = "./../../" 
         os.chdir(rootFolder) #chaning the directory
-        os.system("cp CMakeLists_tool_chain.txt CMakeLists.txt") #restoring the correct CMakeLists.txt file
+        # os.system("cp CMakeLists_tool_chain.txt CMakeLists.txt") #restoring the correct CMakeLists.txt file
         os.chdir(currentDir) 
         #generate the makefile using CMAKE 
         print "**********************************************************************"

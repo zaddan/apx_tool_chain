@@ -6,5 +6,5 @@ file(GLOB all_src1 "src/CSrc/*.cpp")
 file(GLOB all_src2 "src/Operators/*.cpp")
 file(GLOB all_src3  "src/BookKeeping/*.cpp") #includes all the files in the folder src/
 add_executable(tool_exe ${all_src1} ${all_src2} ${all_src3}) #which files to build
-install(TARGETS tool_exe DESTINATION bin) #where to place the binary
+#install(TARGETS tool_exe DESTINATION bin) #where to place the binary
 include_directories(inc/BookKeeping inc/OperatorHeaders inc/MotionEstimationHeaders)  #adding the include folder

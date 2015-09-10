@@ -5,6 +5,15 @@ generated_text/*
 src/python_files/*pyc
 /*.png
 all_backups
+generated_text_bu
+result
+src/CMakeCache.txt
+src/CMakeFiles
+src/Makefile
+src/cmake_install.cmake
+src/python_files/*.db
 src/CSrc/*
+src/Csrc/test.cpp
 src/python_files/annealer_progression_output.txt
 src/python_files/annealer_results.txt
+all_operands_scenarios.txt

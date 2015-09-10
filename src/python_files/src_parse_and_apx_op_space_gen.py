@@ -59,7 +59,8 @@ def subtract(a, b):
 # @param lAllOpsInSrcFile: list of all the ops within the src file which can be replaced with the apx version
 # 
 # @return no return, infact, lAllOpsInSrcFile is where we store the output
-def sourceFileParse(sourceFileName, lAllOpsInSrcFile):
+def sourceFileParse(sourceFileName):
+    lAllOpsInSrcFile = [] 
     # if not(os.path.isfile(sourceFileName)):
         # print "the source file doesn't exist"
         # exit();
@@ -77,7 +78,7 @@ def sourceFileParse(sourceFileName, lAllOpsInSrcFile):
                     if "Ignore" in words.strip() and subtract(words.strip(), "Ignore") in settings.lAccurateOpFlags: #if ignore is part of the words, that means you can ignore that operator, but still add it
                         lAllOpsInSrcFile.append(words.strip())
 
-
+    return lAllOpsInSrcFile
 
 def generateAllPossibleScenariosForEachOperator(outputFile, lAllOpsInSrcFile):
     allPossibleScenariosForEachOperator = []

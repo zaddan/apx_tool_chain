@@ -18,6 +18,10 @@ using namespace std;
 extern hw_ac **myOp;   
 extern vector<int> inputVar;
 
+int foo(int a){
+    int b = myOp[0]->calc(a,inputVar[2]); //AdditionOp
+    return b;
+}
 //int notMain(){ //uncomment when you want to run the run_unit_tests
 int main(int argc, char* argv[]){
     string resultFolderName; 
@@ -43,8 +47,8 @@ int main(int argc, char* argv[]){
    
     resultFile<<"*****************start******"<<endl; 
     //resultFile<<inputVar.size();
-    int a = myOp[0]->calc(inputVar[0],inputVar[1]); //MultiplicationOp
-    int b = myOp[1]->calc(a,inputVar[2]); //AdditionOp
+    int a = myOp[1]->calc(inputVar[0],inputVar[1]); //MultiplicationOp
+    int b = foo(a); 
     int d = myOp[2]->calc(b,inputVar[3]); //MultiplicationOp
     int c = myOp[3]->calc(inputVar[4],inputVar[5]); //AdditionOp
     int e = myOp[4]->calc(c,d); //MultiplicationOp
