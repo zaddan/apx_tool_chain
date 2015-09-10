@@ -169,3 +169,5 @@ logFileName = "characterize_operators_log.txt"
 
 global operandsInfoForOperatorCharacterizationName
 operandsInfoForOperatorCharacterizationName = "operandsInfoForOperatorCharacterization.txt"
+
+userInputFile = "inputs.py"

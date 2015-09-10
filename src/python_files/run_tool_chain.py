@@ -61,7 +61,7 @@ def polishSetup(setUp):
 # @return : no return
 def main():
     #---------guide:::  promting ther user regarding the required input
-    print "the following inputs with the order mentioned needs to be provided"
+    print "the following inputs needs to be provided in the " + str(settings.userInputFile)
     print "1.source folder address"
     print "2.source file address"
     print "3.generate Makefile (with YES or NO)"
@@ -112,6 +112,7 @@ def main():
     # PIK = sys.argv[8]  
     #errorToSignalRatio = float(sys.argv[8])
     
+      
     CSrcFolderAddress = inputObj.CSrcFolderAddress
     lOfCSrcFileAddress = inputObj.lOfCSrcFileAddress 
     generateMakeFile = inputObj.generateMakeFile
@@ -120,7 +121,11 @@ def main():
     AllOperandsFileOrDirectoryName = inputObj.AllOperandsFileOrDirectoryName 
     finalResultFileName = inputObj.finalResultFileName
     PIK = inputObj.PIK
-   
+    
+    lOfInputs = []   #for debugging purposes
+    lOfInputs += [CSrcFolderAddress, lOfCSrcFileAddress, generateMakeFile, rootFolder, AllOperandScenariosInOneFiles , AllOperandsFileOrDirectoryName, finalResultFileName, PIK ]
+    assert(len(lOfInputs) == 8) 
+
     #---------guide:::  checking the validity of the input and making necessary files
     #and folders
     rootResultFolderName = rootFolder + "/" + settings.generatedTextFolderName
