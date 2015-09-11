@@ -183,6 +183,9 @@ def main():
         if not(os.path.isdir(CBuildFolder)):
             os.system("mkdir " + CBuildFolder); #making a new one
         os.chdir(CBuildFolder) #chaning the directory
+        # os.system("export CC=clang++; export CXX=clang++") 
+        os.environ["CC"] = "clag++";
+        os.environ["CXX"] = "clag++";
         os.system("cmake ..");
         print "**********************************************************************"
         print "done generating the makeFile using CMake"

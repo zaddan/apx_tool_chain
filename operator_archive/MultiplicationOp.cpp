@@ -52,14 +52,11 @@ int main(int argc, char* argv[]){
     for (int i = 0; i<OpTypeVec.size(); i++) {
         int status = setOpSubTypeAndInputs(&myOp[i], OpTypeVec[i]);
         if (status == FAILURE) {
-            cout<< "this type: " <<endl;
-            for (int l =0; l <OpTypeVec[i].size(); l++) {
-                cout << OpTypeVec[i][l] << " ";
-            }
-            cout<< " is not acceptable" <<endl;
-            return 0;// 0;
+            printf("this type is not acceptable \n"); 
+            return 1;// 0;
         }
     }
+    
     
     //getting the operand values  
     string operandListFileName;
@@ -74,17 +71,13 @@ int main(int argc, char* argv[]){
 
     ofstream resultFile;
     resultFile.open(resultFileNameCompleteAddress.c_str(), ios_base::app);
-   // resultFile.open(resultFileNameCompleteAddress.c_str(), ios_base::app);
     
+    
+   
     resultFile<<"*****************start******"<<endl; 
     //resultFile<<inputVar.size();
     int a = myOp[0]->calc(inputVar[0],inputVar[1]); //MultiplicationOp
-    int b = myOp[1]->calc(a,inputVar[2]); //AdditionOp
-    int d = myOp[2]->calc(b,inputVar[3]); //MultiplicationOp
-    int c = myOp[3]->calc(inputVar[4],inputVar[5]); //AdditionOp
-    int e = myOp[4]->calc(c,d); //MultiplicationOp
-    
-    int numberOfOperandsNecessary = 6; 
+    int numberOfOperandsNecessary = 2; 
     if (numberOfOperandsNecessary != inputVar.size()){
         cout << "the number of operands do not match what is necesary in the source file"<<endl;
         cout << "here is the number of operands provided: " << inputVar.size() <<endl;
@@ -92,7 +85,7 @@ int main(int argc, char* argv[]){
         exit(0); 
     }
     //writing the result 
-    resultFile<< e <<endl;
+    resultFile<< a <<endl;
     //resultFile<< b <<endl;
     //resultFile<< d <<endl;
     resultFile<<"*****************end******"<<endl; 
