@@ -23,3 +23,5 @@ src/python_files/all_inputs_scenarios
 src/python_files/settings.py
 *tags*
 inputPics/*
+src/python_files/blah
+src/python_files/blah.py
