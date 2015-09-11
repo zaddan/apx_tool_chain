@@ -258,7 +258,6 @@ def main():
      
     allPossibleScenariosForEachOperator = generateAllPossibleScenariosForEachOperator(rootResultFolderName, lAllOpsInSrcFile)
     #---------guide:::  generate all possible apx setUps Possible (mainly used for full permutation design exploration, otherwise called exhustive search)
-    allPossibleApxScenarioursList = generateAllPossibleApxScenariousList(allPossibleScenariosForEachOperator)
     IOAndProcessCharFileName = rootResultFolderName + "/" + settings.IOAndProcessCharFileName
     IOAndProcessCharP = open(IOAndProcessCharFileName, "w")
     
@@ -284,13 +283,14 @@ def main():
         
         
         #---------guide:::  getting accurate values associated with the CSource output
+        accurateSetUp = generateAccurateScenario(allPossibleScenariosForEachOperator)
         apxIndexSetUp = 0 #zero is associated with the accurate results (this is a contract that needs to be obeyed)
-        status, setUp = generateAPossibleApxScenarios(rootResultFolderName + "/" + settings.AllPossibleApxOpScenarios, allPossibleApxScenarioursList , apxIndexSetUp, mode) 
+        # status, setUp = generateAPossibleApxScenarios(rootResultFolderName + "/" + settings.AllPossibleApxOpScenarios, allPossibleApxScenarioursList , apxIndexSetUp, mode) 
         
         #---------guide:::  erasing the previuos content of the file
         CSourceOutputForVariousSetUpP = open(CSourceOutputForVariousSetUpFileName, "w").close()
         #---------guide:::  modify the operator sample file
-        modifyOperatorSampleFile(operatorSampleFileFullAddress, setUp)
+        modifyOperatorSampleFile(operatorSampleFileFullAddress, accurateSetUp)
         #---------guide:::  run the CSrouce file with the new setUp(operators)
         make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName)
 
@@ -302,6 +302,17 @@ def main():
 
     lOfPoints = []  
     if (mode == "allPermutations"): 
+        lengthSoFar = 0 
+        
+        """ ---- guide: making sure that it is possible to use permuation
+                 if the number of permutations are too big to be held in memoery
+                 we error out """
+        for opOptions in allPossibleScenariosForEachOperator:
+            lengthSoFar += len(opOptions)
+            assert(lengthSoFar < settings.veryHugeNumber), """numbr of permuations is too big. 
+            it is bigger that """ + str(settings.veryHugeNumber)
+
+        allPossibleApxScenarioursList = generateAllPossibleApxScenariousList(allPossibleScenariosForEachOperator)
         while (True): #break when a signal is raised as done
             newPoint = points()
             status, setUp = generateAPossibleApxScenarios(rootResultFolderName + "/" + settings.AllPossibleApxOpScenarios, allPossibleApxScenarioursList , apxIndexSetUp, mode) 
@@ -332,13 +343,15 @@ def main():
  
     elif (mode == "genetic_algorithm"):
         allConfs = [] #first generation
-        remainingPopulation = allPossibleApxScenarioursList[:]
-        numberOfIndividualsToStartWith = min(settings.numberOfIndividualsToStartWith, len(allPossibleApxScenarioursList)) 
-        for index in range(numberOfIndividualsToStartWith):
-            indexToChoose =  random.choice(range(0, len(remainingPopulation), 1))
-            sampleSetUp =  remainingPopulation[indexToChoose]
-            remainingPopulation.pop(indexToChoose) 
-            allConfs.append(sampleSetUp)
+        # remainingPopulation = allPossibleApxScenarioursList[:]
+        # numberOfIndividualsToStartWith = min(settings.numberOfIndividualsToStartWith, len(allPossibleApxScenarioursList)) 
+        numberOfIndividualsToStartWith = settings.numberOfIndividualsToStartWith
+        allConfs = generateInitialPopulation(accurateSetUp, numberOfIndividualsToStartWith) 
+        # for index in range(numberOfIndividualsToStartWith):
+            # indexToChoose =  random.choice(range(0, len(remainingPopulation), 1))
+            # sampleSetUp =  remainingPopulation[indexToChoose]
+            # remainingPopulation.pop(indexToChoose) 
+        #     allConfs.append(sampleSetUp)
             
         creator.create("FitnessMax", base.Fitness, weights=(-1.0, -1.0))
         creator.create("Individual", list, fitness=creator.FitnessMax)

@@ -49,7 +49,22 @@ def specializedMutate(setUp):
     newSetUp[operatorToChooseIndex] = operatorModified
     return newSetUp,
     
-    
+
+def generateInitialPopulation(accurateSetUp, numberOfIndividualsToStartWith):
+    population = [] 
+    population.append(accurateSetUp) 
+    for count in range(numberOfIndividualsToStartWith - 1):
+        newSetUp = copy.copy(accurateSetUp)
+        for index, element in enumerate(newSetUp): 
+            # operatorToChooseIndex = random.choice(range(0, len(accurateSetUp)))
+            # numberOfApxBits = int(random.gauss(10 , 4))
+            numberOfApxBits = int(random.choice(range(0,5)))
+            operatorModified = modifyOperatorSubSetupExactly(accurateSetUp[index], numberOfApxBits) 
+            newSetUp[index] = operatorModified
+        population.append(copy.deepcopy(newSetUp)) 
+    return population
+ 
+
 def doNothing(individual):
     return individual,
 

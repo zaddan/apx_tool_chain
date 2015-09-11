@@ -98,7 +98,13 @@ def turnAListOfTuplesToAListOfLists(listOfTuples):
     return resultList
 
 
-
+def generateAccurateScenario(allPossibleScenariosForEachOperator):
+    accurateScenario = []  
+    for operator in allPossibleScenariosForEachOperator:
+        accurateScenario.append(operator[0])
+        
+    return accurateScenario
+#
 def generateAllPossibleApxScenariousList(allPossibleScenariosForEachOperator):
     permutedList = list(itertools.product(*allPossibleScenariosForEachOperator))
     listOfAllPossibleApxScenarious = map(turnAListOfTuplesToAListOfLists, permutedList)
