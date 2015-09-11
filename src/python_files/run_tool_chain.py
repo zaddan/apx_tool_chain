@@ -67,8 +67,8 @@ def main():
     print "3.generate Makefile (with YES or NO)"
     print "4.CBuilderFolder"
     print "***********"
-    print "5.AllOperandScenariosInOneFiles" #whether all the operand scenarios can be found in one file or no
-    print "6. AllOperandsFileOrDirectoryName" #the user should be providing a file name if AllOperandScenariosInOneFiles is true and a direcoty other   
+    print "5.AllInputScenariosInOneFile" #whether all the operand scenarios can be found in one file or no
+    print "6. AllInputFileOrDirectoryName" #the user should be providing a file name if AllInputScenariosInOneFile is true and a direcoty other   
     print "7. finalResulstFileName"
     #print "8. errorRequirement"
     
@@ -83,8 +83,8 @@ def main():
         # print "3.generate Makefile (with YES or NO)"
         # print "4.CBuilderFolder"
         # print "***********"
-        # print "5.AllOperandScenariosInOneFiles" #whether all the operand scenarios can be found in one file or no
-        # print "6. AllOperandsFileOrDirectoryName" #the user should be providing a file name if AllOperandScenariosInOneFiles is true and a direcoty other   
+        # print "5.AllInputScenariosInOneFile" #whether all the operand scenarios can be found in one file or no
+        # print "6. AllInputFileOrDirectoryName" #the user should be providing a file name if AllInputScenariosInOneFile is true and a direcoty other   
         # print "7. finalResulstFileName"
         # print "8. pickled_file"
         # #print "8. errorToSignalRatio"
@@ -106,8 +106,8 @@ def main():
     # #executableName = sys.argv[3] #src file to be analyzed
     # generateMakeFile = sys.argv[3]
     # rootFolder = sys.argv[4] 
-    # AllOperandScenariosInOneFiles = sys.argv[5]
-    # AllOperandsFileOrDirectoryName = sys.argv[6]
+    # AllInputScenariosInOneFile = sys.argv[5]
+    # AllInputFileOrDirectoryName = sys.argv[6]
     # finalResultFileName = sys.argv[7]
     # PIK = sys.argv[8]  
     #errorToSignalRatio = float(sys.argv[8])
@@ -117,13 +117,13 @@ def main():
     lOfCSrcFileAddress = inputObj.lOfCSrcFileAddress 
     generateMakeFile = inputObj.generateMakeFile
     rootFolder = inputObj.rootFolder 
-    AllOperandScenariosInOneFiles = inputObj.AllOperandScenariosInOneFiles
-    AllOperandsFileOrDirectoryName = inputObj.AllOperandsFileOrDirectoryName 
+    AllInputScenariosInOneFile = inputObj.AllInputScenariosInOneFile
+    AllInputFileOrDirectoryName = inputObj.AllInputFileOrDirectoryName 
     finalResultFileName = inputObj.finalResultFileName
     PIK = inputObj.PIK
     
     lOfInputs = []   #for debugging purposes
-    lOfInputs += [CSrcFolderAddress, lOfCSrcFileAddress, generateMakeFile, rootFolder, AllOperandScenariosInOneFiles , AllOperandsFileOrDirectoryName, finalResultFileName, PIK ]
+    lOfInputs += [CSrcFolderAddress, lOfCSrcFileAddress, generateMakeFile, rootFolder, AllInputScenariosInOneFile , AllInputFileOrDirectoryName, finalResultFileName, PIK ]
     assert(len(lOfInputs) == 8) 
 
     #---------guide:::  checking the validity of the input and making necessary files
@@ -148,13 +148,13 @@ def main():
     
    
     #checking whether the file (or directory) containging the operands(input) exist or no
-    if (AllOperandScenariosInOneFiles): #if a file
-        print AllOperandsFileOrDirectoryName
-        if not(os.path.isfile(AllOperandsFileOrDirectoryName)):
+    if (AllInputScenariosInOneFile): #if a file
+        print AllInputFileOrDirectoryName
+        if not(os.path.isfile(AllInputFileOrDirectoryName)):
                 print "All OperandsFile does not exist"
                 exit();
     else: #checking for the directory
-        if not(os.path.isdir(AllOperandsFileOrDirectoryName)):
+        if not(os.path.isdir(AllInputFileOrDirectoryName)):
             print "All OperandsDir does not exist"
             exit();
 
@@ -196,7 +196,7 @@ def main():
 
     
     #---------guide:::  removing the results associated with the previous runs
-    AllOperandScenariosFullAddress = AllOperandsFileOrDirectoryName
+    AllOperandScenariosFullAddress = AllInputFileOrDirectoryName
     inputNumber = 0 
     os.system("rm -r" + " " +  rootResultFolderName + "/" +settings.AllOperandsFolderName)
     os.system("rm -r" + " " +  rootResultFolderName + "/" + settings.rawResultFolderName)
@@ -205,7 +205,7 @@ def main():
     #---------guide:::  if the operands were all given in a file: separate them to different files
     #...................else: use the folder that they are in, as an input to the C source files
     #if all in one file 
-    if (AllOperandScenariosInOneFiles):
+    if (AllInputScenariosInOneFile):
         #check for error 
         if not(os.path.isfile(AllOperandScenariosFullAddress)):
             print AllOperandScenariosFullAddress + " does not exist"
@@ -229,7 +229,7 @@ def main():
             print "the folder that is told to contain the operands does not exist: " + AllOperandsFolderName
             exit();
         else: 
-            AllOperandsFolderName = AllOperandsFileOrDirectoryName
+            AllOperandsFolderName = AllInputFileOrDirectoryName
 
     
     

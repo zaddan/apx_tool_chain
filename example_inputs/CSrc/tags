@@ -1,0 +1,191 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+APP0	loadjpg.cpp	70;"	d	file:
+BYTE_TO_WORD	loadjpg.cpp	72;"	d	file:
+BuildHuffmanTable	loadjpg.cpp	/^inline void BuildHuffmanTable(const unsigned char *bits, const unsigned char *stream, stHuffmanTable *HT)$/;"	f
+BuildQuantizationTable	loadjpg.cpp	/^inline void BuildQuantizationTable(float *qtable, const unsigned char *ref_table)$/;"	f
+C	loadjpg.cpp	/^float C(int u)$/;"	f
+COMPONENTS	loadjpg.cpp	/^const int COMPONENTS		=	4;$/;"	v
+CbAC_HT	savejpg.cpp	/^bitstring CbAC_HT[256];$/;"	v
+CbBtab	savejpg.cpp	/^SDWORD CbRtab[256],CbGtab[256],CbBtab[256];$/;"	v
+CbBtab1	comparebmp.cpp	/^static SDWORD CbRtab1[256],CbGtab1[256],CbBtab1[256];$/;"	v	file:
+CbDC_HT	savejpg.cpp	/^bitstring CbDC_HT[12];$/;"	v
+CbDU	savejpg.cpp	/^SBYTE CbDU[64];$/;"	v
+CbDU1	comparebmp.cpp	/^static SBYTE CbDU1[64];$/;"	v	file:
+CbDU2	comparebmp.cpp	/^static SBYTE CbDU2[64];$/;"	v	file:
+CbGtab	savejpg.cpp	/^SDWORD CbRtab[256],CbGtab[256],CbBtab[256];$/;"	v
+CbGtab1	comparebmp.cpp	/^static SDWORD CbRtab1[256],CbGtab1[256],CbBtab1[256];$/;"	v	file:
+CbRtab	savejpg.cpp	/^SDWORD CbRtab[256],CbGtab[256],CbBtab[256];$/;"	v
+CbRtab1	comparebmp.cpp	/^static SDWORD CbRtab1[256],CbGtab1[256],CbBtab1[256];$/;"	v	file:
+Clamp	loadjpg.cpp	/^inline unsigned char Clamp(int i)$/;"	f
+ConvertJpgFile	loadjpg.cpp	/^int ConvertJpgFile(char* szJpgFileInName, char * szBmpFileOutName)$/;"	f
+ConvertYCrCbtoRGB	loadjpg.cpp	/^inline void ConvertYCrCbtoRGB(int y, int cb, int cr,$/;"	f
+CrBtab	savejpg.cpp	/^SDWORD CrRtab[256],CrGtab[256],CrBtab[256];$/;"	v
+CrBtab1	comparebmp.cpp	/^static SDWORD CrRtab1[256],CrGtab1[256],CrBtab1[256];$/;"	v	file:
+CrDU	savejpg.cpp	/^SBYTE CrDU[64];$/;"	v
+CrDU1	comparebmp.cpp	/^static SBYTE CrDU1[64];$/;"	v	file:
+CrDU2	comparebmp.cpp	/^static SBYTE CrDU2[64];$/;"	v	file:
+CrGtab	savejpg.cpp	/^SDWORD CrRtab[256],CrGtab[256],CrBtab[256];$/;"	v
+CrGtab1	comparebmp.cpp	/^static SDWORD CrRtab1[256],CrGtab1[256],CrBtab1[256];$/;"	v	file:
+CrRtab	savejpg.cpp	/^SDWORD CrRtab[256],CrGtab[256],CrBtab[256];$/;"	v
+CrRtab1	comparebmp.cpp	/^static SDWORD CrRtab1[256],CrGtab1[256],CrBtab1[256];$/;"	v	file:
+DHT	loadjpg.cpp	66;"	d	file:
+DQT	loadjpg.cpp	64;"	d	file:
+DU	savejpg.cpp	/^SWORD DU[64]; \/\/zigzag reordered DU which will be Huffman coded$/;"	v
+DU_DCT	savejpg.cpp	/^SWORD DU_DCT[64]; \/\/ Current DU (after DCT and quantization) which we'll zigzag$/;"	v
+DeZigZag	loadjpg.cpp	/^void DeZigZag(int outBlock[64], const int inBlock[64])$/;"	f
+DecodeJpgFileData	loadjpg.cpp	/^int DecodeJpgFileData(const unsigned char* buf, \/\/ Jpg file in memory$/;"	f
+DecodeMCU	loadjpg.cpp	/^inline void DecodeMCU(stJpegData *jdata, int w, int h)$/;"	f
+DecodeSingleBlock	loadjpg.cpp	/^inline void DecodeSingleBlock(stComponent *comp, unsigned char *outputBuf, int stride)$/;"	f
+DequantizeBlock	loadjpg.cpp	/^void DequantizeBlock( int block[64], const float quantBlock[64] )$/;"	f
+DetermineSign	loadjpg.cpp	/^int DetermineSign(int val, int nBits)$/;"	f
+DumpDCTValues	loadjpg.cpp	/^void DumpDCTValues(short dct[64])$/;"	f
+DumpDecodedBlock	loadjpg.cpp	/^void DumpDecodedBlock(int val[8][8])$/;"	f
+DumpHufCodes	loadjpg.cpp	/^void DumpHufCodes(stHuffmanTable* table)$/;"	f
+EOI	loadjpg.cpp	69;"	d	file:
+FileSize	loadjpg.cpp	/^inline int FileSize(FILE *fp)$/;"	f
+FillNBits	loadjpg.cpp	/^inline void FillNBits(const unsigned char** stream, int& nbits_wanted)$/;"	f
+FillNBits	loadjpg.cpp	900;"	d	file:
+GenHuffCodes	loadjpg.cpp	/^void GenHuffCodes( int num_codes, stBlock* arr, unsigned char* huffVal )$/;"	f
+GenHuffCodes	loadjpg.cpp	187;"	d	file:
+GetNBits	loadjpg.cpp	/^inline short GetNBits(const unsigned char** stream, int nbits_wanted)$/;"	f
+HUFFMAN_TABLES	loadjpg.cpp	/^const int HUFFMAN_TABLES	=	4;$/;"	v
+IntToBinary	loadjpg.cpp	/^char* IntToBinary(int val, int bits)$/;"	f
+IsInHuffmanCodes	loadjpg.cpp	/^bool IsInHuffmanCodes(int code, int numCodeBits, int numBlocks, stBlock* blocks, int* outValue)$/;"	f
+JPG_SPEEDUP	loadjpg.cpp	39;"	d	file:
+JpegDecode	loadjpg.cpp	/^inline int JpegDecode(stJpegData *jdata)$/;"	f
+JpegGetImageSize	loadjpg.cpp	/^inline void JpegGetImageSize(stJpegData *jdata, unsigned int *width, unsigned int *height)$/;"	f
+JpegParseHeader	loadjpg.cpp	/^inline int JpegParseHeader(stJpegData *jdata, const unsigned char *buf, unsigned int size)$/;"	f
+LookNBits	loadjpg.cpp	/^inline int LookNBits(const unsigned char** stream, int nbits_wanted)$/;"	f
+ParseDHT	loadjpg.cpp	/^inline int ParseDHT(stJpegData *jdata, const unsigned char *stream)$/;"	f
+ParseDQT	loadjpg.cpp	/^inline int ParseDQT(stJpegData *jdata, const unsigned char *stream)$/;"	f
+ParseJFIF	loadjpg.cpp	/^inline int ParseJFIF(stJpegData *jdata, const unsigned char *stream)$/;"	f
+ParseSOF	loadjpg.cpp	/^inline int ParseSOF(stJpegData *jdata, const unsigned char *stream)$/;"	f
+ParseSOS	loadjpg.cpp	/^inline int ParseSOS(stJpegData *jdata, const unsigned char *stream)$/;"	f
+PerformIDCT	loadjpg.cpp	/^void PerformIDCT(int outBlock[8][8], const int inBlock[8][8])$/;"	f
+PrintSOF	loadjpg.cpp	/^inline void PrintSOF(const unsigned char *stream)$/;"	f
+ProcessHuffmanDataUnit	loadjpg.cpp	/^void ProcessHuffmanDataUnit(stJpegData *jdata, int indx)$/;"	f
+ProcessRestart	loadjpg.cpp	/^void ProcessRestart()$/;"	f
+RGB_buffer	savejpg.cpp	/^colorRGB *RGB_buffer; \/\/image to be encoded$/;"	v
+RGB_buffer1	comparebmp.cpp	/^static colorRGB *RGB_buffer1; \/\/image to be encoded$/;"	v	file:
+RGB_buffer2	comparebmp.cpp	/^static colorRGB *RGB_buffer2; \/\/image to be encoded$/;"	v	file:
+SOF	loadjpg.cpp	65;"	d	file:
+SOI	loadjpg.cpp	67;"	d	file:
+SOS	loadjpg.cpp	68;"	d	file:
+SaveJpgFile	savejpg.cpp	/^void SaveJpgFile(char *szBmpFileNameIn, char* szJpgFileNameOut)$/;"	f
+SkipNBits	loadjpg.cpp	/^inline void SkipNBits(const unsigned char** stream, int& nbits_wanted)$/;"	f
+SkipNBits	loadjpg.cpp	935;"	d	file:
+TransformArray	loadjpg.cpp	/^void TransformArray(int outArray[8][8], const int inArray[64])$/;"	f
+WriteBMP24	loadjpg.cpp	/^inline void WriteBMP24(const char* szBmpFileName, int Width, int Height, unsigned char* RGB)$/;"	f
+Ximage	savejpg.cpp	/^WORD Ximage,Yimage;\/\/ image dimensions divisible by 8$/;"	v
+Ximage1	comparebmp.cpp	/^static WORD Ximage1,Yimage1;\/\/ image dimensions divisible by 8$/;"	v	file:
+Ximage2	comparebmp.cpp	/^static WORD Ximage2,Yimage2;\/\/ image dimensions divisible by 8$/;"	v	file:
+YAC_HT	savejpg.cpp	/^bitstring YAC_HT[256];$/;"	v
+YBtab	savejpg.cpp	/^SDWORD YRtab[256],YGtab[256],YBtab[256];$/;"	v
+YBtab1	comparebmp.cpp	/^static SDWORD YRtab1[256],YGtab1[256],YBtab1[256];$/;"	v	file:
+YCrCB_to_RGB24_Block8x8	loadjpg.cpp	/^inline void YCrCB_to_RGB24_Block8x8(stJpegData *jdata, int w, int h, int imgx, int imgy, int imgw, int imgh)$/;"	f
+YDC_HT	savejpg.cpp	/^bitstring YDC_HT[12];$/;"	v
+YDU	savejpg.cpp	/^SBYTE YDU[64]; \/\/ This is the Data Unit of Y after YCbCr->RGB transformation$/;"	v
+YDU1	comparebmp.cpp	/^static SBYTE YDU1[64]; \/\/ This is the Data Unit of Y after YCbCr->RGB transformation$/;"	v	file:
+YDU2	comparebmp.cpp	/^static SBYTE YDU2[64]; \/\/ This is the Data Unit of Y after YCbCr->RGB transformation$/;"	v	file:
+YGtab	savejpg.cpp	/^SDWORD YRtab[256],YGtab[256],YBtab[256];$/;"	v
+YGtab1	comparebmp.cpp	/^static SDWORD YRtab1[256],YGtab1[256],YBtab1[256];$/;"	v	file:
+YRtab	savejpg.cpp	/^SDWORD YRtab[256],YGtab[256],YBtab[256];$/;"	v
+YRtab1	comparebmp.cpp	/^static SDWORD YRtab1[256],YGtab1[256],YBtab1[256];$/;"	v	file:
+Yimage	savejpg.cpp	/^WORD Ximage,Yimage;\/\/ image dimensions divisible by 8$/;"	v
+Yimage1	comparebmp.cpp	/^static WORD Ximage1,Yimage1;\/\/ image dimensions divisible by 8$/;"	v	file:
+Yimage2	comparebmp.cpp	/^static WORD Ximage2,Yimage2;\/\/ image dimensions divisible by 8$/;"	v	file:
+ZigZagArray	loadjpg.cpp	/^static int ZigZagArray[64] = $/;"	v	file:
+bitcode	savejpg.cpp	/^bitstring *bitcode; \/\/ their bitcoded representation$/;"	v
+bitcode_alloc	savejpg.cpp	/^bitstring *bitcode_alloc;$/;"	v
+bytepos	savejpg.cpp	/^SBYTE bytepos=7; \/\/bit position in the byte we write (bytenew)$/;"	v
+cCb	loadjpg.cpp	/^const int  cCb	 = 2;$/;"	v
+cCr	loadjpg.cpp	/^const int  cCr	 = 3;$/;"	v
+cY	loadjpg.cpp	/^const int  cY	 = 1;$/;"	v
+category	savejpg.cpp	/^BYTE *category; \/\/Here we'll keep the category of the numbers in range: -32767..32767$/;"	v
+category_alloc	savejpg.cpp	/^BYTE *category_alloc;$/;"	v
+code	loadjpg.cpp	/^     unsigned short int code;	\/\/ 2 byte code (variable length)$/;"	m	struct:stBlock	file:
+comparebmp	comparebmp.cpp	/^double comparebmp(char *BmpFile, char *BmpFile_ref)$/;"	f
+compute_Huffman_table	savejpg.cpp	/^void compute_Huffman_table(BYTE *nrcodes,BYTE *std_table,bitstring *HT)$/;"	f
+dprintf	main.cpp	/^void dprintf(const char *fmt, ...) $/;"	f
+exitmessage	savejpg.cpp	/^void exitmessage(char *error_message)$/;"	f
+exitmessage2	comparebmp.cpp	/^void exitmessage2(char *error_message)$/;"	f
+fdct	modules_isolated.cpp	/^void fdct(SBYTE *data,float *fdtbl, float *datafloat)$/;"	f
+fdct_and_quantization	savejpg.cpp	/^void fdct_and_quantization(SBYTE *data,float *fdtbl,SWORD *outdata)$/;"	f
+fdtbl_Cb	savejpg.cpp	/^float fdtbl_Cb[64]; \/\/the same with the fdtbl_Cr[64]$/;"	v
+fdtbl_Y	savejpg.cpp	/^float fdtbl_Y[64];$/;"	v
+fp_jpeg_stream	savejpg.cpp	/^FILE *fp_jpeg_stream;$/;"	v
+func	loadjpg.cpp	/^int func(int x, int y, const int block[8][8])$/;"	f
+g_bigBuf	loadjpg.cpp	/^char g_bigBuf[1024] = {0};$/;"	v
+g_nbits_in_reservoir	loadjpg.cpp	/^unsigned int g_nbits_in_reservoir = 0;$/;"	v
+g_reservoir	loadjpg.cpp	/^unsigned int g_reservoir = 0;$/;"	v
+huffmanCoding	modules_isolated.cpp	/^void huffmanCoding(SWORD *DC, bitstring *HTDC,bitstring *HTAC,bitstring EOB, bitstring M16zeroes){$/;"	f
+init_Huffman_tables	savejpg.cpp	/^void init_Huffman_tables()$/;"	f
+init_all	savejpg.cpp	/^void init_all()$/;"	f
+init_all1	comparebmp.cpp	/^void init_all1()$/;"	f
+length	loadjpg.cpp	/^     int length;				\/\/ Length in bits.$/;"	m	struct:stBlock	file:
+load_bitmap	savejpg.cpp	/^void load_bitmap(char *bitmap_name, WORD *Ximage_original, WORD *Yimage_original)$/;"	f
+load_bitmap1	comparebmp.cpp	/^void load_bitmap1(char *bitmap_name, WORD *Ximage_original, WORD *Yimage_original)$/;"	f
+load_bitmap2	comparebmp.cpp	/^void load_bitmap2(char *bitmap_name, WORD *Ximage_original, WORD *Yimage_original)$/;"	f
+load_data_units_from_RGB_buffer	savejpg.cpp	/^void load_data_units_from_RGB_buffer(WORD xpos,WORD ypos)$/;"	f
+load_data_units_from_RGB_buffer_cmp	comparebmp.cpp	/^void load_data_units_from_RGB_buffer_cmp(WORD xpos,WORD ypos)$/;"	f
+m_Cb	loadjpg.cpp	/^	unsigned char		m_Cb[64];$/;"	m	struct:stJpegData	file:
+m_Cr	loadjpg.cpp	/^	unsigned char		m_Cr[64];$/;"	m	struct:stJpegData	file:
+m_DCT	loadjpg.cpp	/^  short int				m_DCT[65];			\/\/ DCT coef$/;"	m	struct:stComponent	file:
+m_HTAC	loadjpg.cpp	/^	stHuffmanTable		m_HTAC[HUFFMAN_TABLES];		\/\/ AC huffman tables$/;"	m	struct:stJpegData	file:
+m_HTDC	loadjpg.cpp	/^	stHuffmanTable		m_HTDC[HUFFMAN_TABLES];		\/\/ DC huffman tables  $/;"	m	struct:stJpegData	file:
+m_Q_tables	loadjpg.cpp	/^	float				m_Q_tables[COMPONENTS][64];	\/\/ quantization tables$/;"	m	struct:stJpegData	file:
+m_Y	loadjpg.cpp	/^	unsigned char		m_Y[64*4];$/;"	m	struct:stJpegData	file:
+m_acTable	loadjpg.cpp	/^  stHuffmanTable*		m_acTable;$/;"	m	struct:stComponent	file:
+m_blocks	loadjpg.cpp	/^	stBlock			m_blocks[1024];$/;"	m	struct:stHuffmanTable	file:
+m_colourspace	loadjpg.cpp	/^	unsigned char *		m_colourspace;$/;"	m	struct:stJpegData	file:
+m_component_info	loadjpg.cpp	/^	stComponent			m_component_info[COMPONENTS];$/;"	m	struct:stJpegData	file:
+m_dcTable	loadjpg.cpp	/^  stHuffmanTable*		m_dcTable;$/;"	m	struct:stComponent	file:
+m_hFactor	loadjpg.cpp	/^  unsigned int			m_hFactor;$/;"	m	struct:stComponent	file:
+m_height	loadjpg.cpp	/^	unsigned int		m_height;			\/\/ Height of image$/;"	m	struct:stJpegData	file:
+m_hufVal	loadjpg.cpp	/^	unsigned char	m_hufVal[257];		\/\/ 256 codes read in from the jpeg file$/;"	m	struct:stHuffmanTable	file:
+m_length	loadjpg.cpp	/^	unsigned char	m_length[17];		\/\/ 17 values from jpg file, $/;"	m	struct:stHuffmanTable	file:
+m_numBlocks	loadjpg.cpp	/^	int				m_numBlocks;$/;"	m	struct:stHuffmanTable	file:
+m_previousDC	loadjpg.cpp	/^  int					m_previousDC;$/;"	m	struct:stComponent	file:
+m_qTable	loadjpg.cpp	/^  float *				m_qTable;			\/\/ Pointer to the quantisation table to use$/;"	m	struct:stComponent	file:
+m_restart_interval	loadjpg.cpp	/^	int					m_restart_interval;$/;"	m	struct:stJpegData	file:
+m_rgb	loadjpg.cpp	/^	unsigned char*		m_rgb;				\/\/ Final Red Green Blue pixel data$/;"	m	struct:stJpegData	file:
+m_stream	loadjpg.cpp	/^	const unsigned char*m_stream;			\/\/ Pointer to the current stream$/;"	m	struct:stJpegData	file:
+m_vFactor	loadjpg.cpp	/^  unsigned int			m_vFactor;$/;"	m	struct:stComponent	file:
+m_width	loadjpg.cpp	/^	unsigned int		m_width;			\/\/ Width of image$/;"	m	struct:stJpegData	file:
+main	main.cpp	/^int main(int argc, char** argv)$/;"	f
+main_compare	comparebmp.cpp	/^double main_compare()$/;"	f
+main_encoder	savejpg.cpp	/^void main_encoder()$/;"	f
+mask	savejpg.cpp	/^WORD mask[16]={1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768};$/;"	v
+precalculate_YCbCr_tables	savejpg.cpp	/^void precalculate_YCbCr_tables()$/;"	f
+precalculate_YCbCr_tables1	comparebmp.cpp	/^void precalculate_YCbCr_tables1()$/;"	f
+prepare_quant_tables	savejpg.cpp	/^void prepare_quant_tables()$/;"	f
+process_DU	savejpg.cpp	/^void process_DU(SBYTE *ComponentDU,float *fdtbl,SWORD *DC,$/;"	f
+quantization	modules_isolated.cpp	/^void quantization(float *fdtbl, SWORD *outdata, float *datafloat){$/;"	f
+rmOutputFile	book_keeping.cpp	/^void rmOutputFile(string outputFileName) {$/;"	f
+scalefactor	savejpg.cpp	/^BYTE scalefactor=10;\/\/ scalefactor controls the visual quality of the image$/;"	v
+set_DHTinfo	savejpg.cpp	/^void set_DHTinfo()$/;"	f
+set_DQTinfo	savejpg.cpp	/^void set_DQTinfo()$/;"	f
+set_numbers_category_and_bitcode	savejpg.cpp	/^void set_numbers_category_and_bitcode()$/;"	f
+set_quant_table	savejpg.cpp	/^void set_quant_table(BYTE *basic_table,BYTE scale_factor,BYTE *newtable)$/;"	f
+stBlock	loadjpg.cpp	/^struct stBlock$/;"	s	file:
+stComponent	loadjpg.cpp	/^struct stComponent $/;"	s	file:
+stHuffmanTable	loadjpg.cpp	/^struct stHuffmanTable$/;"	s	file:
+stJpegData	loadjpg.cpp	/^struct stJpegData$/;"	s	file:
+value	loadjpg.cpp	/^     int value;					\/\/ Decodes to.$/;"	m	struct:stBlock	file:
+var_c	comparebmp.cpp	/^const double var_c = 0.25*0.5;$/;"	v
+var_i	comparebmp.cpp	/^const double var_i = 1450.0; $/;"	v
+writeOutput	book_keeping.cpp	/^void writeOutput(string outputFileName, float *output, int outputLength, $/;"	f
+writeOutput	book_keeping.cpp	/^void writeOutput(string outputFileName, float output, string openningStatement, string closingStatment) {$/;"	f
+writeOutput	book_keeping.cpp	/^void writeOutput(string outputFileName, short int *output, int outputLength, $/;"	f
+write_APP0info	savejpg.cpp	/^void write_APP0info()$/;"	f
+write_DHTinfo	savejpg.cpp	/^void write_DHTinfo()$/;"	f
+write_DQTinfo	savejpg.cpp	/^void write_DQTinfo()$/;"	f
+write_SOF0info	savejpg.cpp	/^void write_SOF0info()$/;"	f
+write_SOSinfo	savejpg.cpp	/^void write_SOSinfo()$/;"	f
+write_comment	savejpg.cpp	/^void write_comment(BYTE *comment)$/;"	f
+writebits	savejpg.cpp	/^void writebits(bitstring bs)$/;"	f
