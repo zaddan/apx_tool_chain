@@ -1,7 +1,7 @@
 the following files are not included in the git repo but should be provided
 inputs.py in src/pythonfiles/
 all_input_scenarios.txt in the root 
-settings
+settings.py 
 CMakeLists.txt needs to get modified to incorperate the .h files associated with the 
 files within CSrc folder
 make sure to populate CSrc with files that you want to approximate. 

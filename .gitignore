@@ -17,4 +17,9 @@ src/Csrc/test.cpp
 src/python_files/pickled_results
 src/python_files/annealer_progression_output.txt
 src/python_files/annealer_results.txt
-all_operands_scenarios.txt
+all_input_scenarios.txt
+src/python_files/inputs.py
+src/python_files/all_inputs_scenarios
+src/python_files/settings.py
+*tags*
+inputPics/*
