@@ -5,3 +5,4 @@ settings.py
 CMakeLists.txt needs to get modified to incorperate the .h files associated with the 
 files within CSrc folder
 make sure to populate CSrc with files that you want to approximate. 
+make sure to provide all the files that have AdditionOp and MultiplicationOp (that you want to appx) in the inputs.py in lOfCSrcFileAddress
