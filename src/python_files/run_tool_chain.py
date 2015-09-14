@@ -121,7 +121,6 @@ def main():
     AllInputFileOrDirectoryName = inputObj.AllInputFileOrDirectoryName 
     finalResultFileName = inputObj.finalResultFileName
     PIK = inputObj.PIK
-    
     lOfInputs = []   #for debugging purposes
     lOfInputs += [CSrcFolderAddress, lOfCSrcFileAddress, generateMakeFile, rootFolder, AllInputScenariosInOneFile , AllInputFileOrDirectoryName, finalResultFileName, PIK ]
     assert(len(lOfInputs) == 8) 
@@ -346,15 +345,15 @@ def main():
         # remainingPopulation = allPossibleApxScenarioursList[:]
         # numberOfIndividualsToStartWith = min(settings.numberOfIndividualsToStartWith, len(allPossibleApxScenarioursList)) 
         numberOfIndividualsToStartWith = settings.numberOfIndividualsToStartWith
-        allConfs = generateInitialPopulation(accurateSetUp, numberOfIndividualsToStartWith) 
+        allConfs = generateInitialPopulation(accurateSetUp, numberOfIndividualsToStartWith)
         # for index in range(numberOfIndividualsToStartWith):
             # indexToChoose =  random.choice(range(0, len(remainingPopulation), 1))
             # sampleSetUp =  remainingPopulation[indexToChoose]
             # remainingPopulation.pop(indexToChoose) 
         #     allConfs.append(sampleSetUp)
             
-        creator.create("FitnessMax", base.Fitness, weights=(-1.0, -1.0))
-        creator.create("Individual", list, fitness=creator.FitnessMax)
+        creator.create("FitnessMin", base.Fitness, weights=(-1.0, -1.0))
+        creator.create("Individual", list, fitness=creator.FitnessMin)
         toolbox = base.Toolbox()
 
         # Operator registering
@@ -371,20 +370,17 @@ def main():
         LAMBDA = settings.LAMBDA#number of children
         CXPB = settings.CXPB 
         MUTPB = settings.MUTPB
-        
-
         population = run_spea2(NGEN, MU, LAMBDA, CXPB, MUTPB, population,
                     CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress,
                     executableName, executableInputList, rootResultFolderName, CBuildFolder,
                     operandSampleFileName, lOfAccurateValues, toolbox, nameOfAllOperandFilesList)
-            
         lOfPoints = []  
         for individual in population:
             newPoint = points()
             newPoint.set_SNR(individual.fitness.values[1])
             newPoint.set_energy(individual.fitness.values[0])
 
-            newPoint.set_setUp(individual)
+            newPoint.set_setUp(list(individual))
             newPoint.set_setUp_number(0)
             lOfPoints.append(newPoint)
         
@@ -415,33 +411,41 @@ def main():
 
     
     if not(mode == "only_read_values" or mode == "read_values_and_get_pareto"):
-        for point in lOfPoints: 
-            with open(PIK, "wb") as f:
-                pickle.dump(point, f)
+        with open(PIK, "wb") as f:
+            for point in lOfPoints: 
+                pickle.dump(copy.deepcopy(point), f)
 
     
     # ---- reading the values back
     if (mode == "only_read_values" or mode == "read_values_and_get_pareto"):
-        lOfOperandSet = [] 
         with open(PIK, "rb") as f:
             # pickle.load(f)
             while True: 
                 try: 
+                    print "hereeeee" 
                     point = pickle.load(f)
+                    print point 
                     lOfPoints.append(point) 
                     # listOfPeople.append(copy.copy(person))# 
                 except Exception as ex:
                     if not (type(ex).__name__ == "EOFError"):
                         print type(ex).__name__ 
                         print ex.args
+                        print "something went wrong"
                     break
-    
    #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
    #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
     # ---- result generation/manipulation
-    if(mode == "allPermutations"):    
+    # if(mode == "allPermutations"):    
+        # lOfParetoPoints = pareto_frontier(lOfPoints, maxX= False, maxY = False)
+    # elif(mode == "genetic_algorithm"):
+        # lOfParetoPoints = pareto_frontier(lOfPoints, maxX= False, maxY = False)
+    #     # lOfParetoPoints = lOfPoints
+    
+    # ---- find the pareto curve of lOfPoints
+    if not(mode == "only_read_values"): 
         lOfParetoPoints = pareto_frontier(lOfPoints, maxX= False, maxY = False)
-    elif(mode == "genetic_algorithm"):
+    else:
         lOfParetoPoints = lOfPoints
     
     symbolsCollected = [] #this list contains the symbols collected for every new input 

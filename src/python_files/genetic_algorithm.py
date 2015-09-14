@@ -3,7 +3,7 @@ import sys
 import copy
 import math
 import numpy
-
+import settings 
 from deap import algorithms
 from points_class import *
 from deap import base
@@ -44,7 +44,8 @@ def modifyOperatorSubSetupExactly(operator, numberOfApxBits):
 def specializedMutate(setUp):
     newSetUp = copy.copy(setUp)
     operatorToChooseIndex = random.choice(range(0, len(setUp)))
-    numberOfApxBits = int(random.gauss(10 , 5.2))
+    # numberOfApxBits = int(random.gauss(10 , 5.2))
+    numberOfApxBits = int(random.choice(range(settings.apxLowBound, settings.apxUpBound)))
     operatorModified = modifyOperatorSubSetupExactly(setUp[operatorToChooseIndex], numberOfApxBits) 
     newSetUp[operatorToChooseIndex] = operatorModified
     return newSetUp,
@@ -58,7 +59,7 @@ def generateInitialPopulation(accurateSetUp, numberOfIndividualsToStartWith):
         for index, element in enumerate(newSetUp): 
             # operatorToChooseIndex = random.choice(range(0, len(accurateSetUp)))
             # numberOfApxBits = int(random.gauss(10 , 4))
-            numberOfApxBits = int(random.choice(range(0,5)))
+            numberOfApxBits = int(random.choice(range(settings.apxLowBound, settings.apxUpBound)))
             operatorModified = modifyOperatorSubSetupExactly(accurateSetUp[index], numberOfApxBits) 
             newSetUp[index] = operatorModified
         population.append(copy.deepcopy(newSetUp)) 
