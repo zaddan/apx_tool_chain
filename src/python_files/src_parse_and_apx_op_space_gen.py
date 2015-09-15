@@ -71,13 +71,15 @@ def sourceFileParse(sourceFileName):
         exit()
     else:
         with f:
+            count = 0
             for line in f:
                 for words in line.replace(',', ' ').replace('/',' ').replace(';', ' ').split(' '): #find the lines with key word and write it to another file
                     if words.strip() in settings.lAccurateOpFlags:
+                        print count 
                         lAllOpsInSrcFile.append(words.strip())
                     if "Ignore" in words.strip() and subtract(words.strip(), "Ignore") in settings.lAccurateOpFlags: #if ignore is part of the words, that means you can ignore that operator, but still add it
                         lAllOpsInSrcFile.append(words.strip())
-
+                count +=1; 
     return lAllOpsInSrcFile
 
 def generateAllPossibleScenariosForEachOperator(outputFile, lAllOpsInSrcFile):
@@ -101,6 +103,9 @@ def turnAListOfTuplesToAListOfLists(listOfTuples):
 def generateAccurateScenario(allPossibleScenariosForEachOperator):
     accurateScenario = []  
     for operator in allPossibleScenariosForEachOperator:
+        print operator[0] 
+        operator[0][2] = 0 
+        # accurateScenario.append(operator[0])
         accurateScenario.append(operator[0])
         
     return accurateScenario
@@ -121,7 +126,6 @@ def generateAPossibleApxScenarios(outputFile, allPossibleApxScenarioursList, per
     #writing the result to an output file
     #this step is introduce to clear the content of the file left from that last run
     if (len(allPossibleApxScenarioursList) == (permListIndex + 1)):
-        print permListIndex 
         status = "done" 
     else:
         status = "undone" 

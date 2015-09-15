@@ -315,7 +315,7 @@ def findLowAndUpBounderies(CSrcFolderAddress, CSrcFileAddress , generateMakeFile
                 CSourceOutputForVariousSetUpP = open(CSourceOutputForVariousSetUpFileName, "w").close()
                 modifyOperatorSampleFile(operatorSampleFileFullAddress, setUp)
                 make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandFileName)
-                errorValue = [int(extractErrorForOneInput(CSourceOutputForVariousSetUpFileName
+                errorValue = [float(extractErrorForOneInput(CSourceOutputForVariousSetUpFileName
                     , accurateValues))]
                 error[operandIndex] += errorValue
                 config[operandIndex] +=configValue

@@ -30,7 +30,7 @@ def calculateError(accurateValues, currentValues):
     
     result = 0 
     for accurateValue,currentValue in zip(accurateValues,currentValues):
-        result += pow(int(accurateValue) - int(currentValue), 2)
+        result += pow(float(accurateValue) - float(currentValue), 2)
 
     return sqrt(result)/len(accurateValues)
 
@@ -104,6 +104,36 @@ def extractErrorForOneInput(sourceFileName, accurateValues):
 
 
 
+def extractCurrentValuesForOneInput(sourceFileName):
+    start = 0 
+    currentValues = []
+    #whether the file exist or no 
+    if not(os.path.isfile(sourceFileName)):
+        print "source file with the name " + sourceFileName + "doesn't exist"
+        exit();
+    error = [] 
+    setup = 0 #the specific setup(same configuration but different type of operators) 
+    with open(sourceFileName) as f:
+        for line in f:
+            if len(line.split()) >0: 
+                for words in line.rstrip().replace(',', ' ').replace('/',' ').replace(';', ' ').split(' '): #find the lines with key word and write it to another file
+                    if "end" in words: 
+                        return currentValues 
+                        start = 0
+                        break 
+                    elif (start==1):
+                        currentValues.append(float(words))
+                        #print "\nfound currentValues; " + str(currentValues) 
+                        break 
+                    elif "start" in words: 
+                        start = 1 
+                        break
+                    else:
+                        break
+
+
+    return error 
+
 
 
 ## 
@@ -154,9 +184,9 @@ def calculateEnergy(operatorNumberOfBitsList):
     result = 0 
     for element in operatorNumberOfBitsList:
         if (element[0][-1] == 'a'):  #it is an adder
-            result += calculateAdderEnergy(int(element[1])) 
+            result += calculateAdderEnergy(float(element[1])) 
         elif (element[0][-1] == 'm'):  #it is an mulitplier 
-            result += calculateMultiplierEnergy(int(element[1])) 
+            result += calculateMultiplierEnergy(float(element[1])) 
         else:
             print "**************************ERROR*****************"
             print "the operator with the name: " + element[0] + " is operator is not defined"

@@ -35,3 +35,9 @@ have the input of run_tool_chain to come from a file (instead of command line)
 
 in the annealer, introduce a tabu list(which indicates which nodes where visited)
 and avoid revisiting those nodes again
+The way that I calculate PSNR is to first use the 0 apx bit to generate an image (we know
+that this image is still noisy, since our operators can not deal with floating or fix points(I need to include the logic for this purpose), then I modify the operators and get PSNR)
+
+I dont think non dominant sorting is working properly
+I had to add dealingWithPic Attribute to the points, because if we are dealing with pictures, instead of calculating the SNR at the output level using python, we internally do it in the C function,
+thus the output value read from the output file is actually SNR (as opposed to the output value of the DFG). later on try to merge the two. 

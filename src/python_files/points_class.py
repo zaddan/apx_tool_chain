@@ -8,8 +8,11 @@ class points:
         self.lOfError = []
         self.lOfOperand = [] 
         self.lOfAccurateValues = [] 
+        self.lOfRawValues = []
+        self.dealingWithPics = False
 
-    
+    def set_dealing_with_pics(self, dealingWithPics):
+        self.dealingWithPics = dealingWithPics
     def append_error(self, error):
         self.lOfError.append(error)
     def set_energy(self, energy):
@@ -24,7 +27,8 @@ class points:
         self.lOfAccurateValues.append(value)
     def set_SNR(self, SNR):
         self.SNR = SNR
-
+    def append_raw_values(self, rawValue):
+        self.lOfRawValues.append(rawValue)
 
 
     def get_accurate_values(self):
@@ -41,9 +45,14 @@ class points:
         return self.lOfOperand
     def get_accurate_values(self):
         return self.lOfAccurateValues
-    
+    def get_raw_values(self):
+        return self.lOfRawValues
+
     def calculate_SNR(self):
-        self.SNR = numpy.mean(self.lOfError)/numpy.mean(map(lambda x: int(x[0]), self.lOfAccurateValues))
+        if (self.dealingWithPics):
+            self.SNR = sum(map(lambda x : sum(x)/len(x), self.lOfRawValues))/len(self.lOfRawValues)
+        else:
+            self.SNR = numpy.mean(self.lOfError)/numpy.mean(map(lambda x: float(x[0]), self.lOfAccurateValues))
         
     def get_SNR(self):
         return self.SNR

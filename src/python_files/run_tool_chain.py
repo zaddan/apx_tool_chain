@@ -292,7 +292,6 @@ def main():
         modifyOperatorSampleFile(operatorSampleFileFullAddress, accurateSetUp)
         #---------guide:::  run the CSrouce file with the new setUp(operators)
         make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName)
-
         #---------guide::: error
         accurateValues = extractAccurateValues(CSourceOutputForVariousSetUpFileName)
         lOfAccurateValues.append(accurateValues)
@@ -324,7 +323,9 @@ def main():
                 modifyOperatorSampleFile(operatorSampleFileFullAddress, setUp)
                 make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName)
                 errorValue = [extractErrorForOneInput(CSourceOutputForVariousSetUpFileName , lOfAccurateValues[operandIndex])]
-
+                rawValues = [extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)]
+                
+                newPoint.append_raw_values(rawValues[0])  
                 newPoint.append_error(errorValue[0])
                 newPoint.set_energy(energyValue[0])
                 newPoint.set_setUp(configValue[0])
@@ -332,7 +333,6 @@ def main():
                 newPoint.append_lOf_operand(get_operand_values(operandSampleFileName))
                 newPoint.append_accurate_values(lOfAccurateValues[operandIndex])
                 newPoint.calculate_SNR()
-                
                 inputFileNameList[operandIndex] += inputFileNameListValue
                 lOfPoints.append(newPoint)
 
@@ -351,7 +351,7 @@ def main():
             # sampleSetUp =  remainingPopulation[indexToChoose]
             # remainingPopulation.pop(indexToChoose) 
         #     allConfs.append(sampleSetUp)
-            
+           
         creator.create("FitnessMin", base.Fitness, weights=(-1.0, -1.0))
         creator.create("Individual", list, fitness=creator.FitnessMin)
         toolbox = base.Toolbox()
@@ -379,7 +379,6 @@ def main():
             newPoint = points()
             newPoint.set_SNR(individual.fitness.values[1])
             newPoint.set_energy(individual.fitness.values[0])
-
             newPoint.set_setUp(list(individual))
             newPoint.set_setUp_number(0)
             lOfPoints.append(newPoint)
@@ -444,9 +443,12 @@ def main():
     
     # ---- find the pareto curve of lOfPoints
     if not(mode == "only_read_values"): 
+        print "*******************************************" 
         lOfParetoPoints = pareto_frontier(lOfPoints, maxX= False, maxY = False)
+        # lOfParetoPoints = lOfPoints 
     else:
-        lOfParetoPoints = lOfPoints
+        lOfParetoPoints = pareto_frontier(lOfPoints, maxX= False, maxY = False)
+        # lOfParetoPoints = lOfPoints
     
     symbolsCollected = [] #this list contains the symbols collected for every new input 
     symbolsToChooseFrom = ['*', 'x', "o", "+", "*", "-", "^", "1", "2", "3", "4"] #symbols to draw the plots with

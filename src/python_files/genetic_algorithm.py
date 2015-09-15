@@ -100,21 +100,24 @@ def run_spea2(NGEN, MU, LAMBDA, CXPB, MUTPB, population,
      
     def specializedEval(individual):
         newPoint = points() 
+        newPoint.set_dealing_with_pics(settings.dealingWithPics)
         for operandIndex, operandSampleFileName in enumerate(nameOfAllOperandFilesList):
             energyValue = [getEnergy(individual)]
             open(CSourceOutputForVariousSetUpFileName, "w").close()
+             
             modifyOperatorSampleFile(operatorSampleFileFullAddress, individual)
             make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName)
             errorValue = [extractErrorForOneInput(CSourceOutputForVariousSetUpFileName , lOfAccurateValues[operandIndex])]
             configValue = [individual]
-
+            rawValues = [extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)]
+            
+            newPoint.append_raw_values(rawValues[0])  
             newPoint.append_error(errorValue[0])
             newPoint.set_energy(energyValue[0])
             newPoint.set_setUp(configValue[0])
             newPoint.append_lOf_operand(get_operand_values(operandSampleFileName))
             newPoint.append_accurate_values(lOfAccurateValues[operandIndex])
             newPoint.calculate_SNR()
-                
         return (newPoint.get_energy(), newPoint.get_SNR())
 
        
