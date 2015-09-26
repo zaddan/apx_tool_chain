@@ -2,7 +2,7 @@ import copy
 import sys
 import math
 import numpy
-
+from calc_psnr import *
 class points:
     def __init__(self):
         self.lOfError = []
@@ -27,6 +27,12 @@ class points:
         self.lOfAccurateValues.append(value)
     def set_SNR(self, SNR):
         self.SNR = SNR
+    def set_PSNR(self, PSNR):
+        self.PSNR = PSNR
+    def set_input_obj(self, inputObj):
+        self.inputObj = inputObj 
+    
+
     def append_raw_values(self, rawValue):
         self.lOfRawValues.append(rawValue)
 
@@ -47,12 +53,20 @@ class points:
         return self.lOfAccurateValues
     def get_raw_values(self):
         return self.lOfRawValues
-
-    def calculate_SNR(self):
-        if (self.dealingWithPics):
-            self.SNR = sum(map(lambda x : sum(x)/len(x), self.lOfRawValues))/len(self.lOfRawValues)
-        else:
-            self.SNR = numpy.mean(self.lOfError)/numpy.mean(map(lambda x: float(x[0]), self.lOfAccurateValues))
+    def get_input_obj(self):
+        return inputObj 
+    def calculate_SNR(self, yourImageName="", originalImageName=""):
+        self.SNR = numpy.mean(self.lOfError)/numpy.mean(map(lambda x: float(x[0]), self.lOfAccurateValues))
         
+    def calculate_PSNR(self, yourImageName="", originalImageName=""):
+        refImage = self.inputObj.refImage
+        noisyImage = self.inputObj.noisyImage
+        self.PSNR = calculate_psnr(refImage, noisyImage)
+        print self.PSNR
+    
+    
+    def get_PSNR(self):
+        return self.PSNR
+     
     def get_SNR(self):
         return self.SNR

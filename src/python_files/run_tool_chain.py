@@ -92,7 +92,8 @@ def main():
 
     inputObj = inputClass()
     inputObj.expandAddress()
-    
+    # print inputObj.allInputs
+    # sys.exit() 
    #  home = expanduser("~")
     # #---------guide:::  acquaring the inputs
     # for index, element in enumerate(sys.argv):
@@ -297,7 +298,7 @@ def main():
         lOfAccurateValues.append(accurateValues)
         # lOfOperandSet.append(newOperand)
         #---------guide:::  make a apx set up and get values associated with it
-
+        
     lOfPoints = []  
     if (mode == "allPermutations"): 
         lengthSoFar = 0 
@@ -332,7 +333,10 @@ def main():
                 newPoint.set_setUp_number(apxIndexSetUp)
                 newPoint.append_lOf_operand(get_operand_values(operandSampleFileName))
                 newPoint.append_accurate_values(lOfAccurateValues[operandIndex])
-                newPoint.calculate_SNR()
+                newPoint.set_dealing_with_pics(inputObj.dealing_with_pics)
+                newPoint.set_input_obj(inputObj)
+                # newPoint.calculate_SNR()
+                newPoint.calculate_PSNR()
                 inputFileNameList[operandIndex] += inputFileNameListValue
                 lOfPoints.append(newPoint)
 
@@ -345,14 +349,14 @@ def main():
         # remainingPopulation = allPossibleApxScenarioursList[:]
         # numberOfIndividualsToStartWith = min(settings.numberOfIndividualsToStartWith, len(allPossibleApxScenarioursList)) 
         numberOfIndividualsToStartWith = settings.numberOfIndividualsToStartWith
-        allConfs = generateInitialPopulation(accurateSetUp, numberOfIndividualsToStartWith)
+        allConfs = generateInitialPopulation(accurateSetUp, numberOfIndividualsToStartWith, inputObj)
         # for index in range(numberOfIndividualsToStartWith):
             # indexToChoose =  random.choice(range(0, len(remainingPopulation), 1))
             # sampleSetUp =  remainingPopulation[indexToChoose]
             # remainingPopulation.pop(indexToChoose) 
         #     allConfs.append(sampleSetUp)
            
-        creator.create("FitnessMin", base.Fitness, weights=(-1.0, -1.0))
+        creator.create("FitnessMin", base.Fitness, weights=(-1.0, 1.0))
         creator.create("Individual", list, fitness=creator.FitnessMin)
         toolbox = base.Toolbox()
 
@@ -373,11 +377,12 @@ def main():
         population = run_spea2(NGEN, MU, LAMBDA, CXPB, MUTPB, population,
                     CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress,
                     executableName, executableInputList, rootResultFolderName, CBuildFolder,
-                    operandSampleFileName, lOfAccurateValues, toolbox, nameOfAllOperandFilesList)
+                    operandSampleFileName, lOfAccurateValues, toolbox, nameOfAllOperandFilesList, inputObj)
         lOfPoints = []  
         for individual in population:
             newPoint = points()
-            newPoint.set_SNR(individual.fitness.values[1])
+            #newPoint.set_SNR(individual.fitness.values[1])
+            newPoint.set_PSNR(individual.fitness.values[1])
             newPoint.set_energy(individual.fitness.values[0])
             newPoint.set_setUp(list(individual))
             newPoint.set_setUp_number(0)
@@ -444,24 +449,26 @@ def main():
     # ---- find the pareto curve of lOfPoints
     if not(mode == "only_read_values"): 
         print "*******************************************" 
-        lOfParetoPoints = pareto_frontier(lOfPoints, maxX= False, maxY = False)
+        lOfParetoPoints = pareto_frontier(lOfPoints, maxX= True, maxY = False)
         # lOfParetoPoints = lOfPoints 
     else:
-        lOfParetoPoints = pareto_frontier(lOfPoints, maxX= False, maxY = False)
+        lOfParetoPoints = pareto_frontier(lOfPoints, maxX= True, maxY = False)
         # lOfParetoPoints = lOfPoints
     
     symbolsCollected = [] #this list contains the symbols collected for every new input 
     symbolsToChooseFrom = ['*', 'x', "o", "+", "*", "-", "^", "1", "2", "3", "4"] #symbols to draw the plots with
     symbolIndex = 0  
-    generateGraph(map(lambda x: x.get_SNR(), lOfParetoPoints), map(lambda x: x.get_energy(), lOfParetoPoints), "Noise", "Energy", symbolsToChooseFrom[symbolIndex])
+    # generateGraph(map(lambda x: x.get_SNR(), lOfParetoPoints), map(lambda x: x.get_energy(), lOfParetoPoints), "Noise", "Energy", symbolsToChooseFrom[symbolIndex])
+    generateGraph(map(lambda x: x.get_PSNR(), lOfParetoPoints), map(lambda x: x.get_energy(), lOfParetoPoints), "PSNR", "Energy", symbolsToChooseFrom[symbolIndex])
+    
     symbolsCollected.append(symbolsToChooseFrom[symbolIndex]) 
     # generateGraph(map(lambda x: x.get_lOfError(), lOfParetoPoints), map(lambda x: x.get_energy(), lOfParetoPoints), "Noise", "Energy", symbolsToChooseFrom[i])
         
      # ---- collecting the result in a list (for later printing)
     resultTuple = [] 
     for index, point in enumerate(lOfParetoPoints):
-        resultTuple.append((point.get_setUp(), point.get_SNR(), point.get_energy()))
-
+        # resultTuple.append((point.get_setUp(), point.get_SNR(), point.get_energy()))
+        resultTuple.append((point.get_setUp(), point.get_PSNR(), point.get_energy()))
     finalResultFileFullAddress = rootResultFolderName + "/" + finalResultFileName
     writeReadableOutput(resultTuple,  symbolsCollected, finalResultFileFullAddress)
     pylab.savefig(finalResultFileFullAddress[:-4]+".png") #saving the figure generated by generateGraph
