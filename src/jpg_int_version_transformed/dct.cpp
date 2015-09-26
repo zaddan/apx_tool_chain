@@ -6,6 +6,10 @@
 #include <stdio.h>
 
 #include <stdlib.h>
+#include "globals.h"
+using namespace std;
+extern hw_ac **myOp;   
+
 
 
 #define NO_MULTIPLY
@@ -80,14 +84,18 @@ void dct(
     v5 = inqueue[i*8+5];
     v6 = inqueue[i*8+6];
     v7 = inqueue[i*8+7];
-    a0 = LS((v0 + v7),  2); c3 = LS((v0 - v7),  2);
-    a1 = LS((v1 + v6),  2); c2 = LS((v1 - v6),  2);
-    a2 = LS((v2 + v5),  2); c1 = LS((v2 - v5),  2);
-    a3 = LS((v3 + v4),  2); c0 = LS((v3 - v4),  2);
-    b0 = a0 + a3;
-    b1 = a1 + a2;
-    b2 = a1 - a2;
-    b3 = a0 - a3;
+    a0 = LS((myOp[0]->calc(v0, v7)),  2); //AdditionOp     
+    c3 = LS((myOp[1]->calc(v0, -1*v7)),  2);//AdditionOp
+    a1 = LS((myOp[2]->calc(v1, v6)),  2);//AdditionOp 
+    c2 = LS((myOp[3]->calc(v1,  -1*v6)),  2);//AdditionOp
+    a2 = LS((myOp[4]->calc(v2, v5)),  2);//AdditionOp 
+    c1 = LS((myOp[5]->calc(v2, -1*v5)),  2);//AdditionOp
+    a3 = LS((myOp[6]->calc(v3, v4)),  2);//AdditionOp 
+    c0 = LS((myOp[7]->calc(v3, -1*v4)),  2);//AdditionOp
+    b0 = myOp[8]->calc(a0, a3); //AdditionOp
+    b1 = myOp[9]->calc(a1,  a2);//AdditionOp
+    b2 = myOp[10]->calc(a1, -1*a2);//AdditionOp
+    b3 = myOp[11]->calc(a0, -1*a3);//AdditionOp
     tmp[i] = MSCALE(c1d4 * (b0 + b1));
     tmp[i + 32] = MSCALE(c1d4 * (b0 - b1));
     tmp[i + 16] = MSCALE((c3d8 * b2) + (c1d8 * b3));

@@ -13,6 +13,11 @@
 #include <fstream>
 #include <string.h>
 #include "jpegEncoder.h"
+
+#include "globals.h"
+extern hw_ac **myOp;   
+using namespace std;
+
 unsigned char Standard_Luminance_Quantization_Table[64] =
 {
 	16,  11,  10,  16,  24,  40,  51,  61,
@@ -130,25 +135,54 @@ void set_quant_table(int scale_factor)
 }
 int main(int argc, const char * argv[])
 {
-  if(argc!=7)
+  
+    string resultFolderName; 
+    string resultFileName; 
+    string operatorFileName;
+    //string operandFileName;
+    if (argc < 4) {
+        cout<< "provide the name of the file that you want the result to be written to"<<endl;
+        cout<< "Example: resultFolderName.txt resultFile.txt operatorFile.txt"<<endl; 
+        return 0; 
+    }else{
+        resultFolderName= argv[1]; 
+        resultFileName = argv[2]; 
+        operatorFileName = argv[3]; 
+    }
+    assign_global_variables(resultFolderName, operatorFileName);
+    string resultFileNameCompleteAddress = resultFileName;
+    
+    ofstream resultFile2;
+    ofstream resultFile;
+    resultFile.open(resultFileNameCompleteAddress.c_str(), ios_base::app);
+    resultFile2.open((resultFileNameCompleteAddress+"test").c_str(), ios_base::app);
+    resultFile<<"*****************start******"<<endl; 
+    //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+    //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+ 
+    const int inputSize = 6; 
+    assert(argc == inputSize + 4);
+    if(argc!=inputSize + 4)
   {
     std::cout<<"./jpgenc input_ppm_file_name[ex. test.ppm] output_jpg_filename[ex. output.jpg] width height sampling_mode[0: 444, 1:422, 3:420] quant_level\n";
   }
   FILE* image=NULL;
-  image=fopen(argv[1],"r");
+  image=fopen(argv[4],"r");
   if(image ==NULL)
   {
-    fprintf(stderr,"No input file %s\n",argv[1]);
+    fprintf(stderr,"No input file %s\n",argv[4]);
     exit(1);
   }
-  int width=atoi(argv[3]);
-  int height=atoi(argv[4]);
-  int sampling = atoi(argv[5]);
-  int quant_level=atoi(argv[6]); 
+  int width=atoi(argv[6]);
+  int height=atoi(argv[7]);
+  int sampling = atoi(argv[8]);
+  int quant_level=atoi(argv[9]); 
+  
+  
   set_quant_table(quant_level);
 
   std::fstream outfile;
-  outfile.open(argv[2],std::fstream::out | std::fstream::binary);
+  outfile.open(argv[5],std::fstream::out | std::fstream::binary);
 
   unsigned char buf[MAX_ROWBUF_WIDTH*16*3];
   int samplingx= (sampling==0) ?0 :1;
@@ -226,6 +260,13 @@ int main(int argc, const char * argv[])
     outfile<<queue.read();
   }
   outfile.close();
+  
+  
+    //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+    //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+    resultFile.close();
+    resultFile2.close();
+  
   return 0;
 }
 

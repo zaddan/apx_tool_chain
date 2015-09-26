@@ -6,8 +6,13 @@
 //  Copyright (c) 2013 Dongwook Lee. All rights reserved.
 //
 
+#include "book_keeping.h"
 #include "jpegEncoder.h"
 #include <stdio.h>
+#include "globals.h"
+using namespace std;
+extern hw_ac **myOp;   
+
 
 void blockEncoder(
 		bool init,

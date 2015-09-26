@@ -121,9 +121,6 @@ def run_spea2(NGEN, MU, LAMBDA, CXPB, MUTPB, population,
             newPoint.set_dealing_with_pics(inputObj.dealingWithPics) 
             newPoint.set_dealing_with_pics(inputObj.dealingWithPics) 
             newPoint.set_input_obj(inputObj)
-            print "her weee are \n"
-            print inputObj.dealingWithPics
-            sys.exit()
             # newPoint.calculate_SNR()
             newPoint.calculate_PSNR()
         return (newPoint.get_energy(), newPoint.get_PSNR())
