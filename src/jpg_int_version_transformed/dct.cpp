@@ -124,11 +124,18 @@ void dct(
     v5 = tmp[i*8+5]; //aptr++;
     v6 = tmp[i*8+6]; //aptr++;
     v7 = tmp[i*8+7];
-    c3 = RS((v0 - v7),  1); a0 = RS((v0 + v7),  1);
-    c2 = RS((v1 - v6),  1); a1 = RS((v1 + v6),  1);
-    c1 = RS((v2 - v5),  1); a2 = RS((v2 + v5),  1);
-    c0 = RS((v3 - v4),  1); a3 = RS((v3 + v4),  1);
-    b0 = a0 + a3; b1 = a1 + a2; b2 = a1 - a2; b3 = a0 - a3;
+    c3 = RS((myOp[12]->calc(v0, -1*v7)),  1);  //AdditionOp
+    a0 = RS((myOp[13]->calc(v0,  v7)),  1);//AdditionOp
+    c2 = RS((myOp[14]->calc(v1, -1*v6)),  1); //AdditionOp
+    a1 = RS((myOp[15]->calc(v1,  v6)),  1);//AdditionOp
+    c1 = RS((myOp[16]->calc(v2, -1*v5)),  1); //AdditionOp
+    a2 = RS((myOp[17]->calc(v2,  v5)),  1);//AdditionOp
+    c0 = RS((myOp[18]->calc(v3, -1*v4)),  1); //AdditionOp
+    a3 = RS((myOp[19]->calc(v3, v4)),  1);//AdditionOp
+    b0 = a0 + a3;
+    b1 = a1 + a2;
+    b2 = a1 - a2;
+    b3 = a0 - a3;
     tb0 = MSCALE(c1d4 * (c2 - c1));
     tb1 = MSCALE(c1d4 * (c2 + c1));
     ta0 = c0 + tb0;
