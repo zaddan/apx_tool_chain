@@ -96,20 +96,43 @@ void dct(
     b1 = myOp[9]->calc(a1,  a2);//AdditionOp
     b2 = myOp[10]->calc(a1, -1*a2);//AdditionOp
     b3 = myOp[11]->calc(a0, -1*a3);//AdditionOp
-    tmp[i] = MSCALE(c1d4 * (b0 + b1));
-    tmp[i + 32] = MSCALE(c1d4 * (b0 - b1));
-    tmp[i + 16] = MSCALE((c3d8 * b2) + (c1d8 * b3));
-    tmp[i + 48] = MSCALE((c3d8 * b3) - (c1d8 * b2));
-    b0 = MSCALE(c1d4 * (c2 - c1));
-    b1 = MSCALE(c1d4 * (c2 + c1));
+    int b0b1Add1 = myOp[12]->calc(b0, b1); //AdditionOp
+    tmp[i] = MSCALE(myOp[13]->calc(c1d4, (b0b1Add1)));//MultiplicationOp
+    int b0b1Sub1 = myOp[14]->calc(b0, -1*b1); //AdditionOp
+    tmp[i + 32] = MSCALE(myOp[15]->calc(c1d4, (b0b1Sub1))); //MultiplicationOp
+   
+
+    int c3d8b2Mul = myOp[16]->calc(c3d8, b2);//MultiplicationOp
+    int c1d8b3Mul = myOp[17]->calc(c1d8,  b3);//MultiplicationOp
+    int c3d8b3Mul = myOp[18]->calc(c3d8,  b3);//MultiplicationOp
+    int c1d8b2Mul = myOp[19]->calc(c1d8, b2);//MultiplicationOp
+    
+    tmp[i + 16] = MSCALE(myOp[20]->calc((c3d8b2Mul), (c1d8b3Mul)));//AdditionOp
+    tmp[i + 48] = MSCALE(myOp[21]->calc((c3d8b3Mul), -1*(c1d8b2Mul))); //AdditionOp
+    
+    short c2c1Temp =  myOp[22]->calc(c2, -1*c1); //AdditionOp
+    b0 = MSCALE(myOp[23]->calc(c1d4, (c2c1Temp)));//MultiplicationOp
+    short c2c1Temp2 =  myOp[24]->calc(c2,  c1);//AdditionOp
+    
+    
+    
+    b1 = MSCALE(c1d4 * (c2c1Temp2));
     a0 = c0 + b0;
     a1 = c0 - b0;
     a2 = c3 - b1;
     a3 = c3 + b1;
-    tmp[i + 8] = MSCALE((c7d16 * a0) + (c1d16 * a3));
-    tmp[i + 24] = MSCALE((c3d16 * a2) - (c5d16 * a1));
-    tmp[i + 40] = MSCALE((c3d16 * a1) + (c5d16 * a2));
-    tmp[i + 56] = MSCALE((c7d16 * a3) - (c1d16 * a0));
+    int c7d16a0Mul =  c7d16 * a0;
+    int c1d16a3Mul = c1d16 * a3;
+    int c3d16a2Mul =  c3d16 * a2;
+    int c5d16a1Mul =  c5d16 * a1;
+    int c5d16a2Mul =  c5d16 * a2;
+    int c3d16a1Mul =  c3d16 * a1;
+    int c7d16a3Mul =  c7d16 * a3;
+    int c1d16a0Mul =  c1d16 * a0;
+    tmp[i + 8] = MSCALE((c7d16a0Mul) + (c1d16a3Mul));
+    tmp[i + 24] = MSCALE((c3d16a2Mul) - (c5d16a1Mul));
+    tmp[i + 40] = MSCALE((c3d16a1Mul) + (c5d16a2Mul));
+    tmp[i + 56] = MSCALE((c7d16a3Mul) - (c1d16a0Mul));
   }
   for (i = 0; i < 8; i++)
   {
@@ -124,28 +147,39 @@ void dct(
     v5 = tmp[i*8+5]; //aptr++;
     v6 = tmp[i*8+6]; //aptr++;
     v7 = tmp[i*8+7];
-    c3 = RS((myOp[12]->calc(v0, -1*v7)),  1);  //AdditionOp
-    a0 = RS((myOp[13]->calc(v0,  v7)),  1);//AdditionOp
-    c2 = RS((myOp[14]->calc(v1, -1*v6)),  1); //AdditionOp
-    a1 = RS((myOp[15]->calc(v1,  v6)),  1);//AdditionOp
-    c1 = RS((myOp[16]->calc(v2, -1*v5)),  1); //AdditionOp
-    a2 = RS((myOp[17]->calc(v2,  v5)),  1);//AdditionOp
-    c0 = RS((myOp[18]->calc(v3, -1*v4)),  1); //AdditionOp
-    a3 = RS((myOp[19]->calc(v3, v4)),  1);//AdditionOp
-    b0 = a0 + a3;
-    b1 = a1 + a2;
-    b2 = a1 - a2;
-    b3 = a0 - a3;
-    tb0 = MSCALE(c1d4 * (c2 - c1));
-    tb1 = MSCALE(c1d4 * (c2 + c1));
-    ta0 = c0 + tb0;
-    ta1 = c0 - tb0;
-    ta2 = c3 - tb1;
-    ta3 = c3 + tb1;
-    outqueue[i*8] 		=CLIP(MSCALE(c1d4 * (b0 + b1)));
-    outqueue[i*8 + 4] =CLIP(MSCALE(c1d4 * (b0 - b1)));
-    outqueue[i*8 + 2] =CLIP(MSCALE((c3d8 * b2) + (c1d8 * b3)));
-    outqueue[i*8 + 6] =CLIP(MSCALE((c3d8 * b3) - (c1d8 * b2)));
+    c3 = RS((myOp[25]->calc(v0, -1*v7)),  1);  //AdditionOp
+    a0 = RS((myOp[26]->calc(v0,  v7)),  1);//AdditionOp
+    c2 = RS((myOp[27]->calc(v1, -1*v6)),  1); //AdditionOp
+    a1 = RS((myOp[28]->calc(v1,  v6)),  1);//AdditionOp
+    c1 = RS((myOp[29]->calc(v2, -1*v5)),  1); //AdditionOp
+    a2 = RS((myOp[30]->calc(v2,  v5)),  1);//AdditionOp
+    c0 = RS((myOp[31]->calc(v3, -1*v4)),  1); //AdditionOp
+    a3 = RS((myOp[32]->calc(v3, v4)),  1);//AdditionOp
+    b0 = myOp[33]->calc(a0, a3);//AdditionOp 
+    b1 = myOp[34]->calc(a1, a2);//AdditionOp
+    b2 = myOp[35]->calc(a1, -1*a2);//AdditionOp
+    b3 = myOp[36]->calc(a0, -1* a3);//AdditionOp
+    short c1c2Sub = myOp[37]->calc(c2, -1*c1); //AdditionOp
+    short c1c2Add= myOp[38]->calc(c2, c1); //AdditionOp
+    tb0 = MSCALE(myOp[39]->calc(c1d4,  (c1c2Sub))); //MultiplicationOp
+    tb1 = MSCALE(myOp[40]->calc(c1d4, (c1c2Add))); //MultiplicationOp
+    ta0 = myOp[41]->calc(c0, tb0); //AdditionOp
+    ta1 = myOp[42]->calc(c0, -1*tb0); //AdditionOp
+    ta2 = myOp[43]->calc(c3, -1*tb1); //AdditionOp
+    ta3 = myOp[44]->calc(c3,  tb1); //AdditionOp
+
+    short b0b1Add = myOp[45]->calc(b0,  b1);  //AdditionOp
+    short b0b1Sub = myOp[46]->calc(b0, -1*b1); //AdditionOp 
+    int c3d8b2Mul = myOp[47]->calc(c3d8, b2);//MultiplicationOp
+    int c1d8b3Mul = myOp[48]->calc(c1d8,  b3);//MultiplicationOp
+    int c3d8b3Mul = myOp[49]->calc(c3d8,  b3);//MultiplicationOp
+    int c1d8b2Mul = myOp[50]->calc(c1d8, b2);//MultiplicationOp
+    
+    
+    outqueue[i*8] 		=CLIP(MSCALE(c1d4 * (b0b1Add)));
+    outqueue[i*8 + 4] =CLIP(MSCALE(c1d4 * (b0b1Sub)));
+    outqueue[i*8 + 2] =CLIP(MSCALE((c3d8b2Mul) + (c1d8b3Mul)));
+    outqueue[i*8 + 6] =CLIP(MSCALE((c3d8b3Mul) - (c1d8b2Mul)));
     outqueue[i*8 + 1] =CLIP(MSCALE((c7d16 * ta0) + (c1d16 * ta3)));
     outqueue[i*8 + 3] =CLIP(MSCALE((c3d16 * ta2) - (c5d16 * ta1)));
     outqueue[i*8 + 5] =CLIP(MSCALE((c3d16 * ta1) + (c5d16 * ta2)));
@@ -159,7 +193,6 @@ void dct(yuv_queue_t& inqueue, freq_queue_t& outqueue, yuv_t color)
 #pragma HLS PIPELINE
 #pragma HLS function_instantiate variable=color
 
-  
   int coeff[64] = {
     c1d4,  c1d4,  c1d4,  c1d4,  c1d4,  c1d4,  c1d4,  c1d4,
     c1d16,  c3d16,  c5d16,   c7d16,  -c7d16, -c5d16, -c3d16, -c1d16,
