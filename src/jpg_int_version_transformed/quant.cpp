@@ -5,7 +5,12 @@
 //  Created by Dongwook Lee on 10/26/13.
 //  Copyright (c) 2013 Dongwook Lee. All rights reserved.
 //
+#include "jpegEncoder.h"
+#include <stdio.h>
+#include <stdlib.h>
 
+#include "globals.h"
+extern hw_ac **myOp;   
 #include "jpegEncoder.h"
 void quant_y(bool qen, unsigned char qtable[64], freq_t inqueue[64], freq_t outqueue[64], bool& hen)
 {
@@ -29,14 +34,17 @@ void quant_y(bool qen, unsigned char qtable[64], freq_t inqueue[64], freq_t outq
     m = inqueue[i];
 
     q=qtable[i];
-
+   int mqTemp;
     if (m > 0)
     {
-      o = (m + q/2) / q;
+       mqTemp =  myOp[51]->calc(m, q/2); //AdditionOp
+        o = mqTemp/ q;
     }
     else
     {
-      o = (m - q/2) / q;
+       
+       mqTemp =  myOp[52]->calc(m, -1*q/2); //AdditionOp 
+       o = (mqTemp) / q;
     }
     buffer[ZigzagIndex[i]]=o;
   }
@@ -48,7 +56,8 @@ void quant_y(bool qen, unsigned char qtable[64], freq_t inqueue[64], freq_t outq
 }
 void quant_u(bool qen, unsigned char qtable[64], freq_t inqueue[64], freq_t outqueue[64],bool& hen)
 {
-  int i,  m,  q,  o;
+  
+    int i,  m,  q,  o;
   freq_t buffer[64];
   unsigned char ZigzagIndex[] =
 	{0,  1,  5,  6, 14, 15, 27, 28,
@@ -67,14 +76,17 @@ void quant_u(bool qen, unsigned char qtable[64], freq_t inqueue[64], freq_t outq
     m = inqueue[i];
 
     q=qtable[i];
-
+    int mqTemp; 
+    
     if (m > 0)
     {
-      o = (m + q/2) / q;
+       mqTemp =  myOp[53]->calc(m, q/2); //AdditionOp
+       o = (m + q/2) / q;
     }
     else
     {
-      o = (m - q/2) / q;
+       mqTemp =  myOp[54]->calc(m, -1*q/2); //AdditionOp
+       o = (m - q/2) / q;
     }
     buffer[ZigzagIndex[i]]=o;
   }

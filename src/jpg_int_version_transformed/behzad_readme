@@ -1,0 +1,3 @@
+things to todo:
+unroll loops (quant.cpp)
+fdct not all the ops are aproximated
