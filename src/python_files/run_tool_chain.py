@@ -420,13 +420,13 @@ def main():
                 pickle.dump(copy.deepcopy(point), f)
 
     
+
     # ---- reading the values back
     if (mode == "only_read_values" or mode == "read_values_and_get_pareto"):
         with open(PIK, "rb") as f:
             # pickle.load(f)
             while True: 
                 try: 
-                    print "hereeeee" 
                     point = pickle.load(f)
                     print point 
                     lOfPoints.append(point) 
@@ -453,7 +453,14 @@ def main():
         # lOfParetoPoints = lOfPoints 
     else:
         lOfParetoPoints = pareto_frontier(lOfPoints, maxX= True, maxY = False)
-        # lOfParetoPoints = lOfPoints
+        # lOfParetoPoints = lOfPoints - lOfParetoPoints
+    
+    # if not(mode == "only_read_values" or mode == "read_values_and_get_pareto"):
+        # with open("result1", "wb") as f:
+            # for point in lOfParetoPoints: 
+                # pickle.dump(copy.deepcopy(point), f)
+
+    
     
     symbolsCollected = [] #this list contains the symbols collected for every new input 
     symbolsToChooseFrom = ['*', 'x', "o", "+", "*", "-", "^", "1", "2", "3", "4"] #symbols to draw the plots with

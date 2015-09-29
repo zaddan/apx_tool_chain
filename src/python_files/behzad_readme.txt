@@ -30,6 +30,7 @@ noiseRequirement is set up to be a percentage of the accurate values
 
 
 TODO:
+figure out the right power model
 later, have the stepSize and initilTemperature as an inupt to the run_tool_chain
 have the input of run_tool_chain to come from a file (instead of command line)
 
@@ -41,3 +42,6 @@ that this image is still noisy, since our operators can not deal with floating o
 I dont think non dominant sorting is working properly
 I had to add dealingWithPic Attribute to the points, because if we are dealing with pictures, instead of calculating the SNR at the output level using python, we internally do it in the C function,
 thus the output value read from the output file is actually SNR (as opposed to the output value of the DFG). later on try to merge the two. 
+
+
+compare_two_pareto_fronts function is only valid if we max x and min y (change later)

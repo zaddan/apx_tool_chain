@@ -6,7 +6,7 @@ import settings
 from list_all_files_in_a_folder import *
 import numpy
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import axes3d
+from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 from matplotlib import cm
 from extract_result_properties import *
@@ -69,5 +69,15 @@ def generateGraph(x, y, xName, yName, symbol):
     plt.ylabel(yName)
     plt.xlabel(xName)
     #plt.show()
+
+def generateGraph3D(x, y, z, xName, yName, zName):
+    fig = plt.figure(figsize=plt.figaspect(0.5)) 
+    ax = fig.add_subplot(1, 2, 1, projection='3d') 
+    ax.scatter(x, y, z)
+    # plt.ylabel(yName)
+    # plt.xlabel(xName)
+    
+
+# generateGraph3D(x, y, z, "now", "bla", "k")
 
 
