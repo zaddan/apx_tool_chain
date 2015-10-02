@@ -36,7 +36,7 @@ def calculate_psnr(refImage, noisyImage):
 
     # ---  Calculate PSNR (Peak Signal to noise ratio).
     if mse == 0:
-        mse = .000001
+        mse = .0000000001
     PSNR_Value = 10 * math.log10( 255*255 / mse);
     return PSNR_Value
 

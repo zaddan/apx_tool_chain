@@ -47,7 +47,7 @@ from simulating_annealer import *
 from misc import *
 import datetime
 from points_class import *
-
+from pareto_set_class import *
 def polishSetup(setUp):
     result = []  
     for element in setUp: 
@@ -283,7 +283,8 @@ def main():
         
         
         #---------guide:::  getting accurate values associated with the CSource output
-        accurateSetUp = generateAccurateScenario(allPossibleScenariosForEachOperator)
+        accurateSetUp,ignoreIndexList, workingList = generateAccurateScenario(allPossibleScenariosForEachOperator)
+        
         apxIndexSetUp = 0 #zero is associated with the accurate results (this is a contract that needs to be obeyed)
         # status, setUp = generateAPossibleApxScenarios(rootResultFolderName + "/" + settings.AllPossibleApxOpScenarios, allPossibleApxScenarioursList , apxIndexSetUp, mode) 
         
@@ -349,7 +350,7 @@ def main():
         # remainingPopulation = allPossibleApxScenarioursList[:]
         # numberOfIndividualsToStartWith = min(settings.numberOfIndividualsToStartWith, len(allPossibleApxScenarioursList)) 
         numberOfIndividualsToStartWith = settings.numberOfIndividualsToStartWith
-        allConfs = generateInitialPopulation(accurateSetUp, numberOfIndividualsToStartWith, inputObj)
+        allConfs = generateInitialPopulation(accurateSetUp, numberOfIndividualsToStartWith, inputObj,ignoreIndexList)
         # for index in range(numberOfIndividualsToStartWith):
             # indexToChoose =  random.choice(range(0, len(remainingPopulation), 1))
             # sampleSetUp =  remainingPopulation[indexToChoose]
@@ -377,7 +378,9 @@ def main():
         population = run_spea2(NGEN, MU, LAMBDA, CXPB, MUTPB, population,
                     CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress,
                     executableName, executableInputList, rootResultFolderName, CBuildFolder,
-                    operandSampleFileName, lOfAccurateValues, toolbox, nameOfAllOperandFilesList, inputObj)
+                    operandSampleFileName, lOfAccurateValues, toolbox, nameOfAllOperandFilesList, inputObj, ignoreIndexList)
+        # print population
+        # sys.exit()
         lOfPoints = []  
         for individual in population:
             newPoint = points()
@@ -453,21 +456,26 @@ def main():
         # lOfParetoPoints = lOfPoints 
     else:
         lOfParetoPoints = pareto_frontier(lOfPoints, maxX= True, maxY = False)
-        # lOfParetoPoints = lOfPoints - lOfParetoPoints
+        # lOfParetoPoints = lOfPoints 
     
-    # if not(mode == "only_read_values" or mode == "read_values_and_get_pareto"):
-        # with open("result1", "wb") as f:
-            # for point in lOfParetoPoints: 
-                # pickle.dump(copy.deepcopy(point), f)
+    # ---- making a pareto_set obj and writing it to a file
+    moduleParetoSet  = pareto_set(lOfParetoPoints, True, False)
+    # print inputObj.delimeter 
+    delimeter = [workingList[0], workingList[-1] +1] 
+#    for element in inputObj.delimeter:
+#        delimeter.append(eval(element))
+#    
+    moduleParetoSet.set_delimeter(delimeter)
+    with open(settings.lOfParetoSetFileName, "a") as f:
+        pickle.dump(copy.deepcopy(moduleParetoSet), f)
 
     
-    
+    # ---- drawing the pareto set
     symbolsCollected = [] #this list contains the symbols collected for every new input 
     symbolsToChooseFrom = ['*', 'x', "o", "+", "*", "-", "^", "1", "2", "3", "4"] #symbols to draw the plots with
     symbolIndex = 0  
     # generateGraph(map(lambda x: x.get_SNR(), lOfParetoPoints), map(lambda x: x.get_energy(), lOfParetoPoints), "Noise", "Energy", symbolsToChooseFrom[symbolIndex])
     generateGraph(map(lambda x: x.get_PSNR(), lOfParetoPoints), map(lambda x: x.get_energy(), lOfParetoPoints), "PSNR", "Energy", symbolsToChooseFrom[symbolIndex])
-    
     symbolsCollected.append(symbolsToChooseFrom[symbolIndex]) 
     # generateGraph(map(lambda x: x.get_lOfError(), lOfParetoPoints), map(lambda x: x.get_energy(), lOfParetoPoints), "Noise", "Energy", symbolsToChooseFrom[i])
         

@@ -102,13 +102,23 @@ def turnAListOfTuplesToAListOfLists(listOfTuples):
 
 def generateAccurateScenario(allPossibleScenariosForEachOperator):
     accurateScenario = []  
-    for operator in allPossibleScenariosForEachOperator:
-        print operator[0] 
+    ignoreIndexList = []
+    workingList =[] 
+    count1 = 0;
+    count2 = 0;
+    for index,operator in enumerate(allPossibleScenariosForEachOperator):
+        if len(operator) == 1:
+            ignoreIndexList.append(index)
+            count1 +=1 
+        else:
+            workingList.append(index) 
+            count2+=1
+     
+        #print operator[0] 
         operator[0][2] = 0 
         # accurateScenario.append(operator[0])
         accurateScenario.append(operator[0])
-        
-    return accurateScenario
+    return accurateScenario, ignoreIndexList, workingList
 #
 def generateAllPossibleApxScenariousList(allPossibleScenariosForEachOperator):
     permutedList = list(itertools.product(*allPossibleScenariosForEachOperator))

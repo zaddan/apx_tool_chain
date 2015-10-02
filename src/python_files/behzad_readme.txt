@@ -45,3 +45,6 @@ thus the output value read from the output file is actually SNR (as opposed to t
 
 
 compare_two_pareto_fronts function is only valid if we max x and min y (change later)
+
+
+workingList needs to be continuous

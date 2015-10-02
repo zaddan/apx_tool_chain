@@ -41,25 +41,30 @@ def modifyOperatorSubSetupExactly(operator, numberOfApxBits):
         print "the operator type with the name of " + operatorType + "is not acceptable"
         exit()
 
-def specializedMutate(setUp):
+def specializedMutate(ignoreIndexList, setUp):
     newSetUp = copy.copy(setUp)
     operatorToChooseIndex = random.choice(range(0, len(setUp)))
     # numberOfApxBits = int(random.gauss(10 , 5.2))
     numberOfApxBits = int(random.choice(range(settings.apxLowBound, settings.apxUpBound)))
+    if operatorToChooseIndex in ignoreIndexList:
+        return newSetUp,
     operatorModified = modifyOperatorSubSetupExactly(setUp[operatorToChooseIndex], numberOfApxBits) 
     newSetUp[operatorToChooseIndex] = operatorModified
     return newSetUp,
     
 
-def generateInitialPopulation(accurateSetUp, numberOfIndividualsToStartWith,inputObj):
+def generateInitialPopulation(accurateSetUp, numberOfIndividualsToStartWith,inputObj, ignoreIndexList):
     population = [] 
     population.append(accurateSetUp) 
     for count in range(numberOfIndividualsToStartWith - 1):
         newSetUp = copy.copy(accurateSetUp)
         for index, element in enumerate(newSetUp): 
+            if (index in ignoreIndexList):
+                continue
             # operatorToChooseIndex = random.choice(range(0, len(accurateSetUp)))
             # numberOfApxBits = int(random.gauss(10 , 4))
             numberOfApxBits = int(random.choice(range(settings.apxLowBound, settings.apxUpBound)))
+            
             operatorModified = modifyOperatorSubSetupExactly(accurateSetUp[index], numberOfApxBits) 
             newSetUp[index] = operatorModified
         population.append(copy.deepcopy(newSetUp)) 
@@ -96,7 +101,7 @@ def eaMuPlusLambda_redefined(population, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN)
 def run_spea2(NGEN, MU, LAMBDA, CXPB, MUTPB, population, 
         CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress, 
         executableName, executableInputList, rootResultFolderName, 
-        CBuildFolder, operandSampleFileName, lOfAccurateValues, toolbox, nameOfAllOperandFilesList, inputObj):
+        CBuildFolder, operandSampleFileName, lOfAccurateValues, toolbox, nameOfAllOperandFilesList, inputObj, ignoreIndexList):
      
     def specializedEval(individual):
         newPoint = points() 
@@ -127,9 +132,11 @@ def run_spea2(NGEN, MU, LAMBDA, CXPB, MUTPB, population,
 
        
     stats = tools.Statistics(lambda ind: ind.fitness.values)
+    a = [1,2] 
+    b = [1,2] 
     toolbox.register("evaluate", specializedEval)
     toolbox.register("mate", tools.cxTwoPoint)
-    toolbox.register("mutate", specializedMutate) 
+    toolbox.register("mutate", specializedMutate, ignoreIndexList) 
     toolbox.register("select", tools.selSPEA2)
 
     # population = eaMuPlusLambda_redefined(population, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN)

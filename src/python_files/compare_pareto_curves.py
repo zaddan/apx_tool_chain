@@ -80,10 +80,10 @@ def compare_two_pareto_fronts(curve1FeatureValues, curve2FeatureValues):
     # ---- measuing VA(e, Bstart) (look at the following link for explanation:
     """http://download.springer.com/static/pdf/261/art%253A10.1134%252FS0965542514090048.pdf?originUrl=http%3A%2F%2Flink.springer.com%2Farticle%2F10.1134%2FS0965542514090048&token2=exp=1443400700~acl=%2Fstatic%2Fpdf%2F261%2Fart%25253A10.1134%25252FS0965542514090048.pdf%3ForiginUrl%3Dhttp%253A%252F%252Flink.springer.com%252Farticle%252F10.1134%252FS0965542514090048*~hmac=40e9a4534e14b6e9417ab545187b351a08e93d556553602b922a6bacbcdc73c7"""
     
-    radius1Max = 400
-    radius2Max = 10000
-    radius1Step = 100 
-    radius2Step = 1000 
+    radius1Max = 10
+    radius2Max = 100 
+    radius1Step = 4 
+    radius2Step = 10 
     
     
     radius1Range =  range(0, radius1Max, radius1Step)
@@ -93,8 +93,8 @@ def compare_two_pareto_fronts(curve1FeatureValues, curve2FeatureValues):
     VABDic = {} 
     VBADic = {} 
     for radiusPair in permutedRadius: 
-        VAB = 0 
-        VBA = 0 
+        VAB = 0 #the high this number the weaker the paretoFront
+        VBA = 0  #the high this number the weaker the paretoFront
         for index1,element1 in enumerate(zip(curve1FirstFeature, curve1SecondFeature)):
             if aMemberOfBStar(element1, zip(curve2FirstFeature, curve2SecondFeature), radiusPair[0], radiusPair[1]):
                 VAB +=1;
@@ -116,6 +116,10 @@ def compare_two_pareto_fronts(curve1FeatureValues, curve2FeatureValues):
     VBARaidus1 = map(lambda x: x[1], VBADic.keys()) 
     VBARes =  map(lambda x: 1 - x, VBADic.values()) 
     
+    print VBADic 
+    print "****************" 
+    print VABDic 
+    sys.exit() 
     generateGraph3D(VABRaidus0, VABRaidus1, VABRes, "rad0", "rad1", "paretoStrengh")
     generateGraph3D(VBARaidus0, VBARaidus1, VBARes, "rad0", "rad1", "paretoStrengh")
    
@@ -127,8 +131,8 @@ def compare_two_pareto_fronts(curve1FeatureValues, curve2FeatureValues):
 
 
 def main():
-    PIK1 = "pickled_results1"
-    PIK2 = "pickled_results2"
+    PIK1 = "ref_results_pickled"
+    PIK2 = "pareto_curved_combined_pickled" 
      
     lOfParetoPoints1 = getPoints(PIK1)
     lOfParetoPoints2 = getPoints(PIK2)
