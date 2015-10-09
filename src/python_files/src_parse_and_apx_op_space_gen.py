@@ -89,7 +89,7 @@ def generateAllPossibleScenariosForEachOperator(outputFile, lAllOpsInSrcFile):
         if "Ignore" in element:
             allPossibleScenariosForEachOperator.append([settings.OpTypeOpKind[subtract(element,"Ignore")][0]])
         else:
-            allPossibleScenariosForEachOperator.append(settings.OpTypeOpKind[element])
+            allPossibleScenariosForEachOperator.append(copy.deepcopy(settings.OpTypeOpKind[element]))
     return allPossibleScenariosForEachOperator
 
 def turnAListOfTuplesToAListOfLists(listOfTuples):
@@ -115,7 +115,6 @@ def generateAccurateScenario(allPossibleScenariosForEachOperator):
             count2+=1
      
         #print operator[0] 
-        operator[0][2] = 0 
         # accurateScenario.append(operator[0])
         accurateScenario.append(operator[0])
     return accurateScenario, ignoreIndexList, workingList

@@ -20,6 +20,18 @@
 # @brief  this file run the  the whole tool chain 
 # @author Behzad Boroujerdian
 # @date 2015-07-01
+
+
+#**--------------------**
+#**--------------------**
+#----disclaimers::: if dealingwith Pic and we are feeding couple of operands,
+#----we need to collect their psnr in a list and get an avg. This should be done
+#--- this requries adding a PSNR (or SNR) list to the points
+#**--------------------**
+#--------------------**
+
+
+
 import pickle
 import copy
 import pylab
@@ -297,6 +309,7 @@ def main():
         #---------guide::: error
         accurateValues = extractAccurateValues(CSourceOutputForVariousSetUpFileName)
         lOfAccurateValues.append(accurateValues)
+        print lOfAccurateValues
         # lOfOperandSet.append(newOperand)
         #---------guide:::  make a apx set up and get values associated with it
         
@@ -337,10 +350,14 @@ def main():
                 newPoint.set_dealing_with_pics(inputObj.dealing_with_pics)
                 newPoint.set_input_obj(inputObj)
                 # newPoint.calculate_SNR()
-                newPoint.calculate_PSNR()
+                if eval(inputObj.dealingWithPics): 
+                    newPoint.calculate_PSNR()
                 inputFileNameList[operandIndex] += inputFileNameListValue
                 lOfPoints.append(newPoint)
-
+          
+             
+            if not(eval(inputObj.dealingWithPics)): 
+                newPoint.calculate_SNR()
             apxIndexSetUp += 1  
             if (status == "done"):
                 break;
@@ -350,7 +367,11 @@ def main():
         # remainingPopulation = allPossibleApxScenarioursList[:]
         # numberOfIndividualsToStartWith = min(settings.numberOfIndividualsToStartWith, len(allPossibleApxScenarioursList)) 
         numberOfIndividualsToStartWith = settings.numberOfIndividualsToStartWith
-        allConfs = generateInitialPopulation(accurateSetUp, numberOfIndividualsToStartWith, inputObj,ignoreIndexList)
+        tempAcc = accurateSetUp
+        tempAcc[8][2] = 5
+        
+        # allConfs = generateInitialPopulation(accurateSetUp, numberOfIndividualsToStartWith, inputObj,ignoreIndexList)
+        allConfs = generateInitialPopulation(tempAcc, numberOfIndividualsToStartWith, inputObj,ignoreIndexList)
         # for index in range(numberOfIndividualsToStartWith):
             # indexToChoose =  random.choice(range(0, len(remainingPopulation), 1))
             # sampleSetUp =  remainingPopulation[indexToChoose]
@@ -384,8 +405,11 @@ def main():
         lOfPoints = []  
         for individual in population:
             newPoint = points()
-            #newPoint.set_SNR(individual.fitness.values[1])
-            newPoint.set_PSNR(individual.fitness.values[1])
+            # newPoint.set_SNR(individual.fitness.values[1])
+            if(eval(inputObj.dealingWithPics)): 
+                newPoint.set_PSNR(individual.fitness.values[1])
+            else:
+                newPoint.set_SNR(individual.fitness.values[1])
             newPoint.set_energy(individual.fitness.values[0])
             newPoint.set_setUp(list(individual))
             newPoint.set_setUp_number(0)
@@ -475,15 +499,21 @@ def main():
     symbolsToChooseFrom = ['*', 'x', "o", "+", "*", "-", "^", "1", "2", "3", "4"] #symbols to draw the plots with
     symbolIndex = 0  
     # generateGraph(map(lambda x: x.get_SNR(), lOfParetoPoints), map(lambda x: x.get_energy(), lOfParetoPoints), "Noise", "Energy", symbolsToChooseFrom[symbolIndex])
-    generateGraph(map(lambda x: x.get_PSNR(), lOfParetoPoints), map(lambda x: x.get_energy(), lOfParetoPoints), "PSNR", "Energy", symbolsToChooseFrom[symbolIndex])
+    if(eval(inputObj.dealingWithPics)): 
+        generateGraph(map(lambda x: x.get_PSNR(), lOfParetoPoints), map(lambda x: x.get_energy(), lOfParetoPoints), "PSNR", "Energy", symbolsToChooseFrom[symbolIndex])
+    else:
+        generateGraph(map(lambda x: x.get_SNR(), lOfParetoPoints), map(lambda x: x.get_energy(), lOfParetoPoints), "Noise", "Energy", symbolsToChooseFrom[symbolIndex])
     symbolsCollected.append(symbolsToChooseFrom[symbolIndex]) 
     # generateGraph(map(lambda x: x.get_lOfError(), lOfParetoPoints), map(lambda x: x.get_energy(), lOfParetoPoints), "Noise", "Energy", symbolsToChooseFrom[i])
         
      # ---- collecting the result in a list (for later printing)
     resultTuple = [] 
     for index, point in enumerate(lOfParetoPoints):
-        # resultTuple.append((point.get_setUp(), point.get_SNR(), point.get_energy()))
-        resultTuple.append((point.get_setUp(), point.get_PSNR(), point.get_energy()))
+        if(eval(inputObj.dealingWithPics)): 
+            resultTuple.append((point.get_setUp(), point.get_PSNR(), point.get_energy()))
+        else:
+            resultTuple.append((point.get_setUp(), point.get_SNR(), point.get_energy()))
+
     finalResultFileFullAddress = rootResultFolderName + "/" + finalResultFileName
     writeReadableOutput(resultTuple,  symbolsCollected, finalResultFileFullAddress)
     pylab.savefig(finalResultFileFullAddress[:-4]+".png") #saving the figure generated by generateGraph

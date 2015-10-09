@@ -3,6 +3,12 @@ import sys
 import math
 import numpy
 from calc_psnr import *
+from inputs import *
+#**--------------------**
+#**--------------------**
+#----disclaimers::: SNR needs to modified when noise is Zero
+#**--------------------**
+#--------------------**
 class points:
     def __init__(self):
         self.lOfError = []
@@ -55,9 +61,15 @@ class points:
         return self.lOfRawValues
     def get_input_obj(self):
         return inputObj 
+    
+    def get_dealing_with_pics(self):
+        return self.dealingWithPics 
     def calculate_SNR(self, yourImageName="", originalImageName=""):
-        self.SNR = numpy.mean(self.lOfError)/numpy.mean(map(lambda x: float(x[0]), self.lOfAccurateValues))
-        
+        NSR= (numpy.mean(self.lOfError)/numpy.mean(map(lambda x: sum(map (lambda y: float(y), x))/len(x), self.lOfAccurateValues)))
+        if (NSR == 0):
+            self.SNR =  numpy.mean(map(lambda x: sum(map (lambda y: float(y), x))/len(x), self.lOfAccurateValues))**2
+        else: 
+            self.SNR =  1/NSR
     def calculate_PSNR(self, yourImageName="", originalImageName=""):
         refImage = self.inputObj.refImage
         noisyImage = self.inputObj.noisyImage

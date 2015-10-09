@@ -24,7 +24,7 @@ size_t eta1::get_ianum_bits(void) {
 }
 
 int eta1::calc (const int &a, const int &b) {
-	// accurate part
+    // accurate part
 	int ap = ((a>>Nia) + (b>>Nia))<<Nia;
 	// inaccurate part
 	int weight = (int)pow(2.0,(int)Nia)-1;
@@ -40,7 +40,6 @@ int eta1::calc (const int &a, const int &b) {
 			break;
 		}
 	}  
-	
 	return (ap | iap);
 }
 

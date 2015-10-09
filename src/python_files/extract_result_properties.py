@@ -50,7 +50,7 @@ def extractAccurateValues(sourceFileName ):
                     if "end" in words: 
                         return currentValues #if havn't gotten accurate values
                     elif (start==1):
-                        currentValues.append(words)
+                        currentValues = (line.rstrip().split())
                         break 
                     elif "start" in words: 
                         start = 1 
@@ -86,11 +86,13 @@ def extractErrorForOneInput(sourceFileName, accurateValues):
                 for words in line.rstrip().replace(',', ' ').replace('/',' ').replace(';', ' ').split(' '): #find the lines with key word and write it to another file
                     if "end" in words: 
                         error = calculateError(accurateValues, currentValues)
+                        print "here is the error " + str(error) 
                         currentValues = [] 
                         start = 0
                         break 
                     elif (start==1):
-                        currentValues.append(words)
+                        currentValues = line.rstrip().split()
+                        print "here is the current values " + str(currentValues)
                         #print "\nfound currentValues; " + str(currentValues) 
                         break 
                     elif "start" in words: 

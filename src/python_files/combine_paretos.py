@@ -26,6 +26,14 @@ import pickle
 from points_class import *
 from list_all_files_in_a_folder import *
 from src_parse_and_apx_op_space_gen import *
+#**--------------------**
+#**--------------------**
+#----disclaimers::: if dealingwith Pic and we are feeding couple of operands,
+#----we need to collect their psnr in a list and get an avg. This should be done
+#--- this requries adding a PSNR (or SNR) list to the points
+#**--------------------**
+#--------------------**
+
 
 def get_pareto_set(file1_name):     
     lOfParetoSet =[]
@@ -138,7 +146,7 @@ def pareto_combine(srcFile):
 
     def specializedEval(individual):
         newPoint = points() 
-        newPoint.set_dealing_with_pics(inputObj.dealingWithPics)
+        newPoint.set_dealing_with_pics(eval(inputObj.dealingWithPics))
         for operandIndex, operandSampleFileName in enumerate(nameOfAllOperandFilesList):
             energyValue = [getEnergy(individual)]
             open(CSourceOutputForVariousSetUpFileName, "w").close()
@@ -156,11 +164,15 @@ def pareto_combine(srcFile):
             newPoint.set_setUp(configValue[0])
             newPoint.append_lOf_operand(get_operand_values(operandSampleFileName))
             newPoint.append_accurate_values(lOfAccurateValues[operandIndex])
-            newPoint.set_dealing_with_pics(inputObj.dealingWithPics) 
-            newPoint.set_dealing_with_pics(inputObj.dealingWithPics) 
+            newPoint.set_dealing_with_pics(eval(inputObj.dealingWithPics)) 
+            newPoint.set_dealing_with_pics(eval(inputObj.dealingWithPics)) 
             newPoint.set_input_obj(inputObj)
             # newPoint.calculate_SNR()
-            newPoint.calculate_PSNR()
+            if (eva(inputObj.dealingWithPics)):
+                newPoint.calculate_PSNR()
+        if not(eval(inputObj.dealingWithPics)):
+            newPoint.calculate_SNR()
+        
         return newPoint
 
 

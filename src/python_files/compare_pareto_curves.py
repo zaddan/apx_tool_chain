@@ -139,9 +139,16 @@ def main():
     # ---- creating the curves
     curve1FeatureValues =[]
     curve2FeatureValues =[]
-    curve1FeatureValues.append(map(lambda x: x.get_PSNR(), lOfParetoPoints1))
+    dealingWithPic = lOfParetoPoints1[0].get_dealing_with_pics()
+    
+    if(dealingWithPic): 
+        curve1FeatureValues.append(map(lambda x: x.get_PSNR(), lOfParetoPoints1))
+        curve2FeatureValues.append(map(lambda x: x.get_PSNR(), lOfParetoPoints2))
+    else:
+        curve1FeatureValues.append(map(lambda x: x.get_SNR(), lOfParetoPoints1))
+        curve2FeatureValues.append(map(lambda x: x.get_SNR(), lOfParetoPoints2))
+    
     curve1FeatureValues.append(map(lambda x: x.get_energy(), lOfParetoPoints1))
-    curve2FeatureValues.append(map(lambda x: x.get_PSNR(), lOfParetoPoints2))
     curve2FeatureValues.append(map(lambda x: x.get_energy(), lOfParetoPoints2))
      
     # ---- comparing the two curves
