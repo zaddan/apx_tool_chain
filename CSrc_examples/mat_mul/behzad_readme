@@ -1,0 +1,5 @@
+example of the Run:
+    python gen_and_verify.py 3 5 2 2
+    note: for understanding the cmd line inputs, please run the above command
+    trust me
+

@@ -1,0 +1,36 @@
+import os
+import sys
+
+def sourceFileParse(inputFileName, dest, matWidth, matHeight):
+    fwrite = open(dest, "w")                                                
+    try:                                                                        
+        f = open(inputFileName)                                                
+    except IOError:                                                             
+        handleIOError(sourceFileName, "csource file" )                                               
+        exit()                                                                  
+    else:                                                                       
+        with f:                                                                 
+            for line in f:                                                      
+                if ("//modify" in line.split()):
+                    i ="i"
+                    for indexJ  in range(matWidth):
+                        j=indexJ
+                        fwrite.write("//------calculating element " +str(i) + " and " +str(j)+ "\n")
+                        fwrite.write("sum = 0;") 
+                        for indexK in range(matHeight):
+                            k=indexK
+                            fwrite.write("mulTemp = A[" + str(i)+"][" + str(k)+ "]*B["+ str(k)+ "][" + str(j) + "];\n")
+                            fwrite.write("sum = sum + mulTemp;\n")
+                
+                        fwrite.write("C[" + str(i) + "][" + str(j) + "] = sum;\n")
+                else:
+                   fwrite.write(line);
+                    
+def main():
+    inputFileName = "mat_mul_for_parse.txt"
+    dest = "output_test"
+    matWidth = int(sys.argv[1])
+    matHeight = int(sys.argv[2])
+    sourceFileParse(inputFileName, dest, matWidth, matHeight)
+    
+main()

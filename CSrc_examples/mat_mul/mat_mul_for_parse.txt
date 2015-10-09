@@ -1,0 +1,13 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "globals.h"
+extern hw_ac **myOp;   
+
+void matmul_unfolded (int **A, int **B, int **C, int matHeight, int matWidth) { //name
+  int sum;
+  int   i;
+  int   j;
+  int   k;
+  int mulTemp; 
+  start_generation here
+}
