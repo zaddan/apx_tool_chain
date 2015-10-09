@@ -90,9 +90,9 @@ int setOpSubTypeAndInputs(hw_ac **myOp, vector<string> TypeInfo){
     }else if (typeSpecifier == "btm"){
       //string stream is used to convert the string to size_t 
       stringstream ( TypeInfo[1]) >> Nt;
-      stringstream ( TypeInfo[2]) >> hbl;
+      stringstream ( TypeInfo[2]) >> Nia;
       stringstream ( TypeInfo[2]) >> vbl;
-      *myOp = new btm(Nt, hbl, vbl , table_gen);
+      *myOp = new btm(Nt, Nia, table_gen);
     } 
     else {
       return FAILURE;

@@ -15,24 +15,24 @@ using namespace std;
 class btm : public hw_ac {
 
 private:
-	size_t hbl; // the number of bits row nulling
-	size_t vbl; // the number of bits column nulling
+    size_t hbl; // the number of bits row nulling
+    size_t vbl; // the number of bits column nulling
 
 public:
-	// constructor 
-	btm();
+    // constructor 
+    btm();
 
-	btm(size_t Nt, size_t hbl, size_t vbl, bool table_gen);
+    btm(size_t Nt, size_t Nia, bool table_gen);
 
-	virtual ~btm();
+    virtual ~btm();
 
-	virtual int calc(const int &a, const int &b);
-	virtual int calc_ref(const int &a, const int &b);
+    virtual int calc(const int &a, const int &b);
+    virtual int calc_ref(const int &a, const int &b);
 
-	size_t get_hbl_bits(void);
-	size_t get_vbl_bits(void);
+    size_t get_hbl_bits(void);
+    size_t get_vbl_bits(void);
 
-	virtual void tbl_gen();
+    virtual void tbl_gen();
 
 };
 
