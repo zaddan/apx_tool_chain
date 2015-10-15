@@ -33,12 +33,12 @@ def gen_matrix(inputFileName, dest1, matWidth, matHeight, numberOfMatToMultiply)
                                 k=indexK
                                 unfoldedWriteP.write("mulTemp = A[" + str(i)+"][" + str(k)+ "]*B["+ str(k)+ "][" + str(j) + "];\n")
                                 for z in range(numberOfMatToMultiply -1): 
-                                    unfoldedTransformedWriteP[z].write("mulTemp = myOp[" +str(counter) + "]->calc(A[" + str(i)+"][" + str(k)+ "],B["+ str(k)+ "][" + str(j) + "]); //MultiplicationOp\n")
+                                    unfoldedTransformedWriteP[z].write("mulTemp = myOp[" +str(z*matWidth*matWidth*matWidth*2+counter) + "]->calc(A[" + str(i)+"][" + str(k)+ "],B["+ str(k)+ "][" + str(j) + "]); //MultiplicationOp\n")
                                 
                                 counter+=1 
                                 unfoldedWriteP.write("sum = sum + mulTemp;\n")
                                 for z in range(numberOfMatToMultiply -1): 
-                                    unfoldedTransformedWriteP[z].write("sum = myOp["+str(counter)+"]->calc(sum, mulTemp); //AdditionOp\n")
+                                    unfoldedTransformedWriteP[z].write("sum = myOp["+str(z*matWidth*matWidth*2*matHeight+counter)+"]->calc(sum, mulTemp); //AdditionOp\n")
                                 counter+=1 
                             unfoldedWriteP.write("C[" + str(i) + "][" + str(j) + "] = sum;\n")
                             for z in range(numberOfMatToMultiply -1): 
@@ -48,11 +48,11 @@ def gen_matrix(inputFileName, dest1, matWidth, matHeight, numberOfMatToMultiply)
                 elif ("//name" in line.split()):
                     unfoldedWriteP.write(line);
                     for z in range(numberOfMatToMultiply -1): 
-                        print "******" 
                         newLine = line; 
                         newLineSplit = newLine.split() 
                         newLineSplit[1]=line.split()[1]+"_"+str(z)
                         unfoldedTransformedWriteP[z].write(' '.join(newLineSplit));
+                        unfoldedTransformedWriteP[z].write("\n");
                 else:
                    unfoldedWriteP.write(line);
                    for z in range(numberOfMatToMultiply -1): 
@@ -62,12 +62,11 @@ def gen_matrix(inputFileName, dest1, matWidth, matHeight, numberOfMatToMultiply)
 
 
 
-def main():
-  
-    matWidth = int(sys.argv[1])
-    matHeight = int(sys.argv[2])
-    numberOfMatToMultiply = int(sys.argv[3])
-    sourceFileParse(inputFileName, dest1, matWidth, matHeight, numberOfMatToMultiply)
+# def main():
+    # matWidth = int(sys.argv[1])
+    # matHeight = int(sys.argv[2])
+    # numberOfMatToMultiply = int(sys.argv[3])
+    # sourceFileParse(inputFileName, dest1, matWidth, matHeight, numberOfMatToMultiply)
 
 
 def main():

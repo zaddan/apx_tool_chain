@@ -27,6 +27,10 @@
 #----disclaimers::: if dealingwith Pic and we are feeding couple of operands,
 #----we need to collect their psnr in a list and get an avg. This should be done
 #--- this requries adding a PSNR (or SNR) list to the points
+#---
+#--- for both SNR and PSNR, not sure how to deal with it when the error is zero.
+#----right now, I set the SNR to the avg of accurate values and not show it in the graph
+#----but for PSNR, i set the error to something very very small
 #**--------------------**
 #--------------------**
 
@@ -347,7 +351,7 @@ def main():
                 newPoint.set_setUp_number(apxIndexSetUp)
                 newPoint.append_lOf_operand(get_operand_values(operandSampleFileName))
                 newPoint.append_accurate_values(lOfAccurateValues[operandIndex])
-                newPoint.set_dealing_with_pics(inputObj.dealing_with_pics)
+                newPoint.set_dealing_with_pics(eval(inputObj.dealingWithPics))
                 newPoint.set_input_obj(inputObj)
                 # newPoint.calculate_SNR()
                 if eval(inputObj.dealingWithPics): 
@@ -368,7 +372,7 @@ def main():
         # numberOfIndividualsToStartWith = min(settings.numberOfIndividualsToStartWith, len(allPossibleApxScenarioursList)) 
         numberOfIndividualsToStartWith = settings.numberOfIndividualsToStartWith
         tempAcc = accurateSetUp
-        tempAcc[8][2] = 5
+        # tempAcc[8][2] = 5
         
         # allConfs = generateInitialPopulation(accurateSetUp, numberOfIndividualsToStartWith, inputObj,ignoreIndexList)
         allConfs = generateInitialPopulation(tempAcc, numberOfIndividualsToStartWith, inputObj,ignoreIndexList)
@@ -500,9 +504,27 @@ def main():
     symbolIndex = 0  
     # generateGraph(map(lambda x: x.get_SNR(), lOfParetoPoints), map(lambda x: x.get_energy(), lOfParetoPoints), "Noise", "Energy", symbolsToChooseFrom[symbolIndex])
     if(eval(inputObj.dealingWithPics)): 
-        generateGraph(map(lambda x: x.get_PSNR(), lOfParetoPoints), map(lambda x: x.get_energy(), lOfParetoPoints), "PSNR", "Energy", symbolsToChooseFrom[symbolIndex])
+        lOfPSNR = [] 
+        lOfEnergy = [] 
+        for point in lOfParetoPoints:
+            if point.get_PSNR() != avgAccurateValue:
+                lOfSNR.append(point.get_PSNR())
+                lOfEnergy.append(point.get_energy())
+        # generateGraph(filter(lambda x: x!=avgAccurateValue, map(lambda x: x.get_SNR(), lOfParetoPoints)), map(lambda x: x.get_energy(), lOfParetoPoints), "Noise", "Energy", symbolsToChooseFrom[symbolIndex])
+        # generateGraph(map(lambda x: x.get_PSNR(), lOfParetoPoints), map(lambda x: x.get_energy(), lOfParetoPoints), "PSNR", "Energy", symbolsToChooseFrom[symbolIndex])
+        generateGraph(lOfPSNR,lOfEnergy, "PSNR", "Energy", symbolsToChooseFrom[symbolIndex])
+        symbolsCollected.append(symbolsToChooseFrom[symbolIndex]) 
     else:
-        generateGraph(map(lambda x: x.get_SNR(), lOfParetoPoints), map(lambda x: x.get_energy(), lOfParetoPoints), "Noise", "Energy", symbolsToChooseFrom[symbolIndex])
+        avgAccurateValue =  numpy.mean(map(lambda x: sum(map (lambda y: float(y), x))/len(x), lOfAccurateValues))
+        lOfSNR = [] 
+        lOfEnergy = [] 
+        for point in lOfParetoPoints:
+            if point.get_SNR() != avgAccurateValue:
+                lOfSNR.append(point.get_SNR())
+                lOfEnergy.append(point.get_energy())
+        
+        # generateGraph(filter(lambda x: x!=avgAccurateValue, map(lambda x: x.get_SNR(), lOfParetoPoints)), map(lambda x: x.get_energy(), lOfParetoPoints), "Noise", "Energy", symbolsToChooseFrom[symbolIndex])
+        generateGraph(lOfSNR,lOfEnergy, "SNR", "Energy", symbolsToChooseFrom[symbolIndex])
     symbolsCollected.append(symbolsToChooseFrom[symbolIndex]) 
     # generateGraph(map(lambda x: x.get_lOfError(), lOfParetoPoints), map(lambda x: x.get_energy(), lOfParetoPoints), "Noise", "Energy", symbolsToChooseFrom[i])
         

@@ -1,0 +1,93 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "globals.h"
+extern hw_ac **myOp;   
+
+void matmul_unfolded_2 (int **A, int **B, int **C, int matHeight, int matWidth) { //name
+  int sum;
+  int   i;
+  int   j;
+  int   k;
+  int mulTemp; 
+//------calculating element 0 and 0
+sum = 0;
+mulTemp = myOp[108]->calc(A[0][0],B[0][0]); //MultiplicationOp
+sum = myOp[109]->calc(sum, mulTemp); //AdditionOp
+mulTemp = myOp[110]->calc(A[0][1],B[1][0]); //MultiplicationOp
+sum = myOp[111]->calc(sum, mulTemp); //AdditionOp
+mulTemp = myOp[112]->calc(A[0][2],B[2][0]); //MultiplicationOp
+sum = myOp[113]->calc(sum, mulTemp); //AdditionOp
+C[0][0] = sum;
+//------calculating element 0 and 1
+sum = 0;
+mulTemp = myOp[114]->calc(A[0][0],B[0][1]); //MultiplicationOp
+sum = myOp[115]->calc(sum, mulTemp); //AdditionOp
+mulTemp = myOp[116]->calc(A[0][1],B[1][1]); //MultiplicationOp
+sum = myOp[117]->calc(sum, mulTemp); //AdditionOp
+mulTemp = myOp[118]->calc(A[0][2],B[2][1]); //MultiplicationOp
+sum = myOp[119]->calc(sum, mulTemp); //AdditionOp
+C[0][1] = sum;
+//------calculating element 0 and 2
+sum = 0;
+mulTemp = myOp[120]->calc(A[0][0],B[0][2]); //MultiplicationOp
+sum = myOp[121]->calc(sum, mulTemp); //AdditionOp
+mulTemp = myOp[122]->calc(A[0][1],B[1][2]); //MultiplicationOp
+sum = myOp[123]->calc(sum, mulTemp); //AdditionOp
+mulTemp = myOp[124]->calc(A[0][2],B[2][2]); //MultiplicationOp
+sum = myOp[125]->calc(sum, mulTemp); //AdditionOp
+C[0][2] = sum;
+//------calculating element 1 and 0
+sum = 0;
+mulTemp = myOp[126]->calc(A[1][0],B[0][0]); //MultiplicationOp
+sum = myOp[127]->calc(sum, mulTemp); //AdditionOp
+mulTemp = myOp[128]->calc(A[1][1],B[1][0]); //MultiplicationOp
+sum = myOp[129]->calc(sum, mulTemp); //AdditionOp
+mulTemp = myOp[130]->calc(A[1][2],B[2][0]); //MultiplicationOp
+sum = myOp[131]->calc(sum, mulTemp); //AdditionOp
+C[1][0] = sum;
+//------calculating element 1 and 1
+sum = 0;
+mulTemp = myOp[132]->calc(A[1][0],B[0][1]); //MultiplicationOp
+sum = myOp[133]->calc(sum, mulTemp); //AdditionOp
+mulTemp = myOp[134]->calc(A[1][1],B[1][1]); //MultiplicationOp
+sum = myOp[135]->calc(sum, mulTemp); //AdditionOp
+mulTemp = myOp[136]->calc(A[1][2],B[2][1]); //MultiplicationOp
+sum = myOp[137]->calc(sum, mulTemp); //AdditionOp
+C[1][1] = sum;
+//------calculating element 1 and 2
+sum = 0;
+mulTemp = myOp[138]->calc(A[1][0],B[0][2]); //MultiplicationOp
+sum = myOp[139]->calc(sum, mulTemp); //AdditionOp
+mulTemp = myOp[140]->calc(A[1][1],B[1][2]); //MultiplicationOp
+sum = myOp[141]->calc(sum, mulTemp); //AdditionOp
+mulTemp = myOp[142]->calc(A[1][2],B[2][2]); //MultiplicationOp
+sum = myOp[143]->calc(sum, mulTemp); //AdditionOp
+C[1][2] = sum;
+//------calculating element 2 and 0
+sum = 0;
+mulTemp = myOp[144]->calc(A[2][0],B[0][0]); //MultiplicationOp
+sum = myOp[145]->calc(sum, mulTemp); //AdditionOp
+mulTemp = myOp[146]->calc(A[2][1],B[1][0]); //MultiplicationOp
+sum = myOp[147]->calc(sum, mulTemp); //AdditionOp
+mulTemp = myOp[148]->calc(A[2][2],B[2][0]); //MultiplicationOp
+sum = myOp[149]->calc(sum, mulTemp); //AdditionOp
+C[2][0] = sum;
+//------calculating element 2 and 1
+sum = 0;
+mulTemp = myOp[150]->calc(A[2][0],B[0][1]); //MultiplicationOp
+sum = myOp[151]->calc(sum, mulTemp); //AdditionOp
+mulTemp = myOp[152]->calc(A[2][1],B[1][1]); //MultiplicationOp
+sum = myOp[153]->calc(sum, mulTemp); //AdditionOp
+mulTemp = myOp[154]->calc(A[2][2],B[2][1]); //MultiplicationOp
+sum = myOp[155]->calc(sum, mulTemp); //AdditionOp
+C[2][1] = sum;
+//------calculating element 2 and 2
+sum = 0;
+mulTemp = myOp[156]->calc(A[2][0],B[0][2]); //MultiplicationOp
+sum = myOp[157]->calc(sum, mulTemp); //AdditionOp
+mulTemp = myOp[158]->calc(A[2][1],B[1][2]); //MultiplicationOp
+sum = myOp[159]->calc(sum, mulTemp); //AdditionOp
+mulTemp = myOp[160]->calc(A[2][2],B[2][2]); //MultiplicationOp
+sum = myOp[161]->calc(sum, mulTemp); //AdditionOp
+C[2][2] = sum;
+}

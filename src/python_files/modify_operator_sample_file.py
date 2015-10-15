@@ -30,8 +30,12 @@ def modifyOperatorSampleFile(operatorSampleFileFullAddress, setUp):
     
     operatorSampleFileNameP = open(operatorSampleFileFullAddress, "w")
     for operator in setUp:
-        for property in operator:
-            operatorSampleFileNameP.write(str(property).replace(',', ' ').replace("'", ' ') + " ")
+        if not(type(operator) == list):
+            operator = operator.split()
+            operatorPart2= [int(myListElement) for myListElement in operator[1:]]
+            operator = [operator[0]]+ operatorPart2 
+        for myProperty in operator:
+            operatorSampleFileNameP.write(str(myProperty).replace(',', ' ').replace("'", ' ') + " ")
         
         operatorSampleFileNameP.write("\n")
 
