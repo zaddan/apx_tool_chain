@@ -67,7 +67,8 @@ class points:
     def calculate_SNR(self, yourImageName="", originalImageName=""):
         NSR= (numpy.mean(self.lOfError)/numpy.mean(map(lambda x: sum(map (lambda y: float(y), x))/len(x), self.lOfAccurateValues)))
         if (NSR == 0):
-            self.SNR =  numpy.mean(map(lambda x: sum(map (lambda y: float(y), x))/len(x), self.lOfAccurateValues))**2
+            # self.SNR = 50
+            self.SNR =  numpy.mean(map(lambda x: sum(map (lambda y: float(y), x))/len(x), self.lOfAccurateValues))
         else: 
             self.SNR =  1/NSR
     def calculate_PSNR(self, yourImageName="", originalImageName=""):

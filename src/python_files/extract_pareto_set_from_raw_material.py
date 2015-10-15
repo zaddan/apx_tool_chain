@@ -102,6 +102,58 @@ def pareto_frontier_revised(lOfPoints , maxX = True, maxY = True):
 
 
 
+def extract_all_pareto_frontier(lOfPoints , maxX = True, maxY = True):
+    # Sort the list in either ascending or descending order of X
+    Xs = []  
+    Ys = []  
+    for point in lOfPoints:
+        #Xs.append(point.get_SNR())
+        
+        if (point.get_dealing_with_pics()):
+            Xs.append(point.get_PSNR())
+        else:
+            Xs.append(point.get_SNR())
+        
+        Ys.append(point.get_energy())
+
+    
+    myList = sorted([[Xs[i], Ys[i], i] for i in range(len(Xs))], reverse=maxX)
+    # Start the Pareto frontier with the first value in the sorted list
+    lOfAllParetoFronts = [] 
+    p_front = [myList[0]]    
+    lOfAllParetoFronts.append(p_front)
+    # Loop through the sorted list
+    for pair in myList[1:]:
+        if maxY: 
+            for index,paretoFrontEelement in enumerate(lOfAllParetoFronts):
+                if pair[1] >= paretoFrontEelement [-1][1]: #Look for higher values of Y 
+                    lOfAllParetoFronts[index].append(pair) #and add them to the Pareto frontier
+                    continue
+            lOfAllParetoFronts.append(pair)      
+        else:
+            for index,paretoFrontEelement in enumerate(lOfAllParetoFronts):
+                if pair[1] <= p_front[-1][1]: # Look for lower values of Y
+                    lOfAllParetoFronts.append(pair) # and add them to the Pareto frontier
+                    continue
+            lOfAllParetoFronts.append(pair)      
+    # Turn resulting pairs back into a list of Xs and Ys
+    for index,paretoFront in enumerate(lOfAllParetoFronts):
+        # p_frontX = [pair[0] for pair in paretoFront]
+        # p_frontY = [pair[1] for pair in paretoFront]
+        lOfP_index.append([pair[2] for pair in paretoFront])
+    # return p_frontX, p_frontY
+    lOflOfParetoPoints = [] 
+    for p_index in lOfP_index: 
+        lOfParetoPoints = []  
+        for index in sorted(p_index):
+            lOfParetoPoints.append(lOfPoints[index])
+        lOflOfParetoPoints.append(lOfParetoPoints) 
+    return lOflOfParetoPoints
+
+
+
+
+
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

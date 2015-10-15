@@ -23,7 +23,12 @@ import datetime
 from points_class import *
 import pickle
 from points_class import *
+#**--------------------**
+#**--------------------**
+#----disclaimers::: aMemberB needs to generalized for all type of optimizations
+#**--------------------**
 
+#--------------------**
 def getPoints(file1_name):     
     lOfPoints =[]
     with open(file1_name, "rb") as f:
@@ -80,9 +85,9 @@ def compare_two_pareto_fronts(curve1FeatureValues, curve2FeatureValues):
     # ---- measuing VA(e, Bstart) (look at the following link for explanation:
     """http://download.springer.com/static/pdf/261/art%253A10.1134%252FS0965542514090048.pdf?originUrl=http%3A%2F%2Flink.springer.com%2Farticle%2F10.1134%2FS0965542514090048&token2=exp=1443400700~acl=%2Fstatic%2Fpdf%2F261%2Fart%25253A10.1134%25252FS0965542514090048.pdf%3ForiginUrl%3Dhttp%253A%252F%252Flink.springer.com%252Farticle%252F10.1134%252FS0965542514090048*~hmac=40e9a4534e14b6e9417ab545187b351a08e93d556553602b922a6bacbcdc73c7"""
     
-    radius1Max = 10
+    radius1Max = 20 
     radius2Max = 100 
-    radius1Step = 4 
+    radius1Step = 5 
     radius2Step = 10 
     
     
@@ -119,7 +124,6 @@ def compare_two_pareto_fronts(curve1FeatureValues, curve2FeatureValues):
     print VBADic 
     print "****************" 
     print VABDic 
-    sys.exit() 
     generateGraph3D(VABRaidus0, VABRaidus1, VABRes, "rad0", "rad1", "paretoStrengh")
     generateGraph3D(VBARaidus0, VBARaidus1, VBARes, "rad0", "rad1", "paretoStrengh")
    
@@ -146,6 +150,7 @@ def main():
         curve2FeatureValues.append(map(lambda x: x.get_PSNR(), lOfParetoPoints2))
     else:
         curve1FeatureValues.append(map(lambda x: x.get_SNR(), lOfParetoPoints1))
+        
         curve2FeatureValues.append(map(lambda x: x.get_SNR(), lOfParetoPoints2))
     
     curve1FeatureValues.append(map(lambda x: x.get_energy(), lOfParetoPoints1))

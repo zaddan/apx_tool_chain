@@ -50,11 +50,11 @@ compare_two_pareto_fronts function is only valid if we max x and min y (change l
 workingList needs to be continuous
 
 Notes:
-how to run the program
+how to run the program 
 set up the CSrc/ files. first with the whole program, approximated. then run_tool.py
 rm pareto_set_file.txt (this file contains the pareto fronts associated with already run programs.
 We remove it because the whole program run shouldn't be intefering with the next step)
-then breaks the whole program to chunks and run_tool for each chunk. 
+then breaks the whole program to chunks and run_tool for each chunk. (the result will be appended to the pareto_set_file.txt" file
 python compbine_paretos.py (to explore the permutation of the locally realized output pareto fronts)
 python comparet_pareto_curves.py (to compare the globally realized with the permutation
 of the locally realized ones)
