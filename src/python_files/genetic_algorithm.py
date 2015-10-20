@@ -62,7 +62,7 @@ def specializedMutate(ignoreIndexList, setUp):
     return newSetUp,
     
 
-def generateInitialPopulation(accurateSetUp, numberOfIndividualsToStartWith,inputObj, ignoreIndexList):
+def generateInitialPopulation(accurateSetUp, numberOfIndividualsToStartWith,inputObj, ignoreIndexList, limitedListValues, limitedListIndecies):
     population = [] 
     population.append(accurateSetUp) 
     for count in range(numberOfIndividualsToStartWith - 1):
@@ -72,7 +72,10 @@ def generateInitialPopulation(accurateSetUp, numberOfIndividualsToStartWith,inpu
                 continue
             # operatorToChooseIndex = random.choice(range(0, len(accurateSetUp)))
             # numberOfApxBits = int(random.gauss(10 , 4))
-            numberOfApxBits = int(random.choice(range(settings.apxLowBound, settings.apxUpBound)))
+            if (index in limitedListIndecies):
+                numberOfApxBits = int(random.choice(limitedListValues[index]))
+            else: 
+                numberOfApxBits = int(random.choice(range(settings.apxLowBound, settings.apxUpBound)))
             
             operatorModified = modifyOperatorSubSetupExactly(accurateSetUp[index], numberOfApxBits) 
             newSetUp[index] = operatorModified
@@ -133,6 +136,8 @@ def run_spea2(NGEN, MU, LAMBDA, CXPB, MUTPB, population,
             newPoint.append_error(errorValue[0])
             newPoint.set_energy(energyValue[0])
             newPoint.set_setUp(configValue[0])
+            print newPoint.get_setUp()
+            sys.exit()
             newPoint.append_lOf_operand(get_operand_values(operandSampleFileName))
             newPoint.append_accurate_values(lOfAccurateValues[operandIndex])
             newPoint.set_dealing_with_pics(eval(inputObj.dealingWithPics)) 

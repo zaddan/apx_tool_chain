@@ -32,6 +32,7 @@ from GenOpSpace import GenOpSpace
 import os.path
 import settings
 from misc import * 
+import linecache
 #CSrcDir = "../MotionEstimation/"
 #CSrcDir = "./"
 #global variables
@@ -79,18 +80,41 @@ def sourceFileParse(sourceFileName):
                         lAllOpsInSrcFile.append(words.strip())
                     if "Ignore" in words.strip() and subtract(words.strip(), "Ignore") in settings.lAccurateOpFlags: #if ignore is part of the words, that means you can ignore that operator, but still add it
                         lAllOpsInSrcFile.append(words.strip())
-                count +=1; 
+                    if "Limited" in words.strip() and subtract(words.strip(), "Ignore") in settings.lAccurateOpFlags: #if ignore is part of the words, that means you can ignore that operator, but still add it
+                        count +=1; 
     return lAllOpsInSrcFile
+def generateLimited(opIndexSelected, opTypeOpKind):
+    for index, opVersion in enumerate(opTypeOpKind):
+        if index in opIndexSelected:
+            result.append(opVersion)
+
+    print results 
+    return results
+
+def getOpIndexSelected(srcFile, opIndex):
+    result =[]
+    line = linecache.getline(srcFile, opIndex).split()
+    result = map(lambda x: float(x), line) 
+    return result
+  
+     
 
 def generateAllPossibleScenariosForEachOperator(outputFile, lAllOpsInSrcFile):
     allPossibleScenariosForEachOperator = []
     allPossibleScenariosForEachOperator = [] 
-    for element in lAllOpsInSrcFile:
+    opIndexSelectedFile = settings.opIndexSelectedFile 
+    limitedListIndecies = [] 
+    for opIndex,element in enumerate(lAllOpsInSrcFile):
         if "Ignore" in element:
             allPossibleScenariosForEachOperator.append([settings.OpTypeOpKind[subtract(element,"Ignore")][0]])
+        elif "Limited" in element:
+            limitedListIndecies.append[opIndex]
+            # opIndexSelected = getOpIndexSelected(opIndex,opIndexSelectedFile) 
+        #     allPossibleScenariosForEachOperator.append(generateLimited(opIndexSelected,settings.OpTypeOpKind[subtract(element,"Limited")))
         else:
             allPossibleScenariosForEachOperator.append(copy.deepcopy(settings.OpTypeOpKind[element]))
-    return allPossibleScenariosForEachOperator
+       
+    return allPossibleScenariosForEachOperator, limitedListIndecies
 
 def turnAListOfTuplesToAListOfLists(listOfTuples):
     resultList = [] 

@@ -42,6 +42,7 @@ import pylab
 import sys
 import os
 
+from extract_unique_noise import *
 from inputs import *#this file contains all the inputs
 from genetic_algorithm import *
 from deap import algorithms
@@ -71,6 +72,51 @@ def polishSetup(setUp):
         result.append(resultElement)
     return [result] 
 
+
+
+def generate_snr_energy_graph(dealingWithPics, lOfPoints, plotPareto, symbolsToChooseFrom, lOfAccurateValues, symbolIndex, maxY, maxX):
+    symbolsCollected = [] 
+    lOfPoints_refined =[]
+    if plotPareto:
+        lOfPoints_refined = pareto_frontier(lOfPoints,maxX, maxY); 
+    else:
+        lOfPoints_refined = lOfPoints 
+    if(eval(dealingWithPics)): 
+        lOfPSNR = [] 
+        lOfEnergy = [] 
+        for point in lOfPoints_refined:
+            if point.get_PSNR() != avgAccurateValue:
+                lOfSNR.append(point.get_PSNR())
+                lOfEnergy.append(point.get_energy())
+        generateGraph(lOfPSNR,lOfEnergy, "PSNR", "Energy", symbolsToChooseFrom[symbolIndex])
+        symbolsCollected.append(symbolsToChooseFrom[symbolIndex]) 
+    else:
+        avgAccurateValue =  numpy.mean(map(lambda x: sum(map (lambda y: float(y), x))/len(x), lOfAccurateValues))
+        lOfSNR = [] 
+        lOfEnergy = [] 
+        for point in lOfPoints_refined:
+            if point.get_SNR() != avgAccurateValue:
+                lOfSNR.append(point.get_SNR())
+                lOfEnergy.append(point.get_energy())
+        
+        symbolsCollected.append(symbolsToChooseFrom[symbolIndex]) 
+        generateGraph(lOfSNR,lOfEnergy, "SNR", "Energy", symbolsToChooseFrom[symbolIndex])
+    return symbolsCollected
+
+def getLimitedList(src):
+    with open(src) as f:
+        opListSlectedIndex = [] 
+        counter = 0 
+        for line in f:
+            if counter == 0: 
+                for i in line.split():
+                    opListSlectedIndex.append([])
+            counter +=1 
+            if len(line.split())>0: 
+                for opIndex in range(opListSlectedIndex):
+                    opListSlectedIndex[opIndex].append(line.split(opIndex))
+
+    return opListSlectedIndex
 ## 
 # @brief this is the main function (which takes care of the description mentioned in the file description)
 # 
@@ -108,6 +154,9 @@ def main():
 
     inputObj = inputClass()
     inputObj.expandAddress()
+    maxX = settings.maxX
+    maxY = settings.maxY
+
     # print inputObj.allInputs
     # sys.exit() 
    #  home = expanduser("~")
@@ -129,7 +178,9 @@ def main():
     # PIK = sys.argv[8]  
     #errorToSignalRatio = float(sys.argv[8])
     
-      
+    opIndexSelectedFile =settings.opIndexSelectedFile
+    open(opIndexSelectedFile, "w").close()
+    
     CSrcFolderAddress = inputObj.CSrcFolderAddress
     lOfCSrcFileAddress = inputObj.lOfCSrcFileAddress 
     generateMakeFile = inputObj.generateMakeFile
@@ -272,7 +323,7 @@ def main():
     errorRequirementList = []
     errorDiffList =[] #contains the difference between the error request and the error recieved from simulated annealing ( in percentage)
      
-    allPossibleScenariosForEachOperator = generateAllPossibleScenariosForEachOperator(rootResultFolderName, lAllOpsInSrcFile)
+    allPossibleScenariosForEachOperator, limitedListIndecies = generateAllPossibleScenariosForEachOperator(rootResultFolderName, lAllOpsInSrcFile)
     #---------guide:::  generate all possible apx setUps Possible (mainly used for full permutation design exploration, otherwise called exhustive search)
     IOAndProcessCharFileName = rootResultFolderName + "/" + settings.IOAndProcessCharFileName
     IOAndProcessCharP = open(IOAndProcessCharFileName, "w")
@@ -331,6 +382,7 @@ def main():
 
         allPossibleApxScenarioursList = generateAllPossibleApxScenariousList(allPossibleScenariosForEachOperator)
         while (True): #break when a signal is raised as done
+            print "what" 
             newPoint = points()
             status, setUp = generateAPossibleApxScenarios(rootResultFolderName + "/" + settings.AllPossibleApxOpScenarios, allPossibleApxScenarioursList , apxIndexSetUp, mode) 
             for operandIndex, operandSampleFileName in enumerate(nameOfAllOperandFilesList):
@@ -347,8 +399,21 @@ def main():
                 newPoint.append_raw_values(rawValues[0])  
                 newPoint.append_error(errorValue[0])
                 newPoint.set_energy(energyValue[0])
-                newPoint.set_setUp(configValue[0])
+                setUpPolished =[] 
+                for setUpElement in configValue[0]:
+                    setUpEelementPolished = [] 
+                    for index, setUpSubEl in enumerate(setUpElement.split()):
+                        if index != 0:
+                            setUpEelementPolished.append(float(setUpSubEl))
+                        else:
+                            setUpEelementPolished.append(setUpSubEl)
+                    setUpPolished.append(setUpEelementPolished)
+                # newPoint.set_setUp(configValue[0].)
+                
+                newPoint.set_setUp(setUpPolished)
                 newPoint.set_setUp_number(apxIndexSetUp)
+                print configValue[0] 
+                print newPoint.get_setUp()
                 newPoint.append_lOf_operand(get_operand_values(operandSampleFileName))
                 newPoint.append_accurate_values(lOfAccurateValues[operandIndex])
                 newPoint.set_dealing_with_pics(eval(inputObj.dealingWithPics))
@@ -373,9 +438,11 @@ def main():
         numberOfIndividualsToStartWith = settings.numberOfIndividualsToStartWith
         tempAcc = accurateSetUp
         # tempAcc[8][2] = 5
-        
+        opIndexSelectedFile  = settings.opIndexSelectedFile
+        limitedList = [] 
+        limitedListValues = getLimitedList(opIndexSelectedFile)
         # allConfs = generateInitialPopulation(accurateSetUp, numberOfIndividualsToStartWith, inputObj,ignoreIndexList)
-        allConfs = generateInitialPopulation(tempAcc, numberOfIndividualsToStartWith, inputObj,ignoreIndexList)
+        allConfs = generateInitialPopulation(tempAcc, numberOfIndividualsToStartWith, inputObj,ignoreIndexList, limitedListValues, limitedListIndecies)
         # for index in range(numberOfIndividualsToStartWith):
             # indexToChoose =  random.choice(range(0, len(remainingPopulation), 1))
             # sampleSetUp =  remainingPopulation[indexToChoose]
@@ -470,67 +537,54 @@ def main():
                     break
    #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
    #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
-    # ---- result generation/manipulation
-    # if(mode == "allPermutations"):    
-        # lOfParetoPoints = pareto_frontier(lOfPoints, maxX= False, maxY = False)
-    # elif(mode == "genetic_algorithm"):
-        # lOfParetoPoints = pareto_frontier(lOfPoints, maxX= False, maxY = False)
-    #     # lOfParetoPoints = lOfPoints
-    
     # ---- find the pareto curve of lOfPoints
-    if not(mode == "only_read_values"): 
-        print "*******************************************" 
-        lOfParetoPoints = pareto_frontier(lOfPoints, maxX= True, maxY = False)
-        # lOfParetoPoints = lOfPoints 
+    if settings.method == "localParetoPieceParetoResult":
+        resultPoints = pareto_frontier(lOfPoints, maxX= True, maxY = False)
+        delimeter = [workingList[0], workingList[-1] +1] 
+        moduleParetoSet  = pareto_set(resultPoints, True, False)
+        moduleParetoSet.set_delimeter(delimeter)
+        with open(settings.lOfParetoSetFileName, "a") as f:
+            pickle.dump(copy.deepcopy(moduleParetoSet), f)
+    elif settings.method == "uniqueNoiseParetoResult":
+        lOfUniqueNoisePoints = extract_unique_noise(lOfPoints, inputObj.dealingWithPics)
+        
+        resultPoints = lOfUniqueNoisePoints
+        opIndexSelectedFile = open(settings.opIndexSelectedFile, "w");
+        for myPoints in lOfUniqueNoisePoints:
+            #fix req: we shouldn't be writing the whole set up but only part of it
+            opIndexSelectedFile.write(str(myPoints.get_setUp())) 
+        
+        #fix req: we don't need a paretoSet, instead a point set as a parent,
+        #and then later the child is the type of the set such as pareto set
+        moduleParetoSet  = pareto_set(resultPoints, True, False)
+        #fix req: delmiter should be defined properly, change the numbers
+        moduleParetoSet.set_delimeter([2,3])
+        with open(settings.lOfParetoSetFileName, "w") as f:
+            pickle.dump(copy.deepcopy(moduleParetoSet), f)
+    elif (settings.method == "allPoints"):
+        resultPoints = lOfPoints 
     else:
-        lOfParetoPoints = pareto_frontier(lOfPoints, maxX= True, maxY = False)
-        # lOfParetoPoints = lOfPoints 
+        print "this method is not defined"
+        exit()
     
-    # ---- making a pareto_set obj and writing it to a file
-    moduleParetoSet  = pareto_set(lOfParetoPoints, True, False)
-    # print inputObj.delimeter 
-    delimeter = [workingList[0], workingList[-1] +1] 
-#    for element in inputObj.delimeter:
-#        delimeter.append(eval(element))
-#    
-    moduleParetoSet.set_delimeter(delimeter)
-    with open(settings.lOfParetoSetFileName, "a") as f:
-        pickle.dump(copy.deepcopy(moduleParetoSet), f)
-
     
     # ---- drawing the pareto set
     symbolsCollected = [] #this list contains the symbols collected for every new input 
     symbolsToChooseFrom = ['*', 'x', "o", "+", "*", "-", "^", "1", "2", "3", "4"] #symbols to draw the plots with
     symbolIndex = 0  
-    # generateGraph(map(lambda x: x.get_SNR(), lOfParetoPoints), map(lambda x: x.get_energy(), lOfParetoPoints), "Noise", "Energy", symbolsToChooseFrom[symbolIndex])
-    if(eval(inputObj.dealingWithPics)): 
-        lOfPSNR = [] 
-        lOfEnergy = [] 
-        for point in lOfParetoPoints:
-            if point.get_PSNR() != avgAccurateValue:
-                lOfSNR.append(point.get_PSNR())
-                lOfEnergy.append(point.get_energy())
-        # generateGraph(filter(lambda x: x!=avgAccurateValue, map(lambda x: x.get_SNR(), lOfParetoPoints)), map(lambda x: x.get_energy(), lOfParetoPoints), "Noise", "Energy", symbolsToChooseFrom[symbolIndex])
-        # generateGraph(map(lambda x: x.get_PSNR(), lOfParetoPoints), map(lambda x: x.get_energy(), lOfParetoPoints), "PSNR", "Energy", symbolsToChooseFrom[symbolIndex])
-        generateGraph(lOfPSNR,lOfEnergy, "PSNR", "Energy", symbolsToChooseFrom[symbolIndex])
-        symbolsCollected.append(symbolsToChooseFrom[symbolIndex]) 
-    else:
-        avgAccurateValue =  numpy.mean(map(lambda x: sum(map (lambda y: float(y), x))/len(x), lOfAccurateValues))
-        lOfSNR = [] 
-        lOfEnergy = [] 
-        for point in lOfParetoPoints:
-            if point.get_SNR() != avgAccurateValue:
-                lOfSNR.append(point.get_SNR())
-                lOfEnergy.append(point.get_energy())
+    # ---- generate the graph
+    if settings.runToolChainGenerateGraph: 
+        plotPareto =settings.runToolChainPlotPareto
+        symbolsCollected = generate_snr_energy_graph(inputObj.dealingWithPics, resultPoints, plotPareto, symbolsToChooseFrom, lOfAccurateValues, symbolIndex, maxY, maxX) 
         
-        # generateGraph(filter(lambda x: x!=avgAccurateValue, map(lambda x: x.get_SNR(), lOfParetoPoints)), map(lambda x: x.get_energy(), lOfParetoPoints), "Noise", "Energy", symbolsToChooseFrom[symbolIndex])
-        generateGraph(lOfSNR,lOfEnergy, "SNR", "Energy", symbolsToChooseFrom[symbolIndex])
-    symbolsCollected.append(symbolsToChooseFrom[symbolIndex]) 
+    # symbolsCollected.append(symbolsToChooseFrom[symbolIndex]) 
     # generateGraph(map(lambda x: x.get_lOfError(), lOfParetoPoints), map(lambda x: x.get_energy(), lOfParetoPoints), "Noise", "Energy", symbolsToChooseFrom[i])
+            
         
-     # ---- collecting the result in a list (for later printing)
+    
+    # ---- collecting the result in a list (for later printing)
     resultTuple = [] 
-    for index, point in enumerate(lOfParetoPoints):
+    for index, point in enumerate(resultPoints):
         if(eval(inputObj.dealingWithPics)): 
             resultTuple.append((point.get_setUp(), point.get_PSNR(), point.get_energy()))
         else:
