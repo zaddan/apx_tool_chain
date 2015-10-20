@@ -161,3 +161,14 @@ def main():
     inputFile1Dic,inputFIle2Dic = compareResults(sourceFile2Name, sourceFile1Name,startingOpNumforFile2, endingOpNumForFile2, startingOpNumforFile1, endingOpNumForFile1)
 
 main()
+/home/polaris/behzad/apx_tool_chain/all_input_scenarios.txt
+YES
+/home/polaris/behzad/apx_tool_chain/src/CSrc/
+pickled_results
+False
+finalResult.txt
+YES
+['/home/polaris/behzad/apx_tool_chain/src/CSrc/mat_mul_unfolded_algo0.cpp', '/home/polaris/behzad/apx_tool_chain/src/CSrc/mat_mul_unfolded_algo1.cpp']
+/home/polaris/behzad/apx_tool_chain/inputPics/roki_noisy.jpg
+/home/polaris/behzad/apx_tool_chain/inputPics/roki.jpg
+/home/polaris/behzad/apx_tool_chain

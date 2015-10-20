@@ -13,16 +13,9 @@ import pylab
 def getFirstTwo(myList):
     if not(type(myList) == list):
         myList = myList.split(" ")
-        print "look at it"
-        print myList
         myList2 = [int(myListElement) for myListElement in myList[1:]]
         myList = [myList[0]]+ myList2
-        print "here is myList"
-        print myList
     
-    else:
-        print "here is myList23"
-        print myList
     return (myList[0].replace("'", ""),int(myList[1]) - int(myList[2]))
 
 

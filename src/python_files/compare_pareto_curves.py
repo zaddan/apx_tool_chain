@@ -121,13 +121,14 @@ def compare_two_pareto_fronts(curve1FeatureValues, curve2FeatureValues):
     VBARaidus1 = map(lambda x: x[1], VBADic.keys()) 
     VBARes =  map(lambda x: 1 - x, VBADic.values()) 
     
-    print VBADic 
-    print "****************" 
+    
     print VABDic 
+    print "****************" 
+    print VBADic 
     generateGraph3D(VABRaidus0, VABRaidus1, VABRes, "rad0", "rad1", "paretoStrengh")
     generateGraph3D(VBARaidus0, VBARaidus1, VBARes, "rad0", "rad1", "paretoStrengh")
    
-    plt.show()
+    #plt.show()
    #  symbolIndex = 0  
     # symbolsToChooseFrom = ['*', 'x', "o", "+", "*", "-", "^", "1", "2", "3", "4"] #symbols to draw the plots with
     # generateGraph(curve1FirstFeature, curve1SecondFeature,  "PSNR", "Energy", symbolsToChooseFrom[symbolIndex])

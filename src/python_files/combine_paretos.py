@@ -238,7 +238,7 @@ def pareto_combine(srcFile):
     
     # lOfParetoPoints = pareto_frontier(newListOfPoints, maxX= True, maxY = False)
     # ---- adding the first blocks pareto points to the list
-    # newListOfPoints += lOfParetoSet[0].get_pareto_values()
+    newListOfPoints += lOfParetoSet[0].get_pareto_values()
     lOfParetoPoints = pareto_frontier(newListOfPoints, maxX= True, maxY = False)
     lOfSNR = [] 
     lOfEnergy = [] 
