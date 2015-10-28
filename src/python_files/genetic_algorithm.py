@@ -124,7 +124,7 @@ def run_spea2(NGEN, MU, LAMBDA, CXPB, MUTPB, population,
              
             modifyOperatorSampleFile(operatorSampleFileFullAddress, individual)
             make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName)
-            print "here is the accurate" + str(lOfAccurateValues) 
+            # print "here is the accurate" + str(lOfAccurateValues) 
             errorValue = [extractErrorForOneInput(CSourceOutputForVariousSetUpFileName , lOfAccurateValues[operandIndex])]
             configValue = [individual]
             rawValues = [extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)]
@@ -136,8 +136,6 @@ def run_spea2(NGEN, MU, LAMBDA, CXPB, MUTPB, population,
             newPoint.append_error(errorValue[0])
             newPoint.set_energy(energyValue[0])
             newPoint.set_setUp(configValue[0])
-            print newPoint.get_setUp()
-            sys.exit()
             newPoint.append_lOf_operand(get_operand_values(operandSampleFileName))
             newPoint.append_accurate_values(lOfAccurateValues[operandIndex])
             newPoint.set_dealing_with_pics(eval(inputObj.dealingWithPics)) 

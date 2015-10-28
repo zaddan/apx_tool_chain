@@ -64,7 +64,9 @@ from simulating_annealer import *
 from misc import *
 import datetime
 from points_class import *
-from pareto_set_class import *
+#from pareto_set_class import *
+from point_set_class import *
+
 def polishSetup(setUp):
     result = []  
     for element in setUp: 
@@ -323,7 +325,7 @@ def main():
     errorRequirementList = []
     errorDiffList =[] #contains the difference between the error request and the error recieved from simulated annealing ( in percentage)
      
-    allPossibleScenariosForEachOperator, limitedListIndecies = generateAllPossibleScenariosForEachOperator(rootResultFolderName, lAllOpsInSrcFile)
+    allPossibleScenariosForEachOperator, limitedListIndecies, ignoreListIndecies, accurateSetUp = generateAllPossibleScenariosForEachOperator(rootResultFolderName, lAllOpsInSrcFile)
     #---------guide:::  generate all possible apx setUps Possible (mainly used for full permutation design exploration, otherwise called exhustive search)
     IOAndProcessCharFileName = rootResultFolderName + "/" + settings.IOAndProcessCharFileName
     IOAndProcessCharP = open(IOAndProcessCharFileName, "w")
@@ -350,21 +352,22 @@ def main():
         
         
         #---------guide:::  getting accurate values associated with the CSource output
-        accurateSetUp,ignoreIndexList, workingList = generateAccurateScenario(allPossibleScenariosForEachOperator)
+        #accurateSetUp,workingList = generateAccurateScenario(allPossibleScenariosForEachOperator,ignoreListIndecies )
+        workingList = generateWorkingList(ignoreListIndecies, allPossibleScenariosForEachOperator )
         
         apxIndexSetUp = 0 #zero is associated with the accurate results (this is a contract that needs to be obeyed)
         # status, setUp = generateAPossibleApxScenarios(rootResultFolderName + "/" + settings.AllPossibleApxOpScenarios, allPossibleApxScenarioursList , apxIndexSetUp, mode) 
-        
         #---------guide:::  erasing the previuos content of the file
         CSourceOutputForVariousSetUpP = open(CSourceOutputForVariousSetUpFileName, "w").close()
         #---------guide:::  modify the operator sample file
+        
         modifyOperatorSampleFile(operatorSampleFileFullAddress, accurateSetUp)
         #---------guide:::  run the CSrouce file with the new setUp(operators)
         make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName)
         #---------guide::: error
         accurateValues = extractAccurateValues(CSourceOutputForVariousSetUpFileName)
         lOfAccurateValues.append(accurateValues)
-        print lOfAccurateValues
+        # print lOfAccurateValues
         # lOfOperandSet.append(newOperand)
         #---------guide:::  make a apx set up and get values associated with it
         
@@ -382,7 +385,6 @@ def main():
 
         allPossibleApxScenarioursList = generateAllPossibleApxScenariousList(allPossibleScenariosForEachOperator)
         while (True): #break when a signal is raised as done
-            print "what" 
             newPoint = points()
             status, setUp = generateAPossibleApxScenarios(rootResultFolderName + "/" + settings.AllPossibleApxOpScenarios, allPossibleApxScenarioursList , apxIndexSetUp, mode) 
             for operandIndex, operandSampleFileName in enumerate(nameOfAllOperandFilesList):
@@ -442,7 +444,7 @@ def main():
         limitedList = [] 
         limitedListValues = getLimitedList(opIndexSelectedFile)
         # allConfs = generateInitialPopulation(accurateSetUp, numberOfIndividualsToStartWith, inputObj,ignoreIndexList)
-        allConfs = generateInitialPopulation(tempAcc, numberOfIndividualsToStartWith, inputObj,ignoreIndexList, limitedListValues, limitedListIndecies)
+        allConfs = generateInitialPopulation(tempAcc, numberOfIndividualsToStartWith, inputObj,ignoreListIndecies, limitedListValues, limitedListIndecies)
         # for index in range(numberOfIndividualsToStartWith):
             # indexToChoose =  random.choice(range(0, len(remainingPopulation), 1))
             # sampleSetUp =  remainingPopulation[indexToChoose]
@@ -470,7 +472,7 @@ def main():
         population = run_spea2(NGEN, MU, LAMBDA, CXPB, MUTPB, population,
                     CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress,
                     executableName, executableInputList, rootResultFolderName, CBuildFolder,
-                    operandSampleFileName, lOfAccurateValues, toolbox, nameOfAllOperandFilesList, inputObj, ignoreIndexList)
+                    operandSampleFileName, lOfAccurateValues, toolbox, nameOfAllOperandFilesList, inputObj, ignoreListIndecies)
         # print population
         # sys.exit()
         lOfPoints = []  
@@ -538,13 +540,16 @@ def main():
    #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
    #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
     # ---- find the pareto curve of lOfPoints
+    delimeter = [workingList[0], workingList[-1] +1] 
     if settings.method == "localParetoPieceParetoResult":
         resultPoints = pareto_frontier(lOfPoints, maxX= True, maxY = False)
         delimeter = [workingList[0], workingList[-1] +1] 
-        moduleParetoSet  = pareto_set(resultPoints, True, False)
-        moduleParetoSet.set_delimeter(delimeter)
+        #moduleParetoSet  = pareto_set(resultPoints, True, False)
+        pointSet  = point_set(resultPoints, "pareto", True, False);
+        pointSet.set_delimeter(delimeter)
         with open(settings.lOfParetoSetFileName, "a") as f:
-            pickle.dump(copy.deepcopy(moduleParetoSet), f)
+            pickle.dump(copy.deepcopy(pointSet), f)
+
     elif settings.method == "uniqueNoiseParetoResult":
         lOfUniqueNoisePoints = extract_unique_noise(lOfPoints, inputObj.dealingWithPics)
         
@@ -556,13 +561,18 @@ def main():
         
         #fix req: we don't need a paretoSet, instead a point set as a parent,
         #and then later the child is the type of the set such as pareto set
-        moduleParetoSet  = pareto_set(resultPoints, True, False)
+        pointSet= point_set(resultPoints, "unique")
         #fix req: delmiter should be defined properly, change the numbers
-        moduleParetoSet.set_delimeter([2,3])
+        pointSet.set_delimeter(delimeter)
         with open(settings.lOfParetoSetFileName, "w") as f:
-            pickle.dump(copy.deepcopy(moduleParetoSet), f)
+            pickle.dump(copy.deepcopy(pointSet), f)
     elif (settings.method == "allPoints"):
         resultPoints = lOfPoints 
+        pointSet= point_set(resultPoints, "all")
+        #fix req: delmiter should be defined properly, change the numbers
+        pointSet.set_delimeter(delimeter)
+        with open(settings.lOfParetoSetFileName, "a") as f:
+            pickle.dump(copy.deepcopy(pointSet), f)
     else:
         print "this method is not defined"
         exit()

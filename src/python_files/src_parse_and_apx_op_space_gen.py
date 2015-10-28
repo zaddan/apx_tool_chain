@@ -104,17 +104,22 @@ def generateAllPossibleScenariosForEachOperator(outputFile, lAllOpsInSrcFile):
     allPossibleScenariosForEachOperator = [] 
     opIndexSelectedFile = settings.opIndexSelectedFile 
     limitedListIndecies = [] 
+    ignoreListIndecies = [] 
+    accurateConfig = [] 
     for opIndex,element in enumerate(lAllOpsInSrcFile):
         if "Ignore" in element:
             allPossibleScenariosForEachOperator.append([settings.OpTypeOpKind[subtract(element,"Ignore")][0]])
+            ignoreListIndecies.append(opIndex)
+            accurateConfig.append(settings.OpTypeOpKind[subtract(element,"Ignore")][0])
         elif "Limited" in element:
-            limitedListIndecies.append[opIndex]
+            limitedListIndecies.append(opIndex)
+            accurateConfig.append(settings.OpTypeOpKind[subtract(element,"Limited")][0])
             # opIndexSelected = getOpIndexSelected(opIndex,opIndexSelectedFile) 
         #     allPossibleScenariosForEachOperator.append(generateLimited(opIndexSelected,settings.OpTypeOpKind[subtract(element,"Limited")))
         else:
             allPossibleScenariosForEachOperator.append(copy.deepcopy(settings.OpTypeOpKind[element]))
-       
-    return allPossibleScenariosForEachOperator, limitedListIndecies
+            accurateConfig.append(settings.OpTypeOpKind[element][0])
+    return allPossibleScenariosForEachOperator, limitedListIndecies, ignoreListIndecies, accurateConfig 
 
 def turnAListOfTuplesToAListOfLists(listOfTuples):
     resultList = [] 
@@ -124,24 +129,24 @@ def turnAListOfTuplesToAListOfLists(listOfTuples):
     return resultList
 
 
-def generateAccurateScenario(allPossibleScenariosForEachOperator):
+
+def generateWorkingList(ignoreIndexList, allPossibleScenariosForEachOperator):
     accurateScenario = []  
-    ignoreIndexList = []
+    #ignoreIndexList = []
     workingList =[] 
     count1 = 0;
     count2 = 0;
     for index,operator in enumerate(allPossibleScenariosForEachOperator):
-        if len(operator) == 1:
-            ignoreIndexList.append(index)
-            count1 +=1 
-        else:
+        if not(index in ignoreIndexList):
             workingList.append(index) 
             count2+=1
-     
-        #print operator[0] 
         # accurateScenario.append(operator[0])
-        accurateScenario.append(operator[0])
-    return accurateScenario, ignoreIndexList, workingList
+        #settings.OpTypeOpKind[subtract(element,"Ignore")][0]
+        #    ignoreListIndecies.append(opIndex)
+
+        #accurateScenario.append(operator[0])
+    return workingList 
+    #return accurateScenario, workingList
 #
 def generateAllPossibleApxScenariousList(allPossibleScenariosForEachOperator):
     permutedList = list(itertools.product(*allPossibleScenariosForEachOperator))

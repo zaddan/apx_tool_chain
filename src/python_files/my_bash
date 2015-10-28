@@ -15,6 +15,7 @@ cp mat_mul_unfolded_algo1_apx.txt mat_mul_unfolded_algo1.cpp
 cd ../python_files/
 python run_tool_chain.py
 cp pickled_results ref_results_pickled
+
 rm pareto_set_file.txt
 cp ../../generated_text/finalResult.png ref.png
 echo "done1"

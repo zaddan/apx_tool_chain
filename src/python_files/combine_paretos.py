@@ -26,6 +26,7 @@ import pickle
 from points_class import *
 from list_all_files_in_a_folder import *
 from src_parse_and_apx_op_space_gen import *
+from pareto_set_class import *
 #**--------------------**
 #**--------------------**
 #----disclaimers::: if dealingwith Pic and we are feeding couple of operands,
@@ -36,14 +37,14 @@ from src_parse_and_apx_op_space_gen import *
 #--------------------**
 
 
-def get_pareto_set(file1_name):     
-    lOfParetoSet =[]
+def get_point_set(file1_name):     
+    lOfPointSet =[]
     with open(file1_name, "rb") as f:
         # pickle.load(f)
         while True: 
             try: 
-                paretoSet = pickle.load(f)
-                lOfParetoSet.append(paretoSet) 
+                pointSet = pickle.load(f)
+                lOfPointSet.append(pointSet) 
                 # listOfPeople.append(copy.copy(person))# 
             except Exception as ex:
                 if not (type(ex).__name__ == "EOFError"):
@@ -53,12 +54,12 @@ def get_pareto_set(file1_name):
                 break
 
     # lOfParetoPoints = pareto_frontier(lOfPoints, maxX= True, maxY = False)
-    return lOfParetoSet
+    return lOfPointSet
 
 
  
 
-def pareto_combine(srcFile):
+def point_combine(srcFile):
     inputObj = inputClass()
     inputObj.expandAddress()
     CSrcFolderAddress = inputObj.CSrcFolderAddress
@@ -113,7 +114,7 @@ def pareto_combine(srcFile):
         lAllOpsInSrcFile += sourceFileParse(CSrcFileAddressItem)
 
     nameOfAllOperandFilesList = getNameOfFilesInAFolder(AllOperandsFolderName)
-    allPossibleScenariosForEachOperator = generateAllPossibleScenariosForEachOperator(rootResultFolderName, lAllOpsInSrcFile)
+    allPossibleScenariosForEachOperator, limitedListIndecies, ignoreListIndecies, accurateSetUp = generateAllPossibleScenariosForEachOperator(rootResultFolderName, lAllOpsInSrcFile)
 
 
     for inputNumber,operandSampleFileName in enumerate(nameOfAllOperandFilesList):
@@ -130,7 +131,7 @@ def pareto_combine(srcFile):
         operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings.operatorSampleFileName
         
         #---------guide:::  getting accurate values associated with the CSource output
-        accurateSetUp,_,_= generateAccurateScenario(allPossibleScenariosForEachOperator)
+        #accurateSetUp,_,_= generateAccurateScenario(allPossibleScenariosForEachOperator,ignoreListIndecies)
         apxIndexSetUp = 0 #zero is associated with the accurate results (this is a contract that needs to be obeyed)
         # status, setUp = generateAPossibleApxScenarios(rootResultFolderName + "/" + settings.AllPossibleApxOpScenarios, allPossibleApxScenarioursList , apxIndexSetUp, mode) 
         
@@ -183,21 +184,23 @@ def pareto_combine(srcFile):
 
 
     lOfParetoSetDirctions  = [] 
-    # ---- get paretoSet
-    lOfParetoSet = get_pareto_set(srcFile) 
-    print "number of pareto set is " + str(len(lOfParetoSet)) 
-    for paretoSet in lOfParetoSet:
-        lOfParetoSetDirctions.append(paretoSet.get_direction())
-    print lOfParetoSetDirctions 
+    # ---- get pointSet
+    lOfPointSet= get_point_set(srcFile) 
+    print "number of pareto set is " + str(len(lOfPointSet)) 
+
+    if(settings.method == "localParetoPieceParetoResult"):
+        for paretoSet in lOfPointSet:
+            lOfParetoSetDirctions.append(paretoSet.get_direction())
+        print lOfParetoSetDirctions 
      
-    # ---- making sure that the direction of all pareto_sets are the same
-    # ---- turn the list to a set (dismiss the repetttive values)
-    if (len(set(lOfParetoSetDirctions))) != 1:
-        print "****ERROR something went wrong"
-        print "all the pareto_sets need to have the same direction"
-        print "it's also possible that you didn't set some of the pareto_sets' direction"
-        print "here ist he lOfParetoSetDirctions" + str(lOfParetoSetDirctions) 
-        exit()
+        # ---- making sure that the direction of all pareto_sets are the same
+        # ---- turn the list to a set (dismiss the repetttive values)
+        if (len(set(lOfParetoSetDirctions))) != 1:
+            print "****ERROR something went wrong"
+            print "all the pareto_sets need to have the same direction"
+            print "it's also possible that you didn't set some of the pareto_sets' direction"
+            print "here ist he lOfParetoSetDirctions" + str(lOfParetoSetDirctions) 
+            exit()
 
     
 
@@ -208,20 +211,20 @@ def pareto_combine(srcFile):
     
     orderedParetoSet = [] #considers the order that they are choped
     delimeterList = [] 
-    for paretoSetElm in lOfParetoSet:
-        delimeterList.append(range(paretoSetElm.get_delimeter()[0], paretoSetElm.get_delimeter()[1]))
+    for pointSetElm in lOfPointSet:
+        delimeterList.append(range(pointSetElm.get_delimeter()[0], pointSetElm.get_delimeter()[1]))
 
     if len(set(list(itertools.chain.from_iterable(delimeterList)))) != len(list(itertools.chain.from_iterable(delimeterList))):
         print "configs can not overlap"
     
     # ---- sort so that we can permut properly
-    sortedLOfParetoSet = sorted(lOfParetoSet, key = lambda paretoSetElm: paretoSetElm.get_delimeter()[0]) 
+    sortedLOfParetoSet = sorted(lOfPointSet, key = lambda pointSetElm: pointSetElm.get_delimeter()[0]) 
     #l of all the portion of the pts's config in a perto set b/w the 2 delimter
     lOfParetoSetWithConfigChopped = [] 
-    for paretoSetElement in sortedLOfParetoSet: 
-        paretoPoints = paretoSetElement.get_pareto_values()
-        configChopped = map(lambda x: x.get_setUp()[paretoSetElement.get_delimeter()[0]:
-            paretoSetElement.get_delimeter()[1]], paretoPoints)
+    for pointSetElement in sortedLOfParetoSet: 
+        pointSet = pointSetElement.get_points()
+        configChopped = map(lambda x: x.get_setUp()[pointSetElement.get_delimeter()[0]:
+            pointSetElement.get_delimeter()[1]], pointSet)
         lOfParetoSetWithConfigChopped.append(configChopped)
 
     
@@ -235,10 +238,11 @@ def pareto_combine(srcFile):
         newListOfPoints.append(specializedEval(element))
     
 
-    
+    #---------------------------------
+    #---------------------------------
     # lOfParetoPoints = pareto_frontier(newListOfPoints, maxX= True, maxY = False)
     # ---- adding the first blocks pareto points to the list
-    newListOfPoints += lOfParetoSet[0].get_pareto_values()
+    # newListOfPoints += pointSet[0].get_points()
     lOfParetoPoints = pareto_frontier(newListOfPoints, maxX= True, maxY = False)
     lOfSNR = [] 
     lOfEnergy = [] 
@@ -279,7 +283,7 @@ def pareto_combine(srcFile):
 
 def main():
     inputFileName = "pareto_set_file.txt" #file containing paretoSets
-    pareto_combine(inputFileName)
+    point_combine(inputFileName)
 
 
 if __name__ == "__main__":
