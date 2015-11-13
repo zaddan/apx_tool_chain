@@ -29,6 +29,23 @@ size_t loa::get_ianum_bits(void) {
 	return Nia;
 }
 
+float loa::calc (const float &a, const float &b) {
+    cout <<"this function needs to be written"<<endl;
+    exit(1);
+    return (1.0);
+}
+
+float loa::calc(const int &number1, const float &number2) {
+    float numOut = number1; 
+    calc(numOut, number2);
+}
+
+float loa::calc(const float &number1, const int &number2) {
+   float numOut = number2; 
+    calc(number1, numOut);
+} 
+
+
 int loa::calc (const int &a, const int &b) {
 
 	// inaccurate part

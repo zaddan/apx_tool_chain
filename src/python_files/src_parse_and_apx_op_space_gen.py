@@ -76,7 +76,6 @@ def sourceFileParse(sourceFileName):
             for line in f:
                 for words in line.replace(',', ' ').replace('/',' ').replace(';', ' ').split(' '): #find the lines with key word and write it to another file
                     if words.strip() in settings.lAccurateOpFlags:
-                        print count 
                         lAllOpsInSrcFile.append(words.strip())
                     if "Ignore" in words.strip() and subtract(words.strip(), "Ignore") in settings.lAccurateOpFlags: #if ignore is part of the words, that means you can ignore that operator, but still add it
                         lAllOpsInSrcFile.append(words.strip())
