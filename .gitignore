@@ -13,10 +13,12 @@ src/Makefile
 src/cmake_install.cmake
 src/python_files/*.db
 src/CSrc/*
+src/cscope.out
 src/Csrc/test.cpp
 src/python_files/pickled_results
 src/python_files/annealer_progression_output.txt
 src/python_files/annealer_results.txt
+src/python_files/finalResult.png
 all_input_scenarios.txt
 src/python_files/inputs.py
 src/python_files/all_inputs_scenarios
@@ -25,8 +27,8 @@ src/python_files/settings.py
 inputPics/*
 src/python_files/blah
 src/python_files/blah.py
-
-
+test.c
+src/BookKeeping/cscope.out
 
 src/python_files/combine.png
 src/python_files/compare_results.txt
