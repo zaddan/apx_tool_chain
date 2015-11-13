@@ -23,7 +23,10 @@ class etm : public hw_ac {
 		virtual ~etm();
 
 		int calc(const int &a, const int &b);
-		int calc_ref(const int &a, const int &b);
+        
+        virtual float calc(const float &a, const float &b);
+        virtual float calc(const float &a, const int  &b);
+        int calc_ref(const int &a, const int &b);
 
 		size_t get_ianum_bits(void);
 		virtual void tbl_gen();

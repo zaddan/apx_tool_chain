@@ -23,6 +23,16 @@ size_t eta1::get_ianum_bits(void) {
 	return Nia;
 }
 
+float eta1::calc(const float &number1, const int &number2) {
+    float numOut = number2; 
+    calc(number1, numOut);
+} 
+
+float eta1::calc(const int &number1, const float &number2) {
+    float numOut = number1; 
+    calc(numOut, number2);
+}
+
 int eta1::calc (const int &a, const int &b) {
     // accurate part
 	int ap = ((a>>Nia) + (b>>Nia))<<Nia;
@@ -42,6 +52,13 @@ int eta1::calc (const int &a, const int &b) {
 	}  
 	return (ap | iap);
 }
+
+float eta1::calc (const float &a, const float &b) {
+    cout <<"this function needs to be written"<<endl;
+    exit(1);
+    return (1.0);
+}
+
 
 int eta1::calc_ref (const int &a, const int &b) {
 	// this is adder

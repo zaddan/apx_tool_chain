@@ -2,6 +2,7 @@
 #include <complex>
 #include <vector>
 #include "bta.h"
+#include "fp_helpers.h"
 using namespace std;
 
 bta::bta(size_t Nt, size_t Nia, size_t msb, size_t lsb, bool table_gen) {
@@ -20,10 +21,69 @@ size_t bta::get_ianum_bits(void) {
 	return Nia;
 }
 
-int bta::calc(const int &a, const int &b) {
+float bta::calc(const float &number1, const int &number2) {
+    cout<<"=============insde half float"<<endl; 
+    float numOut = number2; 
+    calc(number1, numOut);
+} 
 
-	// inaccurate part
-	int weight = pow(2, Nia) - 1;
+float bta::calc(const int &number1, const float &number2) {
+    cout<<"=============insde other half float"<<endl; 
+    float numOut = number1; 
+    calc(numOut, number2);
+} 
+
+
+
+float bta::calc(const float &number1, const float &number2) {
+    cout<<"=============in float version"<<endl; 
+    fpType num1;
+    fpType num2;
+    float apxResult; 
+    fpType result; 
+    fpType bigNum;
+    fpType smallNum;
+    int signMultiplicand; 
+    getFPComponents(number1, num1); //get the fp componenets
+    getFPComponents(number2, num2); //get the fp components
+    num1.MantisaWithOne = (1 <<MANTISA_WIDTH) + num1.Mantisa;//injaect mantisa with Extra one
+    num2.MantisaWithOne =   (1 <<MANTISA_WIDTH) + num2.Mantisa;//injaect mantisa with Extra one
+     
+    if (num1.Exp  < num2.Exp) { //decide on the small and big number
+      bigNum = num2;
+      smallNum = num1;
+    }  else {
+      bigNum = num1;
+      smallNum = num2;
+    }
+    
+    smallNum.MantisaWithOne = smallNum.MantisaWithOne >> (bigNum.Exp - smallNum.Exp); // align the small num
+    if (bigNum.Sign == smallNum.Sign) { //same sign
+        result.Mantisa = (bigNum.MantisaWithOne +  smallNum.MantisaWithOne);
+        result.Exp = bigNum.Exp;
+        result.Sign = bigNum.Sign;
+        normalizeAdd(result);
+        result.Mantisa =  (result.Mantisa >> Nia) << Nia; //truncate mantisa
+        result.Mantisa =  result.Mantisa - (1<<MANTISA_WIDTH); 
+        apxResult = convertFPCompToFP(result);
+    }else{ //diff sign
+            result.Mantisa = (bigNum.MantisaWithOne - smallNum.MantisaWithOne);
+            result.Exp = bigNum.Exp;
+            result.Sign = bigNum.Sign; 
+            normalizeAdd(result);
+            result.Mantisa =  (result.Mantisa >> Nia) << Nia; //truncate mantisa
+            result.Mantisa =  result.Mantisa - (1<<MANTISA_WIDTH); 
+            apxResult = convertFPCompToFP(result);
+    }
+
+    return apxResult; 
+}
+
+
+int bta::calc(const int &a, const int &b) {
+    // inaccurate part
+    cout<<"=============in int version"<<endl; 
+    int weight = pow(2, Nia) - 1;
 	int iap_a = weight&a;
 #ifdef BT_RND
 	int a_op = (iap_a >> (Nia - 1)) == 0x1 ? (a >> Nia) + 1 : (a >> Nia);
@@ -40,6 +100,9 @@ int bta::calc(const int &a, const int &b) {
 	// accurate part
 	return ((a_op) + (b_op)) << Nia;
 }
+//
+//
+
 
 int bta::calc_ref(const int &a, const int &b) {
 	// this is adder

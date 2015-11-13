@@ -23,7 +23,10 @@ class eta2 : public hw_ac {
 		virtual ~eta2();
 
 		virtual int calc(const int &a, const int &b);
-		virtual int calc_ref(const int &a, const int &b);
+        virtual float calc(const float &a, const float &b);
+        virtual float calc(const float &number1, const int &number2);
+        virtual float calc(const int &number1, const float &number2);
+        virtual int calc_ref(const int &a, const int &b);
 
 		virtual void tbl_gen();
 		size_t get_seg_bits(void);

@@ -21,6 +21,23 @@ size_t eta2::get_seg_bits(void) {
 	return K;
 }
 
+
+float eta2::calc(const float &number1, const int &number2) {
+    float numberOut = number2; 
+    calc(number1, numberOut);
+}
+
+
+float eta2::calc(const int &number1, const float &number2) {
+    float numOut = number1; 
+    calc(numOut, number2);
+}
+
+float eta2::calc (const float &a, const float &b) {
+    cout <<"this function needs to be written"<<endl;
+    exit(1);
+    return (1.0);
+}
 int eta2::calc (const int &a, const int &b) {
 	int carry;
 	int prev_carry;

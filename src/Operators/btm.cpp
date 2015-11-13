@@ -2,7 +2,7 @@
 #include <complex>
 #include <vector>
 #include "btm.h"
-
+#include "fp_helpers.h"
 using namespace std;
 
 btm::btm(void) {}
@@ -23,9 +23,43 @@ size_t btm::get_hbl_bits(void) {
     return hbl;
 }
 
+
 size_t btm::get_vbl_bits(void) {
     return vbl;
 }
+
+float btm::calc(const float &number1, const int &number2) {
+    float numOut = number2; 
+    calc(number1, numOut);
+} 
+
+float btm::calc(const int &number1, const float &number2) {
+    cout<<"=============insde other half float"<<endl; 
+    float numOut = number1; 
+    calc(numOut, number2);
+} 
+
+
+float btm::calc(const float &number1, const float &number2) {
+    fpType num1;
+    fpType num2;
+    float apxResult; 
+    fpType result; 
+    
+    getFPComponents(number1, num1); //get the fp componenets
+    getFPComponents(number2, num2); //get the fp components
+    num1.MantisaWithOne = (1 <<MANTISA_WIDTH) + num1.Mantisa;//injaect mantisa with Extra one
+    num2.MantisaWithOne =   (1 <<MANTISA_WIDTH) + num2.Mantisa;//injaect mantisa with Extra one
+    result.Mantisa = num1.MantisaWithOne *  num2.MantisaWithOne;
+    result.Exp = num1.Exp + num2.Exp - bias;
+    result.Sign = (num1.Sign + num2.Sign)%2;
+    normalizeMul(result);
+    result.Mantisa =  (result.Mantisa >> vbl ) << vbl; //truncate mantisa
+    result.Mantisa =  result.Mantisa - (1<<MANTISA_WIDTH); 
+    apxResult = convertFPCompToFP(result);
+    return apxResult; 
+}
+
 
 int btm::calc(const int &a, const int &b) {
 

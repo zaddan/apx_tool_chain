@@ -75,12 +75,13 @@ int setOpSubTypeAndInputs(hw_ac **myOp, vector<string> TypeInfo){
       stringstream ( TypeInfo[3]) >> msb;
       stringstream ( TypeInfo[4]) >> lsb;
       *myOp = new loa(Nt, Nia, msb, lsb, table_gen);
-    }else if (typeSpecifier == "etm"){
-      //string stream is used to convert the string to size_t 
-      stringstream ( TypeInfo[1]) >> Nt;
-      stringstream ( TypeInfo[2]) >> Nia;
-      *myOp = new etm(Nt, Nia, table_gen);
-    }else if (typeSpecifier == "bta"){
+//    }else if (typeSpecifier == "etm"){
+//      //string stream is used to convert the string to size_t 
+//      stringstream ( TypeInfo[1]) >> Nt;
+//      stringstream ( TypeInfo[2]) >> Nia;
+//      *myOp = new etm(Nt, Nia, table_gen);
+//    }
+}else if (typeSpecifier == "bta"){
       //string stream is used to convert the string to size_t 
       stringstream ( TypeInfo[1]) >> Nt;
       stringstream ( TypeInfo[2]) >> Nia;
