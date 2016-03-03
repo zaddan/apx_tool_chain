@@ -13,7 +13,9 @@ typedef unsigned char   pixel_t;
 //! type for 8bit yuv data
 typedef char            yuv_t;
 //! type for 12bit dct output data  
-typedef short           freq_t;
+//typedef short           freq_t;
+typedef int freq_t;
+
 //! type for 16bit huffman data
 typedef unsigned short  bits_t;
 //! type for 5 bit bit length data

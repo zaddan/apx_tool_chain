@@ -28,12 +28,12 @@ int c3d16= 426;
 int c5d16= 284;
 int c7d16= 100;
 
-short LS(short r, short s) {
+int LS(int r, int s) {
     return ((r) << (s));
 }
 
 
-short RS(short r, short s) {
+int RS(int r, int s) {
     return ((r) >> (s));       
 }
 
@@ -42,9 +42,9 @@ int MSCALE(int r) {
     return ((r) >> (9));       
 }
 
-short CLIP(int tmp)
+int CLIP(int tmp)
 {
-   short tval=tmp;
+   int tval=tmp;
    tval = (((tval < 0) ? (tval - 4) : (tval + 4)) / 8);
    if (tval < -1023)
    {
@@ -62,7 +62,7 @@ extern int dct_invocation;
 void dct(
 	bool dcten, 
 	char inqueue[64], 
-	short outqueue[64], 
+	int outqueue[64], 
 	bool&qen)
 {
 
@@ -71,13 +71,13 @@ void dct(
 //#pragma HLS function_instantiate variable=color
 
   int i;// aptr;
-  short a0,  a1,  a2,  a3;
-  short b0,  b1,  b2,  b3;
-  short tb0,  tb1,  ta0, ta1,  ta2,  ta3;
-  short c0,  c1,  c2,  c3;
-  short v0,  v1,  v2,  v3,  v4,  v5,  v6,  v7;
+  int a0,  a1,  a2,  a3;
+  int b0,  b1,  b2,  b3;
+  int tb0,  tb1,  ta0, ta1,  ta2,  ta3;
+  int c0,  c1,  c2,  c3;
+  int v0,  v1,  v2,  v3,  v4,  v5,  v6,  v7;
   //yuv_t in_block[64];
-  short tmp[64];
+  int tmp[64];
 	qen=dcten;
   if(dcten==false) return;
   for (i = 0; i < 8; i++)
@@ -121,9 +121,9 @@ void dct(
     tmp[i + 16] = MSCALE(c3d8b2Mul+ c1d8b3Mul);//AdditionOp
     tmp[i + 48] = MSCALE(c3d8b3Mul + -1*(c1d8b2Mul)); //AdditionOp
     
-    short c2c1Temp =  c2 + -1*c1; //AdditionOp
+    int c2c1Temp =  c2 + -1*c1; //AdditionOp
     b0 = MSCALE(c1d4 *c2c1Temp);//MultiplicationOp
-    short c2c1Temp2 =  c2 +  c1;//AdditionOp
+    int c2c1Temp2 =  c2 +  c1;//AdditionOp
     
     
     
@@ -170,8 +170,8 @@ void dct(
     b1 = a1 + a2;//AdditionOp
     b2 = a1 + -1*a2;//AdditionOp
     b3 = a0 + -1* a3;//AdditionOp
-    short c1c2Sub = c2 + -1*c1; //AdditionOp
-    short c1c2Add= c2, c1; //AdditionOp
+    int c1c2Sub = c2 + -1*c1; //AdditionOp
+    int c1c2Add= c2, c1; //AdditionOp
     tb0 = MSCALE(c1d4 *  (c1c2Sub)); //MultiplicationOp
     tb1 = MSCALE(c1d4 * (c1c2Add)); //MultiplicationOp
     ta0 = c0 + tb0; //AdditionOp
@@ -179,8 +179,8 @@ void dct(
     ta2 = c3 + -1*tb1; //AdditionOp
     ta3 = c3 +  tb1; //AdditionOp
 
-    short b0b1Add = b0 +  b1;  //AdditionOp
-    short b0b1Sub = b0 + -1*b1; //AdditionOp 
+    int b0b1Add = b0 +  b1;  //AdditionOp
+    int b0b1Sub = b0 + -1*b1; //AdditionOp 
     int c3d8b2Mul = c3d8 * b2;//MultiplicationOp
     int c1d8b3Mul = c1d8 *  b3;//MultiplicationOp
     int c3d8b3Mul = c3d8 *  b3;//MultiplicationOp
