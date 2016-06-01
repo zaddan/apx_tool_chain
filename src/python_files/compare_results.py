@@ -8,6 +8,7 @@ import numpy
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d
 import numpy as np
+from inputs import *
 
 def getSetUpNumFromText(myList):
     return myList[1]
@@ -127,8 +128,8 @@ def compareResults(sourceFile1Name, sourceFile2Name, startingOpNumforFile1, endi
 
     
 def compareResultsTest():
-    sourceFile1Name = "/home/polaris/behzad/apx_tool_chain/input_output_text_files/final_results1.txt"
-    sourceFile2Name = "/home/polaris/behzad/apx_tool_chain/input_output_text_files/final_results2.txt"
+    sourceFile1Name = repo_root_address + "/apx_tool_chain/input_output_text_files/final_results1.txt"
+    sourceFile2Name = repo_root_address + "/apx_tool_chain/input_output_text_files/final_results2.txt"
     inputFile1Dic,inputFIle2Dic = compareResults(sourceFile1Name, sourceFile2Name, 0, 2, 0,1)
     
 #    for key in inputFile1Dic.keys():
@@ -161,14 +162,15 @@ def main():
     inputFile1Dic,inputFIle2Dic = compareResults(sourceFile2Name, sourceFile1Name,startingOpNumforFile2, endingOpNumForFile2, startingOpNumforFile1, endingOpNumForFile1)
 
 main()
-/home/polaris/behzad/apx_tool_chain/all_input_scenarios.txt
-YES
-/home/polaris/behzad/apx_tool_chain/src/CSrc/
-pickled_results
-False
-finalResult.txt
-YES
-['/home/polaris/behzad/apx_tool_chain/src/CSrc/mat_mul_unfolded_algo0.cpp', '/home/polaris/behzad/apx_tool_chain/src/CSrc/mat_mul_unfolded_algo1.cpp']
-/home/polaris/behzad/apx_tool_chain/inputPics/roki_noisy.jpg
-/home/polaris/behzad/apx_tool_chain/inputPics/roki.jpg
-/home/polaris/behzad/apx_tool_chain
+#
+#/home/polaris/behzad/apx_tool_chain/all_input_scenarios.txt
+#YES
+#/home/polaris/behzad/apx_tool_chain/src/CSrc/
+#pickled_results
+#False
+#finalResult.txt
+#YES
+#['/home/polaris/behzad/apx_tool_chain/src/CSrc/mat_mul_unfolded_algo0.cpp', '/home/polaris/behzad/apx_tool_chain/src/CSrc/mat_mul_unfolded_algo1.cpp']
+#/home/polaris/behzad/apx_tool_chain/inputPics/roki_noisy.jpg
+#/home/polaris/behzad/apx_tool_chain/inputPics/roki.jpg
+#/home/polaris/behzad/apx_tool_chain

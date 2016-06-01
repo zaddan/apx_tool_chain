@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d
 import numpy as np
 from matplotlib import cm
-
+from inputs import *
 
 ## 
 # @brief : name is self explanatory
@@ -256,19 +256,19 @@ def extractEnergyAndConfig(sourceFileName):
 def energyTest():
 	#testing the modules defined in this file
 	#print calculateEnergy([4,6])
-	print extractEnergyAndConfig("/home/polaris/behzad/apx_tool_chain/input_output_text_files/all_possible_apx_operators_scenarios.txt")
+	print extractEnergyAndConfig(repo_root_address  + "/apx_tool_chain/input_output_text_files/all_possible_apx_operators_scenarios.txt")
 	
 	
 def errorTest():
 	#testing the modules defined in this file
 	#print calculateError([4,6],[4,0,3])
-	print extractErrorForOne("/home/polaris/behzad/apx_tool_chain/input_output_text_files/raw_result_foraw_results.txt")
+	print extractErrorForOne(repo_root_address + "/apx_tool_chain/input_output_text_files/raw_result_foraw_results.txt")
 
 
 
 
 def extractPropertyTest():
-    energy, error= extract_properties("/home/polaris/behzad/apx_tool_chain/input_output_text_files/all_possible_apx_operators_scenarios.txt","/home/polaris/behzad/apx_tool_chain/input_output_text_files/raw_result_folder")
+    energy, error= extract_properties(repo_root_address + "/apx_tool_chain/input_output_text_files/all_possible_apx_operators_scenarios.txt",repo_roo_address + "/apx_tool_chain/input_output_text_files/raw_result_folder")
     print energy
     for errorElement in error:
         print errorElement

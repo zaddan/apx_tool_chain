@@ -8,6 +8,8 @@ import os
 import datetime
 from collections import defaultdict 
 
+
+from inputs import *
 from src_parse_and_apx_op_space_gen import *
 from modify_operator_sample_file import *
 #from sample_operand_and_sweep_apx_space import *
@@ -67,16 +69,16 @@ class operator:
 
 def find_apx_bit_boundary():
     home = expanduser("~") 
-    originalCSrcFileAddress = home + "/apx_tool_chain/CSrc_examples/simple_dfg_2_operator.cpp"
+    originalCSrcFileAddress = repo_root_address + "/apx_tool_chain/CSrc_examples/simple_dfg_2_operator.cpp"
     assert(os.path.isfile(originalCSrcFileAddress)), str(originalCSrcFileAddress) + " does not exist" 
-    CSrcFolderAddress =  home + "/apx_tool_chain/src/CSrc/"
-    CSrcFileAddress = home + "/apx_tool_chain/src/CSrc/test.cpp"
+    CSrcFolderAddress =  repo_root_address + "/apx_tool_chain/src/CSrc/"
+    CSrcFileAddress = repo_root_address + "/apx_tool_chain/src/CSrc/test.cpp"
     # ---- copying because characterize_operators will modify the source file that it uses
     # ---- thus we keep the original file somewhere else and copy it over
     shutil.copy(originalCSrcFileAddress, CSrcFileAddress) 
     
     generateMakeFile = "YES"
-    rootFolder  = home +  "/apx_tool_chain"
+    rootFolder  = repo_root_address +  "/apx_tool_chain"
     finalResultFileName =  "finalResult2.txt"
     
     lOfAcceptableModes = [ "all", "findLowUpBounery", "genOperandDicAndFindLowUpBounery", "genOperandDic"]
@@ -96,7 +98,7 @@ def find_apx_bit_boundary():
     write_operands_info_for_operator_characterization()
     # ---- retrieve the infr from the table above
     listOfOperandOneGenValues, listOfOperandTwoGenValues = retrieve_operands_info_for_operator_characterization()
-    operatorArchiveAddress = home + "/apx_tool_chain/operator_archive"
+    operatorArchiveAddress = repo_root_address + "/apx_tool_chain/operator_archive"
     characterize_all_operators(CSrcFolderAddress, CSrcFileAddress, generateMakeFile,
             rootFolder, finalResultFileName, operatorArchiveAddress,  
             percentageOfDataUsedForTraining, workWithNegativeNumbers, 

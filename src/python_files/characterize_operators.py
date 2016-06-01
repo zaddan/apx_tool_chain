@@ -44,7 +44,7 @@ from curve_fit import *
 from db_create_table_python_IP import *
 from db_retrieve_table_python_IP import *
 
-logFileAddress = "/home/polaris/behzad/apx_tool_chain/generated_text/" + settings.logFileName
+logFileAddress = repo_root_address +"/apx_tool_chain/generated_text/" + settings.logFileName
 ##
 # @brief generates operands if the operands do not have the same lower,upper bounds, etc. For now, it is only functional for two input operators
 # 
@@ -589,17 +589,17 @@ def characterize_all_operators(CSrcFolderAddress,
 test2 = False
 if (test2):
     home = expanduser("~") 
-    originalCSrcFileAddress = home + "/apx_tool_chain/CSrc_examples/simple_dfg_2_operator.cpp"
+    originalCSrcFileAddress = repo_root_address + "/apx_tool_chain/CSrc_examples/simple_dfg_2_operator.cpp"
     assert(os.path.isfile(originalCSrcFileAddress)), str(originalCSrcFileAddress) + " does not exist" 
     
-    CSrcFolderAddress =  home + "/apx_tool_chain/src/CSrc/"
-    CSrcFileAddress = home + "/apx_tool_chain/src/CSrc/test.cpp"
+    CSrcFolderAddress =  repo_root_address + "/apx_tool_chain/src/CSrc/"
+    CSrcFileAddress = repo_root_address + "/apx_tool_chain/src/CSrc/test.cpp"
     # ---- copying because characterize_operators will modify the source file that it uses
     # ---- thus we keep the original file somewhere else and copy it over
     shutil.copy(originalCSrcFileAddress, CSrcFileAddress) 
     
     generateMakeFile = "YES"
-    rootFolder  = home +  "/apx_tool_chain"
+    rootFolder  = repo_root_address +  "/apx_tool_chain"
     finalResultFileName =  "finalResult2.txt"
     
     lOfAcceptableModes = [ "all", "findLowUpBounery", "genOperandDicAndFindLowUpBounery", "genOperandDic","FindBestFittedCurve"]
@@ -618,7 +618,7 @@ if (test2):
     write_operands_info_for_operator_characterization()
     # ---- retrieve the infr from the table above
     listOfOperandOneGenValues, listOfOperandTwoGenValues = retrieve_operands_info_for_operator_characterization()
-    operatorArchiveAddress = home + "/apx_tool_chain/operator_archive"
+    operatorArchiveAddress = repo_root_address + "/apx_tool_chain/operator_archive"
     characterize_all_operators(CSrcFolderAddress, CSrcFileAddress, generateMakeFile,
             rootFolder, finalResultFileName, operatorArchiveAddress,  percentageOfDataUsedForTraining,
             workWithNegativeNumbers, degreeNPolyMultiVarMinDegree,

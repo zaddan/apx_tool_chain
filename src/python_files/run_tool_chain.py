@@ -221,8 +221,8 @@ def main():
     if (AllInputScenariosInOneFile): #if a file
         print AllInputFileOrDirectoryName
         if not(os.path.isfile(AllInputFileOrDirectoryName)):
-                print "All OperandsFile does not exist"
-                exit();
+            print "All OperandsFile:" + AllInputFileOrDirectoryName + " does not exist"
+            exit();
     else: #checking for the directory
         if not(os.path.isdir(AllInputFileOrDirectoryName)):
             print "All OperandsDir does not exist"
@@ -268,10 +268,9 @@ def main():
     #---------guide:::  removing the results associated with the previous runs
     AllOperandScenariosFullAddress = AllInputFileOrDirectoryName
     inputNumber = 0 
-    os.system("rm -r" + " " +  rootResultFolderName + "/" +settings.AllOperandsFolderName)
-    os.system("rm -r" + " " +  rootResultFolderName + "/" + settings.rawResultFolderName)
+    #os.system("rm -r" + " " +  rootResultFolderName + "/" +settings.AllOperandsFolderName)
+    #os.system("rm -r" + " " +  rootResultFolderName + "/" + settings.rawResultFolderName)
     os.system("mkdir" + " " + rootResultFolderName + "/" + settings.rawResultFolderName)
-    
     #---------guide:::  if the operands were all given in a file: separate them to different files
     #...................else: use the folder that they are in, as an input to the C source files
     #if all in one file 
@@ -366,7 +365,10 @@ def main():
         #---------guide:::  run the CSrouce file with the new setUp(operators)
         make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName)
         #---------guide::: error
+        print CSourceOutputForVariousSetUpFileName
         accurateValues = extractAccurateValues(CSourceOutputForVariousSetUpFileName)
+        print accurateValues
+        sys.exit()
         lOfAccurateValues.append(accurateValues)
         # print lOfAccurateValues
         # lOfOperandSet.append(newOperand)
