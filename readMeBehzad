@@ -1,3 +1,19 @@
+flow:
+compile the CSource file
+run CSourceFile to generate accurate values
+
+use genetic algo to run the CSource file with different apx_number of bits:
+    Note: everytime Change the OperatorSampleFile (modifyOperatorSampleFile) to 
+    get new operators (meaning with different number of apx bits). 
+
+
+The Csource code is compiled only once, but run many times (with different operatores)
+
+
+
+
+
+
 the following files are not included in the git repo but should be provided
 inputs.py in src/pythonfiles/
 all_input_scenarios.txt in the root 

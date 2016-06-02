@@ -76,30 +76,37 @@ def parseAndPrint(srcFileName):
 # @param resultFileName: what file to store the result to
 # 
 # @return no return
-def make_run(executableName, executableInputList, resultFolderName, resultFileName, CBuildFolder, operandSampleFileName):
-    #validating the number of inputs
+def make_run(executableName, executableInputList, resultFolderName, resultFileName, CBuildFolder, operandSampleFileName, bench_suit_name):
+    if (bench_suit_name == "my_micro_benchmark"): 
+        #validating the number of inputs
+        #validating the existance of the dir, and making it other wise
+        if not os.path.isdir(resultFolderName): 
+            print "the folderName provided does not correspond to any existing folder. I will be making it"
 
-    #validating the existance of the dir, and making it other wise
-    if not os.path.isdir(resultFolderName): 
-        print "the folderName provided does not correspond to any existing folder. I will be making it"
+            os.system("mkdir " + resultFolderName);
+        
+        if not os.path.isfile(operandSampleFileName):
+            print "the operandSampleFileName:" + operandSampleFileName + " does not exist"
+            exit()
 
-        os.system("mkdir " + resultFolderName);
+
+        currentDir = os.getcwd() #getting the current directory
+        #CBuildFolder = "./../../Debug" 
+        os.chdir(CBuildFolder) #chaning the directory
+        make.make()
+        run.run(executableName, resultFolderName, resultFileName, settings.operatorSampleFileName, operandSampleFileName)
+        os.chdir(currentDir) #chaning the directory
+    elif (bench_suit_name == "sd-vbs"): 
+        currentDir = os.getcwd() #getting the current directory
+        os.chdir(CBuildFolder) #chaning the directory
+        os.system("pwd"); 
+        os.system("gmake c-run")
+        os.chdir(currentDir) #chaning the directory
+
     
-    if not os.path.isfile(operandSampleFileName):
-        print "the operandSampleFileName:" + operandSampleFileName + " does not exist"
-        exit()
+   
 
 
-    currentDir = os.getcwd() #getting the current directory
-    #CBuildFolder = "./../../Debug" 
-    os.chdir(CBuildFolder) #chaning the directory
-    make.make()
-    run.run(executableName, resultFolderName, resultFileName, settings.operatorSampleFileName, operandSampleFileName)
-    os.chdir(currentDir) #chaning the directory
-   
-   
-   
-    
 #    os.chdir(resultFolderName) #chaning the directory
 #    resultFileP = open(resultFileName, "a")
 #    resultFileP.close();

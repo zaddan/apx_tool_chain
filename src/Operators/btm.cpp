@@ -3,6 +3,7 @@
 #include <vector>
 #include "btm.h"
 #include "fp_helpers.h"
+#include "globals.h"
 using namespace std;
 
 btm::btm(void) {}
@@ -62,7 +63,9 @@ float btm::calc(const float &number1, const float &number2) {
 
 
 int btm::calc(const int &a, const int &b) {
-
+    #ifdef VERBOSE 
+    cout<<"=============in int version"<<endl; 
+    #endif 
     // inaccurate part
     int weight = pow(2, vbl) - 1;
     int abs_a = (a<0) ? -a : a;
@@ -97,6 +100,93 @@ int btm::calc(const int &a, const int &b) {
     // accurate part
     return (sign ? -tmp : tmp);
 }
+
+
+unsigned int btm::calc(const unsigned int &a, const unsigned int &b) {
+    #ifdef VERBOSE 
+    cout<<"=============in unsigned int version"<<endl; 
+    #endif 
+    // inaccurate part
+    unsigned int weight = pow(2, vbl) - 1;
+    unsigned int abs_a =  a;
+    unsigned int abs_b =  b;
+
+#ifdef BT_RND
+    unsigned int a_op = (abs_a >> (vbl - 1)) == 0x1 ? (abs_a >> vbl) + 1 : (abs_a >> vbl);
+#else
+    unsigned int a_op = (abs_a >> vbl);
+#endif
+
+#ifdef BT_RND
+    unsigned int b_op = (abs_b >> (vbl - 1)) == 0x1 ? (abs_b >> vbl) + 1 : (abs_b >> vbl);
+#else
+    unsigned int b_op = (abs_b >> vbl);
+#endif
+
+    //prunsigned intf("SGLEE VBL: %d, %d, %d\n", a_op, b_op, ((a_op)*(b_op)) << (2*vbl));
+    unsigned int tmp = ((a_op)*(b_op)) << (2*vbl);
+    // accurate part
+    return tmp;
+}
+
+int btm::calc(const unsigned int &a_unsigned, const int &b) {
+    #ifdef VERBOSE 
+    cout<<"=============in half usigned int version"<<endl; 
+    #endif 
+    int a = (int) a_unsigned ;
+    // inaccurate part
+    int weight = pow(2, vbl) - 1;
+    int abs_a =  a;
+    int abs_b =  b;
+
+#ifdef BT_RND
+    int a_op = (abs_a >> (vbl - 1)) == 0x1 ? (abs_a >> vbl) + 1 : (abs_a >> vbl);
+#else
+    int a_op = (abs_a >> vbl);
+#endif
+
+#ifdef BT_RND
+    int b_op = (abs_b >> (vbl - 1)) == 0x1 ? (abs_b >> vbl) + 1 : (abs_b >> vbl);
+#else
+    int b_op = (abs_b >> vbl);
+#endif
+
+    //printf("SGLEE VBL: %d, %d, %d\n", a_op, b_op, ((a_op)*(b_op)) << (2*vbl));
+    int tmp = ((a_op)*(b_op)) << (2*vbl);
+    // accurate part
+    return tmp;
+}
+
+int btm::calc(const int &a, const unsigned int &b_unsigned) {
+    #ifdef VERBOSE 
+    cout<<"=============in half usigned int version"<<endl; 
+    #endif 
+    int b = (int) b_unsigned;
+    // inaccurate part
+    int weight = pow(2, vbl) - 1;
+    int abs_a =  a;
+    int abs_b =  b;
+
+#ifdef BT_RND
+    int a_op = (abs_a >> (vbl - 1)) == 0x1 ? (abs_a >> vbl) + 1 : (abs_a >> vbl);
+#else
+    int a_op = (abs_a >> vbl);
+#endif
+
+#ifdef BT_RND
+    int b_op = (abs_b >> (vbl - 1)) == 0x1 ? (abs_b >> vbl) + 1 : (abs_b >> vbl);
+#else
+    int b_op = (abs_b >> vbl);
+#endif
+
+    //printf("SGLEE VBL: %d, %d, %d\n", a_op, b_op, ((a_op)*(b_op)) << (2*vbl));
+    int tmp = ((a_op)*(b_op)) << (2*vbl);
+    // accurate part
+    return tmp;
+}
+
+
+
 
 int btm::calc_ref(const int &a, const int &b) {
     return a*b;

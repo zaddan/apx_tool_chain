@@ -81,7 +81,6 @@ def pareto_frontier(lOfPoints , maxX = True, maxY = True):
                 else: 
                     p_front.append(pair) #and add them to the Pareto frontier
         else:
-            print "**** "
             if pair[1] < p_front[-1][1]: # Look for lower values of Y
                 if (maxX): 
                     if (p_front[-1][0] == pair[0]):
@@ -99,9 +98,9 @@ def pareto_frontier(lOfPoints , maxX = True, maxY = True):
     lOfParetoPoints = [] 
     
     lOfIndex = set(p_index_Y_sorted).intersection(p_index_Y_sorted) 
-    print p_index_Y_sorted
+    #print p_index_Y_sorted
     # print p_index_X_sorted
-    print lOfIndex 
+    #print lOfIndex 
     for index in sorted(lOfIndex):
         lOfParetoPoints.append(lOfPoints[index])
     return lOfParetoPoints

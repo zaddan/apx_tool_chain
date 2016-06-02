@@ -53,6 +53,35 @@ int eta1::calc (const int &a, const int &b) {
 	return (ap | iap);
 }
 
+unsigned int eta1::calc (const unsigned int &a, const unsigned int &b) {
+    cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DISCLAMIER:"<<endl;
+    cout<<"DISCLAMIER:"<<endl;
+    cout<<"I DON't GAURATNEED THAT ETA1 WOULD ACTUALLY WORKD WITH UNSIGNED NUMBERS"<<endl;
+    cout<<"END OF DISCLAMIER:"<<endl;
+    cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DISCLAMIER:"<<endl;
+    
+    // accurate part
+	unsigned int ap = ((a>>Nia) + (b>>Nia))<<Nia;
+	// inaccurate part
+	unsigned int weight = (unsigned int)pow(2.0,(unsigned int)Nia)-1;
+	unsigned int in_and = (weight&a)&(weight&b);
+	unsigned int iap = (weight&a)^(weight&b);
+	bool ones; // check both input bits are '1's
+	unsigned int comp; 
+	for (size_t i = 0; i < Nia; i++) {
+		ones = (0x1)&(in_and>>(Nia-1-i)) == 0x1 ? true : false;
+		if (ones) {
+			comp = (unsigned int)pow(2.0, (unsigned int)(Nia - i)) - 1;
+			iap = iap | comp;
+			break;
+		}
+	}  
+	return (ap | iap);
+}
+
+
+
+
 float eta1::calc (const float &a, const float &b) {
     cout <<"this function needs to be written"<<endl;
     exit(1);

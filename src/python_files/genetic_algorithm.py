@@ -123,7 +123,7 @@ def run_spea2(NGEN, MU, LAMBDA, CXPB, MUTPB, population,
             open(CSourceOutputForVariousSetUpFileName, "w").close()
              
             modifyOperatorSampleFile(operatorSampleFileFullAddress, individual)
-            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName)
+            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, inputObj.bench_suit_name)
             # print "here is the accurate" + str(lOfAccurateValues) 
             errorValue = [extractErrorForOneInput(CSourceOutputForVariousSetUpFileName , lOfAccurateValues[operandIndex])]
             configValue = [individual]

@@ -17,8 +17,8 @@
 //#include "globals.h"
 //extern hw_ac **myOp;   
 using namespace std;
-int dct_invocation;
-
+int dct_invocation  = 0;
+ofstream dct_io_log;
 
 unsigned char Standard_Luminance_Quantization_Table[64] =
 {
@@ -184,11 +184,11 @@ int main(int argc, const char * argv[])
     exit(1);
   }
   int width=atoi(argv[3]);
-  cout <<"width of the img is "<<width<<endl; 
+  //cout <<"width of the img is "<<width<<endl; 
   int height=atoi(argv[4]);
-  cout<<"heigh is"<<height <<endl; 
+  //cout<<"heigh is"<<height <<endl; 
   int sampling = atoi(argv[5]);
-  cout<<"sampling is"<<sampling<<endl; 
+  //cout<<"sampling is"<<sampling<<endl; 
   int quant_level=atoi(argv[6]); 
   
   

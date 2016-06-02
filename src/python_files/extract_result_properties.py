@@ -19,6 +19,7 @@ from inputs import *
 # 
 # @return 
 def calculateError(accurateValues, currentValues):
+    result = [] 
     if not(len(accurateValues) == len(currentValues)):
         print "**********ERROR********" 
         print "here is the accurate values: " + str(accurateValues)
@@ -28,11 +29,13 @@ def calculateError(accurateValues, currentValues):
         print "**********ERROR********" 
         exit()
     
-    result = 0 
+    #result = 0 
     for accurateValue,currentValue in zip(accurateValues,currentValues):
-        result += pow(float(accurateValue) - float(currentValue), 2)
+        result += [float(accurateValue) - float(currentValue)]
+        #result += pow(float(accurateValue) - float(currentValue), 2)
 
-    return sqrt(result)/len(accurateValues)
+    return result
+    #return sqrt(result)/len(accurateValues)
 
 
 def extractAccurateValues(sourceFileName ):
@@ -57,7 +60,6 @@ def extractAccurateValues(sourceFileName ):
                         break
                     else:
                         break
-
 
 
 
@@ -102,6 +104,8 @@ def extractErrorForOneInput(sourceFileName, accurateValues):
                         break
 
 
+    print "<<<><><><><<>here is the list of error"
+    print error
     return error 
 
 
@@ -124,7 +128,7 @@ def extractCurrentValuesForOneInput(sourceFileName):
                         start = 0
                         break 
                     elif (start==1):
-                        currentValues.append(float(words))
+                        currentValues = map(lambda x: float(x), line.rstrip().split())
                         #print "\nfound currentValues; " + str(currentValues) 
                         break 
                     elif "start" in words: 
@@ -134,7 +138,7 @@ def extractCurrentValuesForOneInput(sourceFileName):
                         break
 
 
-    return error 
+    return currentValues
 
 
 

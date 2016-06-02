@@ -1,6 +1,6 @@
 #include "eta1.h"
 #include "eta2.h"
-#include "etm.h"  
+//#include "etm.h"  
 #include "bta.h" 
 #include "btm.h"
 #include "loa.h"
@@ -54,7 +54,10 @@ int setOpSubTypeAndInputs(hw_ac **myOp, vector<string> TypeInfo){
     size_t hbl;
     size_t vbl;
     bool table_gen = 0;
-   if (typeSpecifier == "eta1") {
+  //take out the comment section if you want to add eta1, and 2 but they are not defined
+  //for all the overloaded functions. So that needs to be added
+    /* 
+    if (typeSpecifier == "eta1") {
       //string stream is used to convert the string to size_t 
       stringstream ( TypeInfo[1]) >> Nt;
       stringstream ( TypeInfo[2]) >> Nia;
@@ -81,7 +84,9 @@ int setOpSubTypeAndInputs(hw_ac **myOp, vector<string> TypeInfo){
 //      stringstream ( TypeInfo[2]) >> Nia;
 //      *myOp = new etm(Nt, Nia, table_gen);
 //    }
-}else if (typeSpecifier == "bta"){
+}
+*/
+if (typeSpecifier == "bta"){
       //string stream is used to convert the string to size_t 
       stringstream ( TypeInfo[1]) >> Nt;
       stringstream ( TypeInfo[2]) >> Nia;

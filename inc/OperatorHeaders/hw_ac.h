@@ -33,7 +33,13 @@ class hw_ac {
 		virtual void tbl_gen()=0;
 
 		virtual int calc(const int &a, const int &b) = 0; // pure virtual
-		virtual float calc(const float &a, const float &b) = 0; // pure virtual
+        virtual unsigned int calc(const unsigned int &a, const unsigned int &b) = 0; // pure virtual
+        
+        
+        virtual int calc(const unsigned int &a, const int &b) = 0; // pure virtual
+        virtual int calc(const int &a, const unsigned int &b) = 0; // pure virtual
+        
+        virtual float calc(const float &a, const float &b) = 0; // pure virtual
 		virtual float calc(const float &a, const int &b) = 0; // pure virtual
 		virtual float calc(const int &a, const float &b) = 0; // pure virtual
         virtual int calc_ref(const int &a, const int &b) = 0; // pure virtual

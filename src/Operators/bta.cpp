@@ -2,6 +2,7 @@
 #include <complex>
 #include <vector>
 #include "bta.h"
+#include "globals.h"
 #include "fp_helpers.h"
 using namespace std;
 
@@ -22,7 +23,9 @@ size_t bta::get_ianum_bits(void) {
 }
 
 float bta::calc(const float &number1, const int &number2) {
+    #ifdef VERBOSE 
     cout<<"=============insde half float"<<endl; 
+    #endif 
     float numOut = number2; 
     calc(number1, numOut);
 } 
@@ -36,7 +39,6 @@ float bta::calc(const int &number1, const float &number2) {
 
 
 float bta::calc(const float &number1, const float &number2) {
-    cout<<"=============in float version"<<endl; 
     fpType num1;
     fpType num2;
     float apxResult; 
@@ -82,7 +84,9 @@ float bta::calc(const float &number1, const float &number2) {
 
 int bta::calc(const int &a, const int &b) {
     // inaccurate part
+    #ifdef VERBOSE 
     cout<<"=============in int version"<<endl; 
+    #endif  
     int weight = pow(2, Nia) - 1;
 	int iap_a = weight&a;
 #ifdef BT_RND
@@ -102,6 +106,80 @@ int bta::calc(const int &a, const int &b) {
 }
 //
 //
+
+
+unsigned int bta::calc(const unsigned int &a, const unsigned int &b) {
+    // inaccurate part
+    #ifdef VERBOSE 
+    cout<<"=============in unsigned unsigned int version"<<endl; 
+    #endif  
+    unsigned int weight = pow(2, Nia) - 1;
+	unsigned int iap_a = weight&a;
+#ifdef BT_RND
+	unsigned int a_op = (iap_a >> (Nia - 1)) == 0x1 ? (a >> Nia) + 1 : (a >> Nia);
+#else
+	unsigned int a_op = (a >> Nia);
+#endif
+	unsigned int iap_b = weight&b;
+#ifdef BT_RND
+	unsigned int b_op = (iap_b >> (Nia - 1)) == 0x1 ? (b >> Nia) + 1 : (b >> Nia);
+#else
+	unsigned int b_op = (b >> Nia);
+#endif
+
+	// accurate part
+	return ((a_op) + (b_op)) << Nia;
+}
+
+int bta::calc(const unsigned int &a_unsigned, const int &b) {
+    // inaccurate part
+    #ifdef VERBOSE 
+    cout<<"=============in unsigned unsigned int version"<<endl; 
+    #endif  
+    int a = (int)a_unsigned; 
+    int weight = pow(2, Nia) - 1;
+	int iap_a = weight&(int)a;
+#ifdef BT_RND
+	int a_op = (iap_a >> (Nia - 1)) == 0x1 ? (a >> Nia) + 1 : (a >> Nia);
+#else
+	int a_op = ((int)a >> Nia);
+#endif
+	int iap_b = weight&b;
+#ifdef BT_RND
+	int b_op = (iap_b >> (Nia - 1)) == 0x1 ? (b >> Nia) + 1 : (b >> Nia);
+#else
+	int b_op = (b >> Nia);
+#endif
+
+	// accurate part
+	return ((a_op) + (b_op)) << Nia;
+}
+
+int bta::calc(const int &a, const unsigned int &b_unsigned) {
+    // inaccurate part
+    #ifdef VERBOSE 
+    cout<<"=============in unsigned unsigned int version"<<endl; 
+    #endif  
+    int b = (int)b_unsigned; 
+    int weight = pow(2, Nia) - 1;
+	int iap_a = weight&(int)a;
+#ifdef BT_RND
+	int a_op = (iap_a >> (Nia - 1)) == 0x1 ? (a >> Nia) + 1 : (a >> Nia);
+#else
+	int a_op = ((int)a >> Nia);
+#endif
+	int iap_b = weight&b;
+#ifdef BT_RND
+	int b_op = (iap_b >> (Nia - 1)) == 0x1 ? (b >> Nia) + 1 : (b >> Nia);
+#else
+	int b_op = (b >> Nia);
+#endif
+
+	// accurate part
+	return ((a_op) + (b_op)) << Nia;
+}
+
+
 
 
 int bta::calc_ref(const int &a, const int &b) {

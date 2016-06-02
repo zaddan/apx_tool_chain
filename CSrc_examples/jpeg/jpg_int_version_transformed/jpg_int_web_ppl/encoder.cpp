@@ -9,10 +9,11 @@
 //#include "book_keeping.h"
 #include "jpegEncoder.h"
 #include <stdio.h>
+#include <fstream>
 //#include "globals.h"
 using namespace std;
 //extern hw_ac **myOp;   
-
+//ofstream dct_input.txt;
 
 void blockEncoder(
 		bool init,
@@ -53,7 +54,10 @@ void blockEncoder(
 	emptyLen=1;
 	bool ydcten, udcten, vdcten, yqen, vqen, uqen, yhen, uhen, vhen;
 	colorBuffer( color_mode, sampling, imagewidth, buffer, yQ, uQ, vQ, ydcten, udcten, vdcten);
-	dct(ydcten, yQ,yfrqQ, yqen);
+    
+    //cout<<"writing the dct input for y into the file dct_input.txt"<<endl; 	
+        
+    dct(ydcten, yQ,yfrqQ, yqen);
 	dct(udcten, uQ,ufrqQ, vqen);
 	dct(vdcten, vQ,vfrqQ, uqen);
 	quant_y(yqen, Standard_Luminance_Quantization_Table, yfrqQ, yquantQ  , yhen);

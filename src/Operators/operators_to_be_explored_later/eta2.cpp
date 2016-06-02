@@ -38,6 +38,8 @@ float eta2::calc (const float &a, const float &b) {
     exit(1);
     return (1.0);
 }
+
+
 int eta2::calc (const int &a, const int &b) {
 	int carry;
 	int prev_carry;
@@ -87,6 +89,65 @@ int eta2::calc (const int &a, const int &b) {
 	return sum;
 	
 }
+
+
+unsigned int eta2::calc (const unsigned int &a, const unsigned int &b) {
+	
+    cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DISCLAMIER:"<<endl;
+    cout<<"DISCLAMIER:"<<endl;
+    cout<<"I DON't GAURATNEED THAT ETA2 WOULD ACTUALLY WORKD WITH UNSIGNED NUMBERS"<<endl;
+    cout<<"END OF DISCLAMIER:"<<endl;
+    cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DISCLAMIER:"<<endl;
+    
+    unsigned int carry;
+	unsigned int prev_carry;
+	unsigned int seg_a;
+	unsigned int seg_b;
+	unsigned int sum = 0;
+	unsigned int seg_sum;
+	unsigned int num_seg = ceil(Nt/K); // number of segmentation
+	unsigned int numbit_lsb = Nt - K*(num_seg-1); // when Nt/K is not an unsigned integer
+	unsigned int weight;
+	unsigned int seg_bitpos = 0;
+	unsigned int seg_numbit;
+	unsigned int prev_seg_numbit = 0;
+	for (unsigned int i=0;i<num_seg;i++) {
+		seg_numbit = i == 0 ? numbit_lsb : K;
+		weight = pow(2,seg_numbit)-1;
+		seg_a = weight&(a>>seg_bitpos);
+		seg_b = weight&(b>>seg_bitpos);
+		seg_sum = seg_a + seg_b;
+		prev_carry = i == 0 ? 0 : carry;
+
+		carry = ((0x1<<seg_numbit)&seg_sum)>>seg_numbit;
+		seg_sum += prev_carry;
+
+		seg_sum = weight&seg_sum;
+		seg_bitpos += seg_numbit;
+
+		sum = sum|(seg_sum<<prev_seg_numbit);
+
+		prev_seg_numbit += seg_numbit;
+
+#ifdef DEBUG_ETA2
+		cout << hex << "eta2 seg[" << i << "] pre_seg_sum: " << seg_a + seg_b << dec << endl;
+		cout << hex << "eta2 seg[" << i << "] prev_carry: " << prev_carry << dec << endl;
+		cout << hex << "eta2 seg[" << i << "] seg_sum: " << seg_sum << dec << endl;
+		cout << hex << "eta2 seg[" << i << "] sum: " << sum << dec << endl;
+#endif
+	}
+
+	// last sub-adder: need to be consider sign
+	prev_carry = carry;
+	seg_sum = ((a>>seg_bitpos) + (b>>seg_bitpos) + prev_carry)<<seg_bitpos;
+	sum = sum|seg_sum;
+
+
+
+	return sum;
+	
+}
+
 
 int eta2::calc_ref (const int &a, const int &b) {
 	// this is adder

@@ -102,7 +102,7 @@ def generate_snr_energy_graph(dealingWithPics, lOfPoints, plotPareto, symbolsToC
                 lOfEnergy.append(point.get_energy())
         
         symbolsCollected.append(symbolsToChooseFrom[symbolIndex]) 
-        print lOfSNR 
+        print "List of SNR: " + str(lOfSNR)
         generateGraph(lOfSNR,lOfEnergy, "SNR", "Energy", symbolsToChooseFrom[symbolIndex])
     return symbolsCollected
 
@@ -194,8 +194,9 @@ def main():
     PIK = inputObj.PIK
     lOfInputs = []   #for debugging purposes
     lOfInputs += [CSrcFolderAddress, lOfCSrcFileAddress, generateMakeFile, rootFolder, AllInputScenariosInOneFile , AllInputFileOrDirectoryName, finalResultFileName, PIK ]
+    bench_suit_name = inputObj.bench_suit_name; 
     assert(len(lOfInputs) == 8) 
-
+    
     #---------guide:::  checking the validity of the input and making necessary files
     #and folders
     rootResultFolderName = rootFolder + "/" + settings.generatedTextFolderName
@@ -205,7 +206,7 @@ def main():
     os.system("rm -r " + rootResultFolderName)
     os.system("mkdir " + rootResultFolderName)
     executableName = "tool_exe" #src file to be analyzed
-    CBuildFolder = rootFolder + "/" + settings.CBuildFolderName
+    CBuildFolder = rootFolder + "/" + CBuildFolderName
     #get the input to the executable 
     executableInputList = []
     
@@ -219,7 +220,7 @@ def main():
    
     #checking whether the file (or directory) containging the operands(input) exist or no
     if (AllInputScenariosInOneFile): #if a file
-        print AllInputFileOrDirectoryName
+        #print AllInputFileOrDirectoryName
         if not(os.path.isfile(AllInputFileOrDirectoryName)):
             print "All OperandsFile:" + AllInputFileOrDirectoryName + " does not exist"
             exit();
@@ -230,7 +231,7 @@ def main():
 
     #---------guide:::  generate make file or no
     if not((generateMakeFile == "YES") or (generateMakeFile == "NO")): 
-        print generateMakeFile 
+        #print generateMakeFile 
         print "generateMakeFile can only take YES or NO value (capital letters)"
         exit()
 
@@ -360,15 +361,18 @@ def main():
         #---------guide:::  erasing the previuos content of the file
         CSourceOutputForVariousSetUpP = open(CSourceOutputForVariousSetUpFileName, "w").close()
         #---------guide:::  modify the operator sample file
-        
         modifyOperatorSampleFile(operatorSampleFileFullAddress, accurateSetUp)
+        
+        
         #---------guide:::  run the CSrouce file with the new setUp(operators)
-        make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName)
+        make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name)
+        
+        
         #---------guide::: error
-        print CSourceOutputForVariousSetUpFileName
         accurateValues = extractAccurateValues(CSourceOutputForVariousSetUpFileName)
+        assert(accurateValues != None)
+        print "-------------" 
         print accurateValues
-        sys.exit()
         lOfAccurateValues.append(accurateValues)
         # print lOfAccurateValues
         # lOfOperandSet.append(newOperand)
@@ -397,7 +401,7 @@ def main():
                 inputFileNameListValue = [operandSampleFileName] 
                 CSourceOutputForVariousSetUpP = open(CSourceOutputForVariousSetUpFileName, "w").close()
                 modifyOperatorSampleFile(operatorSampleFileFullAddress, setUp)
-                make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName)
+                make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name)
                 errorValue = [extractErrorForOneInput(CSourceOutputForVariousSetUpFileName , lOfAccurateValues[operandIndex])]
                 rawValues = [extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)]
                 
@@ -417,8 +421,8 @@ def main():
                 
                 newPoint.set_setUp(setUpPolished)
                 newPoint.set_setUp_number(apxIndexSetUp)
-                print configValue[0] 
-                print newPoint.get_setUp()
+                #print configValue[0] 
+                #print newPoint.get_setUp()
                 newPoint.append_lOf_operand(get_operand_values(operandSampleFileName))
                 newPoint.append_accurate_values(lOfAccurateValues[operandIndex])
                 newPoint.set_dealing_with_pics(eval(inputObj.dealingWithPics))
@@ -498,7 +502,7 @@ def main():
     #---------guide:::  getting the end time
     timeAfterFindingResults = datetime.datetime.now()
     totalTime = findTotalTime(timeBeforeFindingResults, timeAfterFindingResults) 
-    print totalTime 
+    print "total Time: " + str(totalTime)
     
     
     #---------guide::: populating the IOAndProcessCharP 
@@ -605,7 +609,6 @@ def main():
 
     finalResultFileFullAddress = rootResultFolderName + "/" + finalResultFileName
     writeReadableOutput(resultTuple,  symbolsCollected, finalResultFileFullAddress)
-    print "))))))))))))))))))" 
     pylab.savefig(finalResultFileFullAddress[:-4]+".png") #saving the figure generated by generateGraph
     #----:::  getting back up of the results
     folderToCopyToNameProcessed = comeUpWithNewFolderNameAccordingly(rootFolder + "/" + settings.resultsBackups) 

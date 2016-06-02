@@ -21,7 +21,6 @@ def comeUpWithNewFolderNameAccordingly(folderToCopyTo):
     fileList = getNameOfFilesInAFolder(folderToCopyTo)
     if not(len(fileList) == 0): 
         newestFolder = max(glob.iglob(folderToCopyTo+"/*") , key=os.path.getctime) #getting the newst folder
-        print "h---------------"
         print newestFolder
         if((newestFolder[-3:]).isdigit()):
             suffix = newestFolder[-3:]

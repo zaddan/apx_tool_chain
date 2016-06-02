@@ -60,6 +60,22 @@ int loa::calc (const int &a, const int &b) {
 	
 }
 
+
+
+unsigned int loa::calc (const unsigned int &a, const unsigned int &b) {
+
+	// inaccurate part
+	unsigned int weight = pow(2,Nia)-1;
+	unsigned int iap = (weight&a)|(weight&b);
+	unsigned int carry = ((weight&a)&(weight&b))>>(Nia-1);
+	
+	// accurate part
+	unsigned int ap = ((a>>Nia) + (b>>Nia) + carry)<<Nia;
+
+	return (ap | iap);
+	
+}
+
 int loa::calc_ref (const int &a, const int &b) {
 	// this is adder
 	return a+b;

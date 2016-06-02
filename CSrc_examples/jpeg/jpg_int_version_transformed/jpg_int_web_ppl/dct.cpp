@@ -4,9 +4,12 @@
 !*/
 //#include "jpegEncoder.h"
 #include <stdio.h>
-
+#include <fstream>
 #include <stdlib.h>
+#include <sstream>
+#include <assert.h>
 //#include "globals.h"
+#include <iostream>
 using namespace std;
 
 
@@ -20,6 +23,7 @@ using namespace std;
 #define c7d16 100L
 */
 
+extern ofstream dct_io_log;
 int c1d4= 362;
 int c1d8= 473;
 int c3d8= 196;
@@ -59,15 +63,40 @@ int CLIP(int tmp)
 
 
 extern int dct_invocation;
+ofstream dct_out_file;
+ifstream dct_in_file("dct_in.txt");
 void dct(
 	bool dcten, 
 	char inqueue[64], 
 	int outqueue[64], 
 	bool&qen)
 {
-
- dct_invocation++; 
- //cout<<"dct has been incovated for " << dct_invocation <<endl;
+ 
+   if (dct_invocation == 0) {
+        dct_io_log.open("dct_io.log",std::fstream::out | std::fstream::binary);
+        dct_io_log << "iter: " <<dct_invocation << "-------"<<endl;
+        dct_io_log <<"*****IO ARE******"<<endl;
+        dct_io_log<< "dct_en: "<<dcten<<endl; 
+        dct_io_log << "inqueue: "<<endl;
+        for (int i=0; i< 64; i++) {
+            //dct_io_log<< (char)inqueue[i]<< " "; 
+            dct_io_log<< (char)inqueue[i]; 
+        }
+        dct_io_log<<endl; 
+    }
+    /* 
+    if (dct_invocation == 0) {
+     dct_out_file.open("dct_input.txt",std::fstream::out | std::fstream::binary);
+     dct_out_file << "iter: " <<dct_invocation << "-------"<<endl;
+     dct_out_file << "inqueue: "<<endl;
+     for (int i=0; i< 64; i++) {
+         dct_out_file<< inqueue[i] + " "; 
+     }
+    dct_out_file<<endl; 
+ }
+ 
+  */ 
+        //cout<<"dct has been incovated for " << dct_invocation <<endl;
 //#pragma HLS function_instantiate variable=color
 
   int i;// aptr;
@@ -171,7 +200,7 @@ void dct(
     b2 = a1 + -1*a2;//AdditionOp
     b3 = a0 + -1* a3;//AdditionOp
     int c1c2Sub = c2 + -1*c1; //AdditionOp
-    int c1c2Add= c2, c1; //AdditionOp
+    int c1c2Add= c2 + c1; //AdditionOp
     tb0 = MSCALE(c1d4 *  (c1c2Sub)); //MultiplicationOp
     tb1 = MSCALE(c1d4 * (c1c2Add)); //MultiplicationOp
     ta0 = c0 + tb0; //AdditionOp
@@ -195,6 +224,32 @@ void dct(
     outqueue[i*8 + 3] =CLIP(MSCALE((c3d16 * ta2) - (c5d16 * ta1)));
     outqueue[i*8 + 5] =CLIP(MSCALE((c3d16 * ta1) + (c5d16 * ta2)));
     outqueue[i*8 + 7] =CLIP(MSCALE((c7d16 * ta3) - (c1d16 * ta0)));
-	}
+	
+  }
+  
+  /* 
+  if (dct_invocation == 0){ 
+      dct_out_file.open("dct_out.txt",std::fstream::out | std::fstream::binary);
+      dct_out_file << "outqueue: "<<endl;
+      for (int i=0; i< 64; i++) {
+          dct_out_file<< outqueue[i]<<" "<<endl;; 
+      }
+      dct_out_file<<"qen "<<qen<<endl;
+      dct_out_file.close(); 
+  }
+  */ 
+  if (dct_invocation == 0){ 
+      dct_io_log << "outqueue: "<<endl;
+      for (int i=0; i< 64; i++) {
+          dct_io_log<< (int)outqueue[i]<<" "; 
+      }
+      
+      dct_io_log<<endl<<"qen: "<<qen<<endl; 
+      dct_io_log.close(); 
+  }
+  
+  
+  dct_invocation++;  
 }
+
 
