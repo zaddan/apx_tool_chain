@@ -367,7 +367,6 @@ def main():
         #---------guide:::  run the CSrouce file with the new setUp(operators)
         make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name)
         
-        
         #---------guide::: error
         accurateValues = extractAccurateValues(CSourceOutputForVariousSetUpFileName)
         assert(accurateValues != None)
@@ -405,6 +404,7 @@ def main():
                 errorValue = [extractErrorForOneInput(CSourceOutputForVariousSetUpFileName , lOfAccurateValues[operandIndex])]
                 rawValues = [extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)]
                 
+                sys.exit(0) 
                 newPoint.append_raw_values(rawValues[0])  
                 newPoint.append_error(errorValue[0])
                 newPoint.set_energy(energyValue[0])

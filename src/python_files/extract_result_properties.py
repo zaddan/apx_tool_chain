@@ -11,6 +11,54 @@ import numpy as np
 from matplotlib import cm
 from inputs import *
 
+
+def nearest_neighbors_sorted(x_temp, y_temp) :
+    assert(len(x_temp) >0)
+    assert(len(y_temp) >0)
+    if (len(x_temp) > len(y_temp)):
+            x_temp_temp = x_temp
+            x_temp = y_temp
+            y_temp = x_temp_temp
+
+    x = x_temp
+    y = y_temp
+    x, y = map(np.asarray, (x, y))
+    y_idx = np.argsort(y)
+    y = y[y_idx]
+    nearest_neighbor = np.empty((len(x),), dtype=np.intp)
+    for j, xj in enumerate(x) :
+        idx = np.searchsorted(y, xj)
+        if idx == len(y) or idx != 0 and y[idx] - xj > xj - y[idx-1] :
+            idx -= 1
+        nearest_neighbor[j] = y_idx[idx]
+        y = np.delete(y, idx)
+        y_idx = np.delete(y_idx, idx)
+    return nearest_neighbor
+
+#nearst_neighbors = nearest_neighbors_sorted([2,1,99], [0, 50,100,10])
+def calc_error_for_nearest_neighbors(x_temp,y_temp):
+    assert(len(x_temp) >0)
+    assert(len(y_temp) >0)
+    if (len(x_temp) > len(y_temp)):
+        x_temp_temp = x_temp
+        x_temp = y_temp
+        y_temp = x_temp_temp
+    x = x_temp
+    y = y_temp
+    error = [] 
+    nearst_neighbors = nearest_neighbors_sorted(x,y)
+    print "here is x"
+    print x
+    print "here is y"
+    print y
+    for i in range(min(len(x), len(y))):
+        error.append(abs(x[i] - y[nearst_neighbors[i]]))
+    return error
+
+
+
+
+
 ## 
 # @brief : name is self explanatory
 # 
@@ -18,22 +66,26 @@ from inputs import *
 # @param currentValues
 # 
 # @return 
-def calculateError(accurateValues, currentValues):
+def calculateError(accurateValues, currentValues, mode):
     result = [] 
-    if not(len(accurateValues) == len(currentValues)):
-        print "**********ERROR********" 
-        print "here is the accurate values: " + str(accurateValues)
-        print "here is the current values: " + str(currentValues)
-        print "number of results subelements for currentValues and accuratValues are not the same"
-        print "check the " + settings.rawresultFileName + " file"
-        print "**********ERROR********" 
-        exit()
     
-    #result = 0 
-    for accurateValue,currentValue in zip(accurateValues,currentValues):
-        result += [float(accurateValue) - float(currentValue)]
-        #result += pow(float(accurateValue) - float(currentValue), 2)
-
+    if (mode == "simple"): 
+        if not(len(accurateValues) == len(currentValues)):
+            print "**********ERROR********" 
+            print "here is the accurate values: " + str(accurateValues)
+            print "here is the current values: " + str(currentValues)
+            print "number of results subelements for currentValues and accuratValues are not the same"
+            print "check the " + settings.rawresultFileName + " file"
+            print "**********ERROR********" 
+            exit()
+        
+        #result = 0 
+        for accurateValue,currentValue in zip(accurateValues,currentValues):
+            result += [float(accurateValue) - float(currentValue)]
+            #result += pow(float(accurateValue) - float(currentValue), 2)
+    elif (mode == "nearest_neighbors"): 
+        result = calc_error_for_nearest_neighbors(map(lambda x: float(x), accurateValues), map(lambda x: float(x), currentValues))
+    
     return result
     #return sqrt(result)/len(accurateValues)
 
@@ -87,7 +139,7 @@ def extractErrorForOneInput(sourceFileName, accurateValues):
             if len(line.split()) >0: 
                 for words in line.rstrip().replace(',', ' ').replace('/',' ').replace(';', ' ').split(' '): #find the lines with key word and write it to another file
                     if "end" in words: 
-                        error = calculateError(accurateValues, currentValues)
+                        error = calculateError(accurateValues, currentValues, error_mode)
                         # print "here is the error " + str(error) 
                         currentValues = [] 
                         start = 0
@@ -104,8 +156,13 @@ def extractErrorForOneInput(sourceFileName, accurateValues):
                         break
 
 
-    print "<<<><><><><<>here is the list of error"
-    print error
+    
+    with open(sourceFileName) as f:
+        for line in f:
+            print line
+    
+    print "<<<<<<<<<<<<<here is the list of calculated errors:>>>>>>>>>>>>>>>>"
+    print "      " + str(error)
     return error 
 
 

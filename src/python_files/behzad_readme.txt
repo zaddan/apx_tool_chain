@@ -13,6 +13,15 @@ python compare_results.py ~/apx_tool_chain/all_backups/backup_1/generated_text/f
 *********
 
 
+*********
+*********
+explanation for how to set up the inputs:
+the output of the file will be stored in:
+    ../../generated_text/csource_output_folder/csource_output0.txt
+
+
+
+
 #Notes:
 for now, make sure that the src file does not return 0, (because that's what I am using for error)
 keep in mind that we should be really only using the upperBound values or low
