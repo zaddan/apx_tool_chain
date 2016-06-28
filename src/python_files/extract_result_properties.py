@@ -161,8 +161,10 @@ def extractErrorForOneInput(sourceFileName, accurateValues):
         for line in f:
             print line
     
+    
     print "<<<<<<<<<<<<<here is the list of calculated errors:>>>>>>>>>>>>>>>>"
     print "      " + str(error)
+    assert(error != []) 
     return error 
 
 
