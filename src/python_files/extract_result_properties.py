@@ -57,6 +57,69 @@ def calc_error_for_nearest_neighbors(x_temp,y_temp):
 
 
 
+def find_dis(x,y):
+    return ((float(x[0]) - float(y[0]))**2 + (float(x[1]) - float(y[1]))**2)
+
+#calculating the nearest neigbour for two lists of 2 dimension
+def nearest_neighbors_2d(x, y) :
+    #x, y = map(np.asarray, (x, y))
+    #y = y.copy()
+    y_idx = range(len(y))
+    nearest_neighbor = np.empty((len(x),), dtype=np.intp)
+    for j, xj in enumerate(x) :
+        #idx = np.argmin(map(lambda xtemp, ytemp : np.linalg.norm(ytemp, xtemp), y , xj))
+        dist = map(lambda ytemp: find_dis(xj, ytemp), y )
+        idx = np.argmin(np.asarray(dist))
+        nearest_neighbor[j] = y_idx[idx]
+        del y[idx] 
+        del y_idx[idx] 
+
+    return nearest_neighbor
+
+#turning a list of tuples to dictionary. keep in mind that in this implementation
+#the keys are selected from the 3rd, and 4th element of the each tuple
+#also plz note the int() conversion since it mattered for the specific benchmark that I was 
+#using this for
+def dictionarize(mylist):
+    mydict = {}
+    for el in mylist:
+        if not((int(float(el[2])),int(float(el[3]))) in  mydict.keys()):
+            mydict[(int(float(el[2])), int(float(el[3])))] = [(el[0], el[1])]
+        else: 
+            mydict[(int(float(el[2])), int(float(el[3])))].append((el[0], el[1]))
+    return mydict
+
+#calculating the error ass with 2d array (note that this uses nearest neighbour
+#as the error calculation method)
+def calc_error_for_nearest_neighbors_2d(accurate_values, current_values):
+    
+    error = [] 
+    #---turn the lists into dictionaries 
+    mydict_of_acc = dictionarize(accurate_values)
+    mydict_of_cur = dictionarize(current_values);
+    
+    for key in mydict_of_cur.keys():  #go through each key and cal error
+        if  key in mydict_of_acc.keys():
+            #make sure ref1 is the small list 
+            if len(mydict_of_acc[key]) > len(mydict_of_cur[key]):
+                ref1 = mydict_of_acc
+                ref2 = mydict_of_cur
+            else:
+                ref2 = mydict_of_acc
+                ref1 = mydict_of_cur
+            
+            #get the list of indecies of nearest neighbors
+            indecies = nearest_neighbors_2d(ref2[key][:], ref1[key][:])
+            #calculate error 
+            for i in range(len(indecies)):
+                error.append(find_dis(ref2[key][i], ref1[key][indecies[i]]))
+    return error
+
+
+
+
+
+
 
 
 ## 
@@ -85,7 +148,11 @@ def calculateError(accurateValues, currentValues, mode):
             #result += pow(float(accurateValue) - float(currentValue), 2)
     elif (mode == "nearest_neighbors"): 
         result = calc_error_for_nearest_neighbors(map(lambda x: float(x), accurateValues), map(lambda x: float(x), currentValues))
-    
+    elif (mode == "nearest_neighbors_2d"): 
+        result = calc_error_for_nearest_neighbors_2d(accurateValues , currentValues)
+    else:
+        print "ERROR: this mode is not defined"
+        sys.exit()
     return result
     #return sqrt(result)/len(accurateValues)
 
@@ -103,12 +170,20 @@ def extractAccurateValues(sourceFileName ):
             if len(line.split()) >0: 
                 for words in line.rstrip().replace(',', ' ').replace('/',' ').replace(';', ' ').split(' '): #find the lines with key word and write it to another file
                     if "end" in words: 
-                        return currentValues #if havn't gotten accurate values
+                        if (len(currentValues) == 1): #only one line of output
+                            flattened  = [val for sublist in currentValues for val in sublist]                            
+                            return flattened
+                        else: 
+                            return zip(*currentValues)#if havn't gotten accurate values
                     elif (start==1):
-                        currentValues = (line.rstrip().split())
+                        currentValues = [(line.rstrip().split())]
+                        start +=1
                         break 
                     elif "start" in words: 
                         start = 1 
+                        break
+                    elif (start >1):
+                        currentValues.append((line.rstrip().split()))
                         break
                     else:
                         break
@@ -139,18 +214,27 @@ def extractErrorForOneInput(sourceFileName, accurateValues):
             if len(line.split()) >0: 
                 for words in line.rstrip().replace(',', ' ').replace('/',' ').replace(';', ' ').split(' '): #find the lines with key word and write it to another file
                     if "end" in words: 
+                        if (len(currentValues) == 1): #only one line of output
+                            currentValues = [val for sublist in currentValues for val in sublist]                            
+                        else: 
+                            currentValues = zip(*currentValues)#if havn't gotten accurate values
+                        
                         error = calculateError(accurateValues, currentValues, error_mode)
                         # print "here is the error " + str(error) 
                         currentValues = [] 
                         start = 0
                         break 
                     elif (start==1):
-                        currentValues = line.rstrip().split()
+                        currentValues = [line.rstrip().split()]
                         # print "here is the current values " + str(currentValues)
                         #print "\nfound currentValues; " + str(currentValues) 
+                        start +=1 
                         break 
                     elif "start" in words: 
                         start = 1 
+                        break
+                    elif (start >1):
+                        currentValues.append((line.rstrip().split()))
                         break
                     else:
                         break
@@ -176,23 +260,30 @@ def extractCurrentValuesForOneInput(sourceFileName):
     if not(os.path.isfile(sourceFileName)):
         print "source file with the name " + sourceFileName + "doesn't exist"
         exit();
-    error = [] 
-    setup = 0 #the specific setup(same configuration but different type of operators) 
+    
     with open(sourceFileName) as f:
         for line in f:
             if len(line.split()) >0: 
                 for words in line.rstrip().replace(',', ' ').replace('/',' ').replace(';', ' ').split(' '): #find the lines with key word and write it to another file
                     if "end" in words: 
+                        if (len(currentValues) == 1): #only one line of output
+                            flattened  = [val for sublist in currentValues for val in sublist]                            
+                            return flattened
+                        else: 
+                            return zip(*currentValues)#if havn't gotten accurate values
                         return currentValues 
                         start = 0
                         break 
                     elif (start==1):
-                        currentValues = map(lambda x: float(x), line.rstrip().split())
+                        currentValues = [map(lambda x: float(x), line.rstrip().split())]
                         #print "\nfound currentValues; " + str(currentValues) 
+                        start +=1 
                         break 
                     elif "start" in words: 
                         start = 1 
                         break
+                    elif (start >1):
+                        currentValues.append((line.rstrip().split()))
                     else:
                         break
 

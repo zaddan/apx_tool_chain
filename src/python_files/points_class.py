@@ -65,12 +65,21 @@ class points:
     def get_dealing_with_pics(self):
         return self.dealingWithPics 
     def calculate_SNR(self, yourImageName="", originalImageName=""):
-        NSR= (numpy.mean(self.lOfError)/numpy.mean(map(lambda x: sum(map (lambda y: float(y), x))/len(x), self.lOfAccurateValues)))
+        if (error_mode == "nearest_neighbors_2d"):
+            #print map(lambda x: math.sqrt(float(x[0])**2 + float(x[1])**2), self.lOfAccurateValues[0])
+            #sys.exit()
+            NSR= (numpy.mean(self.lOfError)/numpy.mean(map(lambda y: sum(map(lambda x: math.sqrt(float(x[0])**2 + float(x[1])**2), y))/len(y), self.lOfAccurateValues)))
+        else: 
+            NSR= (numpy.mean(self.lOfError)/numpy.mean(map(lambda x: sum(map (lambda y: float(y), x))/len(x), self.lOfAccurateValues)))
         if (NSR == 0):
             # self.SNR = 50
-            self.SNR =  numpy.mean(map(lambda x: sum(map (lambda y: float(y), x))/len(x), self.lOfAccurateValues))
+            if (error_mode == "nearest_neighbors_2d"):
+                self.SNR =  numpy.mean(map(lambda y : sum(map(lambda x: math.sqrt(float(x[0])**2 + float(x[1])**2), y))/len(y), self.lOfAccurateValues))
+            else:  
+                self.SNR =  numpy.mean(map(lambda x: sum(map (lambda y: float(y), x))/len(x), self.lOfAccurateValues))
         else: 
             self.SNR =  1/NSR
+
     def calculate_PSNR(self, yourImageName="", originalImageName=""):
         refImage = self.inputObj.refImage
         noisyImage = self.inputObj.noisyImage

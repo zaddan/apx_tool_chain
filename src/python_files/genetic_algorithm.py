@@ -128,8 +128,6 @@ def run_spea2(NGEN, MU, LAMBDA, CXPB, MUTPB, population,
             errorValue = [extractErrorForOneInput(CSourceOutputForVariousSetUpFileName , lOfAccurateValues[operandIndex])]
             configValue = [individual]
             rawValues = [extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)]
-            
-             
             # print "where" 
             # print errorValue 
             newPoint.append_raw_values(rawValues[0])  
@@ -152,7 +150,6 @@ def run_spea2(NGEN, MU, LAMBDA, CXPB, MUTPB, population,
         # if (inputObj.dealingWithPics):
         #     newPoint.calculate_PSNR()
         # print "here is the snr " + str(newPoint.get_SNR())
-        # sys.exit() 
         if eval(inputObj.dealingWithPics):
             return (newPoint.get_energy(), newPoint.get_PSNR())
         else:

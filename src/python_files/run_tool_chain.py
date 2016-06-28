@@ -371,7 +371,6 @@ def main():
         accurateValues = extractAccurateValues(CSourceOutputForVariousSetUpFileName)
         assert(accurateValues != None)
         print "-------------" 
-        print accurateValues
         lOfAccurateValues.append(accurateValues)
         # print lOfAccurateValues
         # lOfOperandSet.append(newOperand)
