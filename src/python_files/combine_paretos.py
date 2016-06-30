@@ -70,7 +70,13 @@ def point_combine(srcFile):
     AllInputFileOrDirectoryName = inputObj.AllInputFileOrDirectoryName 
     finalResultFileName = inputObj.finalResultFileName
     PIK = inputObj.PIK
-        
+    lOfInputs = []   #for debugging purposes
+    lOfInputs += [CSrcFolderAddress, lOfCSrcFileAddress, generateMakeFile, rootFolder, AllInputScenariosInOneFile , AllInputFileOrDirectoryName, finalResultFileName, PIK ]
+    bench_suit_name = inputObj.bench_suit_name; 
+    assert(len(lOfInputs) == 8) 
+    
+    
+    
     
     energy = []
     error = []
@@ -90,7 +96,7 @@ def point_combine(srcFile):
     operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings.operatorSampleFileName
     executableName = "tool_exe" #src file to be analyzed
     executableInputList = [] 
-    CBuildFolder = rootFolder + "/" + settings.CBuildFolderName
+    CBuildFolder = rootFolder + "/" + CBuildFolderName
     AllOperandsFolderName = rootResultFolderName + "/" + settings.AllOperandsFolderName
     
 
@@ -140,7 +146,7 @@ def point_combine(srcFile):
         #---------guide:::  modify the operator sample file
         modifyOperatorSampleFile(operatorSampleFileFullAddress, accurateSetUp)
         #---------guide:::  run the CSrouce file with the new setUp(operators)
-        make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName)
+        make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name)
         #---------guide::: error
         accurateValues = extractAccurateValues(CSourceOutputForVariousSetUpFileName)
         lOfAccurateValues.append(accurateValues)
@@ -153,13 +159,11 @@ def point_combine(srcFile):
         newPoint = points() 
         newPoint.set_dealing_with_pics(eval(inputObj.dealingWithPics))
         for operandIndex, operandSampleFileName in enumerate(nameOfAllOperandFilesList):
-            print "here is the individual" 
-            print individual 
             energyValue = [getEnergy(individual)]
             open(CSourceOutputForVariousSetUpFileName, "w").close()
 
             modifyOperatorSampleFile(operatorSampleFileFullAddress, individual)
-            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName)
+            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name)
             errorValue = [extractErrorForOneInput(CSourceOutputForVariousSetUpFileName , lOfAccurateValues[operandIndex])]
             configValue = [individual]
             rawValues = [extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)]
