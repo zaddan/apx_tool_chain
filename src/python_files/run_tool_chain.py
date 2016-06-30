@@ -80,8 +80,10 @@ def generate_snr_energy_graph(dealingWithPics, lOfPoints, plotPareto, symbolsToC
     symbolsCollected = [] 
     lOfPoints_refined =[]
     if plotPareto:
+        print "noer" 
         lOfPoints_refined = pareto_frontier(lOfPoints,maxX, maxY); 
     else:
+        print "ere" 
         lOfPoints_refined = lOfPoints 
     if(eval(dealingWithPics)): 
         lOfPSNR = [] 
@@ -361,20 +363,21 @@ def main():
         #---------guide:::  erasing the previuos content of the file
         CSourceOutputForVariousSetUpP = open(CSourceOutputForVariousSetUpFileName, "w").close()
         #---------guide:::  modify the operator sample file
-        modifyOperatorSampleFile(operatorSampleFileFullAddress, accurateSetUp)
-        
-        
-        #---------guide:::  run the CSrouce file with the new setUp(operators)
-        make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name)
-        
-        #---------guide::: error
-        accurateValues = extractAccurateValues(CSourceOutputForVariousSetUpFileName)
-        assert(accurateValues != None)
-        print "-------------" 
-        lOfAccurateValues.append(accurateValues)
-        # print lOfAccurateValues
-        # lOfOperandSet.append(newOperand)
-        #---------guide:::  make a apx set up and get values associated with it
+        if not(mode == "only_read_values" or mode == "read_values_and_get_pareto"):
+            modifyOperatorSampleFile(operatorSampleFileFullAddress, accurateSetUp)
+            
+            
+            #---------guide:::  run the CSrouce file with the new setUp(operators)
+            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name)
+            
+            #---------guide::: error
+            accurateValues = extractAccurateValues(CSourceOutputForVariousSetUpFileName)
+            assert(accurateValues != None)
+            print "-------------" 
+            lOfAccurateValues.append(accurateValues)
+            # print lOfAccurateValues
+            # lOfOperandSet.append(newOperand)
+            #---------guide:::  make a apx set up and get values associated with it
         
     lOfPoints = []  
     if (mode == "allPermutations"): 
@@ -601,6 +604,7 @@ def main():
     # ---- collecting the result in a list (for later printing)
     resultTuple = [] 
     for index, point in enumerate(resultPoints):
+        print index 
         if(eval(inputObj.dealingWithPics)): 
             resultTuple.append((point.get_setUp(), point.get_PSNR(), point.get_energy()))
         else:

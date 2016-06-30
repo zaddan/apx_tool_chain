@@ -100,6 +100,7 @@ def make_run(executableName, executableInputList, resultFolderName, resultFileNa
         currentDir = os.getcwd() #getting the current directory
         os.chdir(CBuildFolder) #chaning the directory
         os.system("pwd"); 
+        #os.system("gdb --args ./sift ~/behzad_local/sd-vbs/benchmarks/sift/data/sim");
         os.system("gmake c-run")
         os.chdir(currentDir) #chaning the directory
 
