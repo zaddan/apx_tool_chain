@@ -10,7 +10,7 @@ from mpl_toolkits.mplot3d import axes3d
 import numpy as np
 from matplotlib import cm
 from inputs import *
-
+from settings import *
 
 def nearest_neighbors_sorted(x_temp, y_temp) :
     assert(len(x_temp) >0)
@@ -170,7 +170,7 @@ def extractAccurateValues(sourceFileName ):
             if len(line.split()) >0: 
                 for words in line.rstrip().replace(',', ' ').replace('/',' ').replace(';', ' ').split(' '): #find the lines with key word and write it to another file
                     if "end" in words: 
-                        if (len(currentValues) == 1): #only one line of output
+                        if (outputMode == "uniform"): 
                             flattened  = [val for sublist in currentValues for val in sublist]                            
                             return flattened
                         else: 
@@ -214,7 +214,7 @@ def extractErrorForOneInput(sourceFileName, accurateValues):
             if len(line.split()) >0: 
                 for words in line.rstrip().replace(',', ' ').replace('/',' ').replace(';', ' ').split(' '): #find the lines with key word and write it to another file
                     if "end" in words: 
-                        if (len(currentValues) == 1): #only one line of output
+                        if (outputMode == "uniform"): #only one line of output
                             currentValues = [val for sublist in currentValues for val in sublist]                            
                         else: 
                             currentValues = zip(*currentValues)#if havn't gotten accurate values
@@ -246,8 +246,8 @@ def extractErrorForOneInput(sourceFileName, accurateValues):
             print line
     
     
-    print "<<<<<<<<<<<<<here is the list of calculated errors:>>>>>>>>>>>>>>>>"
-    print "      " + str(error)
+    #print "<<<<<<<<<<<<<here is the list of calculated errors:>>>>>>>>>>>>>>>>"
+    #print "      " + str(error)
     assert(error != []) 
     return error 
 
@@ -266,7 +266,7 @@ def extractCurrentValuesForOneInput(sourceFileName):
             if len(line.split()) >0: 
                 for words in line.rstrip().replace(',', ' ').replace('/',' ').replace(';', ' ').split(' '): #find the lines with key word and write it to another file
                     if "end" in words: 
-                        if (len(currentValues) == 1): #only one line of output
+                        if (outputMode == "uniform"): 
                             flattened  = [val for sublist in currentValues for val in sublist]                            
                             return flattened
                         else: 

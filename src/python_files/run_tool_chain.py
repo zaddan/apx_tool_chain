@@ -95,7 +95,10 @@ def generate_snr_energy_graph(dealingWithPics, lOfPoints, plotPareto, symbolsToC
         generateGraph(lOfPSNR,lOfEnergy, "PSNR", "Energy", symbolsToChooseFrom[symbolIndex])
         symbolsCollected.append(symbolsToChooseFrom[symbolIndex]) 
     else:
-        avgAccurateValue =  numpy.mean(map(lambda x: sum(map (lambda y: float(y), x))/len(x), lOfAccurateValues))
+        if (error_mode == "nearest_neighbors_2d"):
+            avgAccurateValue  =  numpy.mean(map(lambda y : sum(map(lambda x: math.sqrt(float(x[0])**2 + float(x[1])**2), y))/len(y), lOfAccurateValues))
+        else:
+            avgAccurateValue =  numpy.mean(map(lambda x: sum(map (lambda y: float(y), x))/len(x), lOfAccurateValues))
         lOfSNR = [] 
         lOfEnergy = [] 
         for point in lOfPoints_refined:
@@ -363,21 +366,20 @@ def main():
         #---------guide:::  erasing the previuos content of the file
         CSourceOutputForVariousSetUpP = open(CSourceOutputForVariousSetUpFileName, "w").close()
         #---------guide:::  modify the operator sample file
-        if not(mode == "only_read_values" or mode == "read_values_and_get_pareto"):
-            modifyOperatorSampleFile(operatorSampleFileFullAddress, accurateSetUp)
-            
-            
-            #---------guide:::  run the CSrouce file with the new setUp(operators)
-            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name)
-            
-            #---------guide::: error
-            accurateValues = extractAccurateValues(CSourceOutputForVariousSetUpFileName)
-            assert(accurateValues != None)
-            print "-------------" 
-            lOfAccurateValues.append(accurateValues)
-            # print lOfAccurateValues
-            # lOfOperandSet.append(newOperand)
-            #---------guide:::  make a apx set up and get values associated with it
+        modifyOperatorSampleFile(operatorSampleFileFullAddress, accurateSetUp)
+        
+        
+        #---------guide:::  run the CSrouce file with the new setUp(operators)
+        make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name)
+        
+        #---------guide::: error
+        accurateValues = extractAccurateValues(CSourceOutputForVariousSetUpFileName)
+        assert(accurateValues != None)
+        print "-------------" 
+        lOfAccurateValues.append(accurateValues)
+        # print lOfAccurateValues
+        # lOfOperandSet.append(newOperand)
+        #---------guide:::  make a apx set up and get values associated with it
         
     lOfPoints = []  
     if (mode == "allPermutations"): 
