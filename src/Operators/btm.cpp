@@ -49,8 +49,20 @@ float btm::calc(const float &number1, const float &number2) {
     
     getFPComponents(number1, num1); //get the fp componenets
     getFPComponents(number2, num2); //get the fp components
-    num1.MantisaWithOne = (1 <<MANTISA_WIDTH) + num1.Mantisa;//injaect mantisa with Extra one
-    num2.MantisaWithOne =   (1 <<MANTISA_WIDTH) + num2.Mantisa;//injaect mantisa with Extra one
+    
+    //whether to add one or no (base on it's subnormal ness) 
+    if (num1.Exp != 0) { 
+        num1.MantisaWithOne = (1 <<MANTISA_WIDTH) + num1.Mantisa;//injaect mantisa with Extra one
+    }else{
+        num1.MantisaWithOne = num1.Mantisa; //don't dont anything
+    }
+    
+    if (num2.Exp != 0) { 
+        num2.MantisaWithOne = (1 <<MANTISA_WIDTH) + num2.Mantisa;//injaect mantisa with Extra one
+    }else{
+        num2.MantisaWithOne = num2.Mantisa; //don't dont anything
+    }
+
     result.Mantisa = num1.MantisaWithOne *  num2.MantisaWithOne;
     result.Exp = num1.Exp + num2.Exp - bias;
     result.Sign = (num1.Sign + num2.Sign)%2;
