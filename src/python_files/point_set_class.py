@@ -1,7 +1,7 @@
 from points_class import *
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 class point_set:
-    def __init__(self, lOfRawPoints, set_type, maxX = True, maxY= False):
+    def __init__(self, lOfRawPoints, set_type, maxX , maxY):
         if not(set_type == "pareto" or set_type=="all" or set_type == "unique"):
             print "***ERROR, this set_type does not exist"
             exit()
