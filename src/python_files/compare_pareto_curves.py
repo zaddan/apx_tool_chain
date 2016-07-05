@@ -47,28 +47,101 @@ def getPoints(file1_name):
 
 
 
-    # lOfParetoPoints = pareto_frontier(lOfPoints, maxX= True, maxY = False)
     return lOfPoints
 
 
-def aMemberOfBStar(a, BPertoFront, radius1, radius2):
-    for index1,element in enumerate(BPertoFront):
-        if ((a[0] <= element[0]+ radius1) 
-                and (a[1] >= element[1] + radius2)):
-            return True
-        if ((a[0] <= element[0]+ radius1) 
-                and (a[1] >= element[1] - radius2)):
-            return True
+def aMemberOfBStar(a, BPertoFront, radius1, radius2, maxX, maxY):
+    if(not(maxX) and not(maxY)):
+        for index1,element in enumerate(BPertoFront):
+            if ((a[0] >= element[0] + radius1) 
+                    and (a[1] >= element[1] + radius2)):
+                return True
+            if ((a[0] >= element[0]+ radius1) 
+                    and (a[1] >= element[1] - radius2)):
+                return True
 
-        if ((a[0] <= element[0] - radius1) 
-                and (a[1] >= element[1] + radius2)):
-            return True
+            if ((a[0] >= element[0] - radius1) 
+                    and (a[1] >= element[1] + radius2)):
+                return True
 
-        if ((a[0] <= element[0] - radius1) 
-                and (a[1] >= element[1] - radius2)):
-            return True
+            if ((a[0] >= element[0] - radius1) 
+                    and (a[1] >= element[1] - radius2)):
+                return True
+
+    if(not(maxX) and maxY):
+        for index1,element in enumerate(BPertoFront):
+            if ((a[0] >= element[0]+ radius1) 
+                    and (a[1] <= element[1] + radius2)):
+                return True
+            if ((a[0] >= element[0]+ radius1) 
+                    and (a[1] <= element[1] - radius2)):
+                return True
+
+            if ((a[0] >= element[0] - radius1) 
+                    and (a[1] <= element[1] + radius2)):
+                return True
+
+            if ((a[0] >= element[0] - radius1) 
+                    and (a[1] <= element[1] - radius2)):
+                return True
+        
+    if(maxX and not(maxY)):
+        for index1,element in enumerate(BPertoFront):
+            if ((a[0] <= element[0]+ radius1) 
+                    and (a[1] >= element[1] + radius2)):
+                return True
+            if ((a[0] <= element[0]+ radius1) 
+                    and (a[1] >= element[1] - radius2)):
+                return True
+
+            if ((a[0] <= element[0] - radius1) 
+                    and (a[1] >= element[1] + radius2)):
+                return True
+
+            if ((a[0] <= element[0] - radius1) 
+                    and (a[1] >= element[1] - radius2)):
+                return True
+
+    if(maxX and maxY):
+        for index1,element in enumerate(BPertoFront):
+            if ((a[0] <= element[0]+ radius1) 
+                    and (a[1] <= element[1] + radius2)):
+                return True
+            if ((a[0] <= element[0]+ radius1) 
+                    and (a[1] <= element[1] - radius2)):
+                return True
+
+            if ((a[0] <= element[0] - radius1) 
+                    and (a[1] <= element[1] + radius2)):
+                return True
+            if ((a[0] <= element[0] - radius1) 
+                    and (a[1] <= element[1] - radius2)):
+                return True
+
+        return False
+
+
     
+    if ((a[0] <= element[0]+ radius1) 
+            and (a[1] >= element[1] + radius2)):
+        return True
+    if ((a[0] <= element[0]+ radius1) 
+            and (a[1] >= element[1] - radius2)):
+        return True
+
+    if ((a[0] <= element[0] - radius1) 
+            and (a[1] >= element[1] + radius2)):
+        return True
+
+    if ((a[0] <= element[0] - radius1) 
+            and (a[1] >= element[1] - radius2)):
+        return True
+
     return False
+
+
+
+
 
 # ---- Note: the following comparison is only applicable if we max x and min uy
 def compare_two_pareto_fronts(curve1FeatureValues, curve2FeatureValues):
@@ -76,7 +149,6 @@ def compare_two_pareto_fronts(curve1FeatureValues, curve2FeatureValues):
     curve1SecondFeature = curve1FeatureValues[1]
     curve2FirstFeature = curve2FeatureValues[0]
     curve2SecondFeature = curve2FeatureValues[1]
-   
     # ---- the following perameters measure how of one pareto front 
     # ---- is containted in the other one
     VAB = 0 #look at the link provided bellow for explanation of each one of these variables
@@ -98,15 +170,15 @@ def compare_two_pareto_fronts(curve1FeatureValues, curve2FeatureValues):
     VABDic = {} 
     VBADic = {} 
     for radiusPair in permutedRadius: 
-        VAB = 0 #the high this number the weaker the paretoFront
+        VAB = 0 #the high this number the weaker the paretoFront (A weaker than B, 1 is the maximum value)
         VBA = 0  #the high this number the weaker the paretoFront
         for index1,element1 in enumerate(zip(curve1FirstFeature, curve1SecondFeature)):
-            if aMemberOfBStar(element1, zip(curve2FirstFeature, curve2SecondFeature), radiusPair[0], radiusPair[1]):
+            if aMemberOfBStar(element1, zip(curve2FirstFeature, curve2SecondFeature), radiusPair[0], radiusPair[1], maxX, maxY):
                 VAB +=1;
         VAB = float(VAB)/len(curve1FirstFeature)
         VABDic[radiusPair] = VAB; 
         for index1,element1 in enumerate(zip(curve2FirstFeature, curve2SecondFeature)):
-            if aMemberOfBStar(element1, zip(curve1FirstFeature, curve1SecondFeature), radiusPair[0], radiusPair[1]):
+            if aMemberOfBStar(element1, zip(curve1FirstFeature, curve1SecondFeature), radiusPair[0], radiusPair[1], maxX, maxY):
                 VBA +=1
     
         VBA = float(VBA)/len(curve2FirstFeature)
@@ -150,9 +222,9 @@ def main():
         curve1FeatureValues.append(map(lambda x: x.get_PSNR(), lOfParetoPoints1))
         curve2FeatureValues.append(map(lambda x: x.get_PSNR(), lOfParetoPoints2))
     else:
-        curve1FeatureValues.append(map(lambda x: x.get_SNR(), lOfParetoPoints1))
+        curve1FeatureValues.append(map(lambda x: x.get_quality(), lOfParetoPoints1))
         
-        curve2FeatureValues.append(map(lambda x: x.get_SNR(), lOfParetoPoints2))
+        curve2FeatureValues.append(map(lambda x: x.get_quality(), lOfParetoPoints2))
     
     curve1FeatureValues.append(map(lambda x: x.get_energy(), lOfParetoPoints1))
     curve2FeatureValues.append(map(lambda x: x.get_energy(), lOfParetoPoints2))

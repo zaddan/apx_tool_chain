@@ -7,7 +7,7 @@ from extract_pareto_set_from_raw_material import *
 
 
 class pareto_set:
-    def __init__(self, lOfRawPoints, maxX=True, maxY=False):
+    def __init__(self, lOfRawPoints, maxX, maxY):
         self.lOfRawPoints = lOfRawPoints
         self.lOfParetoPoints = pareto_frontier(lOfRawPoints, maxX, maxY)
         self.axis_1 = maxX

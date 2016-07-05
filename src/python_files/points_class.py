@@ -16,6 +16,7 @@ class points:
         self.lOfAccurateValues = [] 
         self.lOfRawValues = []
         self.dealingWithPics = False
+        self.quality_is_set = False
 
     def set_dealing_with_pics(self, dealingWithPics):
         self.dealingWithPics = dealingWithPics
@@ -32,7 +33,12 @@ class points:
     def append_accurate_values(self, value):
         self.lOfAccurateValues.append(value)
     def set_SNR(self, SNR):
+        assert(not(1 == 2))
         self.SNR = SNR
+    def set_quality(self, quality_value):
+        self.quality = abs(quality_value)
+        self.quality_is_set = True
+    
     def set_PSNR(self, PSNR):
         self.PSNR = PSNR
     def set_input_obj(self, inputObj):
@@ -64,22 +70,39 @@ class points:
     
     def get_dealing_with_pics(self):
         return self.dealingWithPics 
-    def calculate_SNR(self, yourImageName="", originalImageName=""):
+    def calculate_quality(self, yourImageName="", originalImageName=""):
         if (error_mode == "nearest_neighbors_2d"):
-            #print map(lambda x: math.sqrt(float(x[0])**2 + float(x[1])**2), self.lOfAccurateValues[0])
-            #sys.exit()
-            NSR= (numpy.mean(self.lOfError)/numpy.mean(map(lambda y: sum(map(lambda x: math.sqrt(float(x[0])**2 + float(x[1])**2), y))/len(y), self.lOfAccurateValues)))
+            mean_of_acc_values =  numpy.mean(map(lambda y: sum(map(lambda x: math.sqrt(float(x[0])**2 + float(x[1])**2), y))/len(y), self.lOfAccurateValues))
+            assert (not(mean_of_acc_values == 0))
+            NSR= (numpy.mean(self.lOfError)/mean_of_acc_values)
         else: 
-            NSR= (numpy.mean(self.lOfError)/numpy.mean(map(lambda x: sum(map (lambda y: float(y), x))/len(x), self.lOfAccurateValues)))
-        if (NSR == 0):
-            # self.SNR = 50
-            if (error_mode == "nearest_neighbors_2d"):
-                self.SNR =  numpy.mean(map(lambda y : sum(map(lambda x: math.sqrt(float(x[0])**2 + float(x[1])**2), y))/len(y), self.lOfAccurateValues))
-            else:  
-                self.SNR =  numpy.mean(map(lambda x: sum(map (lambda y: float(y), x))/len(x), self.lOfAccurateValues))
-        else: 
-            self.SNR =  1/NSR
+            mean_of_acc_values =  numpy.mean(map(lambda x: sum(map (lambda y: float(y), x))/len(x), self.lOfAccurateValues))
+            assert (not(mean_of_acc_values == 0))
+            NSR= (numpy.mean(self.lOfError)/mean_of_acc_values)
+        
+        if (quality_mode == "snr"):
+            if(NSR == 0):
+                print "******* noise is zero, make sure SNR is the right quality mode****"
+                if (error_mode == "nearest_neighbors_2d"):
+                    self.SNR =  numpy.mean(map(lambda y : sum(map(lambda x: math.sqrt(float(x[0])**2 + float(x[1])**2), y))/len(y), self.lOfAccurateValues))
+                    self.quality = abs(self.SNR)
+                    self.quality_is_set = True
+                else:  
+                    self.SNR =  numpy.mean(map(lambda x: sum(map (lambda y: float(y), x))/len(x), self.lOfAccurateValues))
+                    self.quality = abs(self.SNR)
+                    self.quality_is_set = True
+            else: 
+                self.SNR =  1/NSR
+                self.quality = abs(1/NSR)
+                self.quality_is_set = True
 
+        elif (quality_mode == "nsr"):
+            self.quality = abs(NSR)
+            self.quality_is_set = True
+        else:
+            print "*****ERROR: this quality_mode is not defined***"
+            sys.exit();
+       
     def calculate_PSNR(self, yourImageName="", originalImageName=""):
         refImage = self.inputObj.refImage
         noisyImage = self.inputObj.noisyImage
@@ -91,4 +114,10 @@ class points:
         return self.PSNR
      
     def get_SNR(self):
+        assert(not(1==0))
         return self.SNR
+    def get_quality(self):
+        assert(self.quality_is_set) 
+        assert(self.quality >=0) 
+        return self.quality
+

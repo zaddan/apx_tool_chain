@@ -31,17 +31,22 @@ Default behaviour is to find the maximum for both X and Y, but the option is
 available to specify maxX = False or maxY = False to find the minimum for either
 or both of the parameters.
 '''
-def pareto_frontier(lOfPoints , maxX = True, maxY = True):
+def pareto_frontier(lOfPoints , maxX , maxY) :
+    print "in the pareto extraction"
+    print "list of points before pareto extraction"
+    for el in lOfPoints:
+        print el.get_quality()
+        print el.get_energy()
+        print "------" 
     # Sort the list in either ascending or descending order of X
     Xs = []  
     Ys = []  
     for point in lOfPoints:
-        #Xs.append(point.get_SNR())
         
         if (point.get_dealing_with_pics()):
             Xs.append(point.get_PSNR())
         else:
-            Xs.append(point.get_SNR())
+            Xs.append(point.get_quality())
         
         Ys.append(point.get_energy())
 
@@ -103,20 +108,28 @@ def pareto_frontier(lOfPoints , maxX = True, maxY = True):
     #print lOfIndex 
     for index in sorted(lOfIndex):
         lOfParetoPoints.append(lOfPoints[index])
+    
+    
+    
+    print "list of points after pareto extraction"
+    for el in lOfParetoPoints:
+        print el.get_quality()
+        print el.get_energy()
+        print "------" 
+    
     return lOfParetoPoints
 
 
-def pareto_frontier_2(lOfPoints , maxX = True, maxY = True):
+def pareto_frontier_2(lOfPoints , maxX , maxY ):
     # Sort the list in either ascending or descending order of X
     Xs = []  
     Ys = []  
     for point in lOfPoints:
-        #Xs.append(point.get_SNR())
         
         if (point.get_dealing_with_pics()):
             Xs.append(point.get_PSNR())
         else:
-            Xs.append(point.get_SNR())
+            Xs.append(point.get_quality())
         
         Ys.append(point.get_energy())
 
@@ -144,7 +157,7 @@ def pareto_frontier_2(lOfPoints , maxX = True, maxY = True):
 
 
 
-def pareto_frontier_revised(lOfPoints , maxX = True, maxY = True):
+def pareto_frontier_revised(lOfPoints , maxX , maxY):
     # Sort the list in either ascending or descending order of X
     Xs = []  
     Ys = []  
@@ -177,22 +190,21 @@ def pareto_frontier_revised(lOfPoints , maxX = True, maxY = True):
 
 
 
-def extract_all_pareto_frontier(lOfPoints , maxX = True, maxY = True):
+def extract_all_pareto_frontier(lOfPoints , maxX , maxY):
     # Sort the list in either ascending or descending order of X
     Xs = []  
     Ys = []  
     for point in lOfPoints:
-        #Xs.append(point.get_SNR())
         
         if (point.get_dealing_with_pics()):
             Xs.append(point.get_PSNR())
         else:
-            Xs.append(point.get_SNR())
+            Xs.append(point.get_quality())
         
         Ys.append(point.get_energy())
 
     
-    myList = sorted([[Xs[i], Ys[i], i] for i in range(len(Xs))], reverse=maxX)
+    myList = sorted([[Xs[i], Ys[i], i] for i in range(len(Xs))], reverse=earaxX)
     # Start the Pareto frontier with the first value in the sorted list
     lOfAllParetoFronts = [] 
     p_front = [myList[0]]    
@@ -236,7 +248,7 @@ def extract_all_pareto_frontier(lOfPoints , maxX = True, maxY = True):
 def paretoTest():
     x = [1,2,3,4,5,6,7,8]
     y = [100,80,90, 40, 85, 30, 10,15]
-    paretoX, paretoY = pareto_frontier(x, y, maxX = False, maxY = False)
+    paretoX, paretoY = pareto_frontier(x, y, maxX , maxY)
     plt.plot(x, y, 'rx')
     #plt.plot(paretoX, paretoY, 'go')
     plt.show()

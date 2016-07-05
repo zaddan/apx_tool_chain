@@ -90,7 +90,7 @@ def generate_snr_energy_graph(dealingWithPics, lOfPoints, plotPareto, symbolsToC
         lOfEnergy = [] 
         for point in lOfPoints_refined:
             if point.get_PSNR() != avgAccurateValue:
-                lOfSNR.append(point.get_PSNR())
+                lOfQualityValues.append(point.get_PSNR())
                 lOfEnergy.append(point.get_energy())
         generateGraph(lOfPSNR,lOfEnergy, "PSNR", "Energy", symbolsToChooseFrom[symbolIndex])
         symbolsCollected.append(symbolsToChooseFrom[symbolIndex]) 
@@ -99,16 +99,21 @@ def generate_snr_energy_graph(dealingWithPics, lOfPoints, plotPareto, symbolsToC
             avgAccurateValue  =  numpy.mean(map(lambda y : sum(map(lambda x: math.sqrt(float(x[0])**2 + float(x[1])**2), y))/len(y), lOfAccurateValues))
         else:
             avgAccurateValue =  numpy.mean(map(lambda x: sum(map (lambda y: float(y), x))/len(x), lOfAccurateValues))
-        lOfSNR = [] 
+        lOfQualityValues = [] 
         lOfEnergy = [] 
-        for point in lOfPoints_refined:
-            if point.get_SNR() != avgAccurateValue:
-                lOfSNR.append(point.get_SNR())
+        if (quality_mode == "snr"): 
+            for point in lOfPoints_refined:
+                if point.get_SNR() != avgAccurateValue:
+                    lOfQualityValues.append(point.get_quality())
+                    lOfEnergy.append(point.get_energy())
+        else:
+            for point in lOfPoints_refined:
+                lOfQualityValues.append(point.get_quality())
                 lOfEnergy.append(point.get_energy())
-        
+
         symbolsCollected.append(symbolsToChooseFrom[symbolIndex]) 
-        print "List of SNR: " + str(lOfSNR)
-        generateGraph(lOfSNR,lOfEnergy, "SNR", "Energy", symbolsToChooseFrom[symbolIndex])
+        print "List of Quality Values: " + str(lOfQualityValues)
+        generateGraph(lOfQualityValues,lOfEnergy, "QualityValues", "Energy", symbolsToChooseFrom[symbolIndex])
     return symbolsCollected
 
 def getLimitedList(src):
@@ -343,6 +348,8 @@ def main():
     # lOfOperandSet = [] 
     timeBeforeFindingResults = datetime.datetime.now()
     lOfAccurateValues = []
+    print "wtf is heppening"
+    print nameOfAllOperandFilesList
     for inputNumber,operandSampleFileName in enumerate(nameOfAllOperandFilesList):
         countSoFar = 0 
         #clearly state where the new results associated with the new input starts 
@@ -369,9 +376,11 @@ def main():
         modifyOperatorSampleFile(operatorSampleFileFullAddress, accurateSetUp)
         
         
+        sys.stdout.flush()
         #---------guide:::  run the CSrouce file with the new setUp(operators)
         make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name)
         
+        sys.stdout.flush()
         #---------guide::: error
         accurateValues = extractAccurateValues(CSourceOutputForVariousSetUpFileName)
         assert(accurateValues != None)
@@ -439,7 +448,7 @@ def main():
           
              
             if not(eval(inputObj.dealingWithPics)): 
-                newPoint.calculate_SNR()
+                newPoint.calculate_quality()
             apxIndexSetUp += 1  
             if (status == "done"):
                 break;
@@ -462,7 +471,19 @@ def main():
             # remainingPopulation.pop(indexToChoose) 
         #     allConfs.append(sampleSetUp)
            
-        creator.create("FitnessMin", base.Fitness, weights=(-1.0, 1.0))
+        if (maxX):
+            x_direction = 1
+        else:
+            x_direction = -1
+
+        if (maxY):
+            y_direction = 1
+        else:
+            y_direction = -1
+
+
+        
+        creator.create("FitnessMin", base.Fitness, weights=(x_direction, y_direction))
         creator.create("Individual", list, fitness=creator.FitnessMin)
         toolbox = base.Toolbox()
 
@@ -493,7 +514,7 @@ def main():
             if(eval(inputObj.dealingWithPics)): 
                 newPoint.set_PSNR(individual.fitness.values[1])
             else:
-                newPoint.set_SNR(individual.fitness.values[1])
+                newPoint.set_quality(individual.fitness.values[1])
             newPoint.set_energy(individual.fitness.values[0])
             newPoint.set_setUp(list(individual))
             newPoint.set_setUp_number(0)
@@ -527,7 +548,8 @@ def main():
     
     if not(mode == "only_read_values" or mode == "read_values_and_get_pareto"):
         with open(PIK, "wb") as f:
-            for point in lOfPoints: 
+            resultPoints = pareto_frontier(lOfPoints, maxX, maxY)
+            for point in resultPoints: 
                 pickle.dump(copy.deepcopy(point), f)
 
     
@@ -553,10 +575,12 @@ def main():
     # ---- find the pareto curve of lOfPoints
     delimeter = [workingList[0], workingList[-1] +1] 
     if settings.method == "localParetoPieceParetoResult":
-        resultPoints = pareto_frontier(lOfPoints, maxX= True, maxY = False)
+        print "lenght of list of all points are:"
+        print len(lOfPoints)
+        resultPoints = pareto_frontier(lOfPoints, maxX, maxY)
         delimeter = [workingList[0], workingList[-1] +1] 
         #moduleParetoSet  = pareto_set(resultPoints, True, False)
-        pointSet  = point_set(resultPoints, "pareto", True, False);
+        pointSet  = point_set(resultPoints, "pareto", maxX, maxY);
         pointSet.set_delimeter(delimeter)
         with open(settings.lOfParetoSetFileName, "a") as f:
             pickle.dump(copy.deepcopy(pointSet), f)
@@ -610,7 +634,7 @@ def main():
         if(eval(inputObj.dealingWithPics)): 
             resultTuple.append((point.get_setUp(), point.get_PSNR(), point.get_energy()))
         else:
-            resultTuple.append((point.get_setUp(), point.get_SNR(), point.get_energy()))
+            resultTuple.append((point.get_setUp(), point.get_quality(), point.get_energy()))
 
     finalResultFileFullAddress = rootResultFolderName + "/" + finalResultFileName
     writeReadableOutput(resultTuple,  symbolsCollected, finalResultFileFullAddress)

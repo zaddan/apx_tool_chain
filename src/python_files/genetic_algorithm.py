@@ -116,9 +116,12 @@ def run_spea2(NGEN, MU, LAMBDA, CXPB, MUTPB, population,
         CBuildFolder, operandSampleFileName, lOfAccurateValues, toolbox, nameOfAllOperandFilesList, inputObj, ignoreIndexList):
      
     def specializedEval(individual):
+        print "started specialized Eval" 
+        sys.stdout.flush() 
         newPoint = points() 
         newPoint.set_dealing_with_pics(eval(inputObj.dealingWithPics))
         for operandIndex, operandSampleFileName in enumerate(nameOfAllOperandFilesList):
+            print "operandblah blah" + str(operandIndex) 
             energyValue = [getEnergy(individual)]
             open(CSourceOutputForVariousSetUpFileName, "w").close()
              
@@ -146,14 +149,17 @@ def run_spea2(NGEN, MU, LAMBDA, CXPB, MUTPB, population,
          
         # print "here is the config " + str(newPoint.get_setUp())
         if not(eval(inputObj.dealingWithPics)):
-            newPoint.calculate_SNR()
+            newPoint.calculate_quality()
+            print "errors" 
+            print newPoint.get_lOfError()
+            print "here is my quality values"
+            print newPoint.get_quality()
         # if (inputObj.dealingWithPics):
         #     newPoint.calculate_PSNR()
-        # print "here is the snr " + str(newPoint.get_SNR())
         if eval(inputObj.dealingWithPics):
             return (newPoint.get_energy(), newPoint.get_PSNR())
         else:
-            return (newPoint.get_energy(), newPoint.get_SNR())
+            return (newPoint.get_energy(), newPoint.get_quality())
 
        
     stats = tools.Statistics(lambda ind: ind.fitness.values)
@@ -168,6 +174,8 @@ def run_spea2(NGEN, MU, LAMBDA, CXPB, MUTPB, population,
     algorithms.eaMuPlusLambda(population, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN, stats)
     # nonDominatedSort = tools.sortNondominated(population, len(population))
     # print nonDominatedSort 
+    print "end specialized Eval" 
+    sys.stdout.flush() 
     return population
 
 
