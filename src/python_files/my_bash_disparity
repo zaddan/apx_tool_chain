@@ -1,0 +1,70 @@
+#!/bin/bash
+
+removing all the previous files
+rm ref_results_pickled
+rm pareto_set_file.txt
+rm ref.png
+rm combine.png
+rm pickled_results
+rm pareto_curved_combined_pickled
+echo "done0"
+
+cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/
+cp computeSAD_apx.txt computeSAD.c
+cp finalSAD_apx.txt finalSAD.c
+cp integralImage2D2D_apx.txt integralImage2D2D.c
+
+cd /home/polaris/behzad/behzad_local/apx_tool_chain/src/python_files/
+python run_tool_chain.py
+cp pickled_results ref_results_pickled
+
+rm pareto_set_file.txt
+cp ../../generated_text/finalResult.png ref.png
+echo "done1"
+
+
+
+cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/
+cp computeSAD_acc.txt computeSAD.c
+cp finalSAD_acc.txt finalSAD.c
+cp integralImage2D2D_acc.txt integralImage2D2D.c
+
+cp computeSAD_apx.txt computeSAD.c
+cp integralImage2D2D_apx.txt integralImage2D2D.c 
+
+cd /home/polaris/behzad/behzad_local/apx_tool_chain/src/python_files/
+python run_tool_chain.py
+
+rm ../../generated_text/finalResult.png 
+rm pickled_results
+echo "done2"
+
+
+
+cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/
+cp computeSAD_acc.txt computeSAD.c
+cp finalSAD_acc.txt finalSAD.c
+cp integralImage2D2D_acc.txt integralImage2D2D.c
+
+
+cp finalSAD_apx.txt finalSAD.c
+
+cd /home/polaris/behzad/behzad_local/apx_tool_chain/src/python_files/
+python run_tool_chain.py
+rm ../../generated_text/finalResult.png 
+rm pickled_results
+echo "done3"
+
+#returning all the files to approximate version (so we can get the accurate result)
+cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/
+cp computeSAD_apx.txt computeSAD.c
+cp finalSAD_apx.txt finalSAD.c
+cp integralImage2D2D_apx.txt integralImage2D2D.c
+
+
+cd /home/polaris/behzad/behzad_local/apx_tool_chain/src/python_files/
+python combine_paretos.py
+python compare_pareto_curves.py >> compare_results.txt
+cp ../../generated_text/finalResult.png combine.png
+echo "done4"
+

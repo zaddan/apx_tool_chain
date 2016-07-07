@@ -21,17 +21,17 @@ def extract_unique_noise(lOfPoints, dealingWithPics):
                 uniqueListPoints.append(point)
         else:
             try: 
-                 pointIndex = lOfNoise.index(point.get_SNR())
+                 pointIndex = lOfNoise.index(point.get_quality())
             except Exception as ex:
                 if (type(ex).__name__ == "ValueError"):
                     pointIndex = None 
             if (pointIndex != None):
-                if point.get_SNR() < lOfEnergy[pointIndex]:
+                if point.get_quality() < lOfEnergy[pointIndex]:
                     lOfEnergy[pointIndex] = point.get_energy() 
                     uniqueListPoints[pointIndex] = point
             else:
                 lOfEnergy.append(point.get_energy()) 
-                lOfNoise.append(point.get_SNR())
+                lOfNoise.append(point.get_quality())
                 uniqueListPoints.append(point)
     return uniqueListPoints
 

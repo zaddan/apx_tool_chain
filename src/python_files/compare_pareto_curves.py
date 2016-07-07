@@ -23,10 +23,51 @@ import datetime
 from points_class import *
 import pickle
 from points_class import *
+
+
+def nearest_neighbors_2d(x, y) :
+    #x, y = map(np.asarray, (x, y))
+    #y = y.copy()
+    y_idx = range(len(y))
+    nearest_neighbor = np.empty((len(x),), dtype=np.intp)
+    for j, xj in enumerate(x) :
+        #idx = np.argmin(map(lambda xtemp, ytemp : np.linalg.norm(ytemp, xtemp), y , xj))
+        dist = map(lambda ytemp: find_distance(xj, ytemp), y )
+        idx = np.argmin(np.asarray(dist))
+        nearest_neighbor[j] = y_idx[idx]
+
+    return nearest_neighbor
+
+
+def find_distance(x,y):
+    return math.sqrt(((float(x[0]) - float(y[0]))**2 + (float(x[1]) - float(y[1]))**2))
+
+def calc_distance_for_nearest_neighbors_2d(ref_values, tobe_compared_values):
+    error = [] 
+    #---turn the lists into dictionaries 
+    if len(ref_values) < len(tobe_compared_values):
+        ref1 = ref_values 
+        ref2 = tobe_compared_values 
+    else:
+        ref2 = ref_values 
+        ref1 = tobe_compared_values 
+
+    #get the list of indecies of nearest neighbors
+    indecies = nearest_neighbors_2d(ref2[:], ref1[:])
+    #calculate error 
+    for i in range(len(indecies)):
+        error.append(find_distance(ref2[i], ref1[indecies[i]]))
+    return error
+
+
+
 #**--------------------**
 #**--------------------**
 #----disclaimers::: aMemberB needs to generalized for all type of optimizations
 #**--------------------**
+
+
+
 
 #--------------------**
 def getPoints(file1_name):     
@@ -230,7 +271,13 @@ def main():
     curve2FeatureValues.append(map(lambda x: x.get_energy(), lOfParetoPoints2))
      
     # ---- comparing the two curves
-    compare_two_pareto_fronts(curve1FeatureValues, curve2FeatureValues)
+    if (pareto_comparison_mode == "comparison_of_nearest_neighbours"):
+        refZipped = zip(curve1FeatureValues[0], curve1FeatureValues[1])
+        tobeComparedZipped = zip(curve2FeatureValues[0], curve2FeatureValues[1])
+        print "the mean distance between the two curve is:" 
+        print np.mean(calc_distance_for_nearest_neighbors_2d(refZipped, tobeComparedZipped))
+    if (pareto_comparison_mode == "subsumption_comparison"):
+        compare_two_pareto_fronts(curve1FeatureValues, curve2FeatureValues)
     
     # generateGraph(map(lambda x: x.get_PSNR(), lOfParetoPoints1), map(lambda x: x.get_energy(), lOfParetoPoints1), "PSNR", "Energy", symbolsToChooseFrom[symbolIndex])
     # # compare_two_pareto_fronts(PIK1, PIK2)
