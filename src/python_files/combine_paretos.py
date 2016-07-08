@@ -1,12 +1,17 @@
 import pickle
 import copy
-import pylab
 import sys
 import os
 from plot_generation import *
 from compare_pareto_curves import getPoints
+import multiprocessing
+
+import matplotlib
+matplotlib.use('Agg') 
+
+import pylab
 import matplotlib.pyplot as plt
-plt.ioff()
+#plt.ioff()
 from inputs import *#this file contains all the inputs
 from scipy.spatial import distance
 from src_parse_and_apx_op_space_gen import *
@@ -60,7 +65,9 @@ def get_point_set(file1_name):
 
  
 
-def point_combine(srcFile):
+#def point_combine(srcFile):
+if __name__ == "__main__":
+    srcFile = "pareto_set_file.txt" #file containing paretoSets
     inputObj = inputClass()
     inputObj.expandAddress()
     CSrcFolderAddress = inputObj.CSrcFolderAddress
@@ -93,7 +100,7 @@ def point_combine(srcFile):
     inputNumber = 0 
     nameOfAllOperandFilesList = getNameOfFilesInAFolder(AllOperandsFolderName)
     
-    CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings.rawResultFolderName + "/" + settings.csourceOutputFileName + str(inputNumber) + ".txt" #where to collect C++ source results
+    CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings.rawResultFolderName + "/" + settings.csourceOutputFileName + str(0) + ".txt" #where to collect C++ source results
     operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings.operatorSampleFileName
     executableName = "tool_exe" #src file to be analyzed
     executableInputList = [] 
@@ -127,7 +134,7 @@ def point_combine(srcFile):
     for inputNumber,operandSampleFileName in enumerate(nameOfAllOperandFilesList):
         countSoFar = 0 
         #clearly state where the new results associated with the new input starts 
-        CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings.rawResultFolderName + "/" + settings.csourceOutputFileName + str(inputNumber) + ".txt" #where to collect C++ source results
+        CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings.rawResultFolderName + "/" + settings.csourceOutputFileName + str(0) + ".txt" #where to collect C++ source results
         # newOperand =  operandSet(get_operand_values(operandSampleFileName))
         accurateValues = []
         error.append([])
@@ -135,7 +142,7 @@ def point_combine(srcFile):
         config.append( [])
         inputFileNameList.append([])
         mode = settings.mode 
-        operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings.operatorSampleFileName
+        operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings.operatorSampleFileName + str(0) + ".txt"
         
         #---------guide:::  getting accurate values associated with the CSource output
         #accurateSetUp,_,_= generateAccurateScenario(allPossibleScenariosForEachOperator,ignoreListIndecies)
@@ -147,7 +154,7 @@ def point_combine(srcFile):
         #---------guide:::  modify the operator sample file
         modifyOperatorSampleFile(operatorSampleFileFullAddress, accurateSetUp)
         #---------guide:::  run the CSrouce file with the new setUp(operators)
-        make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name)
+        make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0)
         #---------guide::: error
         accurateValues = extractAccurateValues(CSourceOutputForVariousSetUpFileName)
         lOfAccurateValues.append(accurateValues)
@@ -159,12 +166,24 @@ def point_combine(srcFile):
     def specializedEval(individual):
         newPoint = points() 
         newPoint.set_dealing_with_pics(eval(inputObj.dealingWithPics))
+        
+        if (runMode == "parallel"): 
+            exe_annex = multiprocessing.current_process()._identity[0] 
+            print "proccess id: " 
+        
         for operandIndex, operandSampleFileName in enumerate(nameOfAllOperandFilesList):
             energyValue = [getEnergy(individual)]
+            
+            if (runMode == "parallel"): 
+                CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings.rawResultFolderName + "/" + settings.csourceOutputFileName + str(multiprocessing.current_process()._identity[0]) + ".txt" #where to collect C++ source results
+                operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings.operatorSampleFileName + str(multiprocessing.current_process()._identity[0]) + ".txt"
+            else: 
+                CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings.rawResultFolderName + "/" + settings.csourceOutputFileName + str(0) + ".txt" #where to collect C++ source results
+                operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings.operatorSampleFileName + str(0) + ".txt"
+            
             open(CSourceOutputForVariousSetUpFileName, "w").close()
-
             modifyOperatorSampleFile(operatorSampleFileFullAddress, individual)
-            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name)
+            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, exe_annex)
             errorValue = [extractErrorForOneInput(CSourceOutputForVariousSetUpFileName , lOfAccurateValues[operandIndex])]
             configValue = [individual]
             rawValues = [extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)]
@@ -241,8 +260,19 @@ def point_combine(srcFile):
         mergedConfig = list(itertools.chain.from_iterable(elm)) 
         lOfNewSetUp.append(mergedConfig)
     newListOfPoints = []   
-    for element in lOfNewSetUp:
-        newListOfPoints.append(specializedEval(element))
+    
+    #--combining the points 
+    if (runMode == "parallel"):
+        pool = multiprocessing.Pool()
+        newListOfPoints = pool.map(specializedEval, lOfNewSetUp)
+    elif (runMode == "serial"):
+        newListOfPoints = map(specializedEval, lOfNewSetUp)
+    else: 
+        print ("*******ERROR: this runMode not defined*****")
+        sys.exit()
+    
+    #for element in lOfNewSetUp:
+        #newListOfPoints.append(specializedEval(element))
     
     #---------------------------------
     #---------------------------------
@@ -267,9 +297,11 @@ def point_combine(srcFile):
     lOfQualityValue_ref = map(lambda x: x.get_quality(), lOfParetoPoints_ref)
     lOfEnergyValue_ref = map(lambda x: x.get_energy(), lOfParetoPoints_ref)
     
-    generateGraph(lOfQualityValue,lOfEnergy, "quality", "Energy", "^")
-    generateGraph(lOfQualityValue_ref,lOfEnergyValue_ref, "quality", "Energy", "*")
-    pylab.savefig(finalResultFileFullAddress[:-4]+".png") #saving the figure generated by generateGraph
+     
+    if settings.runToolChainGenerateGraph: 
+        generateGraph(lOfQualityValue,lOfEnergy, "quality", "Energy", "^")
+        generateGraph(lOfQualityValue_ref,lOfEnergyValue_ref, "quality", "Energy", "*")
+        pylab.savefig(finalResultFileFullAddress[:-4]+".png") #saving the figure generated by generateGraph
     
     PIK = "pareto_curved_combined_pickled" 
     with open(PIK, "wb") as f:
@@ -297,10 +329,10 @@ def point_combine(srcFile):
     # plt.show() 
     
 
-def main():
-    inputFileName = "pareto_set_file.txt" #file containing paretoSets
-    point_combine(inputFileName)
+#def main():
+#    inputFileName = "pareto_set_file.txt" #file containing paretoSets
+#    point_combine(inputFileName)
 
 
-if __name__ == "__main__":
-    main()
+#if __name__ == "__main__":
+#    main()
