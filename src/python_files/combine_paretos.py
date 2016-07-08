@@ -6,7 +6,7 @@ import os
 from plot_generation import *
 from compare_pareto_curves import getPoints
 import matplotlib.pyplot as plt
-
+plt.ioff()
 from inputs import *#this file contains all the inputs
 from scipy.spatial import distance
 from src_parse_and_apx_op_space_gen import *

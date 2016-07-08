@@ -1,4 +1,7 @@
 
+from scoop import futures, shared
+import multiprocessing
+
 # Copyright (C) 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -35,7 +38,7 @@
 #--------------------**
 
 
-
+import time
 import pickle
 import copy
 import pylab
@@ -57,6 +60,7 @@ import settings
 from extract_result_properties import *
 from plot_generation import *
 import matplotlib.pyplot as plt
+plt.ioff()
 from find_position import *
 from write_readable_output import *
 from clean_up import *
@@ -134,7 +138,10 @@ def getLimitedList(src):
 # @brief this is the main function (which takes care of the description mentioned in the file description)
 # 
 # @return : no return
-def main():
+
+#def main():
+if __name__ == "__main__":
+    start = time.time() 
     #---------guide:::  promting ther user regarding the required input
     print "the following inputs needs to be provided in the " + str(settings.userInputFile)
     print "1.source folder address"
@@ -355,13 +362,14 @@ def main():
         #clearly state where the new results associated with the new input starts 
         CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings.rawResultFolderName + "/" + settings.csourceOutputFileName + str(inputNumber) + ".txt" #where to collect C++ source results
         # newOperand =  operandSet(get_operand_values(operandSampleFileName))
+        
         accurateValues = []
         error.append([])
         energy.append( [])
         config.append( [])
         inputFileNameList.append([])
         mode = settings.mode 
-        operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings.operatorSampleFileName
+        operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings.operatorSampleFileName + str(0) + ".txt"
         
         
         #---------guide:::  getting accurate values associated with the CSource output
@@ -378,7 +386,7 @@ def main():
         
         sys.stdout.flush()
         #---------guide:::  run the CSrouce file with the new setUp(operators)
-        make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name)
+        make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0)
         
         sys.stdout.flush()
         #---------guide::: error
@@ -413,11 +421,10 @@ def main():
                 inputFileNameListValue = [operandSampleFileName] 
                 CSourceOutputForVariousSetUpP = open(CSourceOutputForVariousSetUpFileName, "w").close()
                 modifyOperatorSampleFile(operatorSampleFileFullAddress, setUp)
-                make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name)
+                make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0)
                 errorValue = [extractErrorForOneInput(CSourceOutputForVariousSetUpFileName , lOfAccurateValues[operandIndex])]
                 rawValues = [extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)]
                 
-                sys.exit(0) 
                 newPoint.append_raw_values(rawValues[0])  
                 newPoint.append_error(errorValue[0])
                 newPoint.set_energy(energyValue[0])
@@ -489,6 +496,7 @@ def main():
 
         # Operator registering
         toolbox.register("individual", tools.initRepeat, creator.Individual)
+        #toolbox.register("map", futures.map) 
         # toolbox.register("population", tools.initRepeat, list, toolbox.individual )
         population = []
         for index in range(len(allConfs)):
@@ -501,10 +509,92 @@ def main():
         LAMBDA = settings.LAMBDA#number of children
         CXPB = settings.CXPB 
         MUTPB = settings.MUTPB
-        population = run_spea2(NGEN, MU, LAMBDA, CXPB, MUTPB, population,
-                    CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress,
-                    executableName, executableInputList, rootResultFolderName, CBuildFolder,
-                    operandSampleFileName, lOfAccurateValues, toolbox, nameOfAllOperandFilesList, inputObj, ignoreListIndecies)
+         
+#        population = run_spea2(NGEN, MU, LAMBDA, CXPB, MUTPB, population,
+#                    CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress,
+#                    executableName, executableInputList, rootResultFolderName, CBuildFolder,
+#                    operandSampleFileName, lOfAccurateValues, toolbox, nameOfAllOperandFilesList, inputObj, ignoreListIndecies)
+        
+        def specializedEval(individual):
+            exe_annex = 0
+            if (runMode == "parallel"): 
+                exe_annex = multiprocessing.current_process()._identity[0] 
+                print "proccess id: " 
+            
+            print "started specialized Eval" 
+            #print "-----end" 
+            #print multiprocessing.current_process()
+            sys.stdout.flush() 
+            newPoint = points() 
+            newPoint.set_dealing_with_pics(eval(inputObj.dealingWithPics))
+            for operandIndex, operandSampleFileName in enumerate(nameOfAllOperandFilesList):
+                energyValue = [getEnergy(individual)]
+                
+                if (runMode == "parallel"): 
+                    CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings.rawResultFolderName + "/" + settings.csourceOutputFileName + str(multiprocessing.current_process()._identity[0]) + ".txt" #where to collect C++ source results
+                    operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings.operatorSampleFileName + str(multiprocessing.current_process()._identity[0]) + ".txt"
+                else: 
+                    CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings.rawResultFolderName + "/" + settings.csourceOutputFileName + str(0) + ".txt" #where to collect C++ source results
+                    operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings.operatorSampleFileName + str(0) + ".txt"
+                
+                open(CSourceOutputForVariousSetUpFileName, "w").close()
+                 
+                modifyOperatorSampleFile(operatorSampleFileFullAddress, individual)
+                make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, inputObj.bench_suit_name,exe_annex) 
+                # print "here is the accurate" + str(lOfAccurateValues) 
+                errorValue = [extractErrorForOneInput(CSourceOutputForVariousSetUpFileName , lOfAccurateValues[operandIndex])]
+                configValue = [individual]
+                rawValues = [extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)]
+                print "error value for process " + str(exe_annex) + " is:"
+                #print errorValue
+                # print "where" 
+                # print errorValue 
+                newPoint.append_raw_values(rawValues[0])  
+                newPoint.append_error(errorValue[0])
+                newPoint.set_energy(energyValue[0])
+                newPoint.set_setUp(configValue[0])
+                newPoint.append_lOf_operand(get_operand_values(operandSampleFileName))
+                newPoint.append_accurate_values(lOfAccurateValues[operandIndex])
+                newPoint.set_dealing_with_pics(eval(inputObj.dealingWithPics)) 
+                newPoint.set_dealing_with_pics(eval(inputObj.dealingWithPics)) 
+                newPoint.set_input_obj(inputObj)
+                if (eval(inputObj.dealingWithPics)):
+                    newPoint.calculate_PSNR()
+            
+
+             
+            # print "here is the config " + str(newPoint.get_setUp())
+            if not(eval(inputObj.dealingWithPics)):
+                newPoint.calculate_quality()
+                #print "errors" 
+                #print newPoint.get_lOfError()
+                print "here is my quality values"
+                print newPoint.get_quality()
+            # if (inputObj.dealingWithPics):
+            #     newPoint.calculate_PSNR()
+            if eval(inputObj.dealingWithPics):
+                return (newPoint.get_energy(), newPoint.get_PSNR())
+            else:
+                return (newPoint.get_energy(), newPoint.get_quality())
+
+       
+        stats = tools.Statistics(lambda ind: ind.fitness.values)
+        a = [1,2] 
+        b = [1,2] 
+        
+        
+        toolbox.register("evaluate", specializedEval)
+        toolbox.register("mate", tools.cxTwoPoint)
+        toolbox.register("mutate", specializedMutate, ignoreListIndecies)
+        toolbox.register("select", tools.selSPEA2)
+        if (runMode == "parallel"): 
+            pool = multiprocessing.Pool() 
+            toolbox.register("map", pool.map)
+        
+        algorithms.eaMuPlusLambda(population, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN, stats)
+    
+        
+        
         # print population
         # sys.exit()
         lOfPoints = []  
@@ -611,8 +701,9 @@ def main():
     else:
         print "this method is not defined"
         exit()
-    
-    
+#    if (runMode == "parallel"): 
+#        print str(multiprocessing.current_process()._identity)
+#        print str(multiprocessing.current_process()._identity[0])  + "at the end" 
     # ---- drawing the pareto set
     symbolsCollected = [] #this list contains the symbols collected for every new input 
     symbolsToChooseFrom = ['*', 'x', "o", "+", "*", "-", "^", "1", "2", "3", "4"] #symbols to draw the plots with
@@ -636,17 +727,27 @@ def main():
         else:
             resultTuple.append((point.get_setUp(), point.get_quality(), point.get_energy()))
 
+    print "printing the results" 
+    for el in resultTuple:
+        print el
+    
     finalResultFileFullAddress = rootResultFolderName + "/" + finalResultFileName
-    writeReadableOutput(resultTuple,  symbolsCollected, finalResultFileFullAddress)
-    pylab.savefig(finalResultFileFullAddress[:-4]+".png") #saving the figure generated by generateGraph
+    if (settings.runToolChainGenerateGraph): 
+        writeReadableOutput(resultTuple,  symbolsCollected, finalResultFileFullAddress)
+        pylab.savefig(finalResultFileFullAddress[:-4]+".png") #saving the figure generated by generateGraph
     #----:::  getting back up of the results
     folderToCopyToNameProcessed = comeUpWithNewFolderNameAccordingly(rootFolder + "/" + settings.resultsBackups) 
     listOfFoldersToCopyFrom = [rootResultFolderName, CSrcFolderAddress]  
-    generateBackup(rootResultFolderBackupName, listOfFoldersToCopyFrom, folderToCopyToNameProcessed) #generating a back of the results
+    #generateBackup(rootResultFolderBackupName, listOfFoldersToCopyFrom, folderToCopyToNameProcessed) #generating a back of the results
     cleanUpExtras(rootResultFolderName) 
     #---------guide::: show the graph
     #plt.show() 
+    end = time.time()
+    print "here is the total time:"
+
+    print end - start
+    sys.stdout.flush()
 
 
-if __name__ == "__main__":
-    main()
+#if __name__ == "__main__":
+#    main()

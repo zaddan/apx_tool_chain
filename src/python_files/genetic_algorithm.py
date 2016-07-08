@@ -165,6 +165,9 @@ def run_spea2(NGEN, MU, LAMBDA, CXPB, MUTPB, population,
     stats = tools.Statistics(lambda ind: ind.fitness.values)
     a = [1,2] 
     b = [1,2] 
+    #pool = multiprocessing.Pool() 
+    #toolbox.register("map", pool.map) 
+
     toolbox.register("evaluate", specializedEval)
     toolbox.register("mate", tools.cxTwoPoint)
     toolbox.register("mutate", specializedMutate, ignoreIndexList) 

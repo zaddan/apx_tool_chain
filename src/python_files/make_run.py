@@ -76,7 +76,7 @@ def parseAndPrint(srcFileName):
 # @param resultFileName: what file to store the result to
 # 
 # @return no return
-def make_run(executableName, executableInputList, resultFolderName, resultFileName, CBuildFolder, operandSampleFileName, bench_suit_name):
+def make_run(executableName, executableInputList, resultFolderName, resultFileName, CBuildFolder, operandSampleFileName, bench_suit_name, process_id):
     if (bench_suit_name == "my_micro_benchmark"): 
         #validating the number of inputs
         #validating the existance of the dir, and making it other wise
@@ -101,7 +101,10 @@ def make_run(executableName, executableInputList, resultFolderName, resultFileNa
         os.chdir(CBuildFolder) #chaning the directory
         os.system("pwd"); 
         #os.system("gdb --args ./sift ~/behzad_local/sd-vbs/benchmarks/sift/data/sim");
-        os.system("gmake c-run")
+        if (settings.runMode == "parallel"): 
+            os.system("gmake c-run " + "exe_annex="+str(process_id))
+        else:  
+            os.system("gmake c-run " + "exe_annex="+str(0))
         os.chdir(currentDir) #chaning the directory
 
     

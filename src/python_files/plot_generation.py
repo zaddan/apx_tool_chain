@@ -9,9 +9,9 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 from matplotlib import cm
+plt.ioff()
 from extract_result_properties import *
 from extract_pareto_set_from_raw_material import *
-plt.ioff()
 
 #def generateParetoGraph(energy, noise, graphType = "2d")
 #    symbolsToChooseFrom = ['*', 'x', "o", "+", "*", "-", "^"]
