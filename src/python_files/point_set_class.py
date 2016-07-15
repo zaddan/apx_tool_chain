@@ -3,7 +3,7 @@ from points_class import *
 class point_set:
     def __init__(self, lOfRawPoints, set_type, maxX , maxY):
         if not(set_type == "pareto" or set_type=="all" or set_type == "unique"):
-            print "***ERROR, this set_type does not exist"
+            print "***ERRR, this set_type does not exist"
             exit()
         self.lOfRawPoints = lOfRawPoints
         self.set_type = set_type; 
@@ -23,7 +23,7 @@ class point_set:
         return self.set_type
     def get_direction(self):
         if not(self.set_type == "pareto"):
-            print "******ERROR*****"
+            print "******ERRR*****"
             print "this type of set does not have a direction"
             print "type:" + str(self.set_type) 
             print "****************"

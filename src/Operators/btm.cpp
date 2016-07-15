@@ -18,6 +18,10 @@ btm::btm(size_t Nt, size_t Nia, bool table_gen) {
     if (table_gen) tbl_gen();
 }
 
+size_t btm::get_ianum_bits(void) {
+	return this->vbl;
+}
+
 btm::~btm(void) {}
 
 size_t btm::get_hbl_bits(void) {

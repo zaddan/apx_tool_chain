@@ -389,7 +389,7 @@ if __name__ == "__main__":
         
         sys.stdout.flush()
         #---------guide:::  run the CSrouce file with the new setUp(operators)
-        if not(test_new_error): 
+        if not(errorTest): 
             make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0) #first make_run
             accurateValues = extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)
         else:
@@ -556,10 +556,10 @@ if __name__ == "__main__":
                 modifyOperatorSampleFile(operatorSampleFileFullAddress, individual)
                 
                 
-                if not(test_new_error): #if test_new_error generate acc.txt and apx.txt which contain accurate and apx values
+                if not(errorTest): #if errorTest generate acc.txt and apx.txt which contain accurate and apx values
                     make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, inputObj.bench_suit_name,exe_annex) 
                 # print "here is the accurate" + str(lOfAccurateValues) 
-                if (test_new_error):
+                if (errorTest):
                     newPath = "/home/local/bulkhead/behzad/usr/local/apx_tool_chain/src/python_files/scratch/apx.txt"
                     if(errorTest):
                         print "Acurate Vals:"
@@ -704,7 +704,7 @@ if __name__ == "__main__":
 
 
 
-
+    print "GOTHERE"
     # ---- reading the values back
     if (mode == "only_read_values"):
         with open(PIK_pareto, "rb") as f:

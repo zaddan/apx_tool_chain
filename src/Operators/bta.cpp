@@ -6,6 +6,8 @@
 #include "fp_helpers.h"
 using namespace std;
 
+
+
 bta::bta(size_t Nt, size_t Nia, size_t msb, size_t lsb, bool table_gen) {
 	this->Nt = Nt;
 	this->Nia = Nia;

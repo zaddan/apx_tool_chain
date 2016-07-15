@@ -126,11 +126,11 @@ def run_spea2(NGEN, MU, LAMBDA, CXPB, MUTPB, population,
             open(CSourceOutputForVariousSetUpFileName, "w").close()
              
             modifyOperatorSampleFile(operatorSampleFileFullAddress, individual)
-            if not(test_new_error): #if test_new_error generate acc.txt and apx.txt which contain accurate and apx values
+            if not(errorTest): #if errorTest generate acc.txt and apx.txt which contain accurate and apx values
                 make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, inputObj.bench_suit_name)
             # print "here is the accurate" + str(lOfAccurateValues) 
             
-            if (test_new_error):
+            if (errorTest):
                 newPath = "/home/local/bulkhead/behzad/usr/local/apx_tool_chain/src/python_files/scratch/apx.txt"
                 print "error values are " 
                 print errorValue 

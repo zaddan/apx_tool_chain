@@ -35,6 +35,7 @@ inline     virtual float calc(const float &number1, const int &number2);
 inline     virtual float calc(const int &number1, const float &number2);
 inline     virtual int calc_ref(const int &a, const int &b);
     
+        virtual size_t get_ianum_bits(void);
 size_t get_hbl_bits(void);
     size_t get_vbl_bits(void);
 

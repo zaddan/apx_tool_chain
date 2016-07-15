@@ -202,11 +202,11 @@ def calculateError(accurateValues, currentValues, mode):
         if (benchmark_name == "sift"): 
             result = calc_error_for_nearest_neighbors_2d(accurateValues , currentValues)
         else:
-            print "*****ERR****"
+            print "*****ERRR****"
             print "nearest neigbour for benchmarks other than sift has not yet. There are minor changes that need to be applied to calc_error_for_nearest_neighbors_2d function to allow this"
             sys.exit()
     else:
-        print "ERROR: this mode is not defined"
+        print "***ERRR: this mode is not defined"
         sys.exit()
     #print "here is the error calculated"
     #print result
@@ -472,7 +472,7 @@ def energyTest():
 	print extractEnergyAndConfig(repo_root_address  + "/apx_tool_chain/input_output_text_files/all_possible_apx_operators_scenarios.txt")
 	
 	
-def errorTest():
+def errorTesting():
 	#testing the modules defined in this file
 	#print calculateError([4,6],[4,0,3])
 	print extractErrorForOne(repo_root_address + "/apx_tool_chain/input_output_text_files/raw_result_foraw_results.txt")
@@ -487,5 +487,5 @@ def extractPropertyTest():
         print errorElement
 
 #energyTest()
-#errorTest()
+#errorTesting()
 #extractPropertyTest()

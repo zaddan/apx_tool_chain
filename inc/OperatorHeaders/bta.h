@@ -24,6 +24,7 @@ public:
 
 	virtual ~bta();
 
+        virtual size_t get_ianum_bits(void);
 inline	virtual int calc(const int &a, const int &b);
 inline  virtual unsigned int calc(const unsigned int &a, const unsigned int &b);
 inline  virtual int calc(const int &a, const unsigned int &b);
@@ -34,7 +35,7 @@ inline  virtual float calc(const int &number1, const float &number2);
 inline  virtual int calc_ref(const int &a, const int &b);
 
 	virtual void tbl_gen();
-	size_t get_ianum_bits(void);
+	//size_t get_ianum_bits(void);
 
 };
 
