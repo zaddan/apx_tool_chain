@@ -12,6 +12,11 @@ unsigned getNumberOfDigits (long unsigned i)
 
 void getFPComponents(float number, fpType &num){
  unsigned int* ptr = (unsigned int*)&number;
+// num.Sign = *ptr>> 31;
+// num.Exp = *ptr& 0x7f800000;
+// num.Exp >>= MANTISA_WIDTH;
+// num.Mantisa = *ptr& 0x007fffff;
+
  num.Sign = *ptr>> 31;
  num.Exp = *ptr& 0x7f800000;
  num.Exp >>= MANTISA_WIDTH;
@@ -21,8 +26,18 @@ void getFPComponents(float number, fpType &num){
 float convertFPCompToFP(fpType num){
     float result = 0;
     int expSoFar = num.Exp - bias; //what exp to use at the moment
-    int decodedMantisaWithExtraOne = (1 <<MANTISA_WIDTH) + num.Mantisa;//decode mantisa with Extra one
-    int mask = 1 << MANTISA_WIDTH;
+    int decodedMantisaWithExtraOne; 
+    if (num.Exp != 0) {   
+        decodedMantisaWithExtraOne = (1 <<MANTISA_WIDTH) + num.Mantisa;//decode mantisa with Extra one
+    } else{
+        decodedMantisaWithExtraOne = num.Mantisa;
+    }
+    int mask; 
+    if (num.Exp != 0) { 
+        mask = 1 << MANTISA_WIDTH;
+    } else{
+        mask = 1 << (MANTISA_WIDTH-1);
+    }
     int shftRightAmt = MANTISA_WIDTH;
     while(1)  {
         result += ((decodedMantisaWithExtraOne & mask) >>  shftRightAmt)* pow(2, expSoFar );
@@ -51,10 +66,12 @@ void normalizeMul(fpType &resultNum){
 }
 
 void normalizeAdd(fpType &resultNum){ 
+    printf("mantisa is %x",   resultNum.Mantisa);
     int numOfDig = getNumberOfDigits (resultNum.Mantisa);
-    if (numOfDig > MANTISA_WIDTH + 1) {
+    if (numOfDig >= (MANTISA_WIDTH + 1)) {
         resultNum.Mantisa = resultNum.Mantisa >> (numOfDig - (MANTISA_WIDTH + 1));
         resultNum.Exp= resultNum.Exp + (numOfDig - (MANTISA_WIDTH + 1));
+        cout<<"spilling"<<endl; 
     }else{
         ; //do nothing
     }

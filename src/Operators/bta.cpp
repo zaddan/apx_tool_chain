@@ -39,51 +39,19 @@ float bta::calc(const int &number1, const float &number2) {
 
 
 float bta::calc(const float &number1, const float &number2) {
+    
     fpType num1;
     fpType num2;
-    float apxResult; 
-    fpType result; 
-    fpType bigNum;
-    fpType smallNum;
-    int signMultiplicand; 
     getFPComponents(number1, num1); //get the fp componenets
     getFPComponents(number2, num2); //get the fp components
-    
-    //whether to add one or no (base on it's subnormal ness) 
-    if (num1.Exp != 0) { 
-        num1.MantisaWithOne = (1 <<MANTISA_WIDTH) + num1.Mantisa;//injaect mantisa with Extra one
-    }else{
-        num1.MantisaWithOne = num1.Mantisa; //don't dont anything
-    }
-    
-    if (num2.Exp != 0) { 
-        num2.MantisaWithOne = (1 <<MANTISA_WIDTH) + num2.Mantisa;//injaect mantisa with Extra one
-    }else{
-        num2.MantisaWithOne = num2.Mantisa; //don't dont anything
-    } 
-     
-    if (num1.Exp  < num2.Exp) { //decide on the small and big number
-      bigNum = num2;
-      smallNum = num1;
-    }  else {
-      bigNum = num1;
-      smallNum = num2;
-    }
-    
-    smallNum.MantisaWithOne = smallNum.MantisaWithOne >> (bigNum.Exp - smallNum.Exp); // align the small num
-    if (bigNum.Sign == smallNum.Sign) { //same sign
-        result.Mantisa = (bigNum.MantisaWithOne +  smallNum.MantisaWithOne);
-    }else{ //diff sign
-            result.Mantisa = (bigNum.MantisaWithOne - smallNum.MantisaWithOne);
-    }
 
-    result.Exp = bigNum.Exp;
-    result.Sign = bigNum.Sign;
-    normalizeAdd(result); //if it spills over in the process, normalize
-    result.Mantisa =  (result.Mantisa >> Nia) << Nia; //truncate mantisa
-    result.Mantisa =  result.Mantisa - (1<<MANTISA_WIDTH); 
-    apxResult = convertFPCompToFP(result);
-    return apxResult; 
+    num1.Mantisa = ((num1.Mantisa)>> Nia) <<Nia;
+    num2.Mantisa = ((num2.Mantisa)>> Nia) <<Nia;
+    
+    float num1_inverse_converted = convertFPCompToFP(num1);
+    float num2_inverse_converted = convertFPCompToFP(num2);
+    
+    return num1_inverse_converted + num2_inverse_converted;
 }
 
 

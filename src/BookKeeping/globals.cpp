@@ -4,6 +4,7 @@
 #include "operatorFile_parser.h"
 #include "setSubType.h"
 #include "operandFile_parser.h"
+#include <iostream>
 using namespace std;
 
 hw_ac **myOp;   
@@ -18,6 +19,8 @@ void assign_global_variables(string resultFolderName, string operatorFileName){
 
 
     int status = operatorFileParser(OpListFile, OpTypeVec);
+    printf("the OpTypeVec size%d\n", OpTypeVec.size()); 
+    cout<<std::flush; 
     myOp = new hw_ac*[OpTypeVec.size()];
     for (int i = 0; i<OpTypeVec.size(); i++) {
         int status = setOpSubTypeAndInputs(&myOp[i], OpTypeVec[i]);

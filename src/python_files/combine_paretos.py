@@ -77,11 +77,11 @@ if __name__ == "__main__":
     AllInputScenariosInOneFile = inputObj.AllInputScenariosInOneFile
     AllInputFileOrDirectoryName = inputObj.AllInputFileOrDirectoryName 
     finalResultFileName = inputObj.finalResultFileName
-    PIK = inputObj.PIK
+    #PIK = inputObj.PIK
     lOfInputs = []   #for debugging purposes
-    lOfInputs += [CSrcFolderAddress, lOfCSrcFileAddress, generateMakeFile, rootFolder, AllInputScenariosInOneFile , AllInputFileOrDirectoryName, finalResultFileName, PIK ]
+    #lOfInputs += [CSrcFolderAddress, lOfCSrcFileAddress, generateMakeFile, rootFolder, AllInputScenariosInOneFile , AllInputFileOrDirectoryName, finalResultFileName, PIK ]
     bench_suit_name = inputObj.bench_suit_name; 
-    assert(len(lOfInputs) == 8) 
+    #assert(len(lOfInputs) == 8) 
     
     
     
@@ -156,7 +156,7 @@ if __name__ == "__main__":
         #---------guide:::  run the CSrouce file with the new setUp(operators)
         make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0)
         #---------guide::: error
-        accurateValues = extractAccurateValues(CSourceOutputForVariousSetUpFileName)
+        accurateValues = extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)
         lOfAccurateValues.append(accurateValues)
         # lOfOperandSet.append(newOperand)
         #---------guide:::  make a apx set up and get values associated with it
@@ -170,6 +170,9 @@ if __name__ == "__main__":
         if (runMode == "parallel"): 
             exe_annex = multiprocessing.current_process()._identity[0] 
             print "proccess id: " 
+        else:
+            exe_annex = 0
+
         
         for operandIndex, operandSampleFileName in enumerate(nameOfAllOperandFilesList):
             energyValue = [getEnergy(individual)]
@@ -184,7 +187,11 @@ if __name__ == "__main__":
             open(CSourceOutputForVariousSetUpFileName, "w").close()
             modifyOperatorSampleFile(operatorSampleFileFullAddress, individual)
             make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, exe_annex)
-            errorValue = [extractErrorForOneInput(CSourceOutputForVariousSetUpFileName , lOfAccurateValues[operandIndex])]
+            
+            
+            errantValues =  extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)
+            errorValue = [calculateError( lOfAccurateValues[operandIndex], errantValues, error_mode)]
+                
             configValue = [individual]
             rawValues = [extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)]
 
@@ -214,19 +221,18 @@ if __name__ == "__main__":
     
     print "number of pareto set is " + str(len(lOfPointSet)) 
 
-    if(settings.method == "localParetoPieceParetoResult"):
-        for paretoSet in lOfPointSet:
-            lOfParetoSetDirctions.append(paretoSet.get_direction())
-        print lOfParetoSetDirctions 
-     
-        # ---- making sure that the direction of all pareto_sets are the same
-        # ---- turn the list to a set (dismiss the repetttive values)
-        if (len(set(lOfParetoSetDirctions))) != 1:
-            print "****ERROR something went wrong"
-            print "all the pareto_sets need to have the same direction"
-            print "it's also possible that you didn't set some of the pareto_sets' direction"
-            print "here ist he lOfParetoSetDirctions" + str(lOfParetoSetDirctions) 
-            exit()
+    for paretoSet in lOfPointSet:
+        lOfParetoSetDirctions.append(paretoSet.get_direction())
+    print lOfParetoSetDirctions 
+ 
+    # ---- making sure that the direction of all pareto_sets are the same
+    # ---- turn the list to a set (dismiss the repetttive values)
+    if (len(set(lOfParetoSetDirctions))) != 1:
+        print "****ERROR something went wrong"
+        print "all the pareto_sets need to have the same direction"
+        print "it's also possible that you didn't set some of the pareto_sets' direction"
+        print "here ist he lOfParetoSetDirctions" + str(lOfParetoSetDirctions) 
+        exit()
 
     
 
@@ -280,22 +286,41 @@ if __name__ == "__main__":
     # ---- adding the first blocks pareto points to the list
     # newListOfPoints += pointSet[0].get_points()
     lOfParetoPoints = pareto_frontier(newListOfPoints, maxX, maxY)
-    lOfQualityValue = [] 
-    lOfEnergy = [] 
     finalResultFileFullAddress = rootResultFolderName + "/" + finalResultFileName
-    for point in lOfParetoPoints:
-        if (quality_mode == "snr"): 
-            if point.get_quality() < 1000000:
-                lOfQualityValue.append(point.get_quality())
-                lOfEnergy.append(point.get_energy())
-        else:
-                lOfQualityValue.append(point.get_quality())
-                lOfEnergy.append(point.get_energy())
     
+
+     #---all points of the combination 
+    lOfQualityValue_after_combining_all_points = map(lambda x: x.get_quality(), newListOfPoints)
+    lOfEnergy_after_combining_all_points = map(lambda x: x.get_energy(), newListOfPoints)
     
+    #---pareto points of the combination 
+    lOfQualityValue_after_combining_pareto_points = map(lambda x: x.get_quality(), lOfParetoPoints)
+    lOfEnergy_after_combining_pareto_points = map(lambda x: x.get_energy(), lOfParetoPoints)
+
+    #---pareto points for ref 
     lOfParetoPoints_ref = getPoints("ref_results_pickled") #getting the ref points
     lOfQualityValue_ref = map(lambda x: x.get_quality(), lOfParetoPoints_ref)
     lOfEnergyValue_ref = map(lambda x: x.get_energy(), lOfParetoPoints_ref)
+    
+    #---all points for s2
+    lOfParetoPoints_s2 = getPoints("results_pickled_all_points_s2") #getting the ref points
+    lOfQualityValue_s2 = map(lambda x: x.get_quality(), lOfParetoPoints_s2)
+    lOfEnergyValue_s2 = map(lambda x: x.get_energy(), lOfParetoPoints_s2)
+
+    
+    #---all points for s3
+    lOfParetoPoints_s3 = getPoints("results_pickled_all_points_s3") #getting the ref points
+    lOfQualityValue_s3 = map(lambda x: x.get_quality(), lOfParetoPoints_s3)
+    lOfEnergyValue_s3 = map(lambda x: x.get_energy(), lOfParetoPoints_s3)
+
+
+
+    PIK = "pareto_curved_combined_pickled_all_points" 
+    with open(PIK, "wb") as f:
+        for point in newListOfPoints: 
+            pickle.dump(copy.deepcopy(point), f)
+
+
     
     PIK = "pareto_curved_combined_pickled" 
     with open(PIK, "wb") as f:
@@ -304,8 +329,17 @@ if __name__ == "__main__":
 
 
     if settings.runToolChainGenerateGraph: 
-        generateGraph(lOfQualityValue,lOfEnergy, "quality", "Energy", "^")
-        generateGraph(lOfQualityValue_ref,lOfEnergyValue_ref, "quality", "Energy", "*")
+        generateGraph(lOfQualityValue_after_combining_pareto_points,
+                lOfEnergy_after_combining_pareto_points, "quality", 
+                "Energy", "^")                                                          #after combining
+       
+        generateGraph(lOfQualityValue_after_combining_all_points,
+                lOfEnergy_after_combining_all_points, "quality", 
+                "Energy", "x")                                                          #after combining
+        
+        generateGraph(lOfQualityValue_ref,lOfEnergyValue_ref, "quality", "Energy", "*") #flattened version
+        generateGraph(lOfQualityValue_s2,lOfEnergyValue_s2, "quality", "Energy", "o")   #after s2
+        generateGraph(lOfQualityValue_s3,lOfEnergyValue_s3, "quality", "Energy", "+")   #after s3
         pylab.savefig(finalResultFileFullAddress[:-4]+".png") #saving the figure generated by generateGraph
     
     

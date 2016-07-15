@@ -44,33 +44,16 @@ float btm::calc(const int &number1, const float &number2) {
 float btm::calc(const float &number1, const float &number2) {
     fpType num1;
     fpType num2;
-    float apxResult; 
-    fpType result; 
-    
     getFPComponents(number1, num1); //get the fp componenets
     getFPComponents(number2, num2); //get the fp components
-    
-    //whether to add one or no (base on it's subnormal ness) 
-    if (num1.Exp != 0) { 
-        num1.MantisaWithOne = (1 <<MANTISA_WIDTH) + num1.Mantisa;//injaect mantisa with Extra one
-    }else{
-        num1.MantisaWithOne = num1.Mantisa; //don't dont anything
-    }
-    
-    if (num2.Exp != 0) { 
-        num2.MantisaWithOne = (1 <<MANTISA_WIDTH) + num2.Mantisa;//injaect mantisa with Extra one
-    }else{
-        num2.MantisaWithOne = num2.Mantisa; //don't dont anything
-    }
 
-    result.Mantisa = num1.MantisaWithOne *  num2.MantisaWithOne;
-    result.Exp = num1.Exp + num2.Exp - bias;
-    result.Sign = (num1.Sign + num2.Sign)%2;
-    normalizeMul(result);
-    result.Mantisa =  (result.Mantisa >> vbl ) << vbl; //truncate mantisa
-    result.Mantisa =  result.Mantisa - (1<<MANTISA_WIDTH); 
-    apxResult = convertFPCompToFP(result);
-    return apxResult; 
+    num1.Mantisa = ((num1.Mantisa)>> vbl) <<vbl;
+    num2.Mantisa = ((num2.Mantisa)>> vbl) <<vbl;
+    
+    float num1_inverse_converted = convertFPCompToFP(num1);
+    float num2_inverse_converted = convertFPCompToFP(num2);
+    
+    return num1_inverse_converted * num2_inverse_converted;
 }
 
 

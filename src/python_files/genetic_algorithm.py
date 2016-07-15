@@ -126,9 +126,20 @@ def run_spea2(NGEN, MU, LAMBDA, CXPB, MUTPB, population,
             open(CSourceOutputForVariousSetUpFileName, "w").close()
              
             modifyOperatorSampleFile(operatorSampleFileFullAddress, individual)
-            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, inputObj.bench_suit_name)
+            if not(test_new_error): #if test_new_error generate acc.txt and apx.txt which contain accurate and apx values
+                make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, inputObj.bench_suit_name)
             # print "here is the accurate" + str(lOfAccurateValues) 
-            errorValue = [extractErrorForOneInput(CSourceOutputForVariousSetUpFileName , lOfAccurateValues[operandIndex])]
+            
+            if (test_new_error):
+                newPath = "/home/local/bulkhead/behzad/usr/local/apx_tool_chain/src/python_files/scratch/apx.txt"
+                print "error values are " 
+                print errorValue 
+                sys.exit() #temporary    errorValue = [extractErrorForOneInput(newPath, lOfAccurateValues[operandIndex])]
+            else:
+                errantValues =  extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)
+                errorValue = [calculateError(lOfAccurateValues[operandIndex],errantValues, error_mode)]
+
+           
             configValue = [individual]
             rawValues = [extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)]
             # print "where" 

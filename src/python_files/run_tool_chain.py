@@ -1,6 +1,7 @@
 
 from scoop import futures, shared
 import multiprocessing
+from multiprocessing import Process, Manager
 
 # Copyright (C) 
 # This program is free software; you can redistribute it and/or
@@ -83,12 +84,15 @@ def polishSetup(setUp):
 def generate_snr_energy_graph(dealingWithPics, lOfPoints, plotPareto, symbolsToChooseFrom, lOfAccurateValues, symbolIndex, maxY, maxX):
     symbolsCollected = [] 
     lOfPoints_refined =[]
+    """ 
     if plotPareto:
         print "noer" 
         lOfPoints_refined = pareto_frontier(lOfPoints,maxX, maxY); 
     else:
         print "ere" 
         lOfPoints_refined = lOfPoints 
+    """
+    lOfPoints_refined = lOfPoints 
     if(eval(dealingWithPics)): 
         lOfPSNR = [] 
         lOfEnergy = [] 
@@ -99,19 +103,16 @@ def generate_snr_energy_graph(dealingWithPics, lOfPoints, plotPareto, symbolsToC
         generateGraph(lOfPSNR,lOfEnergy, "PSNR", "Energy", symbolsToChooseFrom[symbolIndex])
         symbolsCollected.append(symbolsToChooseFrom[symbolIndex]) 
     else:
-        if (error_mode == "nearest_neighbors_2d"):
-            avgAccurateValue  =  numpy.mean(map(lambda y : sum(map(lambda x: math.sqrt(float(x[0])**2 + float(x[1])**2), y))/len(y), lOfAccurateValues))
-        else:
-            avgAccurateValue =  numpy.mean(map(lambda x: sum(map (lambda y: float(y), x))/len(x), lOfAccurateValues))
         lOfQualityValues = [] 
         lOfEnergy = [] 
         if (quality_mode == "snr"): 
             for point in lOfPoints_refined:
-                if point.get_SNR() != avgAccurateValue:
+                if point.quality_calculatable:
                     lOfQualityValues.append(point.get_quality())
                     lOfEnergy.append(point.get_energy())
         else:
             for point in lOfPoints_refined:
+                assert(point.quality_calculatable) 
                 lOfQualityValues.append(point.get_quality())
                 lOfEnergy.append(point.get_energy())
 
@@ -177,6 +178,7 @@ if __name__ == "__main__":
     maxX = settings.maxX
     maxY = settings.maxY
 
+    lOfPoints_out_of_heuristic = []  
     # print inputObj.allInputs
     # sys.exit() 
    #  home = expanduser("~")
@@ -208,11 +210,12 @@ if __name__ == "__main__":
     AllInputScenariosInOneFile = inputObj.AllInputScenariosInOneFile
     AllInputFileOrDirectoryName = inputObj.AllInputFileOrDirectoryName 
     finalResultFileName = inputObj.finalResultFileName
-    PIK = inputObj.PIK
-    lOfInputs = []   #for debugging purposes
-    lOfInputs += [CSrcFolderAddress, lOfCSrcFileAddress, generateMakeFile, rootFolder, AllInputScenariosInOneFile , AllInputFileOrDirectoryName, finalResultFileName, PIK ]
+    PIK_all_points = inputObj.PIK_all_points
+    PIK_pareto  = inputObj.PIK_pareto
+    #lOfInputs = []   #for debugging purposes
+    #lOfInputs += [CSrcFolderAddress, lOfCSrcFileAddress, generateMakeFile, rootFolder, AllInputScenariosInOneFile , AllInputFileOrDirectoryName, finalResultFileName, PIK ]
     bench_suit_name = inputObj.bench_suit_name; 
-    assert(len(lOfInputs) == 8) 
+    #assert(len(lOfInputs) == 8) 
     
     #---------guide:::  checking the validity of the input and making necessary files
     #and folders
@@ -386,11 +389,13 @@ if __name__ == "__main__":
         
         sys.stdout.flush()
         #---------guide:::  run the CSrouce file with the new setUp(operators)
-        make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0)
+        if not(test_new_error): 
+            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0) #first make_run
+            accurateValues = extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)
+        else:
+            newPath = "/home/local/bulkhead/behzad/usr/local/apx_tool_chain/src/python_files/scratch/acc.txt"
+            accurateValues = extractCurrentValuesForOneInput(newPath)
         
-        sys.stdout.flush()
-        #---------guide::: error
-        accurateValues = extractAccurateValues(CSourceOutputForVariousSetUpFileName)
         assert(accurateValues != None)
         print "-------------" 
         lOfAccurateValues.append(accurateValues)
@@ -399,6 +404,7 @@ if __name__ == "__main__":
         #---------guide:::  make a apx set up and get values associated with it
         
     lOfPoints = []  
+    allPointsTried = []
     if (mode == "allPermutations"): 
         lengthSoFar = 0 
         
@@ -422,7 +428,10 @@ if __name__ == "__main__":
                 CSourceOutputForVariousSetUpP = open(CSourceOutputForVariousSetUpFileName, "w").close()
                 modifyOperatorSampleFile(operatorSampleFileFullAddress, setUp)
                 make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0)
-                errorValue = [extractErrorForOneInput(CSourceOutputForVariousSetUpFileName , lOfAccurateValues[operandIndex])]
+                
+                errantValues =  extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)
+                errorValue = [calculateError(lOfAccurateValues[operandIndex],errantValues, error_mode)]
+                
                 rawValues = [extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)]
                 
                 newPoint.append_raw_values(rawValues[0])  
@@ -461,6 +470,8 @@ if __name__ == "__main__":
                 break;
  
     elif (mode == "genetic_algorithm"):
+        if (runMode == "parallel"): 
+            the_lock = multiprocessing.Lock() 
         allConfs = [] #first generation
         # remainingPopulation = allPossibleApxScenarioursList[:]
         # numberOfIndividualsToStartWith = min(settings.numberOfIndividualsToStartWith, len(allPossibleApxScenarioursList)) 
@@ -515,6 +526,9 @@ if __name__ == "__main__":
 #                    executableName, executableInputList, rootResultFolderName, CBuildFolder,
 #                    operandSampleFileName, lOfAccurateValues, toolbox, nameOfAllOperandFilesList, inputObj, ignoreListIndecies)
         
+        
+        
+        
         def specializedEval(individual):
             exe_annex = 0
             if (runMode == "parallel"): 
@@ -540,12 +554,30 @@ if __name__ == "__main__":
                 open(CSourceOutputForVariousSetUpFileName, "w").close()
                  
                 modifyOperatorSampleFile(operatorSampleFileFullAddress, individual)
-                make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, inputObj.bench_suit_name,exe_annex) 
+                
+                
+                if not(test_new_error): #if test_new_error generate acc.txt and apx.txt which contain accurate and apx values
+                    make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, inputObj.bench_suit_name,exe_annex) 
                 # print "here is the accurate" + str(lOfAccurateValues) 
-                errorValue = [extractErrorForOneInput(CSourceOutputForVariousSetUpFileName , lOfAccurateValues[operandIndex])]
+                if (test_new_error):
+                    newPath = "/home/local/bulkhead/behzad/usr/local/apx_tool_chain/src/python_files/scratch/apx.txt"
+                    if(errorTest):
+                        print "Acurate Vals:"
+                        print lOfAccurateValues
+                        errantValues =  extractCurrentValuesForOneInput(newPath)
+                        print "errant Vals:" 
+                        print errantValues
+                        errorValue = [calculateError( lOfAccurateValues[operandIndex],errantValues, error_mode)]
+                    
+                        print "error Vals:"
+                        print errorValue 
+                        print "------" 
+                else:
+                    errantValues =  extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)
+                    errorValue = [calculateError(lOfAccurateValues[operandIndex], errantValues, error_mode)]
+
                 configValue = [individual]
                 rawValues = [extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)]
-                print "error value for process " + str(exe_annex) + " is:"
                 #print errorValue
                 # print "where" 
                 # print errorValue 
@@ -566,18 +598,19 @@ if __name__ == "__main__":
             # print "here is the config " + str(newPoint.get_setUp())
             if not(eval(inputObj.dealingWithPics)):
                 newPoint.calculate_quality()
-                #print "errors" 
-                #print newPoint.get_lOfError()
+                if (errorTest):
+                    print "quality is" 
+                    print newPoint.get_quality()
+                    sys.exit()
                 print "here is my quality values"
                 print newPoint.get_quality()
-            # if (inputObj.dealingWithPics):
-            #     newPoint.calculate_PSNR()
             if eval(inputObj.dealingWithPics):
+                allPointsTried.append(newPoint)
                 return (newPoint.get_energy(), newPoint.get_PSNR())
             else:
+                allPointsTried.append(newPoint)
                 return (newPoint.get_energy(), newPoint.get_quality())
 
-       
         stats = tools.Statistics(lambda ind: ind.fitness.values)
         a = [1,2] 
         b = [1,2] 
@@ -588,16 +621,23 @@ if __name__ == "__main__":
         toolbox.register("mutate", specializedMutate, ignoreListIndecies)
         toolbox.register("select", tools.selSPEA2)
         if (runMode == "parallel"): 
+            #the_lock = multiprocessing.Lock() 
             pool = multiprocessing.Pool() 
             toolbox.register("map", pool.map)
+            allPointsTried = [] #since deap is not compatible with multiprocessor
+                                #library (when it comes to sharing a list accross
+                                #processes), we set allPointsTried to empty to 
+                                #avoid any unwanted consequences
         
+
+
         algorithms.eaMuPlusLambda(population, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN, stats)
     
         
         
         # print population
         # sys.exit()
-        lOfPoints = []  
+        #lOfPoints = []  
         for individual in population:
             newPoint = points()
             # newPoint.set_SNR(individual.fitness.values[1])
@@ -608,12 +648,29 @@ if __name__ == "__main__":
             newPoint.set_energy(individual.fitness.values[0])
             newPoint.set_setUp(list(individual))
             newPoint.set_setUp_number(0)
-            lOfPoints.append(newPoint)
+            #lOfPoints.append(newPoint)
+            lOfPoints_out_of_heuristic.append(newPoint)
         
         # lOfOperandSet[operandIndex].set_lOfPoints(copy.deepcopy(lOfPoints))
         operandIndex += 1
     
-    
+        lOfAllPointsTried = []
+        for individual in allPointsTried:
+            newPoint = points()
+            # newPoint.set_SNR(individual.fitness.values[1])
+            if(eval(inputObj.dealingWithPics)): 
+                newPoint.set_PSNR(individual.get_quality())
+            else:
+                newPoint.set_quality(individual.get_quality())
+            newPoint.set_energy(individual.get_energy())
+            newPoint.set_setUp(list(individual.get_setUp()))
+            newPoint.set_setUp_number(0)
+            lOfAllPointsTried.append(newPoint)
+
+        
+#        if (runMode == "parallel"):
+#            lOfPoints = lOfAllPointsTried
+#    
     #---------guide:::  getting the end time
     timeAfterFindingResults = datetime.datetime.now()
     totalTime = findTotalTime(timeBeforeFindingResults, timeAfterFindingResults) 
@@ -634,25 +691,29 @@ if __name__ == "__main__":
     # for i in range(0, len(error),1):
         # resultTuple.append([])
    
-
-    
-    if not(mode == "only_read_values" or mode == "read_values_and_get_pareto"):
-        with open(PIK, "wb") as f:
-            resultPoints = pareto_frontier(lOfPoints, maxX, maxY)
-            for point in resultPoints: 
+    # ---- pickle and write the results
+    if not(mode == "only_read_values"):
+        with open(PIK_pareto, "wb") as f:
+            points_to_dump = pareto_frontier(lOfPoints_out_of_heuristic, maxX, maxY)
+            for point in points_to_dump:
+                pickle.dump(copy.deepcopy(point), f)
+        with open(PIK_all_points, "wb") as f:
+            points_to_dump = lOfAllPointsTried
+            for point in points_to_dump:
                 pickle.dump(copy.deepcopy(point), f)
 
-    
+
+
 
     # ---- reading the values back
-    if (mode == "only_read_values" or mode == "read_values_and_get_pareto"):
-        with open(PIK, "rb") as f:
+    if (mode == "only_read_values"):
+        with open(PIK_pareto, "rb") as f:
             # pickle.load(f)
             while True: 
                 try: 
                     point = pickle.load(f)
                     print point 
-                    lOfPoints.append(point) 
+                    lOfPoints_out_of_heuristic.append(point) 
                     # listOfPeople.append(copy.copy(person))# 
                 except Exception as ex:
                     if not (type(ex).__name__ == "EOFError"):
@@ -660,16 +721,31 @@ if __name__ == "__main__":
                         print ex.args
                         print "something went wrong"
                     break
+        with open(PIK_all_points, "rb") as f:
+            # pickle.load(f)
+            while True: 
+                try: 
+                    point = pickle.load(f)
+                    lOfAllPointsTried.append(point) 
+                    # listOfPeople.append(copy.copy(person))# 
+                except Exception as ex:
+                    if not (type(ex).__name__ == "EOFError"):
+                        print type(ex).__name__ 
+                        print ex.args
+                        print "something went wrong"
+                    break
+   
+
+   
+   
    #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
    #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
     # ---- find the pareto curve of lOfPoints
     delimeter = [workingList[0], workingList[-1] +1] 
+    """ 
     if settings.method == "localParetoPieceParetoResult":
-        print "lenght of list of all points are:"
-        print len(lOfPoints)
         resultPoints = pareto_frontier(lOfPoints, maxX, maxY)
         delimeter = [workingList[0], workingList[-1] +1] 
-        #moduleParetoSet  = pareto_set(resultPoints, True, False)
         pointSet  = point_set(resultPoints, "pareto", maxX, maxY);
         pointSet.set_delimeter(delimeter)
         with open(settings.lOfParetoSetFileName, "a") as f:
@@ -692,15 +768,14 @@ if __name__ == "__main__":
         with open(settings.lOfParetoSetFileName, "w") as f:
             pickle.dump(copy.deepcopy(pointSet), f)
     elif (settings.method == "allPoints"):
-        resultPoints = lOfPoints 
-        pointSet= point_set(resultPoints, "all")
-        #fix req: delmiter should be defined properly, change the numbers
-        pointSet.set_delimeter(delimeter)
-        with open(settings.lOfParetoSetFileName, "a") as f:
-            pickle.dump(copy.deepcopy(pointSet), f)
-    else:
-        print "this method is not defined"
-        exit()
+    """ 
+    #resultPoints = lOfPoints_out_of_heuristic
+    pareto_points =  pareto_frontier(lOfPoints_out_of_heuristic, maxX, maxY)
+    pointSet= point_set(pareto_points, "pareto", maxX, maxY)
+    #fix req: delmiter should be defined properly, change the numbers
+    pointSet.set_delimeter(delimeter)
+    with open(settings.lOfParetoSetFileName, "a") as f:
+        pickle.dump(copy.deepcopy(pointSet), f)
 #    if (runMode == "parallel"): 
 #        print str(multiprocessing.current_process()._identity)
 #        print str(multiprocessing.current_process()._identity[0])  + "at the end" 
@@ -711,14 +786,17 @@ if __name__ == "__main__":
     # ---- generate the graph
     if settings.runToolChainGenerateGraph: 
         plotPareto =settings.runToolChainPlotPareto
-        symbolsCollected = generate_snr_energy_graph(inputObj.dealingWithPics, resultPoints, plotPareto, symbolsToChooseFrom, lOfAccurateValues, symbolIndex, maxY, maxX) 
-        
+        #symbolsCollected = generate_snr_energy_graph(inputObj.dealingWithPics, resultPoints, plotPareto, symbolsToChooseFrom, lOfAccurateValues, symbolIndex, maxY, maxX) 
+        if(len(lOfAllPointsTried) > 0):
+            symbolsCollected = generate_snr_energy_graph(inputObj.dealingWithPics, lOfAllPointsTried, plotPareto, symbolsToChooseFrom, lOfAccurateValues, symbolIndex, maxY, maxX) 
+        symbolsCollected = generate_snr_energy_graph(inputObj.dealingWithPics, pareto_points, plotPareto, symbolsToChooseFrom, lOfAccurateValues, symbolIndex, maxY, maxX) 
     # symbolsCollected.append(symbolsToChooseFrom[symbolIndex]) 
     #generateGraph(map(lambda x: x.get_lOfError(), lOfParetoPoints), map(lambda x: x.get_energy(), lOfParetoPoints), "Noise", "Energy", symbolsToChooseFrom[i])
             
         
     
     # ---- collecting the result in a list (for later printing)
+    resultPoints = pareto_points
     resultTuple = [] 
     for index, point in enumerate(resultPoints):
         print index 

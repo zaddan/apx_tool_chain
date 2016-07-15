@@ -6,8 +6,8 @@ using namespace std;
 #include <cstring>
 #include <vector>
 enum STATUS {SUCCESS, FAILURE};
-const int MAX_CHARS_PER_LINE = 512;
-const int MAX_TOKENS_PER_LINE = 20;
+const int MAX_CHARS_PER_LINE = 2048;
+const int MAX_TOKENS_PER_LINE = 40;
 const char* const DELIMITER = " ";
 #include "operatorFile_parser.h"
 #include <unistd.h>
@@ -46,7 +46,9 @@ const char* const DELIMITER = " ";
  */
 int operatorFileParser(string fileName, vector< vector<string> > &VTypeInfo)
 {
-  // create a file-reading object
+  
+  cout<<"here is the string: "<< fileName;
+    // create a file-reading object
    ifstream fin;
   fin.open(fileName); // open a file
  

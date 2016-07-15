@@ -15,6 +15,8 @@ class point_set:
 
     def get_points(self):
         return self.lOfRawPoints
+    def get_pareto_points(self):
+        return pareto_frontier(self.lOfRawPoints,self.maxX, self.maxY); 
     def get_delimeter(self):
         return self.delimeter_2_tuple
     def get_type(self):

@@ -4,6 +4,7 @@ import math
 import numpy
 from calc_psnr import *
 from inputs import *
+from extract_result_properties import *
 #**--------------------**
 #**--------------------**
 #----disclaimers::: SNR needs to modified when noise is Zero
@@ -17,6 +18,7 @@ class points:
         self.lOfRawValues = []
         self.dealingWithPics = False
         self.quality_is_set = False
+        self.quality_calculatable = True
 
     def set_dealing_with_pics(self, dealingWithPics):
         self.dealingWithPics = dealingWithPics
@@ -71,31 +73,39 @@ class points:
     def get_dealing_with_pics(self):
         return self.dealingWithPics 
     def calculate_quality(self, yourImageName="", originalImageName=""):
-        if (error_mode == "nearest_neighbors_2d"):
-            mean_of_acc_values =  numpy.mean(map(lambda y: sum(map(lambda x: math.sqrt(float(x[0])**2 + float(x[1])**2), y))/len(y), self.lOfAccurateValues))
-            assert (not(mean_of_acc_values == 0))
-            NSR= (numpy.mean(self.lOfError)/mean_of_acc_values)
+        if (error_mode == "nearest_neighbors_2d" and benchmark_name =="sift"):
+            mean_of_acc_values = numpy.mean(map( lambda x: euclid_dist_from_center(numpy.mean(x, axis=0)[:-1]), self.lOfAccurateValues))
         else: 
-            mean_of_acc_values =  numpy.mean(map(lambda x: sum(map (lambda y: float(y), x))/len(x), self.lOfAccurateValues))
-            assert (not(mean_of_acc_values == 0))
-            NSR= (numpy.mean(self.lOfError)/mean_of_acc_values)
+            mean_of_acc_values = numpy.mean(map( lambda x: euclid_dist_from_center(numpy.mean(x, axis=0)), self.lOfAccurateValues))
+        mean_of_error_values = numpy.mean(map( lambda x: euclid_dist_from_center(numpy.mean(x, axis=0)), self.lOfError))
         
+        if (errorTest): 
+            print "---------------" 
+            print "Vector ass with mean of Acc Vals"
+            print numpy.mean(self.lOfAccurateValues[0], axis=0) 
+            print "magnitued of mean of Acc Val"
+            print mean_of_acc_values
+            
+            print "Vector ass with mean of Erro Vals"
+            print numpy.mean(self.lOfError[0], axis=0) 
+            print "magnitued of mean of Error"
+            print mean_of_error_values
+            print "---------------" 
+        assert (not(mean_of_acc_values == 0)) #there is gonna be problems later on
+                                              #if mean is zero, but technically there 
+                                              #there is nothing wrong with that
+        NSR= (mean_of_error_values/mean_of_acc_values)
         if (quality_mode == "snr"):
             if(NSR == 0):
-                print "******* noise is zero, make sure SNR is the right quality mode****"
-                if (error_mode == "nearest_neighbors_2d"):
-                    self.SNR =  numpy.mean(map(lambda y : sum(map(lambda x: math.sqrt(float(x[0])**2 + float(x[1])**2), y))/len(y), self.lOfAccurateValues))
-                    self.quality = abs(self.SNR)
-                    self.quality_is_set = True
-                else:  
-                    self.SNR =  numpy.mean(map(lambda x: sum(map (lambda y: float(y), x))/len(x), self.lOfAccurateValues))
-                    self.quality = abs(self.SNR)
-                    self.quality_is_set = True
+                print "*******ERROR(kind of) noise is zero, make sure SNR is the right quality mode****"
+                self.quality_calculatable = False
+                self.SNR =  mean_of_acc_values
+                self.quality = abs(self.SNR)
+                self.quality_is_set = True
             else: 
                 self.SNR =  1/NSR
                 self.quality = abs(1/NSR)
                 self.quality_is_set = True
-
         elif (quality_mode == "nsr"):
             self.quality = abs(NSR)
             self.quality_is_set = True
@@ -114,7 +124,7 @@ class points:
         return self.PSNR
      
     def get_SNR(self):
-        assert(not(1==0))
+        assert(not(1==0)) #should never get here
         return self.SNR
     def get_quality(self):
         assert(self.quality_is_set) 

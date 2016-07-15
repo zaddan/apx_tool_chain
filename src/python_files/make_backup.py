@@ -30,19 +30,39 @@ def comeUpWithNewFolderNameAccordingly(folderToCopyTo):
 #print comeUpWithNewFolderNameAccordingly("test_folder")
 
 def main():
-    bench_mark = raw_input("name of the benchmark:  ")
-    if (bench_mark == "sift"):
-        backup_folder = comeUpWithNewFolderNameAccordingly("res_bu/sift/")
-        os.system("mkdir  res_bu/sift/"+ backup_folder)
-        os.system("cp compare_results.txt res_bu/sift/"+ backup_folder)
-        os.system("cp ref_results_pickled res_bu/sift/"+ backup_folder)
-        os.system("cp pareto_set_file.txt res_bu/sift/"+ backup_folder)
-        os.system("cp pareto_curved_combined_pickled res_bu/sift/" + backup_folder)
+    benchmark_name = raw_input("name of the benchmark:  ")
+    backup_folder = comeUpWithNewFolderNameAccordingly("res_bu/"+benchmark_name+"/")
+    os.system("mkdir  res_bu/"+benchmark_name+"/"+ backup_folder)
+    os.system("cp compare_results.txt res_bu/"+benchmark_name+"/"+ backup_folder)
+    os.system("cp ref_results_pickled res_bu/"+benchmark_name+"/"+ backup_folder)
+    os.system("cp ref_results_pickled_all_points res_bu/"+benchmark_name+"/"+ backup_folder)
+    os.system("cp results_pickled_all_points_s2 res_bu/"+benchmark_name+"/"+ backup_folder)
+    os.system("cp results_pickled_all_points_s3 res_bu/"+benchmark_name+"/"+ backup_folder)
+    os.system("cp pareto_set_file.txt res_bu/"+benchmark_name+"/"+ backup_folder)
+    os.system("cp pareto_curved_combined_pickled res_bu/"+benchmark_name+"/" + backup_folder)
 
-        os.system("cp settings.py res_bu/sift/"+ backup_folder)
-        os.system("cp inputs.py res_bu/sift/"+ backup_folder)
-        os.system("cp combine.png res_bu/sift/"+ backup_folder)
-        os.system("cp log res_bu/sift/"+ backup_folder)
+    os.system("cp settings.py res_bu/"+benchmark_name+"/"+ backup_folder)
+    os.system("cp inputs.py res_bu/"+benchmark_name+"/"+ backup_folder)
+    os.system("cp combine.png res_bu/"+benchmark_name+"/"+ backup_folder)
+    os.system("cp ref.png res_bu/"+benchmark_name+"/"+ backup_folder)
+    os.system("cp log res_bu/"+benchmark_name+"/"+ backup_folder)
+    """
+    if (bench_mark == "sift"):
+        backup_folder = comeUpWithNewFolderNameAccordingly("res_bu/"+benchmark_name+"/")
+        os.system("mkdir  res_bu/"+benchmark_name+"/"+ backup_folder)
+        os.system("cp compare_results.txt res_bu/"+benchmark_name+"/"+ backup_folder)
+        os.system("cp ref_results_pickled res_bu/"+benchmark_name+"/"+ backup_folder)
+        os.system("cp results_pickled_all_points_s2 res_bu/"+bench_mark_name+"/"+ backup_folder)
+        os.system("cp results_pickled_all_points_s3 res_bu/"+benchmark_name+"/"+ backup_folder)
+        os.system("cp pareto_set_file.txt res_bu/"+benchmark_name+"/"+ backup_folder)
+        os.system("cp pareto_curved_combined_pickled res_bu/"+benchmark_name+"/" + backup_folder)
+
+        os.system("cp settings.py res_bu/"+benchmark_name+"/"+ backup_folder)
+        os.system("cp inputs.py res_bu/"+benchmark_name+"/"+ backup_folder)
+        os.system("cp combine.png res_bu/"+benchmark_name+"/"+ backup_folder)
+        os.system("cp ref.png res_bu/"+benchmark_name+"/"+ backup_folder)
+        os.system("cp log res_bu/"+benchmark_name+"/"+ backup_folder)
+
     elif (bench_mark == "disparity"):
         backup_folder = comeUpWithNewFolderNameAccordingly("res_bu/disparity/")
         os.system("mkdir  res_bu/disparity/"+ backup_folder)
@@ -58,5 +78,5 @@ def main():
     else:
         print "***ERROR this benchmark is not defined****"
         sys.exit()
-
+    """
 main()
