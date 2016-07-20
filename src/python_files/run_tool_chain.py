@@ -551,6 +551,7 @@ if __name__ == "__main__":
         def specializedEval(normalize,possibly_worse_case_result_quality,  individual):
             exe_annex = 0
             if (runMode == "parallel"): 
+                print multiprocessing.current_process()._identity
                 exe_annex = multiprocessing.current_process()._identity[0] 
                 print "proccess id: " 
             
