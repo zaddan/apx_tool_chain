@@ -6,6 +6,9 @@ from db_misc import *
 from db_create_table_python_IP import *
 from db_retrieve_table_python_IP import *
 
+
+        
+
 def get_operand_values(sourceFileName):
     try:
         f = open(sourceFileName)

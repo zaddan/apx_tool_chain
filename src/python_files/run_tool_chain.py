@@ -2,7 +2,8 @@
 from scoop import futures, shared
 import multiprocessing
 from multiprocessing import Process, Manager
-
+import misc
+import misc2
 # Copyright (C) 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -57,6 +58,8 @@ from deap import tools
 from src_parse_and_apx_op_space_gen import *
 from modify_operator_sample_file import *
 #from sample_operand_and_sweep_apx_space import *
+
+from debug_helpers import *
 import settings 
 from extract_result_properties import *
 from plot_generation import *
@@ -105,7 +108,7 @@ def generate_snr_energy_graph(dealingWithPics, lOfPoints, plotPareto, symbolsToC
     else:
         lOfQualityValues = [] 
         lOfEnergy = [] 
-        if (quality_mode == "snr"): 
+        if (settings.quality_mode == "snr"): 
             for point in lOfPoints_refined:
                 if point.quality_calculatable:
                     lOfQualityValues.append(point.get_quality())
@@ -153,8 +156,10 @@ if __name__ == "__main__":
     print "5.AllInputScenariosInOneFile" #whether all the operand scenarios can be found in one file or no
     print "6. AllInputFileOrDirectoryName" #the user should be providing a file name if AllInputScenariosInOneFile is true and a direcoty other   
     print "7. finalResulstFileName"
-    #print "8. errorRequirement"
     
+    #write_benchmark_name(sys.argv[1])
+    #print "8. errorRequirement"
+     
    
     #---------guide:::  validating the number of inputs
     # if len(sys.argv) < 9:
@@ -178,6 +183,8 @@ if __name__ == "__main__":
     maxX = settings.maxX
     maxY = settings.maxY
 
+    
+    lOfAllPointsTried = []
     lOfPoints_out_of_heuristic = []  
     # print inputObj.allInputs
     # sys.exit() 
@@ -430,7 +437,7 @@ if __name__ == "__main__":
                 make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0)
                 
                 errantValues =  extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)
-                errorValue = [calculateError(lOfAccurateValues[operandIndex],errantValues, error_mode)]
+                errorValue = [calculateError(lOfAccurateValues[operandIndex],errantValues)]
                 
                 rawValues = [extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)]
                 
@@ -464,7 +471,7 @@ if __name__ == "__main__":
           
              
             if not(eval(inputObj.dealingWithPics)): 
-                newPoint.calculate_quality()
+                newPoint.calculate_quality(False, 1)
             apxIndexSetUp += 1  
             if (status == "done"):
                 break;
@@ -482,13 +489,25 @@ if __name__ == "__main__":
         limitedList = [] 
         limitedListValues = getLimitedList(opIndexSelectedFile)
         # allConfs = generateInitialPopulation(accurateSetUp, numberOfIndividualsToStartWith, inputObj,ignoreIndexList)
+         
+        #ignoreListIndecies = modify_ignoreList(len(tempAcc), 52) 
+        
         allConfs = generateInitialPopulation(tempAcc, numberOfIndividualsToStartWith, inputObj,ignoreListIndecies, limitedListValues, limitedListIndecies)
         # for index in range(numberOfIndividualsToStartWith):
             # indexToChoose =  random.choice(range(0, len(remainingPopulation), 1))
             # sampleSetUp =  remainingPopulation[indexToChoose]
             # remainingPopulation.pop(indexToChoose) 
         #     allConfs.append(sampleSetUp)
-           
+        
+        possibly_worse_case_setup = generate_possibly_worse_case_setup(tempAcc)
+        
+        
+        
+        """ 
+        for el in allConfs:
+            print el
+        sys.exit()#temp
+        """ 
         if (maxX):
             x_direction = 1
         else:
@@ -529,7 +548,7 @@ if __name__ == "__main__":
         
         
         
-        def specializedEval(individual):
+        def specializedEval(normalize,possibly_worse_case_result_quality,  individual):
             exe_annex = 0
             if (runMode == "parallel"): 
                 exe_annex = multiprocessing.current_process()._identity[0] 
@@ -567,14 +586,14 @@ if __name__ == "__main__":
                         errantValues =  extractCurrentValuesForOneInput(newPath)
                         print "errant Vals:" 
                         print errantValues
-                        errorValue = [calculateError( lOfAccurateValues[operandIndex],errantValues, error_mode)]
+                        errorValue = [calculateError( lOfAccurateValues[operandIndex],errantValues)]
                     
                         print "error Vals:"
                         print errorValue 
                         print "------" 
                 else:
                     errantValues =  extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)
-                    errorValue = [calculateError(lOfAccurateValues[operandIndex], errantValues, error_mode)]
+                    errorValue = [calculateError(lOfAccurateValues[operandIndex], errantValues)]
 
                 configValue = [individual]
                 rawValues = [extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)]
@@ -597,13 +616,13 @@ if __name__ == "__main__":
              
             # print "here is the config " + str(newPoint.get_setUp())
             if not(eval(inputObj.dealingWithPics)):
-                newPoint.calculate_quality()
+                newPoint.calculate_quality(normalize, possibly_worse_case_result_quality)
                 if (errorTest):
                     print "quality is" 
                     print newPoint.get_quality()
                     sys.exit()
-                print "here is my quality values"
-                print newPoint.get_quality()
+                #print "here is my quality values"
+                #print newPoint.get_quality()
             if eval(inputObj.dealingWithPics):
                 allPointsTried.append(newPoint)
                 return (newPoint.get_energy(), newPoint.get_PSNR())
@@ -611,12 +630,19 @@ if __name__ == "__main__":
                 allPointsTried.append(newPoint)
                 return (newPoint.get_energy(), newPoint.get_quality())
 
+        #---geting the possibly_worse_case_result info 
+        possibly_worse_case_result = specializedEval(False, 1, possibly_worse_case_setup[0])
+        possibly_worse_case_result_energy = possibly_worse_case_result[0]   
+        possibly_worse_case_result_quality = possibly_worse_case_result[1]   
+        
+        #----printing the possibly_worse_case_result info and exiting
+        if (printWorseCaseResults): 
+            print "worse_case energy: " + str(possibly_worse_case_result[0])
+            print "worse_case quality: " + str(possibly_worse_case_result[1])
+            sys.exit() #temp
+        
         stats = tools.Statistics(lambda ind: ind.fitness.values)
-        a = [1,2] 
-        b = [1,2] 
-        
-        
-        toolbox.register("evaluate", specializedEval)
+        toolbox.register("evaluate", specializedEval, True, possibly_worse_case_result_quality)
         toolbox.register("mate", tools.cxTwoPoint)
         toolbox.register("mutate", specializedMutate, ignoreListIndecies)
         toolbox.register("select", tools.selSPEA2)
@@ -628,23 +654,18 @@ if __name__ == "__main__":
                                 #library (when it comes to sharing a list accross
                                 #processes), we set allPointsTried to empty to 
                                 #avoid any unwanted consequences
-        
 
-
+        #--run the genetic algo
         algorithms.eaMuPlusLambda(population, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN, stats)
-    
         
-        
-        # print population
-        # sys.exit()
-        #lOfPoints = []  
+        #--store all the points acquired by the heuristic in the list
         for individual in population:
             newPoint = points()
             # newPoint.set_SNR(individual.fitness.values[1])
             if(eval(inputObj.dealingWithPics)): 
                 newPoint.set_PSNR(individual.fitness.values[1])
             else:
-                newPoint.set_quality(individual.fitness.values[1])
+                newPoint.set_quality((individual.fitness.values[1])) 
             newPoint.set_energy(individual.fitness.values[0])
             newPoint.set_setUp(list(individual))
             newPoint.set_setUp_number(0)
@@ -654,14 +675,13 @@ if __name__ == "__main__":
         # lOfOperandSet[operandIndex].set_lOfPoints(copy.deepcopy(lOfPoints))
         operandIndex += 1
     
-        lOfAllPointsTried = []
         for individual in allPointsTried:
             newPoint = points()
             # newPoint.set_SNR(individual.fitness.values[1])
             if(eval(inputObj.dealingWithPics)): 
                 newPoint.set_PSNR(individual.get_quality())
             else:
-                newPoint.set_quality(individual.get_quality())
+                newPoint.set_quality(individual.get_quality()) #normalizing the quality to the possibly_worse_case
             newPoint.set_energy(individual.get_energy())
             newPoint.set_setUp(list(individual.get_setUp()))
             newPoint.set_setUp_number(0)
@@ -784,12 +804,12 @@ if __name__ == "__main__":
     symbolsToChooseFrom = ['*', 'x', "o", "+", "*", "-", "^", "1", "2", "3", "4"] #symbols to draw the plots with
     symbolIndex = 0  
     # ---- generate the graph
-    if settings.runToolChainGenerateGraph: 
-        plotPareto =settings.runToolChainPlotPareto
-        #symbolsCollected = generate_snr_energy_graph(inputObj.dealingWithPics, resultPoints, plotPareto, symbolsToChooseFrom, lOfAccurateValues, symbolIndex, maxY, maxX) 
-        if(len(lOfAllPointsTried) > 0):
-            symbolsCollected = generate_snr_energy_graph(inputObj.dealingWithPics, lOfAllPointsTried, plotPareto, symbolsToChooseFrom, lOfAccurateValues, symbolIndex, maxY, maxX) 
-        symbolsCollected = generate_snr_energy_graph(inputObj.dealingWithPics, pareto_points, plotPareto, symbolsToChooseFrom, lOfAccurateValues, symbolIndex, maxY, maxX) 
+#    if settings.runToolChainGenerateGraph: 
+#        plotPareto =settings.runToolChainPlotPareto
+#        #symbolsCollected = generate_snr_energy_graph(inputObj.dealingWithPics, resultPoints, plotPareto, symbolsToChooseFrom, lOfAccurateValues, symbolIndex, maxY, maxX) 
+#        if(len(lOfAllPointsTried) > 0):
+#            symbolsCollected = generate_snr_energy_graph(inputObj.dealingWithPics, lOfAllPointsTried, plotPareto, symbolsToChooseFrom, lOfAccurateValues, 1, maxY, maxX) 
+#        symbolsCollected = generate_snr_energy_graph(inputObj.dealingWithPics, pareto_points, plotPareto, symbolsToChooseFrom, lOfAccurateValues, 3, maxY, maxX) 
     # symbolsCollected.append(symbolsToChooseFrom[symbolIndex]) 
     #generateGraph(map(lambda x: x.get_lOfError(), lOfParetoPoints), map(lambda x: x.get_energy(), lOfParetoPoints), "Noise", "Energy", symbolsToChooseFrom[i])
             
@@ -810,9 +830,9 @@ if __name__ == "__main__":
         print el
     
     finalResultFileFullAddress = rootResultFolderName + "/" + finalResultFileName
-    if (settings.runToolChainGenerateGraph): 
-        writeReadableOutput(resultTuple,  symbolsCollected, finalResultFileFullAddress)
-        pylab.savefig(finalResultFileFullAddress[:-4]+".png") #saving the figure generated by generateGraph
+#    if (settings.runToolChainGenerateGraph): 
+#        writeReadableOutput(resultTuple,  symbolsCollected, finalResultFileFullAddress)
+#        pylab.savefig(finalResultFileFullAddress[:-4]+".png") #saving the figure generated by generateGraph
     #----:::  getting back up of the results
     folderToCopyToNameProcessed = comeUpWithNewFolderNameAccordingly(rootFolder + "/" + settings.resultsBackups) 
     listOfFoldersToCopyFrom = [rootResultFolderName, CSrcFolderAddress]  

@@ -2,6 +2,7 @@ import copy
 import sys
 import math
 import numpy
+import settings
 from calc_psnr import *
 from inputs import *
 from extract_result_properties import *
@@ -72,13 +73,17 @@ class points:
     
     def get_dealing_with_pics(self):
         return self.dealingWithPics 
-    def calculate_quality(self, yourImageName="", originalImageName=""):
-        if (error_mode == "nearest_neighbors_2d" and benchmark_name =="sift"):
-            mean_of_acc_values = numpy.mean(map( lambda x: euclid_dist_from_center(numpy.mean(x, axis=0)[:-1]), self.lOfAccurateValues))
+    def calculate_quality(self,normalize, possibly_worse_case_result_quality):
+        if (settings.error_mode == "nearest_neighbors_2d" and benchmark_name =="sift"):
+            mean_of_acc_values = numpy.mean(map( lambda x: numpy.mean(x, axis=0)[:-1], self.lOfAccurateValues), axis=0)
+            #mean_of_acc_values = numpy.mean(map( lambda x: euclid_dist_from_center(numpy.mean(x, axis=0)[:-1]), self.lOfAccurateValues))
         else: 
-            mean_of_acc_values = numpy.mean(map( lambda x: euclid_dist_from_center(numpy.mean(x, axis=0)), self.lOfAccurateValues))
-        mean_of_error_values = numpy.mean(map( lambda x: euclid_dist_from_center(numpy.mean(x, axis=0)), self.lOfError))
+            mean_of_acc_values = numpy.mean(map( lambda x: numpy.mean(x, axis=0), self.lOfAccurateValues),axis=0)
+            #mean_of_acc_values = numpy.mean(map( lambda x: euclid_dist_from_center(numpy.mean(x, axis=0)), self.lOfAccurateValues))
+#         mean_of_error_values = numpy.mean(map( lambda x: euclid_dist_from_center(numpy.mean(x, axis=0)), self.lOfError))
+        mean_of_error_values = numpy.mean(map( lambda x: numpy.mean(x, axis=0), self.lOfError), axis=0)
         
+         
         if (errorTest): 
             print "---------------" 
             print "Vector ass with mean of Acc Vals"
@@ -91,11 +96,37 @@ class points:
             print "magnitued of mean of Error"
             print mean_of_error_values
             print "---------------" 
-        assert (not(mean_of_acc_values == 0)) #there is gonna be problems later on
+       
+        print mean_of_error_values
+        print mean_of_acc_values
+        if (settings.outputMode == "uniform"): #convert to a list for compatibility issues
+            mean_of_error_values = [mean_of_error_values]
+            mean_of_acc_values = [ mean_of_acc_values]
+        
+        #semi_sanity check (semi b/c it'll cause problems but it's not wrong perse
+        for el in mean_of_acc_values:
+            if el==0:
+                print "acc_val can not be zero"#there is gonna be problems later on
                                               #if mean is zero, but technically there 
                                               #there is nothing wrong with that
-        NSR= (mean_of_error_values/mean_of_acc_values)
-        if (quality_mode == "snr"):
+                sys.exit()
+#         assert (not(mean_of_acc_values == 0)) #there is gonna be problems later on
+                                              #if mean is zero, but technically there 
+                                              #there is nothing wrong with that
+         
+#         NSR= (mean_of_error_values/mean_of_acc_values)
+        
+        #divide the corresponding values for avg of errors and acc values  
+        NSR_vector = np.divide(mean_of_error_values,mean_of_acc_values) #should be a vector
+        NSR_vector_abs = map(lambda x: abs(x), NSR_vector) #should be a vector
+        NSR = np.mean(NSR_vector_abs) #this should be a scalar number
+        if (normalize):
+            NSR = NSR/possibly_worse_case_result_quality
+
+#        print "NSR_vector is" + str( NSR_vector) 
+#        print NSR
+#        sys.exit()
+        if (settings.quality_mode == "snr"):
             if(NSR == 0):
                 print "*******ERROR(kind of) noise is zero, make sure SNR is the right quality mode****"
                 self.quality_calculatable = False
@@ -106,11 +137,11 @@ class points:
                 self.SNR =  1/NSR
                 self.quality = abs(1/NSR)
                 self.quality_is_set = True
-        elif (quality_mode == "nsr"):
+        elif (settings.quality_mode == "nsr"):
             self.quality = abs(NSR)
             self.quality_is_set = True
         else:
-            print "*****ERROR: this quality_mode is not defined***"
+            print "*****ERROR: this quality_mode: " + str(settings.quality_mode) + " is not defined***"
             sys.exit();
        
     def calculate_PSNR(self, yourImageName="", originalImageName=""):

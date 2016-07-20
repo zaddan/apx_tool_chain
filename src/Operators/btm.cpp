@@ -57,6 +57,32 @@ float btm::calc(const float &number1, const float &number2) {
     float num1_inverse_converted = convertFPCompToFP(num1);
     float num2_inverse_converted = convertFPCompToFP(num2);
     
+    FILE* fp;
+    fp = fopen("diff_file.txt", "ab+"); 
+    
+    if ( num1_inverse_converted*num2_inverse_converted != (number1*number2)){
+        float diff_part_1 =  num1_inverse_converted*num2_inverse_converted;
+        float diff_part_2 =  number1*number2;
+        float diff = (diff_part_1 - diff_part_2);
+        
+        //--checking for under/over-flow 
+        if (std::isinf(diff_part_1)) {
+            fprintf(fp, "par_1_overflow\n");
+        }
+        if (std::isinf(diff_part_2)) {
+            fprintf(fp, "par_2_overflow\n");
+        }
+        if ((diff_part_1 != diff_part_2) && (diff ==0)){
+            fprintf(fp, "diff underflow\n");
+        }
+        fprintf(fp, "error   ");
+        if ( diff > 1){
+            fprintf(fp, "acc:%f apx: %f diff:%f\n",num1_inverse_converted*num2_inverse_converted ,number1*number2, diff); 
+        }
+        fprintf(fp, "------\n");
+    }
+    
+    fclose(fp);
     return num1_inverse_converted * num2_inverse_converted;
 }
 

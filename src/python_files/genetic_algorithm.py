@@ -62,6 +62,20 @@ def specializedMutate(ignoreIndexList, setUp):
     return newSetUp,
     
 
+def generate_possibly_worse_case_setup(accurateSetUp):
+    population = [] 
+    newSetUp = copy.copy(accurateSetUp)
+    for index, element in enumerate(newSetUp): 
+        # operatorToChooseIndex = random.choice(range(0, len(accurateSetUp)))
+        # numberOfApxBits = int(random.gauss(10 , 4))
+        numberOfApxBits = settings.worseCase
+        
+        operatorModified = modifyOperatorSubSetupExactly(accurateSetUp[index], numberOfApxBits) 
+        newSetUp[index] = operatorModified
+    population.append(copy.deepcopy(newSetUp)) 
+    return population
+ 
+
 def generateInitialPopulation(accurateSetUp, numberOfIndividualsToStartWith,inputObj, ignoreIndexList, limitedListValues, limitedListIndecies):
     population = [] 
     population.append(accurateSetUp) 

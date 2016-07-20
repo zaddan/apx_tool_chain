@@ -33,7 +33,18 @@ from points_class import *
 from list_all_files_in_a_folder import *
 from src_parse_and_apx_op_space_gen import *
 from pareto_set_class import *
-#**--------------------**
+
+
+def get_quality_energy_values(src_file, symbol, limit=False, lower_bound=-100, upper_bound=100):
+    lOfPoints = getPoints(src_file)
+    lOfQualityVals = map(lambda x: x.get_quality(), lOfPoints)
+    lOfEnergyVals = map(lambda x: x.get_energy(), lOfPoints)
+    if (limit):
+        result = filter(lambda x: x[0] > lower_bound and x[0] <upper_bound, zip(lOfQualityVals, lOfEnergyVals))
+        lOfQualityVals = map(lambda x: x[0], result)
+        lOfEnergyVals = map(lambda x: x[1], result)
+    
+    generateGraph(lOfQualityVals,lOfEnergyVals, "1/quality", "Energy", symbol)                                                          
 #only reads the files and generate a graph. This module is for convenience of
 #graphing the info that I need. simply comment the points that you don't want
 #to be graphed
@@ -41,61 +52,30 @@ from pareto_set_class import *
 #**--------------------**
 #--------------------**
 def main():
-    srcFile = "pareto_set_file.txt" #file containing paretoSets
-    inputObj = inputClass()
-    inputObj.expandAddress()
-    CSrcFolderAddress = inputObj.CSrcFolderAddress
-    lOfCSrcFileAddress = inputObj.lOfCSrcFileAddress 
-    generateMakeFile = inputObj.generateMakeFile
-    rootFolder = inputObj.rootFolder 
-    AllInputScenariosInOneFile = inputObj.AllInputScenariosInOneFile
-    AllInputFileOrDirectoryName = inputObj.AllInputFileOrDirectoryName 
-    finalResultFileName = inputObj.finalResultFileName
-    rootFolder = inputObj.rootFolder 
-    rootResultFolderName = rootFolder + "/" + settings.generatedTextFolderName
-    finalResultFileFullAddress = rootResultFolderName + "/" + finalResultFileName
-    #---all points of the combination 
-    lOf_combining_all_points = getPoints("pareto_curved_combined_pickled_all_points");
-    lOfQualityValue_after_combining_all_points = map(lambda x: x.get_quality(), lOf_combining_all_points)
-    lOfEnergy_after_combining_all_points = map(lambda x: x.get_energy(), lOf_combining_all_points)
-    
-    #---pareto points of the combination 
-    lOfParetoPoints = getPoints("pareto_curved_combined_pickled")
-    
-    lOfQualityValue_after_combining_pareto_points = map(lambda x: x.get_quality(), lOfParetoPoints)
-    lOfEnergy_after_combining_pareto_points = map(lambda x: x.get_energy(), lOfParetoPoints)
+    assert(len(sys.argv) >= 2) 
+    limit = False
+    lower_bound = -100
+    upper_bound = .001
+    for arg in sys.argv[1:]:
+        if (arg == "s2"): #---stage 2 points
+            get_quality_energy_values("results_pickled_all_points_s2", "+", limit, lower_bound, upper_bound)
+        if (arg == "s3"): #---stage 3 points
+            get_quality_energy_values("results_pickled_all_points_s3", "1", limit, lower_bound, upper_bound)
+        if (arg == "combined_all"): #combined_all 
+            get_quality_energy_values("pareto_curved_combined_pickled_all_points", "x", limit, lower_bound, upper_bound)
+        if (arg == "combined_pareto"): #combined_pareto
+            get_quality_energy_values("pareto_curved_combined_pickled", "o", limit, lower_bound, upper_bound)
+        if (arg == "ref_pareto"): #---pareto points for ref 
+            get_quality_energy_values("ref_results_pickled", "^", limit, lower_bound, upper_bound) 
+        if (arg == "ref_all"): #---ref all
+            get_quality_energy_values("pickled_results_all_points", "+", limit, lower_bound, upper_bound) 
+        if(arg == "all"): #--all graph
+            get_quality_energy_values("results_pickled_all_points_s2", "+", limit, lower_bound, upper_bound)
+            get_quality_energy_values("results_pickled_all_points_s3", "1", limit, lower_bound, upper_bound)
+            get_quality_energy_values("pareto_curved_combined_pickled_all_points", "x", limit, lower_bound, upper_bound)
+            get_quality_energy_values("pareto_curved_combined_pickled", "o", limit, lower_bound, upper_bound)
+            get_quality_energy_values("ref_results_pickled", "^", limit, lower_bound, upper_bound) 
+           #get_quality_energy_values("pickled_results_all_points", "+", limit, lower_bound, upper_bound) 
 
-    #---pareto points for ref 
-    lOfParetoPoints_ref = getPoints("ref_results_pickled") #getting the ref points
-    lOfQualityValue_ref = map(lambda x: x.get_quality(), lOfParetoPoints_ref)
-    lOfEnergyValue_ref = map(lambda x: x.get_energy(), lOfParetoPoints_ref)
-    
-    #---all points for s2
-    lOfParetoPoints_s2 = getPoints("results_pickled_all_points_s2") #getting the ref points
-    lOfQualityValue_s2 = map(lambda x: x.get_quality(), lOfParetoPoints_s2)
-    lOfEnergyValue_s2 = map(lambda x: x.get_energy(), lOfParetoPoints_s2)
-
-    
-    #---all points for s3
-    lOfParetoPoints_s3 = getPoints("results_pickled_all_points_s3") #getting the ref points
-    lOfQualityValue_s3 = map(lambda x: x.get_quality(), lOfParetoPoints_s3)
-    lOfEnergyValue_s3 = map(lambda x: x.get_energy(), lOfParetoPoints_s3)
-
-
-
-    if settings.runToolChainGenerateGraph: 
-        generateGraph(lOfQualityValue_after_combining_pareto_points,
-                lOfEnergy_after_combining_pareto_points, "quality", 
-                "Energy", "^")                                                          #after combining
-       
-        generateGraph(lOfQualityValue_after_combining_all_points,
-                lOfEnergy_after_combining_all_points, "quality", 
-                "Energy", "x")                                                          #after combining
-        
-        generateGraph(lOfQualityValue_ref,lOfEnergyValue_ref, "quality", "Energy", "*") #flattened version
-        generateGraph(lOfQualityValue_s2,lOfEnergyValue_s2, "quality", "Energy", "o")   #after s2
-        generateGraph(lOfQualityValue_s3,lOfEnergyValue_s3, "quality", "Energy", "+")   #after s3
-        pylab.savefig("combine.png") #saving the figure generated by generateGraph
-        
-
+        pylab.savefig("results.png") #saving the figure generated by generateGraph
 main()

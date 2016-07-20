@@ -175,12 +175,12 @@ def calc_error_for_nearest_neighbors_2d(accurate_values, current_values):
 # @param currentValues
 # 
 # @return 
-def calculateError(accurateValues, currentValues, mode):
+def calculateError(accurateValues, currentValues):
     result = [] 
     
-    if (mode == "euclid_dist"): 
+    if (settings.error_mode == "corresponding_elements"): 
         if not(len(accurateValues) == len(currentValues)):
-            print "**********ERROR********" 
+            print "**********ERRR********" 
             print "here is the accurate values: " + str(accurateValues)
             print "here is the current values: " + str(currentValues)
             print "number of results subelements for currentValues and accuratValues are not the same"
@@ -196,9 +196,9 @@ def calculateError(accurateValues, currentValues, mode):
         #for accurateValue,currentValue in zip(accurateValues,currentValues):
         #    result += [(euclid_dis(accurateValue, currentValue))]
             #result += pow(float(accurateValue) - float(currentValue), 2)
-    elif (mode == "nearest_neighbors"): 
+    elif (settings.error_mode == "nearest_neighbors"): 
         result = calc_error_for_nearest_neighbors(map(lambda x: float(x), accurateValues), map(lambda x: float(x), currentValues))
-    elif (mode == "nearest_neighbors_2d"): 
+    elif (settings.error_mode == "nearest_neighbors_2d"): 
         if (benchmark_name == "sift"): 
             result = calc_error_for_nearest_neighbors_2d(accurateValues , currentValues)
         else:
@@ -206,7 +206,7 @@ def calculateError(accurateValues, currentValues, mode):
             print "nearest neigbour for benchmarks other than sift has not yet. There are minor changes that need to be applied to calc_error_for_nearest_neighbors_2d function to allow this"
             sys.exit()
     else:
-        print "***ERRR: this mode is not defined"
+        print "***ERRR: this mode:" + str(settings.error_mode) + "  is not defined"
         sys.exit()
     #print "here is the error calculated"
     #print result
@@ -280,7 +280,7 @@ def extractErrorForOneInput(sourceFileName, accurateValues):
                         else: 
                             currentValues = zip(*(currentValues[outputNumber_lower_bound_element:]))#if havn't gotten accurate values
                         
-                        error = calculateError(accurateValues, currentValues, error_mode)
+                        error = calculateError(accurateValues, currentValues)
                         # print "here is the error " + str(error) 
                         currentValues = [] 
                         start = 0

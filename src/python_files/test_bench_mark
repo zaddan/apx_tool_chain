@@ -1,0 +1,237 @@
+#!/bin/bash
+echo "reminder: the command line argument order is the following"
+echo "benchmark_name, root_folder"
+benchmark=$1
+root_folder=$2
+
+echo "======================"
+echo "testing the $benchmark benchmark and dumping the results in $root_folder" 
+echo "======================"
+
+start=`date +%s`
+
+python run_write_benchmark.py $benchmark
+
+#
+if [ "$benchmark" == "sift" ];then
+#removing all the previous files
+rm ref_results_pickled
+rm pareto_set_file.txt
+rm ref.png
+rm combine.png
+rm pickled_results_pareto
+rm pareto_curved_combined_pickled
+echo "done with the stage 0, removing all the files"
+
+
+## ---- starting stage 1(apx all files, flattened version)
+cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/sift/src/c/
+cp imsmooth_apx.txt imsmooth.c
+cp diffss_apx.txt diffss.c
+
+cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
+python run_tool_chain.py
+cp pickled_results_pareto ref_results_pickled
+cp pickled_results_all_points ref_results_pickled_all_points
+
+rm pareto_set_file.txt
+cp ../../generated_text/finalResult.png ref.png
+echo "done with the stage 1: flattening and apx of all files"
+
+
+## ---- starting stage 2(apx some files)
+cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/sift/src/c/
+cp imsmooth_acc.txt imsmooth.c
+cp diffss_acc.txt diffss.c
+
+cp imsmooth_apx.txt imsmooth.c
+
+cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
+python run_tool_chain.py
+
+rm ../../generated_text/finalResult.png 
+rm pickled_results_pareto
+cp pickled_results_all_points results_pickled_all_points_s2
+echo "done with the stage 2: apx of some files"
+
+
+## ---- starting stage 3(apx some files)
+cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/sift/src/c/
+cp imsmooth_acc.txt imsmooth.c
+cp diffss_acc.txt diffss.c
+
+cp diffss_apx.txt diffss.c
+
+cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
+python run_tool_chain.py
+rm ../../generated_text/finalResult.png 
+rm pickled_results_pareto
+cp pickled_results_all_points results_pickled_all_points_s3
+echo "done with the stage 3: apx of some files"
+
+
+## ---- starting stage 4(permutation + comparison)
+#returning all the files to approximate version (so we can get the accurate result)
+cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/sift/src/c/
+cp imsmooth_apx.txt imsmooth.c
+cp diffss_apx.txt diffss.c
+
+cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
+python combine_paretos.py
+python compare_pareto_curves.py >> compare_results.txt
+cp ../../generated_text/finalResult.png combine.png
+echo "done with the stage 4:combining the paretos and comparing"
+
+elif [ $benchmark == "disparity" ];then
+#removing all the previous files
+rm ref_results_pickled
+rm pareto_set_file.txt
+rm ref.png
+rm combine.png
+rm pickled_results_pareto
+rm pareto_curved_combined_pickled
+echo "done with the stage 0, removing all the files"
+
+
+## ---- starting stage 1(apx all files, flattened version)
+cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/
+cp computeSAD_apx.txt computeSAD.c
+cp finalSAD_apx.txt finalSAD.c
+cp integralImage2D2D_apx.txt integralImage2D2D.c
+
+cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
+python run_tool_chain.py
+cp pickled_results_pareto ref_results_pickled
+cp pickled_results_all_points ref_results_pickled_all_points
+rm pareto_set_file.txt
+cp ../../generated_text/finalResult.png ref.png
+echo "done with the stage 1: flattening and apx of all files"
+
+
+# ---- starting stage 2(apx some files)
+cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/
+cp computeSAD_acc.txt computeSAD.c
+cp finalSAD_acc.txt finalSAD.c
+cp integralImage2D2D_acc.txt integralImage2D2D.c
+
+cp computeSAD_apx.txt computeSAD.c
+cp integralImage2D2D_apx.txt integralImage2D2D.c 
+
+cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
+python run_tool_chain.py
+
+rm ../../generated_text/finalResult.png 
+rm pickled_results_pareto
+cp pickled_results_all_points results_pickled_all_points_s2
+echo "done with the stage 2: apx of some files"
+
+
+## ---- starting stage 3(apx some files)
+cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/
+cp computeSAD_acc.txt computeSAD.c
+cp finalSAD_acc.txt finalSAD.c
+cp integralImage2D2D_acc.txt integralImage2D2D.c
+
+cp finalSAD_apx.txt finalSAD.c
+
+cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
+python run_tool_chain.py
+rm ../../generated_text/finalResult.png 
+rm pickled_results_pareto
+cp pickled_results_all_points results_pickled_all_points_s3
+echo "done with the stage 3: apx of some files"
+
+
+## ---- starting stage 4(combine and compare)
+cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/
+#returning all the files to approximate version (so we can get the accurate result)
+cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/
+cp computeSAD_apx.txt computeSAD.c
+cp finalSAD_apx.txt finalSAD.c
+cp integralImage2D2D_apx.txt integralImage2D2D.c
+
+cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
+python combine_paretos.py
+python compare_pareto_curves.py >> compare_results.txt
+cp ../../generated_text/finalResult.png combine.png
+echo "done with stage 4:combining the paretos and comparing"
+
+elif [ $benchmark == "localization" ];then
+#removing all the previous files
+# ---- starting stage 0
+rm ref_results_pickled
+rm pareto_set_file.txt
+rm ref.png
+rm combine.png
+rm pickled_results_pareto
+rm pareto_curved_combined_pickled
+echo "done with the stage 0, removing all the files"
+
+# ---- starting stage 1(running flattened)
+cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/localization/src/c/
+cp eul2quat_apx.txt eul2quat.c
+cp quatMul_apx.txt quatMul.c
+cp fTimes_mod_apx.txt fTimes_mod.c
+cp fMtimes_mod_apx.txt fMtimes_mod.c
+cp script_localization_apx.txt script_localization.c
+
+cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
+python run_tool_chain.py
+cp pickled_results_pareto ref_results_pickled
+cp pickled_results_all_points ref_results_pickled_all_points
+rm pareto_set_file.txt
+cp ../../generated_text/finalResult.png ref.png
+echo "done with the stage 1: flattening and apx of all files"
+
+
+## ---- starting stage 2(apx some files)
+cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/localization/src/c/
+cp fMtimes_mod_acc.txt fMtimes_mod.c
+cp script_localization_acc.txt script_localization.c
+
+cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
+python run_tool_chain.py
+
+rm ../../generated_text/finalResult.png 
+rm pickled_results_pareto
+cp pickled_results_all_points results_pickled_all_points_s2
+echo "done with the stage 2: apx of some files"
+
+
+# ---- starting stage 3(apx some files)
+cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/localization/src/c/
+cp eul2quat_acc.txt eul2quat.c
+cp quatMul_acc.txt quatMul.c
+cp fTimes_mod_acc.txt fTimes_mod.c
+cp fMtimes_mod_apx.txt fMtimes_mod.c
+cp script_localization_apx.txt script_localization.c
+
+cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
+python run_tool_chain.py
+rm ../../generated_text/finalResult.png 
+rm pickled_results_pareto
+cp pickled_results_all_points results_pickled_all_points_s3
+echo "done with the stage 3: apx of some files"
+
+# ---- starting stage 4(combine and compare)
+#returning all the files to approximate version (so we can get the accurate result)
+cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/localization/src/c/
+cp eul2quat_apx.txt eul2quat.c
+cp quatMul_apx.txt quatMul.c
+cp fTimes_mod_apx.txt fTimes_mod.c
+cp fMtimes_mod_apx.txt fMtimes_mod.c
+cp script_localization_apx.txt script_localization.c
+
+cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
+python combine_paretos.py
+python compare_pareto_curves.py >> compare_results.txt
+cp ../../generated_text/finalResult.png combine.png
+echo "done with stage 4:combining the paretos and comparing"
+else
+echo "this benchmark is not defined or accessable"
+fi
+
+end=`date +%s`
+runtime=$((end-start))
+echo total running time of the script was: $runtime
+

@@ -40,11 +40,12 @@ def main():
     os.system("cp results_pickled_all_points_s3 res_bu/"+benchmark_name+"/"+ backup_folder)
     os.system("cp pareto_set_file.txt res_bu/"+benchmark_name+"/"+ backup_folder)
     os.system("cp pareto_curved_combined_pickled res_bu/"+benchmark_name+"/" + backup_folder)
+    os.system("cp pareto_curved_combined_pickled_all_points res_bu/"+benchmark_name+"/" + backup_folder)
 
     os.system("cp settings.py res_bu/"+benchmark_name+"/"+ backup_folder)
     os.system("cp inputs.py res_bu/"+benchmark_name+"/"+ backup_folder)
-    os.system("cp combine.png res_bu/"+benchmark_name+"/"+ backup_folder)
-    os.system("cp ref.png res_bu/"+benchmark_name+"/"+ backup_folder)
+    os.system("cp results.png res_bu/"+benchmark_name+"/"+ backup_folder)
+    #os.system("cp ref.png res_bu/"+benchmark_name+"/"+ backup_folder)
     os.system("cp log res_bu/"+benchmark_name+"/"+ backup_folder)
     """
     if (bench_mark == "sift"):
