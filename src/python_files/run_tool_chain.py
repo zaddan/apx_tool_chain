@@ -236,7 +236,11 @@ if __name__ == "__main__":
     CBuildFolder = rootFolder + "/" + CBuildFolderName
     #get the input to the executable 
     executableInputList = []
-    
+    if (runMode == "parallel"): 
+        #the_lock = multiprocessing.Lock() 
+        pool = multiprocessing.Pool() 
+
+
     
     # print "please provide the inputs to the executable. when done, type type" 
     # input = raw_input('provide the input: ')
@@ -551,8 +555,10 @@ if __name__ == "__main__":
         def specializedEval(normalize,possibly_worse_case_result_quality,  individual):
             exe_annex = 0
             if (runMode == "parallel"): 
-                print multiprocessing.current_process()._identity
-                exe_annex = multiprocessing.current_process()._identity[0] 
+                if(multiprocessing.current_process()._identity == ()):
+                    exe_annex = 0
+                else:
+                    exe_annex = multiprocessing.current_process()._identity[0] 
                 print "proccess id: " 
             
             print "started specialized Eval" 
@@ -565,8 +571,8 @@ if __name__ == "__main__":
                 energyValue = [getEnergy(individual)]
                 
                 if (runMode == "parallel"): 
-                    CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings.rawResultFolderName + "/" + settings.csourceOutputFileName + str(multiprocessing.current_process()._identity[0]) + ".txt" #where to collect C++ source results
-                    operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings.operatorSampleFileName + str(multiprocessing.current_process()._identity[0]) + ".txt"
+                    CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings.rawResultFolderName + "/" + settings.csourceOutputFileName + str(exe_annex) + ".txt" #where to collect C++ source results
+                    operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings.operatorSampleFileName + str(exe_annex) + ".txt"
                 else: 
                     CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings.rawResultFolderName + "/" + settings.csourceOutputFileName + str(0) + ".txt" #where to collect C++ source results
                     operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings.operatorSampleFileName + str(0) + ".txt"
@@ -649,7 +655,7 @@ if __name__ == "__main__":
         toolbox.register("select", tools.selSPEA2)
         if (runMode == "parallel"): 
             #the_lock = multiprocessing.Lock() 
-            pool = multiprocessing.Pool() 
+            #pool = multiprocessing.Pool() 
             toolbox.register("map", pool.map)
             allPointsTried = [] #since deap is not compatible with multiprocessor
                                 #library (when it comes to sharing a list accross
