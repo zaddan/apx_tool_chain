@@ -1,19 +1,32 @@
 #!/bin/bash
+
+echo "======================"
+echo "REMINDERS"
+echo "======================"
 echo "reminder: the command line argument order is the following"
-echo "benchmark_name, root_folder"
+echo "benchmark_name, root_folder,benchsuit_name"
+echo 
+echo 
+
 benchmark=$1
 root_folder=$2
+bench_suit_name=$3
 
 echo "======================"
 echo "testing the $benchmark benchmark and dumping the results in $root_folder" 
 echo "======================"
+echo 
+echo
 
 start=`date +%s`
 
-python run_write_config.py $benchmark $root_folder
+python run_write_config.py $benchmark $root_folder $bench_suit_name
 
 #
 if [ "$benchmark" == "sift" ];then
+echo
+echo
+echo "---------starting stage 0"
 #removing all the previous files
 rm ref_results_pickled
 rm pareto_set_file.txt
@@ -25,6 +38,9 @@ echo "done with the stage 0, removing all the files"
 
 
 ## ---- starting stage 1(apx all files, flattened version)
+echo
+echo
+echo "---------starting stage 1"
 cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/sift/src/c/
 cp imsmooth_apx.txt imsmooth.c
 cp diffss_apx.txt diffss.c
@@ -40,6 +56,9 @@ echo "done with the stage 1: flattening and apx of all files"
 
 
 ## ---- starting stage 2(apx some files)
+echo
+echo
+echo "---------starting stage 2"
 cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/sift/src/c/
 cp imsmooth_acc.txt imsmooth.c
 cp diffss_acc.txt diffss.c
@@ -56,6 +75,9 @@ echo "done with the stage 2: apx of some files"
 
 
 ## ---- starting stage 3(apx some files)
+echo
+echo
+echo "---------starting stage 3"
 cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/sift/src/c/
 cp imsmooth_acc.txt imsmooth.c
 cp diffss_acc.txt diffss.c
@@ -72,6 +94,9 @@ echo "done with the stage 3: apx of some files"
 
 ## ---- starting stage 4(permutation + comparison)
 #returning all the files to approximate version (so we can get the accurate result)
+echo
+echo
+echo "---------starting stage 4"
 cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/sift/src/c/
 cp imsmooth_apx.txt imsmooth.c
 cp diffss_apx.txt diffss.c
@@ -84,6 +109,9 @@ echo "done with the stage 4:combining the paretos and comparing"
 
 elif [ $benchmark == "disparity" ];then
 #removing all the previous files
+echo
+echo
+echo "---------starting stage 0"
 rm ref_results_pickled
 rm pareto_set_file.txt
 rm ref.png
@@ -94,6 +122,9 @@ echo "done with the stage 0, removing all the files"
 
 
 ## ---- starting stage 1(apx all files, flattened version)
+echo
+echo
+echo "---------starting stage 1"
 cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/
 cp computeSAD_apx.txt computeSAD.c
 cp finalSAD_apx.txt finalSAD.c
@@ -109,6 +140,9 @@ echo "done with the stage 1: flattening and apx of all files"
 
 
 # ---- starting stage 2(apx some files)
+echo
+echo
+echo "---------starting stage 2"
 cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/
 cp computeSAD_acc.txt computeSAD.c
 cp finalSAD_acc.txt finalSAD.c
@@ -127,6 +161,9 @@ echo "done with the stage 2: apx of some files"
 
 
 ## ---- starting stage 3(apx some files)
+echo
+echo
+echo "---------starting stage 3"
 cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/
 cp computeSAD_acc.txt computeSAD.c
 cp finalSAD_acc.txt finalSAD.c
@@ -143,6 +180,9 @@ echo "done with the stage 3: apx of some files"
 
 
 ## ---- starting stage 4(combine and compare)
+echo
+echo
+echo "---------starting stage 4"
 cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/
 #returning all the files to approximate version (so we can get the accurate result)
 cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/
@@ -159,6 +199,9 @@ echo "done with stage 4:combining the paretos and comparing"
 elif [ $benchmark == "localization" ];then
 #removing all the previous files
 # ---- starting stage 0
+echo
+echo
+echo "---------starting stage 0"
 rm ref_results_pickled
 rm pareto_set_file.txt
 rm ref.png
@@ -168,6 +211,9 @@ rm pareto_curved_combined_pickled
 echo "done with the stage 0, removing all the files"
 
 # ---- starting stage 1(running flattened)
+echo
+echo
+echo "---------starting stage 1"
 cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/localization/src/c/
 cp eul2quat_apx.txt eul2quat.c
 cp quatMul_apx.txt quatMul.c
@@ -185,6 +231,9 @@ echo "done with the stage 1: flattening and apx of all files"
 
 
 ## ---- starting stage 2(apx some files)
+echo
+echo
+echo "---------starting stage 2"
 cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/localization/src/c/
 cp fMtimes_mod_acc.txt fMtimes_mod.c
 cp script_localization_acc.txt script_localization.c
@@ -199,6 +248,9 @@ echo "done with the stage 2: apx of some files"
 
 
 # ---- starting stage 3(apx some files)
+echo
+echo
+echo "---------starting stage 3"
 cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/localization/src/c/
 cp eul2quat_acc.txt eul2quat.c
 cp quatMul_acc.txt quatMul.c
@@ -215,6 +267,9 @@ echo "done with the stage 3: apx of some files"
 
 # ---- starting stage 4(combine and compare)
 #returning all the files to approximate version (so we can get the accurate result)
+echo
+echo
+echo "---------starting stage 4"
 cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/localization/src/c/
 cp eul2quat_apx.txt eul2quat.c
 cp quatMul_apx.txt quatMul.c

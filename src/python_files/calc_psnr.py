@@ -38,7 +38,34 @@ def calculate_psnr(refImage, noisyImage):
     if mse == 0:
         mse = .0000000001
     PSNR_Value = 10 * math.log10( 255*255 / mse);
+    print "here is PSNR"
     return PSNR_Value
+
+
+def calculate_mean_acc_for_image(refImage, noisyImage):
+    # ---- get R,G,B values of the two image
+    refImageRVal, refImageGVal, refImageBVal, img_size = get_RGB_values(refImage)
+    # ---- calculate the mean squared error
+    img_total_size = img_size[0]*img_size[1] 
+    return np.sum((np.asarray(refImageRVal)) **2)/img_total_size
+
+def calculate_error_for_image(refImage, noisyImage):
+    # ---- get R,G,B values of the two image
+    refImageRVal, refImageGVal, refImageBVal, img_size = get_RGB_values(refImage)
+    noisyImageRVal, noisyImageGVal, noisyImageBVal,_  = get_RGB_values(noisyImage)
+    
+    # ---- calculate the mean squared error
+    img_total_size = img_size[0]*img_size[1] 
+    mseR = np.sum((np.asarray(refImageRVal) - np.asarray(noisyImageRVal)) **2)/img_total_size
+    mseG = np.sum((np.asarray(refImageGVal) - np.asarray(noisyImageGVal)) **2)/img_total_size
+    mseB = np.sum((np.asarray(refImageBVal) - np.asarray(noisyImageBVal)) **2)/img_total_size
+    
+    # ---- Average mean square error of R, G, B.
+    mse = (mseR + mseG + mseB)/3;
+    return mse
+
+
+
 
 
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

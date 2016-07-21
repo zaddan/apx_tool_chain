@@ -147,69 +147,23 @@ def getLimitedList(src):
 if __name__ == "__main__":
     start = time.time() 
     #---------guide:::  promting ther user regarding the required input
-    print "the following inputs needs to be provided in the " + str(settings.userInputFile)
-    print "1.source folder address"
-    print "2.source file address"
-    print "3.generate Makefile (with YES or NO)"
-    print "4.CBuilderFolder"
-    print "***********"
-    print "5.AllInputScenariosInOneFile" #whether all the operand scenarios can be found in one file or no
-    print "6. AllInputFileOrDirectoryName" #the user should be providing a file name if AllInputScenariosInOneFile is true and a direcoty other   
-    print "7. finalResulstFileName"
-    
-    #write_benchmark_name(sys.argv[1])
-    #print "8. errorRequirement"
-     
-   
-    #---------guide:::  validating the number of inputs
-    # if len(sys.argv) < 9:
-        # print "***ERROR***"
-        # print "the following inputs with the order mentioned needs to be provided"
-        # print "the following inputs with the order mentioned needs to be provided"
-        # print "1.source folder address"
-        # print "2.source file address"
-        # print "3.generate Makefile (with YES or NO)"
-        # print "4.CBuilderFolder"
-        # print "***********"
-        # print "5.AllInputScenariosInOneFile" #whether all the operand scenarios can be found in one file or no
-        # print "6. AllInputFileOrDirectoryName" #the user should be providing a file name if AllInputScenariosInOneFile is true and a direcoty other   
-        # print "7. finalResulstFileName"
-        # print "8. pickled_file"
-        # #print "8. errorToSignalRatio"
-        # exit()
-
+#    print "the following inputs needs to be provided in the " + str(settings.userInputFile)
+#    print "1.source folder address"
+#    print "2.source file address"
+#    print "3.generate Makefile (with YES or NO)"
+#    print "4.CBuilderFolder"
+#    print "5.AllInputScenariosInOneFile" #whether all the operand scenarios can be found in one file or no
+#    print "6. AllInputFileOrDirectoryName" #the user should be providing a file name if AllInputScenariosInOneFile is true and a direcoty other   
+#    print "7. finalResulstFileName"
+#    
     inputObj = inputClass()
     inputObj.expandAddress()
     maxX = settings.maxX
     maxY = settings.maxY
-
-    
     lOfAllPointsTried = []
     lOfPoints_out_of_heuristic = []  
-    # print inputObj.allInputs
-    # sys.exit() 
-   #  home = expanduser("~")
-    # #---------guide:::  acquaring the inputs
-    # for index, element in enumerate(sys.argv):
-        # if element.split("/")[0] == "~":
-            # sys.argv[index] = home + sys.argv[index][1:]
-
-    # CSrcFolderAddress = sys.argv[1] #src file to be analyzet
-    
-    # # CSrcFileAddress = sys.argv[2] #src file to be analyzet
-    # lOfCSrcFileAddress = inputs.lOfCSrcFileAddress 
-    # #executableName = sys.argv[3] #src file to be analyzed
-    # generateMakeFile = sys.argv[3]
-    # rootFolder = sys.argv[4] 
-    # AllInputScenariosInOneFile = sys.argv[5]
-    # AllInputFileOrDirectoryName = sys.argv[6]
-    # finalResultFileName = sys.argv[7]
-    # PIK = sys.argv[8]  
-    #errorToSignalRatio = float(sys.argv[8])
-    
     opIndexSelectedFile =settings.opIndexSelectedFile
     open(opIndexSelectedFile, "w").close()
-    
     CSrcFolderAddress = inputObj.CSrcFolderAddress
     lOfCSrcFileAddress = inputObj.lOfCSrcFileAddress 
     generateMakeFile = inputObj.generateMakeFile
@@ -219,10 +173,7 @@ if __name__ == "__main__":
     finalResultFileName = inputObj.finalResultFileName
     PIK_all_points = inputObj.PIK_all_points
     PIK_pareto  = inputObj.PIK_pareto
-    #lOfInputs = []   #for debugging purposes
-    #lOfInputs += [CSrcFolderAddress, lOfCSrcFileAddress, generateMakeFile, rootFolder, AllInputScenariosInOneFile , AllInputFileOrDirectoryName, finalResultFileName, PIK ]
     bench_suit_name = inputObj.bench_suit_name; 
-    #assert(len(lOfInputs) == 8) 
     
     #---------guide:::  checking the validity of the input and making necessary files
     #and folders
@@ -369,8 +320,6 @@ if __name__ == "__main__":
     # lOfOperandSet = [] 
     timeBeforeFindingResults = datetime.datetime.now()
     lOfAccurateValues = []
-    print "wtf is heppening"
-    print nameOfAllOperandFilesList
     for inputNumber,operandSampleFileName in enumerate(nameOfAllOperandFilesList):
         countSoFar = 0 
         #clearly state where the new results associated with the new input starts 
@@ -408,7 +357,6 @@ if __name__ == "__main__":
             accurateValues = extractCurrentValuesForOneInput(newPath)
         
         assert(accurateValues != None)
-        print "-------------" 
         lOfAccurateValues.append(accurateValues)
         # print lOfAccurateValues
         # lOfOperandSet.append(newOperand)
@@ -561,7 +509,6 @@ if __name__ == "__main__":
                     exe_annex = multiprocessing.current_process()._identity[0] 
                 print "proccess id: " 
             
-            print "started specialized Eval" 
             #print "-----end" 
             #print multiprocessing.current_process()
             sys.stdout.flush() 

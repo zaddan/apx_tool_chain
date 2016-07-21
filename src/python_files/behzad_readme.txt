@@ -70,3 +70,8 @@ of the locally realized ones)
 
 
 
+config.txt format:
+benchmark_name root_Folder_name bench_suit_name
+
+all_input for jpeg:
+    ~/apx_b/inputPics/roki_320_240.ppm ~/apx_b/inputPics/roki_noisy.jpg 320 240 0 10 

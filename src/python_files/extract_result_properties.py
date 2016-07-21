@@ -205,6 +205,8 @@ def calculateError(accurateValues, currentValues):
             print "*****ERRR****"
             print "nearest neigbour for benchmarks other than sift has not yet. There are minor changes that need to be applied to calc_error_for_nearest_neighbors_2d function to allow this"
             sys.exit()
+    elif (settings.error_mode == "image"): 
+        result = [1] #this shouldn't mattejjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjr
     else:
         print "***ERRR: this mode:" + str(settings.error_mode) + "  is not defined"
         sys.exit()

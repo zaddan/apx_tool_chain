@@ -94,7 +94,7 @@ def make_run(executableName, executableInputList, resultFolderName, resultFileNa
         #CBuildFolder = "./../../Debug" 
         os.chdir(CBuildFolder) #chaning the directory
         make.make()
-        run.run(executableName, resultFolderName, resultFileName, settings.operatorSampleFileName, operandSampleFileName)
+        run.run(executableName, resultFolderName, resultFileName, settings.operatorSampleFileName+"0.txt", operandSampleFileName)
         os.chdir(currentDir) #chaning the directory
     elif (bench_suit_name == "sd-vbs"): 
         currentDir = os.getcwd() #getting the current directory

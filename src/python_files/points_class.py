@@ -73,17 +73,27 @@ class points:
     
     def get_dealing_with_pics(self):
         return self.dealingWithPics 
+    def calculate_PSNR(self, yourImageName="", originalImageName=""):
+        refImage = self.inputObj.refImage
+        noisyImage = self.inputObj.noisyImage
+        self.PSNR = calculate_psnr(refImage, noisyImage)
+    
     def calculate_quality(self,normalize, possibly_worse_case_result_quality):
-        if (settings.error_mode == "nearest_neighbors_2d" and benchmark_name =="sift"):
+        #---- calculate mean of accurate values 
+        if (settings.error_mode == "image"):
+            mean_of_acc_values = calculate_mean_acc_for_image(self.inputObj.refImage, self.inputObj.noisyImage)
+        elif(settings.error_mode == "nearest_neighbors_2d" and benchmark_name =="sift"):
             mean_of_acc_values = numpy.mean(map( lambda x: numpy.mean(x, axis=0)[:-1], self.lOfAccurateValues), axis=0)
-            #mean_of_acc_values = numpy.mean(map( lambda x: euclid_dist_from_center(numpy.mean(x, axis=0)[:-1]), self.lOfAccurateValues))
         else: 
             mean_of_acc_values = numpy.mean(map( lambda x: numpy.mean(x, axis=0), self.lOfAccurateValues),axis=0)
-            #mean_of_acc_values = numpy.mean(map( lambda x: euclid_dist_from_center(numpy.mean(x, axis=0)), self.lOfAccurateValues))
-#         mean_of_error_values = numpy.mean(map( lambda x: euclid_dist_from_center(numpy.mean(x, axis=0)), self.lOfError))
-        mean_of_error_values = numpy.mean(map( lambda x: numpy.mean(x, axis=0), self.lOfError), axis=0)
         
-         
+        #--- calculate mean of error values
+        if (settings.error_mode == "image"):
+            mean_of_error_values = calculate_error_for_image(self.inputObj.refImage, self.inputObj.noisyImage)
+        else: 
+            mean_of_error_values = numpy.mean(map( lambda x: numpy.mean(x, axis=0), self.lOfError), axis=0)
+        
+        #--- specific case of errorTest
         if (errorTest): 
             print "---------------" 
             print "Vector ass with mean of Acc Vals"
@@ -97,11 +107,9 @@ class points:
             print mean_of_error_values
             print "---------------" 
        
-        print mean_of_error_values
-        print mean_of_acc_values
         if (settings.outputMode == "uniform"): #convert to a list for compatibility issues
-            mean_of_error_values = [mean_of_error_values]
-            mean_of_acc_values = [ mean_of_acc_values]
+            mean_of_error_values = [float(mean_of_error_values)]
+            mean_of_acc_values = [ float(mean_of_acc_values)]
         
         #semi_sanity check (semi b/c it'll cause problems but it's not wrong perse
         for el in mean_of_acc_values:
@@ -122,10 +130,6 @@ class points:
         NSR = np.mean(NSR_vector_abs) #this should be a scalar number
         if (normalize):
             NSR = NSR/possibly_worse_case_result_quality
-
-#        print "NSR_vector is" + str( NSR_vector) 
-#        print NSR
-#        sys.exit()
         if (settings.quality_mode == "snr"):
             if(NSR == 0):
                 print "*******ERROR(kind of) noise is zero, make sure SNR is the right quality mode****"
@@ -144,11 +148,7 @@ class points:
             print "*****ERROR: this quality_mode: " + str(settings.quality_mode) + " is not defined***"
             sys.exit();
        
-    def calculate_PSNR(self, yourImageName="", originalImageName=""):
-        refImage = self.inputObj.refImage
-        noisyImage = self.inputObj.noisyImage
-        self.PSNR = calculate_psnr(refImage, noisyImage)
-        print self.PSNR
+    
     
     
     def get_PSNR(self):

@@ -24,6 +24,16 @@ size_t bta::get_ianum_bits(void) {
 	return Nia;
 }
 
+int bta::calc(const long &number1, const int &number2) {
+    printf("this needs to be defined\n");
+    exit(0);
+}
+
+int bta::calc(const int &number1, const long &number2) {
+    printf("this needs to be defined\n");
+    exit(0);
+}
+
 float bta::calc(const float &number1, const int &number2) {
     #ifdef VERBOSE 
     cout<<"=============insde half float"<<endl; 
