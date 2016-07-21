@@ -1,26 +1,5 @@
 ##command line examples
-
-*********
-*********
-python run_tool_chain.py ~/apx_tool_chain/src/CSrc/ ~/apx_tool_chain/src/CSrc/test.cpp  YES  ~/apx_tool_chain YES ~/apx_tool_chain/all_operands_scenarios.txt finalResult2.txt
-*********
-*********
-
-*********
-*********
-python compare_results.py ~/apx_tool_chain/all_backups/backup_1/generated_text/finalResult2.txt ~/apx_tool_chain/all_backups/backup_0/generated_text/finalResult2.txt 0 4 0 4
-*********
-*********
-
-
-*********
-*********
-explanation for how to set up the inputs:
-the output of the file will be stored in:
-    ../../generated_text/csource_output_folder/csource_output0.txt
-
-
-
+./test_bench_mark jpeg apx_tool_chain my_micro_benchmark
 
 #Notes:
 for now, make sure that the src file does not return 0, (because that's what I am using for error)
@@ -31,45 +10,31 @@ This design only considers the bit truncation. In the case of other apx
 techniques, the way we calculate operandInfoApxBitsLowerBoundDic which gets
 it's vvalues from lowerBounderyDic needs to change.
 
-#things to do 
-at this time, if the number of input variables not the same as the ones provided in the operand, it does not error out
-
-noiseRequirement is set up to be a percentage of the accurate values
-
-
-
 TODO:
 figure out the right power model
 later, have the stepSize and initilTemperature as an inupt to the run_tool_chain
 have the input of run_tool_chain to come from a file (instead of command line)
 
-in the annealer, introduce a tabu list(which indicates which nodes where visited)
-and avoid revisiting those nodes again
 The way that I calculate PSNR is to first use the 0 apx bit to generate an image (we know
 that this image is still noisy, since our operators can not deal with floating or fix points(I need to include the logic for this purpose), then I modify the operators and get PSNR)
 
-I dont think non dominant sorting is working properly
-I had to add dealingWithPic Attribute to the points, because if we are dealing with pictures, instead of calculating the SNR at the output level using python, we internally do it in the C function,
-thus the output value read from the output file is actually SNR (as opposed to the output value of the DFG). later on try to merge the two. 
+===========
+how to run properly
+============
+to run the entire flow:
+    ./test_bench_mark $(benchmark_name) $(root_folder) $(bench_suit_name)
 
-
-compare_two_pareto_fronts function is only valid if we max x and min y (change later)
-
-
-workingList needs to be continuous
+to run just run_tool_chain.py (to generates the result for only one task assignment)
+    1.populuate config.txt with proper values
+    2.python run_tool_chain.py 
+    
 
 Notes:
-how to run the program 
-set up the CSrc/ files. first with the whole program, approximated. then run_tool.py
-rm pareto_set_file.txt (this file contains the pareto fronts associated with already run programs.
-We remove it because the whole program run shouldn't be intefering with the next step)
-then breaks the whole program to chunks and run_tool for each chunk. (the result will be appended to the pareto_set_file.txt" file
-python compbine_paretos.py (to explore the permutation of the locally realized output pareto fronts)
-python comparet_pareto_curves.py (to compare the globally realized with the permutation
-of the locally realized ones)
+the lOfCSrcFileAddress list needs to be filled the same order that the myOps are ordered
 
-
-
+----
+some files format
+----
 config.txt format:
 benchmark_name root_Folder_name bench_suit_name
 
