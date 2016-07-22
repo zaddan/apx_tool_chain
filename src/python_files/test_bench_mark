@@ -11,6 +11,8 @@ echo
 benchmark=$1
 root_folder=$2
 bench_suit_name=$3
+heuristic_intensity1=$4
+heuristic_intensity2=$5
 
 echo "======================"
 echo "testing the $benchmark benchmark and dumping the results in $root_folder" 
@@ -20,7 +22,6 @@ echo
 
 start=`date +%s`
 
-python run_write_config.py $benchmark $root_folder $bench_suit_name
 
 #
 if [ "$benchmark" == "sift" ];then
@@ -41,6 +42,7 @@ echo "done with the stage 0, removing all the files"
 echo
 echo
 echo "---------starting stage 1"
+python run_write_config.py $benchmark $root_folder $bench_suit_name $heuristic_intensity1
 cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/sift/src/c/
 cp imsmooth_apx.txt imsmooth.c
 cp diffss_apx.txt diffss.c
@@ -59,6 +61,7 @@ echo "done with the stage 1: flattening and apx of all files"
 echo
 echo
 echo "---------starting stage 2"
+python run_write_config.py $benchmark $root_folder $bench_suit_name $heuristic_intensity2
 cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/sift/src/c/
 cp imsmooth_acc.txt imsmooth.c
 cp diffss_acc.txt diffss.c
@@ -78,6 +81,7 @@ echo "done with the stage 2: apx of some files"
 echo
 echo
 echo "---------starting stage 3"
+python run_write_config.py $benchmark $root_folder $bench_suit_name $heuristic_intensity2
 cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/sift/src/c/
 cp imsmooth_acc.txt imsmooth.c
 cp diffss_acc.txt diffss.c
@@ -125,6 +129,7 @@ echo "done with the stage 0, removing all the files"
 echo
 echo
 echo "---------starting stage 1"
+python run_write_config.py $benchmark $root_folder $bench_suit_name $heuristic_intensity1
 cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/
 cp computeSAD_apx.txt computeSAD.c
 cp finalSAD_apx.txt finalSAD.c
@@ -143,6 +148,7 @@ echo "done with the stage 1: flattening and apx of all files"
 echo
 echo
 echo "---------starting stage 2"
+python run_write_config.py $benchmark $root_folder $bench_suit_name $heuristic_intensity2
 cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/
 cp computeSAD_acc.txt computeSAD.c
 cp finalSAD_acc.txt finalSAD.c
@@ -164,6 +170,7 @@ echo "done with the stage 2: apx of some files"
 echo
 echo
 echo "---------starting stage 3"
+python run_write_config.py $benchmark $root_folder $bench_suit_name $heuristic_intensity2
 cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/
 cp computeSAD_acc.txt computeSAD.c
 cp finalSAD_acc.txt finalSAD.c
@@ -214,6 +221,7 @@ echo "done with the stage 0, removing all the files"
 echo
 echo
 echo "---------starting stage 1"
+python run_write_config.py $benchmark $root_folder $bench_suit_name $heuristic_intensity1
 cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/localization/src/c/
 cp eul2quat_apx.txt eul2quat.c
 cp quatMul_apx.txt quatMul.c
@@ -234,6 +242,7 @@ echo "done with the stage 1: flattening and apx of all files"
 echo
 echo
 echo "---------starting stage 2"
+python run_write_config.py $benchmark $root_folder $bench_suit_name $heuristic_intensity2
 cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/localization/src/c/
 cp fMtimes_mod_acc.txt fMtimes_mod.c
 cp script_localization_acc.txt script_localization.c
@@ -251,6 +260,7 @@ echo "done with the stage 2: apx of some files"
 echo
 echo
 echo "---------starting stage 3"
+python run_write_config.py $benchmark $root_folder $bench_suit_name $heuristic_intensity2
 cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/localization/src/c/
 cp eul2quat_acc.txt eul2quat.c
 cp quatMul_acc.txt quatMul.c
@@ -300,6 +310,7 @@ echo "done with the stage 0, removing all the files"
 echo
 echo
 echo "---------starting stage 1"
+python run_write_config.py $benchmark $root_folder $bench_suit_name $heuristic_intensity1
 cd /home/polaris/behzad/behzad_local/"$root_folder"/src/CSrc/
 cp dct_apx.txt dct.cpp
 cp quant_apx.txt quant.cpp
@@ -318,6 +329,7 @@ echo "done with the stage 1: flattening and apx of all files"
 echo
 echo
 echo "---------starting stage 2"
+python run_write_config.py $benchmark $root_folder $bench_suit_name $heuristic_intensity2
 cd /home/polaris/behzad/behzad_local/"$root_folder"/src/CSrc/
 cp dct_acc.txt dct.cpp
 cp quant_acc.txt quant.cpp
@@ -337,6 +349,7 @@ echo "done with the stage 2: apx of some files"
 echo
 echo
 echo "---------starting stage 3"
+python run_write_config.py $benchmark $root_folder $bench_suit_name $heuristic_intensity2
 cd /home/polaris/behzad/behzad_local/"$root_folder"/src/CSrc/
 cp dct_acc.txt dct.cpp
 cp quant_acc.txt quant.cpp

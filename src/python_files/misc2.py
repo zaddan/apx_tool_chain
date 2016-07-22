@@ -11,7 +11,13 @@ def write_root_folder_name(name):
 def write_bench_suit_name(name):
     with open("config.txt", "a") as f:
         f.write(name)
- 
+        f.write(" ")
+
+def write_heuristic_intensity(intensity):
+    with open("config.txt", "a") as f:
+        f.write(intensity) 
+
+
 
 def get_benchmark_name():
     sourceFileName = "config.txt" 
@@ -48,5 +54,18 @@ def get_bench_suit_name():
             for line in f:
                 root_folder= line.rstrip().replace(',', ' ').replace('/',' ').replace(';', ' ').split(' ')
     return root_folder[2]
+
+
+def get_heuristic_intensity():
+    sourceFileName = "config.txt" 
+    try:
+        f = open(sourceFileName)
+    except IOError:
+        exit()
+    else:
+        with f:
+            for line in f:
+                root_folder= line.rstrip().replace(',', ' ').replace('/',' ').replace(';', ' ').split(' ')
+    return root_folder[3]
 
 

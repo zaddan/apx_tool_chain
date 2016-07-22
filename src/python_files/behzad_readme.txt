@@ -36,7 +36,7 @@ all_inputs_scenarios need to be set properly according to the benchmark of inter
 how to run properly
 ============
 to run the entire flow:
-    ./test_bench_mark $(benchmark_name) $(root_folder) $(bench_suit_name)
+    ./test_bench_mark $(benchmark_name) $(root_folder) $(bench_suit_name) $(heuristic_intenity1) $(heuristic_intenity2)
 
 to run just run_tool_chain.py (to generates the result for only one task assignment)
     1.populuate config.txt with proper values
