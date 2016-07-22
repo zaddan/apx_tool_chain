@@ -35,7 +35,7 @@ from src_parse_and_apx_op_space_gen import *
 from pareto_set_class import *
 
 
-def get_quality_energy_values(src_file, symbol, limit=False, lower_bound=-100, upper_bound=100):
+def get_quality_energy_values(src_file, symbol, points_to_graph, limit=False, lower_bound=-100, upper_bound=100):
     lOfPoints = getPoints(src_file)
     lOfQualityVals = map(lambda x: x.get_quality(), lOfPoints)
     lOfEnergyVals = map(lambda x: x.get_energy(), lOfPoints)
@@ -43,8 +43,8 @@ def get_quality_energy_values(src_file, symbol, limit=False, lower_bound=-100, u
         result = filter(lambda x: x[0] > lower_bound and x[0] <upper_bound, zip(lOfQualityVals, lOfEnergyVals))
         lOfQualityVals = map(lambda x: x[0], result)
         lOfEnergyVals = map(lambda x: x[1], result)
-    
-    generateGraph(lOfQualityVals,lOfEnergyVals, "1/quality", "Energy", symbol)                                                          
+    points_to_graph.append([lOfQualityVals, lOfEnergyVals, symbol, src_file])
+    #generateGraph(lOfQualityVals,lOfEnergyVals, "1/quality", "Energy", symbol)                                                          
 #only reads the files and generate a graph. This module is for convenience of
 #graphing the info that I need. simply comment the points that you don't want
 #to be graphed
@@ -56,29 +56,31 @@ def main():
     limit = False
     lower_bound = -100
     upper_bound = .001
+    points_to_graph = [] 
     for arg in sys.argv[1:]:
         if (arg == "main_two"): 
-            get_quality_energy_values("pareto_curved_combined_pickled", "o", limit, lower_bound, upper_bound)
-            get_quality_energy_values("ref_results_pickled", "^", limit, lower_bound, upper_bound) 
+            get_quality_energy_values("pareto_curved_combined_pickled", "o", points_to_graph, limit, lower_bound, upper_bound)
+            get_quality_energy_values("ref_results_pickled", "^", points_to_graph, limit, lower_bound, upper_bound) 
         if (arg == "s2"): #---stage 2 points
-            get_quality_energy_values("results_pickled_all_points_s2", "+", limit, lower_bound, upper_bound)
+            get_quality_energy_values("results_pickled_all_points_s2", "+", points_to_graph, limit, lower_bound, upper_bound)
         if (arg == "s3"): #---stage 3 points
-            get_quality_energy_values("results_pickled_all_points_s3", "1", limit, lower_bound, upper_bound)
+            get_quality_energy_values("results_pickled_all_points_s3", "1", points_to_graph, limit, lower_bound, upper_bound)
         if (arg == "combined_all"): #combined_all 
-            get_quality_energy_values("pareto_curved_combined_pickled_all_points", "x", limit, lower_bound, upper_bound)
+            get_quality_energy_values("pareto_curved_combined_pickled_all_points", "x", points_to_graph, limit, lower_bound, upper_bound)
         if (arg == "combined_pareto"): #combined_pareto
-            get_quality_energy_values("pareto_curved_combined_pickled", "o", limit, lower_bound, upper_bound)
+            get_quality_energy_values("pareto_curved_combined_pickled", "o", points_to_graph, limit, lower_bound, upper_bound)
         if (arg == "ref_pareto"): #---pareto points for ref 
-            get_quality_energy_values("ref_results_pickled", "^", limit, lower_bound, upper_bound) 
+            get_quality_energy_values("ref_results_pickled", "^", points_to_graph, limit, lower_bound, upper_bound) 
         if (arg == "ref_all"): #---ref all
-            get_quality_energy_values("pickled_results_all_points", "+", limit, lower_bound, upper_bound) 
+            get_quality_energy_values("pickled_results_all_points", "+", points_to_graph, limit, lower_bound, upper_bound) 
         if(arg == "all"): #--all graph
-            get_quality_energy_values("results_pickled_all_points_s2", "+", limit, lower_bound, upper_bound)
-            get_quality_energy_values("results_pickled_all_points_s3", "1", limit, lower_bound, upper_bound)
-            get_quality_energy_values("pareto_curved_combined_pickled_all_points", "x", limit, lower_bound, upper_bound)
-            get_quality_energy_values("pareto_curved_combined_pickled", "o", limit, lower_bound, upper_bound)
-            get_quality_energy_values("ref_results_pickled", "^", limit, lower_bound, upper_bound) 
+            get_quality_energy_values("results_pickled_all_points_s2", "+", points_to_graph, limit, lower_bound, upper_bound)
+            get_quality_energy_values("results_pickled_all_points_s3", "1", points_to_graph, limit, lower_bound, upper_bound)
+            get_quality_energy_values("pareto_curved_combined_pickled_all_points", "x", points_to_graph, limit, lower_bound, upper_bound)
+            get_quality_energy_values("pareto_curved_combined_pickled", "o", points_to_graph, limit, lower_bound, upper_bound)
+            get_quality_energy_values("ref_results_pickled", "^", points_to_graph, limit,  lower_bound, upper_bound) 
            #get_quality_energy_values("pickled_results_all_points", "+", limit, lower_bound, upper_"bound) 
 
-        pylab.savefig("results.png") #saving the figure generated by generateGraph
+    generateGraph_for_all(points_to_graph, "1/quality", "energy") 
+    pylab.savefig("results.png") #saving the figure generated by generateGraph
 main()

@@ -65,12 +65,59 @@ from extract_pareto_set_from_raw_material import *
 # 
 # @return 
 def generateGraph(x, y, xName, yName, symbol):
-    plt.plot(x, y, symbol)
+    fig, ax = plt.plots()
+    ax.plot(x, y, symbol, label="ok")
     #plt.yscale('log')
     plt.xscale('log')
     plt.ylabel(yName)
     plt.xlabel(xName)
+  # Now add the legend with some customizations.
+    legend = ax.legend(loc='upper center', shadow=True)
+
+    # The frame is matplotlib.patches.Rectangle instance surrounding the legend.
+    frame = legend.get_frame()
+    frame.set_facecolor('0.90')
+
+    # Set the fontsize
+    for label in legend.get_texts():
+        label.set_fontsize('large')
+
+    for label in legend.get_lines():
+        label.set_linewidth(1.5)  # the legend line width  
+        
+    
     #plt.show()
+
+
+def generateGraph_for_all(valueList, xName, yName):
+    fig, ax = plt.subplots()
+    #plt.yscale('log')
+    plt.xscale('log')
+    plt.ylabel(yName)
+    plt.xlabel(xName)
+    for el in valueList:
+        ax.plot(el[0], el[1], el[2], label=el[3])
+    
+    # ---- moving the legend outside of the graph (look bellow for placing inside)
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0, box.width * 0.7, box.height])
+    # Put a legend to the right of the current axis (note: prop changes the fontsize)
+    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), prop={'size':8})
+    
+    # ---- the following was commented cause it will place the lgend inside the graph
+#    legend = ax.legend(loc='upper right', shadow=True)
+#
+#    # The frame is matplotlib.patches.Rectangle instance surrounding the legend.
+#    frame = legend.get_frame()
+#    frame.set_facecolor('0.90')
+#
+#    # Set the fontsize
+#    for label in legend.get_texts():
+#        label.set_fontsize('small')
+#
+#    for label in legend.get_lines():
+#        label.set_linewidth(1.5)  # the legend line width  
+#        
 
 def generateGraph3D(x, y, z, xName, yName, zName):
     fig = plt.figure(figsize=plt.figaspect(0.5)) 
