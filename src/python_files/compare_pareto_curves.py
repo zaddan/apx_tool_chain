@@ -249,8 +249,8 @@ def compare_two_pareto_fronts(curve1FeatureValues, curve2FeatureValues):
 
 
 def main():
-    PIK1 = "ref_results_pickled"
-    PIK2 = "pareto_curved_combined_pickled" 
+    PIK1 = "pareto_of_flattened"
+    PIK2 = "pareto_of_combined" 
      
     lOfParetoPoints1 = getPoints(PIK1)
     lOfParetoPoints2 = getPoints(PIK2)

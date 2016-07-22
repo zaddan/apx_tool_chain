@@ -2,12 +2,12 @@
 
 start=`date +%s`
 #removing all the previous files
-#rm ref_results_pickled
+#rm pareto_of_flattened
 #rm pareto_set_file.txt
 #rm ref.png
 #rm combine.png
 #rm pickled_results_pareto
-#rm pareto_curved_combined_pickled
+#rm pareto_of_combined
 #echo "done with the stage 0, removing all the files"
 #
 #cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/sift/src/c/
@@ -16,8 +16,8 @@ start=`date +%s`
 #
 #cd /home/polaris/behzad/behzad_local/apx_tool_chain/src/python_files/
 #python run_tool_chain.py
-#cp pickled_results_pareto ref_results_pickled
-#cp pickled_results_all_points ref_results_pickled_all_points
+#cp pickled_results_pareto pareto_of_flattened
+#cp pickled_results_all_points all_of_flattned
 
 #
 #rm pareto_set_file.txt
@@ -37,7 +37,7 @@ python run_tool_chain.py
 
 rm ../../generated_text/finalResult.png 
 rm pickled_results_pareto
-cp pickled_results_all_points results_pickled_all_points_s2
+cp pickled_results_all_points all_of_s2
 echo "done with the stage 2: apx of some files"
 
 
@@ -53,7 +53,7 @@ cd /home/polaris/behzad/behzad_local/apx_tool_chain/src/python_files/
 python run_tool_chain.py
 rm ../../generated_text/finalResult.png 
 rm pickled_results_pareto
-cp pickled_results_all_points results_pickled_all_points_s3
+cp pickled_results_all_points all_of_s3
 echo "done with the stage 3: apx of some files"
 
 #returning all the files to approximate version (so we can get the accurate result)

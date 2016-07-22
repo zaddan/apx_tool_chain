@@ -306,31 +306,31 @@ if __name__ == "__main__":
     lOfEnergy_after_combining_pareto_points = map(lambda x: x.get_energy(), lOfParetoPoints)
 
     #---pareto points for ref 
-    lOfParetoPoints_ref = getPoints("ref_results_pickled") #getting the ref points
+    lOfParetoPoints_ref = getPoints("pareto_of_flattened") #getting the ref points
     lOfQualityValue_ref = map(lambda x: x.get_quality(), lOfParetoPoints_ref)
     lOfEnergyValue_ref = map(lambda x: x.get_energy(), lOfParetoPoints_ref)
     
     #---all points for s2
-    lOfParetoPoints_s2 = getPoints("results_pickled_all_points_s2") #getting the ref points
+    lOfParetoPoints_s2 = getPoints("all_of_s2") #getting the ref points
     lOfQualityValue_s2 = map(lambda x: x.get_quality(), lOfParetoPoints_s2)
     lOfEnergyValue_s2 = map(lambda x: x.get_energy(), lOfParetoPoints_s2)
 
     
     #---all points for s3
-    lOfParetoPoints_s3 = getPoints("results_pickled_all_points_s3") #getting the ref points
+    lOfParetoPoints_s3 = getPoints("all_of_s3") #getting the ref points
     lOfQualityValue_s3 = map(lambda x: x.get_quality(), lOfParetoPoints_s3)
     lOfEnergyValue_s3 = map(lambda x: x.get_energy(), lOfParetoPoints_s3)
 
 
 
-    PIK = "pareto_curved_combined_pickled_all_points" 
+    PIK = "all_of_combined" 
     with open(PIK, "wb") as f:
         for point in newListOfPoints: 
             pickle.dump(copy.deepcopy(point), f)
 
 
     
-    PIK = "pareto_curved_combined_pickled" 
+    PIK = "pareto_of_combined" 
     with open(PIK, "wb") as f:
         for point in lOfParetoPoints: 
             pickle.dump(copy.deepcopy(point), f)
