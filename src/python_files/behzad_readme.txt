@@ -1,7 +1,10 @@
 ##command line examples
 ./test_bench_mark jpeg apx_tool_chain my_micro_benchmark
-
+#=============================
 #Notes:
+#=============================
+assert(not(error_mode == "image") or not(test_error)) #can not have error_mode be image
+                                                      #and test_error being true
 for now, make sure that the src file does not return 0, (because that's what I am using for error)
 keep in mind that we should be really only using the upperBound values or low
 ones. depending on whether the operator values will increase if the number of
@@ -17,6 +20,17 @@ have the input of run_tool_chain to come from a file (instead of command line)
 
 The way that I calculate PSNR is to first use the 0 apx bit to generate an image (we know
 that this image is still noisy, since our operators can not deal with floating or fix points(I need to include the logic for this purpose), then I modify the operators and get PSNR)
+
+#=============================
+how/where to set up the parameters
+#=============================
+parameters are set up in two different part:
+    settings.py
+    passed as cmd to test_benchmark (note that if we want to run_too_chain.py
+                                     we need to set config.txt manually)
+
+all_inputs_scenarios need to be set properly according to the benchmark of intereset.
+    if sd-vbs benchmarks used, no need to worry about this file (all_inputs_scenarios)
 
 ===========
 how to run properly

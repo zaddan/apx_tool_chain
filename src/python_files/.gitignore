@@ -6,6 +6,7 @@ res_bu
 results.png
 results_pickled_all_points_s2
 ../../cmake_install.cmake
+res_bu
 results_pickled_all_points_s3
 ref_results_pickled_all_points
 pickled_results_all_points

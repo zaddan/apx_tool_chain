@@ -350,6 +350,7 @@ if __name__ == "__main__":
         sys.stdout.flush()
         #---------guide:::  run the CSrouce file with the new setUp(operators)
         if not(errorTest): 
+            print("\n........running to get accurate values\n"); 
             make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0) #first make_run
             accurateValues = extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)
         else:
@@ -585,6 +586,7 @@ if __name__ == "__main__":
                 return (newPoint.get_energy(), newPoint.get_quality())
 
         #---geting the possibly_worse_case_result info 
+        print("\n.......running to get possibly_worse_case_result\n"); 
         possibly_worse_case_result = specializedEval(False, 1, possibly_worse_case_setup[0])
         possibly_worse_case_result_energy = possibly_worse_case_result[0]   
         possibly_worse_case_result_quality = possibly_worse_case_result[1]   
@@ -610,6 +612,7 @@ if __name__ == "__main__":
                                 #avoid any unwanted consequences
 
         #--run the genetic algo
+        print("\n......running genetic algo\n")
         algorithms.eaMuPlusLambda(population, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN, stats)
         
         #--store all the points acquired by the heuristic in the list

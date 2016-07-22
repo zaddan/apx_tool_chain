@@ -66,6 +66,8 @@ from extract_pareto_set_from_raw_material import *
 # @return 
 def generateGraph(x, y, xName, yName, symbol):
     plt.plot(x, y, symbol)
+    #plt.yscale('log')
+    plt.xscale('log')
     plt.ylabel(yName)
     plt.xlabel(xName)
     #plt.show()
