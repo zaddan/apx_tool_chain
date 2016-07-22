@@ -33,6 +33,7 @@ def main():
     benchmark_name = raw_input("name of the benchmark:  ")
     backup_folder = comeUpWithNewFolderNameAccordingly("res_bu/"+benchmark_name+"/")
     os.system("mkdir  res_bu/"+benchmark_name+"/"+ backup_folder)
+    os.system("cat config.txt res_bu/"+benchmark_name+"/"+ backup_folder)
     os.system("cp compare_results.txt res_bu/"+benchmark_name+"/"+ backup_folder)
     os.system("cp pareto_of_flattened res_bu/"+benchmark_name+"/"+ backup_folder)
     os.system("cp all_of_flattned res_bu/"+benchmark_name+"/"+ backup_folder)

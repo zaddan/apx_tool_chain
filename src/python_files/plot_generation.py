@@ -89,7 +89,7 @@ def generateGraph(x, y, xName, yName, symbol):
     #plt.show()
 
 
-def generateGraph_for_all(valueList, xName, yName):
+def generateGraph_for_all(valueList, xName, yName, benchmark_name):
     fig, ax = plt.subplots()
     #plt.yscale('log')
     plt.xscale('log')
@@ -100,10 +100,10 @@ def generateGraph_for_all(valueList, xName, yName):
     
     # ---- moving the legend outside of the graph (look bellow for placing inside)
     box = ax.get_position()
-    ax.set_position([box.x0, box.y0, box.width * 0.7, box.height])
+    ax.set_position([box.x0, box.y0, box.width * 0.85, box.height])
     # Put a legend to the right of the current axis (note: prop changes the fontsize)
-    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), prop={'size':8})
-    
+    ax.legend(loc='center left', bbox_to_anchor=(1, .9), prop={'size':8})
+    plt.title("pareto comparison for " + str(benchmark_name) + " benchmark")
     # ---- the following was commented cause it will place the lgend inside the graph
 #    legend = ax.legend(loc='upper right', shadow=True)
 #
