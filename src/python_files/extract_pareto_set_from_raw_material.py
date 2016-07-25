@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import sys
 import math
+import settings 
 # Copyright (C) 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -32,12 +33,12 @@ available to specify maxX = False or maxY = False to find the minimum for either
 or both of the parameters.
 '''
 def pareto_frontier(lOfPoints , maxX , maxY) :
-    print "in the pareto extraction"
-    print "list of points before pareto extraction"
+    quality_energy_list = []
     for el in lOfPoints:
-        print el.get_quality()
-        print el.get_energy()
-        print "------" 
+        quality_energy_list.append((el.get_quality(), el.get_energy()))
+    if (settings.DEBUG): 
+        print "points (before pareto extraction): " + str(quality_energy_list)
+    
     # Sort the list in either ascending or descending order of X
     Xs = []  
     Ys = []  
@@ -111,12 +112,15 @@ def pareto_frontier(lOfPoints , maxX , maxY) :
     
     
     
-    print "list of points after pareto extraction"
-    for el in lOfParetoPoints:
-        print el.get_quality()
-        print el.get_energy()
-        print "------" 
     
+    quality_energy_list = []
+    for el in lOfParetoPoints:
+        quality_energy_list.append((el.get_quality(), el.get_energy()))
+    if(settings.DEBUG): 
+        print "pareto points: " + str(quality_energy_list)
+    
+    
+        
     return lOfParetoPoints
 
 

@@ -125,10 +125,13 @@ class points:
 #         NSR= (mean_of_error_values/mean_of_acc_values)
         
         #divide the corresponding values for avg of errors and acc values  
+        print "mean of acc-val: " + str(mean_of_acc_values);
+        print "mean of error-val: " + str(mean_of_error_values);
+        
         NSR_vector = np.divide(mean_of_error_values,mean_of_acc_values) #should be a vector
         NSR_vector_abs = map(lambda x: abs(x), NSR_vector) #should be a vector
         NSR = np.mean(NSR_vector_abs) #this should be a scalar number
-        if (normalize):
+        if (normalize and not(possibly_worse_case_result_quality == float("inf"))):
             NSR = NSR/possibly_worse_case_result_quality
         if (settings.quality_mode == "snr"):
             if(NSR == 0):

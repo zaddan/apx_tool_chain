@@ -549,6 +549,10 @@ if __name__ == "__main__":
                 else:
                     errantValues =  extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)
                     errorValue = [calculateError(lOfAccurateValues[operandIndex], errantValues)]
+                    if (settings.DEBUG):
+                        print "Acurate Vals:" + str(lOfAccurateValues)
+                        print "errant Vals:" +str(errantValues)
+                        print "error Vals:" + str(errorValue)
 
                 configValue = [individual]
                 rawValues = [extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)]
@@ -572,6 +576,8 @@ if __name__ == "__main__":
             # print "here is the config " + str(newPoint.get_setUp())
             if not(eval(inputObj.dealingWithPics)):
                 newPoint.calculate_quality(normalize, possibly_worse_case_result_quality)
+                if (settings.DEBUG):
+                    print "quality is: " + str(newPoint.get_quality())
                 if (errorTest):
                     print "quality is" 
                     print newPoint.get_quality()
@@ -590,12 +596,15 @@ if __name__ == "__main__":
         possibly_worse_case_result = specializedEval(False, 1, possibly_worse_case_setup[0])
         possibly_worse_case_result_energy = possibly_worse_case_result[0]   
         possibly_worse_case_result_quality = possibly_worse_case_result[1]   
-        
+        if (settings.benchmark_name == "sift"): 
+             
+            #print "here is the possibly_worse_case quality " + str(possibly_worse_case_result_quality)
+            possibly_worse_case_result_energy = 1
+            possibly_worse_case_result_quality = 1
         #----printing the possibly_worse_case_result info and exiting
-        if (printWorseCaseResults): 
+        if (settings.DEBUG): 
             print "worse_case energy: " + str(possibly_worse_case_result[0])
             print "worse_case quality: " + str(possibly_worse_case_result[1])
-            sys.exit() #temp
         
         stats = tools.Statistics(lambda ind: ind.fitness.values)
         toolbox.register("evaluate", specializedEval, True, possibly_worse_case_result_quality)
@@ -782,9 +791,10 @@ if __name__ == "__main__":
         else:
             resultTuple.append((point.get_setUp(), point.get_quality(), point.get_energy()))
 
-    print "printing the results" 
-    for el in resultTuple:
-        print el
+    if(settings.DEBUG):
+        print "---printing the results:" 
+        for el in resultTuple:
+            print el
     
     finalResultFileFullAddress = rootResultFolderName + "/" + finalResultFileName
 #    if (settings.runToolChainGenerateGraph): 

@@ -74,6 +74,9 @@ def main():
             get_quality_energy_values("pareto_of_flattened", "^", points_to_graph, limit, lower_bound, upper_bound) 
         if (arg == "ref_all"): #---ref all
             get_quality_energy_values("all_of_flattned", "+", points_to_graph, limit, lower_bound, upper_bound) 
+        if (arg == "ref"): #---ref all
+            get_quality_energy_values("pareto_of_flattened", "^", points_to_graph, limit, lower_bound, upper_bound) 
+            get_quality_energy_values("all_of_flattned", "+", points_to_graph, limit, lower_bound, upper_bound) 
         if(arg == "all"): #--all graph
             get_quality_energy_values("all_of_s2", "+", points_to_graph, limit, lower_bound, upper_bound)
             get_quality_energy_values("all_of_s3", "1", points_to_graph, limit, lower_bound, upper_bound)

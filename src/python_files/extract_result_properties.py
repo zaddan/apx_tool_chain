@@ -159,6 +159,15 @@ def calc_error_for_nearest_neighbors_2d(accurate_values, current_values):
             for i in range(len(indecies)):
                 error.append(tuple(numpy.subtract(ref2[key][i], ref1[key][indecies[i]])))
                 #error.append(find_dis(ref2[key][i], ref1[key][indecies[i]]))
+    if (len(error) == 0  and not(settings.benchmark_name == "sift")):
+        print "assert(len(error)>0) unless benchmark =sift"
+        exit(0)
+    """
+    if (settings.benchmark_name == "sift"):
+        if len(error) == 0: #the reason for it to be None is b/c in sift there is a 
+                          #possibility that the octaves (with sift points) don't overlap 
+            error = float("inf")
+    """
     return error
 
 
