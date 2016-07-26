@@ -26,7 +26,7 @@ def return_conf(config):
         if (number >= allConfsLenght):
             return
         
-        yield config[number]
+        yield config[number][2]
         number += 1
 
 
@@ -55,10 +55,11 @@ def specializedMutate(ignoreIndexList, setUp):
     operatorToChooseIndex = random.choice(range(0, len(setUp)))
     # numberOfApxBits = int(random.gauss(10 , 5.2))
     numberOfApxBits = int(random.choice(range(settings.apxLowBound, settings.apxUpBound)))
-    if operatorToChooseIndex in ignoreIndexList:
-        return newSetUp,
-    operatorModified = modifyOperatorSubSetupExactly(setUp[operatorToChooseIndex], numberOfApxBits) 
-    newSetUp[operatorToChooseIndex] = operatorModified
+    newSetUp[operatorToChooseIndex] = numberOfApxBits 
+#    if operatorToChooseIndex in ignoreIndexList:
+#        return newSetUp,
+#    operatorModified = modifyOperatorSubSetupExactly(setUp[operatorToChooseIndex], numberOfApxBits) 
+#    newSetUp[operatorToChooseIndex] = operatorModified
     return newSetUp,
     
 

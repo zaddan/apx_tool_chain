@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "fp_helpers.h"
+#include <cstring>
 using namespace std;
 
 unsigned getNumberOfDigits (long unsigned i)
@@ -11,19 +12,23 @@ unsigned getNumberOfDigits (long unsigned i)
 }
 
 void getFPComponents(float number, fpType &num){
- unsigned int* ptr = (unsigned int*)&number;
+ //unsigned char *ptr = reinterpret_cast<unsigned char *>(&number);
+ int *ptr = (int *)malloc(sizeof(int));
+ memcpy(ptr, &number, sizeof(ptr));
 // num.Sign = *ptr>> 31;
 // num.Exp = *ptr& 0x7f800000;
 // num.Exp >>= MANTISA_WIDTH;
 // num.Mantisa = *ptr& 0x007fffff;
-
  num.Sign = *ptr>> 31;
  num.Exp = *ptr& 0x7f800000;
  num.Exp >>= MANTISA_WIDTH;
  num.Mantisa = *ptr& 0x007fffff;
+ //cout<<"number ghabl conversion: "<<number<<" floating point is: "<<number<< "sign is: "<<num.Sign<< " exp is: "<<num.Exp<< " Mantisa is"<< num.Mantisa<<endl;
 }
 
 float convertFPCompToFP(fpType num){
+    //cout<<"sign"<<num.Sign<<" exp: "<<num.Exp<< "matisa :"<<num.Mantisa<<endl;
+   
     float result = 0;
     int expSoFar = num.Exp - bias; //what exp to use at the moment
     int decodedMantisaWithExtraOne; 
@@ -52,7 +57,25 @@ float convertFPCompToFP(fpType num){
     if (num.Sign) {
         result = -1*result;
     }
+    
+    float result_under_test;
+    int int_version = 0x0;
+    int_version |= (num.Sign<<31);
+    int_version |= (num.Exp <<MANTISA_WIDTH); 
+    int_version |= num.Mantisa; 
+    //cout<<"int_version"<<int_version<<endl; 
+    memcpy(&result_under_test, &int_version, sizeof(int_version));
+     
+    if (result_under_test != result) {
+        cout<<"ERRR: "<<"results are not the same result: "<< result<< " result_under_test: "<< result_under_test<<endl;
+        exit(0); 
+    }
+    //cout<<"res: : "<<result<<endl;
     return result;
+    
+
+    return result_under_test;
+  
 }
 
 void normalizeMul(fpType &resultNum){ 

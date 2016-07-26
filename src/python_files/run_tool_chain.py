@@ -58,7 +58,7 @@ from deap import tools
 from src_parse_and_apx_op_space_gen import *
 from modify_operator_sample_file import *
 #from sample_operand_and_sweep_apx_space import *
-
+from make_run import *
 from debug_helpers import *
 import settings 
 from extract_result_properties import *
@@ -351,7 +351,7 @@ if __name__ == "__main__":
         #---------guide:::  run the CSrouce file with the new setUp(operators)
         if not(errorTest): 
             print("\n........running to get accurate values\n"); 
-            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0) #first make_run
+            make_run_compile(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0) #first make_run
             accurateValues = extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)
         else:
             newPath = "/home/local/bulkhead/behzad/usr/local/apx_tool_chain/src/python_files/scratch/acc.txt"
@@ -482,11 +482,22 @@ if __name__ == "__main__":
         #toolbox.register("map", futures.map) 
         # toolbox.register("population", tools.initRepeat, list, toolbox.individual )
         population = []
+        #print allConfs[0] 
+        #print allConfs[1] 
+
+        #population is a list of numbers (containting the bit to bit truncated) 
+#        [0, 0, 0, 0, 0, 0, 0]
+#        [6, 13, 2, 15, 19, 12, 8]
+#        [8, 11, 8, 18, 9, 19, 10]
         for index in range(len(allConfs)):
             myGenerator = return_conf(allConfs[index])
             population.append(toolbox.individual(lambda: next(myGenerator), len(allConfs[index])))
         
         
+#        for x in population:
+#            print x
+#        print "---------" 
+#        print modifyMold(accurateSetUp, population[1]) 
         NGEN = settings.NGEN
         MU = settings.MU#number of indi for the next gen
         LAMBDA = settings.LAMBDA#number of children
@@ -501,7 +512,7 @@ if __name__ == "__main__":
         
         
         
-        def specializedEval(normalize,possibly_worse_case_result_quality,  individual):
+        def specializedEval(normalize,possibly_worse_case_result_quality,  mold, ignoreListIndecies, individual):
             exe_annex = 0
             if (runMode == "parallel"): 
                 if(multiprocessing.current_process()._identity == ()):
@@ -512,11 +523,16 @@ if __name__ == "__main__":
             
             #print "-----end" 
             #print multiprocessing.current_process()
+            #--- zeroing out the ignoreList 
+            for x in ignoreListIndecies:
+                mold[x][2] = 0
+            
+            newSetUp = modifyMold(accurateSetUp, individual) 
             sys.stdout.flush() 
             newPoint = points() 
             newPoint.set_dealing_with_pics(eval(inputObj.dealingWithPics))
             for operandIndex, operandSampleFileName in enumerate(nameOfAllOperandFilesList):
-                energyValue = [getEnergy(individual)]
+                energyValue = [getEnergy(newSetUp)]
                 
                 if (runMode == "parallel"): 
                     CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings.rawResultFolderName + "/" + settings.csourceOutputFileName + str(exe_annex) + ".txt" #where to collect C++ source results
@@ -527,7 +543,7 @@ if __name__ == "__main__":
                 
                 open(CSourceOutputForVariousSetUpFileName, "w").close()
                  
-                modifyOperatorSampleFile(operatorSampleFileFullAddress, individual)
+                modifyOperatorSampleFile(operatorSampleFileFullAddress, newSetUp)
                 
                 
                 if not(errorTest): #if errorTest generate acc.txt and apx.txt which contain accurate and apx values
@@ -554,7 +570,7 @@ if __name__ == "__main__":
                         print "errant Vals:" +str(errantValues)
                         print "error Vals:" + str(errorValue)
 
-                configValue = [individual]
+                configValue = [newSetUp]
                 rawValues = [extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)]
                 #print errorValue
                 # print "where" 
@@ -592,8 +608,9 @@ if __name__ == "__main__":
                 return (newPoint.get_energy(), newPoint.get_quality())
 
         #---geting the possibly_worse_case_result info 
+        possibly_worse_case_setup_individual = map (lambda x: x[2],  possibly_worse_case_setup[0])
         print("\n.......running to get possibly_worse_case_result\n"); 
-        possibly_worse_case_result = specializedEval(False, 1, possibly_worse_case_setup[0])
+        possibly_worse_case_result = specializedEval(False, 1, accurateSetUp, ignoreListIndecies, possibly_worse_case_setup_individual)
         possibly_worse_case_result_energy = possibly_worse_case_result[0]   
         possibly_worse_case_result_quality = possibly_worse_case_result[1]   
         if (settings.benchmark_name == "sift"): 
@@ -607,7 +624,7 @@ if __name__ == "__main__":
             print "worse_case quality: " + str(possibly_worse_case_result[1])
         
         stats = tools.Statistics(lambda ind: ind.fitness.values)
-        toolbox.register("evaluate", specializedEval, True, possibly_worse_case_result_quality)
+        toolbox.register("evaluate", specializedEval, True, possibly_worse_case_result_quality, accurateSetUp, ignoreListIndecies)
         toolbox.register("mate", tools.cxTwoPoint)
         toolbox.register("mutate", specializedMutate, ignoreListIndecies)
         toolbox.register("select", tools.selSPEA2)
@@ -633,7 +650,7 @@ if __name__ == "__main__":
             else:
                 newPoint.set_quality((individual.fitness.values[1])) 
             newPoint.set_energy(individual.fitness.values[0])
-            newPoint.set_setUp(list(individual))
+            newPoint.set_setUp(modifyMold(accurateSetUp, individual))
             newPoint.set_setUp_number(0)
             #lOfPoints.append(newPoint)
             lOfPoints_out_of_heuristic.append(newPoint)

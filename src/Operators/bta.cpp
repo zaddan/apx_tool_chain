@@ -5,8 +5,8 @@
 #include "globals.h"
 #include "fp_helpers.h"
 using namespace std;
-
-
+#include <cstring>
+#include <cassert>
 
 bta::bta(size_t Nt, size_t Nia, size_t msb, size_t lsb, bool table_gen) {
 	this->Nt = Nt;
@@ -51,20 +51,8 @@ float bta::calc(const int &number1, const float &number2) {
 
 
 float bta::calc(const float &number1, const float &number2) {
-    
-    fpType num1;
-    fpType num2;
-    getFPComponents(number1, num1); //get the fp componenets
-    getFPComponents(number2, num2); //get the fp components
-
-    num1.Mantisa = ((num1.Mantisa)>> Nia) <<Nia;
-    num2.Mantisa = ((num2.Mantisa)>> Nia) <<Nia;
-    
-    float num1_inverse_converted = convertFPCompToFP(num1);
-    float num2_inverse_converted = convertFPCompToFP(num2);
-    
    
-
+    /*
     FILE* fp;
     fp = fopen("diff_file.txt", "ab+");
     
@@ -92,7 +80,67 @@ float bta::calc(const float &number1, const float &number2) {
     }
     
     fclose(fp);
+    */ 
+    
+    
+    /*
+    int *num1_ptr = (int *)malloc(sizeof(int));
+    memcpy(num1_ptr, &number1, sizeof(num1_ptr));
+    int num1_mantisa =  *num1_ptr & ~(0xff800000);
+    num1_mantisa = (num1_mantisa >> Nia) <<Nia;
+    *num1_ptr &= (0xff800000);
+    *num1_ptr |= num1_mantisa;
+    
+    int *num2_ptr = (int *)malloc(sizeof(int));
+    memcpy(num2_ptr, &number2, sizeof(num2_ptr));
+    int num2_mantisa =  *num2_ptr & ~(0xff800000);
+    num2_mantisa = (num2_mantisa >> Nia) <<Nia;
+    *num2_ptr &= (0xff800000);
+    *num2_ptr |= num2_mantisa;
+ */
+
+    int num1_ptr ;
+    memcpy(&num1_ptr, &number1, sizeof(num1_ptr));
+    int num1_mantisa =  num1_ptr & ~(0xff800000);
+    num1_mantisa = (num1_mantisa >> Nia) <<Nia;
+    num1_ptr &= (0xff800000);
+    num1_ptr |= num1_mantisa;
+    
+    int num2_ptr;
+    memcpy(&num2_ptr, &number2, sizeof(num2_ptr));
+    int num2_mantisa =  num2_ptr & ~(0xff800000);
+    num2_mantisa = (num2_mantisa >> Nia) <<Nia;
+    num2_ptr &= (0xff800000);
+    num2_ptr |= num2_mantisa;
+    
+
+    float num2_restored, num1_restored; 
+    memcpy(&num1_restored, &num1_ptr, sizeof(num1_restored));
+    memcpy(&num2_restored, &num2_ptr, sizeof(num2_restored));
+    return num2_restored + num1_restored;
+   /*
+    fpType num1;
+    fpType num2;
+    getFPComponents(number1, num1); //get the fp componenets
+    getFPComponents(number2, num2); //get the fp components
+
+    num1.Mantisa = ((num1.Mantisa)>> Nia) <<Nia;
+    num2.Mantisa = ((num2.Mantisa)>> Nia) <<Nia;
+    
+    float num1_inverse_converted = convertFPCompToFP(num1);
+    float num2_inverse_converted = convertFPCompToFP(num2);
+    
+    if (num1_inverse_converted != num1_restored){
+        cout<<"sadf"<<endl; 
+        cout<<"inverse: "<<num1_inverse_converted<< " num1_ptr: "<<num1_restored<<endl;
+        exit(0); 
+    }
+    if (num2_inverse_converted != num2_restored){
+        cout<<"inverse: "<<num2_inverse_converted<< " num2_ptr: "<<num2_restored<<endl;
+        exit(0); 
+    }
     return num1_inverse_converted + num2_inverse_converted;
+     */
 }
 
 

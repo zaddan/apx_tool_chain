@@ -29,7 +29,23 @@ it's vvalues from lowerBounderyDic needs to change.
 #=============================
 TODO:
 #=============================
+include other heuristic search:
+    flatten: 
+        try other deap search (with run_tool)
+            if want to try ES, we need to change the individual so that it is a list of numbers,
+                so the mutation can take place
+        
+        make some search
+        accodomate the possibility of having different runs run with different search
+    partial:
+        try other deap search (with run_tool
+        make some search
+
+quantification of the difference b/w two flatten and partial methods
+run the new apx operation for the entire test_bench_run for jpeg
 figure out the right power model
+
+
 
 The way that I calculate PSNR is to first use the 0 apx bit to generate an image (we know
 that this image is still noisy, since our operators can not deal with floating or fix points(I need to include the logic for this purpose), then I modify the operators and get PSNR)

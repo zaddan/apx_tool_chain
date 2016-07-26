@@ -125,8 +125,9 @@ class points:
 #         NSR= (mean_of_error_values/mean_of_acc_values)
         
         #divide the corresponding values for avg of errors and acc values  
-        print "mean of acc-val: " + str(mean_of_acc_values);
-        print "mean of error-val: " + str(mean_of_error_values);
+        if (settings.DEBUG):
+            print "mean of acc-val: " + str(mean_of_acc_values);
+            print "mean of error-val: " + str(mean_of_error_values);
         
         NSR_vector = np.divide(mean_of_error_values,mean_of_acc_values) #should be a vector
         NSR_vector_abs = map(lambda x: abs(x), NSR_vector) #should be a vector

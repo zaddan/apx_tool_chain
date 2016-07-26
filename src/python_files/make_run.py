@@ -76,7 +76,7 @@ def parseAndPrint(srcFileName):
 # @param resultFileName: what file to store the result to
 # 
 # @return no return
-def make_run(executableName, executableInputList, resultFolderName, resultFileName, CBuildFolder, operandSampleFileName, bench_suit_name, process_id):
+def make_run_compile(executableName, executableInputList, resultFolderName, resultFileName, CBuildFolder, operandSampleFileName, bench_suit_name, process_id):
     if (bench_suit_name == "my_micro_benchmark"): 
         #validating the number of inputs
         #validating the existance of the dir, and making it other wise
@@ -94,6 +94,30 @@ def make_run(executableName, executableInputList, resultFolderName, resultFileNa
         #CBuildFolder = "./../../Debug" 
         os.chdir(CBuildFolder) #chaning the directory
         make.make()
+        run.run(executableName, resultFolderName, resultFileName, settings.operatorSampleFileName+"0.txt", operandSampleFileName)
+        os.chdir(currentDir) #chaning the directory
+    elif (bench_suit_name == "sd-vbs"): 
+        currentDir = os.getcwd() #getting the current directory
+        os.chdir(CBuildFolder) #chaning the directory
+        os.system("pwd"); 
+        #os.system("gdb --args ./sift ~/behzad_local/sd-vbs/benchmarks/sift/data/sim");
+        if (settings.runMode == "parallel"): 
+            os.system("gmake c-run-compile " + "exe_annex="+str(process_id))
+        else:  
+            os.system("gmake c-run-compile " + "exe_annex="+str(0))
+        os.chdir(currentDir) #chaning the directory
+
+    
+ 
+
+
+def make_run(executableName, executableInputList, resultFolderName, resultFileName, CBuildFolder, operandSampleFileName, bench_suit_name, process_id):
+    if (bench_suit_name == "my_micro_benchmark"): 
+        #validating the number of inputs
+        #validating the existance of the dir, and making it other wise
+        currentDir = os.getcwd() #getting the current directory
+        #CBuildFolder = "./../../Debug" 
+        os.chdir(CBuildFolder) #chaning the directory
         run.run(executableName, resultFolderName, resultFileName, settings.operatorSampleFileName+"0.txt", operandSampleFileName)
         os.chdir(currentDir) #chaning the directory
     elif (bench_suit_name == "sd-vbs"): 

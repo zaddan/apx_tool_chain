@@ -217,13 +217,13 @@ if __name__ == "__main__":
     lOfParetoSetDirctions  = [] 
     # ---- get pointSet
     lOfPointSet= get_point_set(srcFile) 
-    print len(lOfPointSet) 
+    #print len(lOfPointSet) 
     
-    print "number of pareto set is " + str(len(lOfPointSet)) 
+    #print "number of pareto set is " + str(len(lOfPointSet)) 
 
     for paretoSet in lOfPointSet:
         lOfParetoSetDirctions.append(paretoSet.get_direction())
-    print lOfParetoSetDirctions 
+    #print lOfParetoSetDirctions 
  
     # ---- making sure that the direction of all pareto_sets are the same
     # ---- turn the list to a set (dismiss the repetttive values)

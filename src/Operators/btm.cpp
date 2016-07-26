@@ -1,10 +1,12 @@
 #include <iostream>
 #include <complex>
+#include <cassert>
 #include <vector>
 #include "btm.h"
 #include "fp_helpers.h"
 #include "globals.h"
 using namespace std;
+#include <cstring>
 btm::btm(void) {}
 
 btm::btm(size_t Nt, size_t Nia, bool table_gen) {
@@ -116,17 +118,7 @@ float btm::calc(const int &number1, const float &number2) {
 
 
 float btm::calc(const float &number1, const float &number2) {
-    fpType num1;
-    fpType num2;
-    getFPComponents(number1, num1); //get the fp componenets
-    getFPComponents(number2, num2); //get the fp components
-
-    num1.Mantisa = ((num1.Mantisa)>> vbl) <<vbl;
-    num2.Mantisa = ((num2.Mantisa)>> vbl) <<vbl;
-    
-    float num1_inverse_converted = convertFPCompToFP(num1);
-    float num2_inverse_converted = convertFPCompToFP(num2);
-    
+        /*
     FILE* fp;
     fp = fopen("diff_file.txt", "ab+"); 
     
@@ -153,7 +145,66 @@ float btm::calc(const float &number1, const float &number2) {
     }
     
     fclose(fp);
+    */ 
+    
+    /*     
+    int *num1_ptr = (int *)malloc(sizeof(int));
+    memcpy(num1_ptr, &number1, sizeof(num1_ptr));
+    int num1_mantisa =  *num1_ptr & ~(0xff800000);
+    num1_mantisa = (num1_mantisa >> vbl) <<vbl;
+    *num1_ptr &= (0xff800000);
+    *num1_ptr |= num1_mantisa;
+    
+    int *num2_ptr = (int *)malloc(sizeof(int));
+    memcpy(num2_ptr, &number2, sizeof(num2_ptr));
+    int num2_mantisa =  *num2_ptr & ~(0xff800000);
+    num2_mantisa = (num2_mantisa >> vbl) <<vbl;
+    *num2_ptr &= (0xff800000);
+    *num2_ptr |= num2_mantisa;
+    */
+
+    int num1_ptr;
+    memcpy(&num1_ptr, &number1, sizeof(num1_ptr));
+    int num1_mantisa =  num1_ptr & ~(0xff800000);
+    num1_mantisa = (num1_mantisa >> vbl) <<vbl;
+    num1_ptr &= (0xff800000);
+    num1_ptr |= num1_mantisa;
+    
+    int num2_ptr; 
+    memcpy(&num2_ptr, &number2, sizeof(num2_ptr));
+    int num2_mantisa =  num2_ptr & ~(0xff800000);
+    num2_mantisa = (num2_mantisa >> vbl) <<vbl;
+    num2_ptr &= (0xff800000);
+    num2_ptr |= num2_mantisa;
+
+
+    
+    float num2_restored, num1_restored; 
+    memcpy(&num1_restored, &num1_ptr, sizeof(num1_restored));
+    memcpy(&num2_restored, &num2_ptr, sizeof(num2_restored));
+    return num1_restored * num2_restored;
+   /* 
+    fpType num1;
+    fpType num2;
+    getFPComponents(number1, num1); //get the fp componenets
+    getFPComponents(number2, num2); //get the fp components
+
+    num1.Mantisa = ((num1.Mantisa)>> vbl) <<vbl;
+    num2.Mantisa = ((num2.Mantisa)>> vbl) <<vbl;
+    
+    float num1_inverse_converted = convertFPCompToFP(num1);
+    float num2_inverse_converted = convertFPCompToFP(num2);
+    
+    if (num1_inverse_converted != num1_restored){
+        cout<<"main: " <<number1<<"inverse: "<<num1_inverse_converted<< " num1_ptr: "<< num1_ptr << "restored :"<<num1_restored<<endl;
+        exit(0); 
+    }
+    if (num2_inverse_converted != num2_restored){
+        cout<<"inverse: "<<num2_inverse_converted<< " num2_ptr: "<<num2_restored<<endl;
+        exit(0); 
+    }
     return num1_inverse_converted * num2_inverse_converted;
+    */
 }
 
 
