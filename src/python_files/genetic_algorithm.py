@@ -11,6 +11,7 @@ from deap import creator
 from deap import tools
 from simulating_annealer import *
 from inputs import *
+import operator
 #**--------------------**
 #**--------------------**
 #----disclaimers::: if dealingwith Pic and we are feeding couple of operands,
@@ -307,6 +308,91 @@ def specializedEval(normalize,possibly_worse_case_result_quality,  mold, ignoreL
 
 
 
+
+def run_SP(population, 
+        CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress, 
+        executableName, executableInputList, rootResultFolderName, 
+        CBuildFolder, operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality,accurateSetUp, allConfs):
+   
+    def generate(size, pmin, pmax, smin, smax):
+        part = creator.Particle(random.uniform(pmin, pmax) for _ in range(size)) 
+        part.speed = [random.uniform(smin, smax) for _ in range(size)]
+        part.pmin = pmin
+        part.pmax = pmax
+        part.smin = smin
+        part.smax = smax
+        return part
+    
+
+    def updateParticle(part, best, phi1, phi2):
+        u1 = (random.uniform(0, phi1) for _ in range(len(part)))
+        u2 = (random.uniform(0, phi2) for _ in range(len(part)))
+        v_u1 = map(operator.mul, u1, map(operator.sub, part.best, part))
+        v_u2 = map(operator.mul, u2, map(operator.sub, best, part))
+        part.speed = list(map(operator.add, part.speed, map(operator.add, v_u1, v_u2)))
+        for i, speed in enumerate(part.speed):
+            if (speed+part[i])<part.pmin or (speed + part[i]) > part.pmax:
+                part.speed[i] = 0
+            elif speed < part.smin:
+                part.speed[i] = part.smin
+            elif speed > (part.smax) :
+                part.speed[i] = part.smax
+        
+        part[:] = list(map(operator.add, part, part.speed))  
+
+    allPointsTried = []
+    if (settings.maxX):
+            x_direction = 1
+    else:
+        x_direction = -1
+
+    if (settings.maxY):
+        y_direction = 1
+    else:
+        y_direction = -1
+
+    MU = settings.MU#number of indi for the next gen
+    LAMBDA = settings.LAMBDA#number of children
+    CXPB = settings.CXPB 
+    MUTPB = settings.MUTPB
+    creator.create("FitnessMin", base.Fitness, weights=(x_direction, y_direction))
+    creator.create("Particle", list, fitness=creator.FitnessMin, speed=list, 
+               smin=None, smax=None, best=None, pmin=None, pmax=None)
+    toolbox = base.Toolbox()
+    toolbox.register("particle", generate, size=len(allConfs[0]), pmin=0, pmax=17, smin=0, smax=12)
+    toolbox.register("population", tools.initRepeat, list, toolbox.particle)
+    toolbox.register("update", updateParticle, phi1=2.0, phi2=2.0)
+    toolbox.register("evaluate", specializedEval, True, possibly_worse_case_result_quality, accurateSetUp, ignoreListIndecies, accurateSetUp, inputObj, nameOfAllOperandFilesList, rootResultFolderName,
+            executableName, executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried)
+       
+    pop = toolbox.population(n=settings.numberOfIndividualsToStartWith)
+    stats = tools.Statistics(lambda ind: ind.fitness.values)
+    stats.register("avg", numpy.mean)
+    stats.register("std", numpy.std)
+    stats.register("min", numpy.min)
+    stats.register("max", numpy.max)
+    logbook = tools.Logbook()
+    logbook.header = ["gen", "evals"] + stats.fields
+    best = None
+    
+    for g in range(NGEN):
+        for part in pop:
+            part.fitness.values = toolbox.evaluate(part)
+            if not part.best or part.best.fitness < part.fitness:
+                part.best = creator.Particle(part)
+                part.best.fitness.values = part.fitness.values
+            if not best or best.fitness < part.fitness:
+                best = creator.Particle(part)
+                best.fitness.values = part.fitness.values
+        for part in pop:
+            toolbox.update(part, best)
+
+        # Gather all the fitnesses in one list and print the stats
+        logbook.record(gen=g, evals=len(pop), **stats.compile(pop))
+        print(logbook.stream)
+    
+    
+    return allPointsTried, pop
 
 
 def run_spea2(population, 

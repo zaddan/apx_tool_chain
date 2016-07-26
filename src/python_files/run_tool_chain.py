@@ -498,11 +498,17 @@ if __name__ == "__main__":
             print "worse_case energy: " + str(possibly_worse_case_result[0])
             print "worse_case quality: " + str(possibly_worse_case_result[1])
 
-        allPointsTried, population = run_spea2(population,
+#        allPointsTried, population = run_spea2(population,
+#                    CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress,
+#                    executableName, executableInputList, rootResultFolderName, CBuildFolder,
+#                    operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality, accurateSetUp, allConfs)
+# 
+        allPointsTried, population = run_SP(population,
                     CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress,
                     executableName, executableInputList, rootResultFolderName, CBuildFolder,
                     operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality, accurateSetUp, allConfs)
  
+
 
 
                 
@@ -572,7 +578,6 @@ if __name__ == "__main__":
 
 
 
-    print "GOTHERE"
     # ---- reading the values back
     if (mode == "only_read_values"):
         with open(PIK_pareto, "rb") as f:
