@@ -172,6 +172,7 @@ if __name__ == "__main__":
     finalResultFileName = inputObj.finalResultFileName
     PIK_all_points = inputObj.PIK_all_points
     PIK_pareto  = inputObj.PIK_pareto
+    PIK_pareto_of_all = inputObj.PIK_pareto_of_all 
     bench_suit_name = inputObj.bench_suit_name; 
     
     #---------guide:::  checking the validity of the input and making necessary files
@@ -365,70 +366,25 @@ if __name__ == "__main__":
     lOfPoints = []  
     allPointsTried = []
     if (mode == "allPermutations"): 
-        lengthSoFar = 0 
+        lengthSoFar = 1 
         
         """ ---- guide: making sure that it is possible to use permuation
                  if the number of permutations are too big to be held in memoery
                  we error out """
         for opOptions in allPossibleScenariosForEachOperator:
-            lengthSoFar += len(opOptions)
-            assert(lengthSoFar < settings.veryHugeNumber), """numbr of permuations is too big. 
-            it is bigger that """ + str(settings.veryHugeNumber)
+            print opOptions
+            lengthSoFar *= len(opOptions)
+            assert(lengthSoFar < settings.veryHugeNumber), """numbr of permuations:""" + str(lengthSoFar)+""" is too big. 
+            it is bigger than:""" + str(settings.veryHugeNumber)
 
         allPossibleApxScenarioursList = generateAllPossibleApxScenariousList(allPossibleScenariosForEachOperator)
-        while (True): #break when a signal is raised as done
-            newPoint = points()
-            status, setUp = generateAPossibleApxScenarios(rootResultFolderName + "/" + settings.AllPossibleApxOpScenarios, allPossibleApxScenarioursList , apxIndexSetUp, mode) 
-            for operandIndex, operandSampleFileName in enumerate(nameOfAllOperandFilesList):
-                print "\n" + str(100*float(apxIndexSetUp)/len(allPossibleApxScenarioursList)) + "% done" 
-                energyValue = [calculateEnergy(map(getFirstTwo, setUp))]
-                configValue = polishSetup(setUp) #just to make it more readable
-                inputFileNameListValue = [operandSampleFileName] 
-                CSourceOutputForVariousSetUpP = open(CSourceOutputForVariousSetUpFileName, "w").close()
-                modifyOperatorSampleFile(operatorSampleFileFullAddress, setUp)
-                make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0)
-                
-                errantValues =  extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)
-                errorValue = [calculateError(lOfAccurateValues[operandIndex],errantValues)]
-                
-                rawValues = [extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)]
-                
-                newPoint.append_raw_values(rawValues[0])  
-                newPoint.append_error(errorValue[0])
-                newPoint.set_energy(energyValue[0])
-                setUpPolished =[] 
-                for setUpElement in configValue[0]:
-                    setUpEelementPolished = [] 
-                    for index, setUpSubEl in enumerate(setUpElement.split()):
-                        if index != 0:
-                            setUpEelementPolished.append(float(setUpSubEl))
-                        else:
-                            setUpEelementPolished.append(setUpSubEl)
-                    setUpPolished.append(setUpEelementPolished)
-                # newPoint.set_setUp(configValue[0].)
-                
-                newPoint.set_setUp(setUpPolished)
-                newPoint.set_setUp_number(apxIndexSetUp)
-                #print configValue[0] 
-                #print newPoint.get_setUp()
-                newPoint.append_lOf_operand(get_operand_values(operandSampleFileName))
-                newPoint.append_accurate_values(lOfAccurateValues[operandIndex])
-                newPoint.set_dealing_with_pics(eval(inputObj.dealingWithPics))
-                newPoint.set_input_obj(inputObj)
-                # newPoint.calculate_SNR()
-                if eval(inputObj.dealingWithPics): 
-                    newPoint.calculate_PSNR()
-                inputFileNameList[operandIndex] += inputFileNameListValue
-                lOfPoints.append(newPoint)
-          
-             
-            if not(eval(inputObj.dealingWithPics)): 
-                newPoint.calculate_quality(False, 1)
-            apxIndexSetUp += 1  
-            if (status == "done"):
-                break;
- 
-    elif (mode == "genetic_algorithm"):
+        for index,config in enumerate(allPossibleApxScenarioursList):
+            individual = map(lambda x: x[2], config) 
+            specializedEval(False, 1, accurateSetUp, ignoreListIndecies, accurateSetUp, inputObj,nameOfAllOperandFilesList, rootResultFolderName, executableName,
+            executableInputList, CBuildFolder, operandSampleFileName,lOfAccurateValues, allPointsTried,
+            individual)
+        lOfPoints_out_of_heuristic = allPointsTried
+    elif (mode == "genetic_algorithm" or mode == "swarm_particle"):
         if (runMode == "parallel"): 
             the_lock = multiprocessing.Lock() 
         allConfs = [] #first generation
@@ -497,16 +453,20 @@ if __name__ == "__main__":
             print "worse_case energy: " + str(possibly_worse_case_result[0])
             print "worse_case quality: " + str(possibly_worse_case_result[1])
 
-        allPointsTried, population = run_spea2(population,
-                    CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress,
-                    executableName, executableInputList, rootResultFolderName, CBuildFolder,
-                    operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality, accurateSetUp, allConfs)
-# 
-#        allPointsTried, population = run_SP(population,
-#                    CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress,
-#                    executableName, executableInputList, rootResultFolderName, CBuildFolder,
-#                    operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality, accurateSetUp, allConfs)
-# 
+        if (mode == "genetic_algorithm"): 
+            allPointsTried, population = run_spea2(population,
+                        CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress,
+                        executableName, executableInputList, rootResultFolderName, CBuildFolder,
+                        operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality, accurateSetUp, allConfs)
+        elif (mode == "swarm_particle"):
+            allPointsTried, population = run_SP(population,
+                        CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress,
+                        executableName, executableInputList, rootResultFolderName, CBuildFolder,
+                        operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality, accurateSetUp, allConfs)
+        else:
+            print "this mode" + str(mode) +" not defined"
+            exit()
+
 
 
 
@@ -528,18 +488,17 @@ if __name__ == "__main__":
         # lOfOperandSet[operandIndex].set_lOfPoints(copy.deepcopy(lOfPoints))
         operandIndex += 1
     
-        for individual in allPointsTried:
-            newPoint = points()
-            # newPoint.set_SNR(individual.fitness.values[1])
-            if(eval(inputObj.dealingWithPics)): 
-                newPoint.set_PSNR(individual.get_quality())
-            else:
-                newPoint.set_quality(individual.get_quality()) #normalizing the quality to the possibly_worse_case
-            newPoint.set_energy(individual.get_energy())
-            newPoint.set_setUp(list(individual.get_setUp()))
-            newPoint.set_setUp_number(0)
-            lOfAllPointsTried.append(newPoint)
-
+    for individual in allPointsTried:
+        newPoint = points()
+        # newPoint.set_SNR(individual.fitness.values[1])
+        if(eval(inputObj.dealingWithPics)): 
+            newPoint.set_PSNR(individual.get_quality())
+        else:
+            newPoint.set_quality(individual.get_quality()) #normalizing the quality to the possibly_worse_case
+        newPoint.set_energy(individual.get_energy())
+        newPoint.set_setUp(list(individual.get_setUp()))
+        newPoint.set_setUp_number(0)
+        lOfAllPointsTried.append(newPoint)
         
 #        if (runMode == "parallel"):
 #            lOfPoints = lOfAllPointsTried
@@ -574,6 +533,11 @@ if __name__ == "__main__":
             points_to_dump = lOfAllPointsTried
             for point in points_to_dump:
                 pickle.dump(copy.deepcopy(point), f)
+        with open(PIK_pareto_of_all, "wb") as f:
+            points_to_dump = pareto_frontier(lOfAllPointsTried, maxX, maxY)
+            for point in points_to_dump:
+                pickle.dump(copy.deepcopy(point), f)
+
 
 
 
@@ -606,9 +570,21 @@ if __name__ == "__main__":
                         print ex.args
                         print "something went wrong"
                     break
+        with open(PIK_pareto_of_all, "rb") as f:
+            # pickle.load(f)
+            while True: 
+                try: 
+                    point = pickle.load(f)
+                    lOfAllPointsTried.append(point) 
+                    # listOfPeople.append(copy.copy(person))# 
+                except Exception as ex:
+                    if not (type(ex).__name__ == "EOFError"):
+                        print type(ex).__name__ 
+                        print ex.args
+                        print "something went wrong"
+                    break
    
 
-   
    
    #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
    #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 

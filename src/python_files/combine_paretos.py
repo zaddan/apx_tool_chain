@@ -306,7 +306,7 @@ if __name__ == "__main__":
     lOfEnergy_after_combining_pareto_points = map(lambda x: x.get_energy(), lOfParetoPoints)
 
     #---pareto points for ref 
-    lOfParetoPoints_ref = getPoints("pareto_of_flattened") #getting the ref points
+    lOfParetoPoints_ref = getPoints("pareto_of_heur_flattened") #getting the ref points
     lOfQualityValue_ref = map(lambda x: x.get_quality(), lOfParetoPoints_ref)
     lOfEnergyValue_ref = map(lambda x: x.get_energy(), lOfParetoPoints_ref)
     

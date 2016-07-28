@@ -59,9 +59,37 @@ def main():
     upper_bound = .001
     points_to_graph = [] 
     for arg in sys.argv[1:]:
+        if (arg == "hierarchical"):
+            get_quality_energy_values("all_of_s2", "+", points_to_graph, limit, lower_bound, upper_bound)
+            get_quality_energy_values("all_of_s3", "1", points_to_graph, limit, lower_bound, upper_bound)
+            get_quality_energy_values("pareto_of_all_of_s3", "+", points_to_graph, limit, lower_bound, upper_bound)
+            get_quality_energy_values("pareto_of_all_of_s2", "+", points_to_graph, limit, lower_bound, upper_bound)
+            get_quality_energy_values("all_of_combined", "x", points_to_graph, limit, lower_bound, upper_bound)
+            get_quality_energy_values("pareto_of_combined", "o", points_to_graph, limit, lower_bound, upper_bound)
+        if (arg == "ref"): #---ref all
+            get_quality_energy_values("pareto_of_heur_flattened", "^", points_to_graph, limit, lower_bound, upper_bound) 
+            get_quality_energy_values("all_of_flattned", "+", points_to_graph, limit, lower_bound, upper_bound) 
+            get_quality_energy_values("pareto_of_all_of_flattened", "+", points_to_graph, limit, lower_bound, upper_bound)
+        if(arg == "only_pareto"):
+            get_quality_energy_values("pareto_of_all_of_s3", "+", points_to_graph, limit, lower_bound, upper_bound)
+            get_quality_energy_values("pareto_of_all_of_s2", "+", points_to_graph, limit, lower_bound, upper_bound)
+            get_quality_energy_values("pareto_of_combined", "o", points_to_graph, limit, lower_bound, upper_bound)
+            get_quality_energy_values("pareto_of_heur_flattened", "^", points_to_graph, limit,  lower_bound, upper_bound) 
+            get_quality_energy_values("pareto_of_all_of_flattened", "^", points_to_graph, limit, lower_bound, upper_bound) 
+        if(arg == "all"): #--all graph
+            get_quality_energy_values("all_of_s2", "+", points_to_graph, limit, lower_bound, upper_bound)
+            get_quality_energy_values("all_of_s3", "1", points_to_graph, limit, lower_bound, upper_bound)
+            get_quality_energy_values("pareto_of_all_of_s3", "+", points_to_graph, limit, lower_bound, upper_bound)
+            get_quality_energy_values("pareto_of_all_of_s2", "+", points_to_graph, limit, lower_bound, upper_bound)
+            get_quality_energy_values("all_of_combined", "x", points_to_graph, limit, lower_bound, upper_bound)
+            get_quality_energy_values("pareto_of_combined", "o", points_to_graph, limit, lower_bound, upper_bound)
+            get_quality_energy_values("pareto_of_heur_flattened", "^", points_to_graph, limit,  lower_bound, upper_bound) 
+            get_quality_energy_values("all_of_flattned", "+", points_to_graph, limit, lower_bound, upper_bound) 
+            get_quality_energy_values("pareto_of_all_of_flattened", "^", points_to_graph, limit, lower_bound, upper_bound)
         if (arg == "main_two"): 
             get_quality_energy_values("pareto_of_combined", "o", points_to_graph, limit, lower_bound, upper_bound)
-            get_quality_energy_values("pareto_of_flattened", "^", points_to_graph, limit, lower_bound, upper_bound) 
+            get_quality_energy_values("pareto_of_heur_flattened", "^", points_to_graph, limit, lower_bound, upper_bound) 
+
         if (arg == "s2"): #---stage 2 points
             get_quality_energy_values("all_of_s2", "+", points_to_graph, limit, lower_bound, upper_bound)
         if (arg == "s3"): #---stage 3 points
@@ -71,20 +99,11 @@ def main():
         if (arg == "combined_pareto"): #combined_pareto
             get_quality_energy_values("pareto_of_combined", "o", points_to_graph, limit, lower_bound, upper_bound)
         if (arg == "ref_pareto"): #---pareto points for ref 
-            get_quality_energy_values("pareto_of_flattened", "^", points_to_graph, limit, lower_bound, upper_bound) 
+            get_quality_energy_values("pareto_of_heur_flattened", "^", points_to_graph, limit, lower_bound, upper_bound) 
+            get_quality_energy_values("pareto_of_all_of_flattened", "+", points_to_graph, limit, lower_bound, upper_bound) 
         if (arg == "ref_all"): #---ref all
             get_quality_energy_values("all_of_flattned", "+", points_to_graph, limit, lower_bound, upper_bound) 
-        if (arg == "ref"): #---ref all
-            get_quality_energy_values("pareto_of_flattened", "^", points_to_graph, limit, lower_bound, upper_bound) 
-            get_quality_energy_values("all_of_flattned", "+", points_to_graph, limit, lower_bound, upper_bound) 
-        if(arg == "all"): #--all graph
-            get_quality_energy_values("all_of_s2", "+", points_to_graph, limit, lower_bound, upper_bound)
-            get_quality_energy_values("all_of_s3", "1", points_to_graph, limit, lower_bound, upper_bound)
-            get_quality_energy_values("all_of_combined", "x", points_to_graph, limit, lower_bound, upper_bound)
-            get_quality_energy_values("pareto_of_combined", "o", points_to_graph, limit, lower_bound, upper_bound)
-            get_quality_energy_values("pareto_of_flattened", "^", points_to_graph, limit,  lower_bound, upper_bound) 
-            get_quality_energy_values("all_of_flattned", "+", points_to_graph, limit, lower_bound, upper_bound) 
-
+         
     generateGraph_for_all(points_to_graph, "1/quality", "energy", get_benchmark_name()) 
      
     pylab.savefig("results.png") #saving the figure generated by generateGraph

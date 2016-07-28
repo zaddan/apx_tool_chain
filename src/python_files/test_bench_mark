@@ -30,12 +30,14 @@ echo
 echo "---------starting stage 0"
 #removing all the previous files
 rm nohup.out
-rm pareto_of_flattened
+rm pareto_of_heur_flattened
 rm pareto_set_file.txt
+rm pareto_of_all_of_flattened
 rm ref.png
 rm combine.png
 rm pickled_results_pareto
 rm pareto_of_combined
+rm results.png
 echo "done with the stage 0, removing all the files"
 
 
@@ -43,6 +45,7 @@ echo "done with the stage 0, removing all the files"
 echo
 echo
 echo "---------starting stage 1"
+
 python run_write_config.py $benchmark $root_folder $bench_suit_name $heuristic_intensity1
 cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/sift/src/c/
 cp imsmooth_apx.txt imsmooth.c
@@ -50,8 +53,9 @@ cp diffss_apx.txt diffss.c
 
 cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
 python run_tool_chain.py
-cp pickled_results_pareto pareto_of_flattened
+cp pickled_results_pareto pareto_of_heur_flattened
 cp pickled_results_all_points all_of_flattned
+cp pickled_results_pareto_of_all pareto_of_all_of_flattened
 
 rm pareto_set_file.txt
 cp ../../generated_text/finalResult.png ref.png
@@ -75,6 +79,7 @@ python run_tool_chain.py
 rm ../../generated_text/finalResult.png 
 rm pickled_results_pareto
 cp pickled_results_all_points all_of_s2
+cp pickled_results_pareto_of_all pareto_of_all_of_s2
 echo "done with the stage 2: apx of some files"
 
 
@@ -94,6 +99,7 @@ python run_tool_chain.py
 rm ../../generated_text/finalResult.png 
 rm pickled_results_pareto
 cp pickled_results_all_points all_of_s3
+cp pickled_results_pareto_of_all pareto_of_all_of_s3
 echo "done with the stage 3: apx of some files"
 
 
@@ -117,7 +123,7 @@ elif [ $benchmark == "disparity" ];then
 echo
 echo
 echo "---------starting stage 0"
-rm pareto_of_flattened
+rm pareto_of_heur_flattened
 rm pareto_set_file.txt
 rm ref.png
 rm combine.png
@@ -138,14 +144,15 @@ cp integralImage2D2D_apx.txt integralImage2D2D.c
 
 cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
 python run_tool_chain.py
-cp pickled_results_pareto pareto_of_flattened
+cp pickled_results_pareto pareto_of_heur_flattened
 cp pickled_results_all_points all_of_flattned
+cp pickled_results_pareto_of_all pareto_of_all_of_flattened
 rm pareto_set_file.txt
 cp ../../generated_text/finalResult.png ref.png
 echo "done with the stage 1: flattening and apx of all files"
 
 
-# ---- starting stage 2(apx some files)
+## ---- starting stage 2(apx some files)
 #echo
 #echo
 #echo "---------starting stage 2"
@@ -164,6 +171,7 @@ echo "done with the stage 1: flattening and apx of all files"
 #rm ../../generated_text/finalResult.png 
 #rm pickled_results_pareto
 #cp pickled_results_all_points all_of_s2
+#cp pickled_results_pareto_of_all pareto_of_all_of_s2
 #echo "done with the stage 2: apx of some files"
 #
 #
@@ -184,6 +192,7 @@ echo "done with the stage 1: flattening and apx of all files"
 #rm ../../generated_text/finalResult.png 
 #rm pickled_results_pareto
 #cp pickled_results_all_points all_of_s3
+#cp pickled_results_pareto_of_all pareto_of_all_of_s3
 #echo "done with the stage 3: apx of some files"
 #
 #
@@ -210,7 +219,7 @@ elif [ $benchmark == "localization" ];then
 echo
 echo
 echo "---------starting stage 0"
-rm pareto_of_flattened
+rm pareto_of_heur_flattened
 rm pareto_set_file.txt
 rm ref.png
 rm combine.png
@@ -230,10 +239,12 @@ cp fTimes_mod_apx.txt fTimes_mod.c
 cp fMtimes_mod_apx.txt fMtimes_mod.c
 cp script_localization_apx.txt script_localization.c
 
+
 cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
 python run_tool_chain.py
-cp pickled_results_pareto pareto_of_flattened
+cp pickled_results_pareto pareto_of_heur_flattened
 cp pickled_results_all_points all_of_flattned
+cp pickled_results_pareto_of_all pareto_of_all_of_flattened
 rm pareto_set_file.txt
 cp ../../generated_text/finalResult.png ref.png
 echo "done with the stage 1: flattening and apx of all files"
@@ -254,6 +265,7 @@ echo "done with the stage 1: flattening and apx of all files"
 #rm ../../generated_text/finalResult.png 
 #rm pickled_results_pareto
 #cp pickled_results_all_points all_of_s2
+#cp pickled_results_pareto_of_all pareto_of_all_of_s2
 #echo "done with the stage 2: apx of some files"
 #
 #
@@ -274,6 +286,7 @@ echo "done with the stage 1: flattening and apx of all files"
 #rm ../../generated_text/finalResult.png 
 #rm pickled_results_pareto
 #cp pickled_results_all_points all_of_s3
+#cp pickled_results_pareto_of_all pareto_of_all_of_s3
 #echo "done with the stage 3: apx of some files"
 #
 ## ---- starting stage 4(combine and compare)
@@ -298,7 +311,7 @@ echo
 echo
 echo "---------starting stage 0"
 #removing all the previous files
-rm pareto_of_flattened
+rm pareto_of_heur_flattened
 rm pareto_set_file.txt
 rm ref.png
 rm combine.png
@@ -318,9 +331,9 @@ cp quant_apx.txt quant.cpp
 
 cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
 python run_tool_chain.py
-cp pickled_results_pareto pareto_of_flattened
+cp pickled_results_pareto pareto_of_heur_flattened
 cp pickled_results_all_points all_of_flattned
-
+cp pickled_results_pareto_of_all pareto_of_all_of_flattened
 rm pareto_set_file.txt
 cp ../../generated_text/finalResult.png ref.png
 echo "done with the stage 1: flattening and apx of all files"
@@ -343,6 +356,7 @@ echo "done with the stage 1: flattening and apx of all files"
 #rm ../../generated_text/finalResult.png 
 #rm pickled_results_pareto
 #cp pickled_results_all_points all_of_s2
+#cp pickled_results_pareto_of_all pareto_of_all_of_s2
 #echo "done with the stage 2: apx of some files"
 #
 #
@@ -362,6 +376,7 @@ echo "done with the stage 1: flattening and apx of all files"
 #rm ../../generated_text/finalResult.png 
 #rm pickled_results_pareto
 #cp pickled_results_all_points all_of_s3
+#cp pickled_results_pareto_of_all pareto_of_all_of_s3
 #echo "done with the stage 3: apx of some files"
 #
 #

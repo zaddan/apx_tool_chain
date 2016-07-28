@@ -44,8 +44,9 @@ def main():
     
     if (run_nature == "complete"):
         os.system("cp compare_results.txt res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
-        os.system("cp pareto_of_flattened res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
+        os.system("cp pareto_of_heur_flattened res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
         os.system("cp all_of_flattned res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
+        os.system("cp pareto_of_al_of_flattned res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
         os.system("cp all_of_s2 res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
         os.system("cp all_of_s3 res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
         os.system("cp pareto_set_file.txt res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
