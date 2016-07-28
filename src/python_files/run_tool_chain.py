@@ -1,4 +1,3 @@
-
 from scoop import futures, shared
 import multiprocessing
 from multiprocessing import Process, Manager
@@ -498,16 +497,16 @@ if __name__ == "__main__":
             print "worse_case energy: " + str(possibly_worse_case_result[0])
             print "worse_case quality: " + str(possibly_worse_case_result[1])
 
-#        allPointsTried, population = run_spea2(population,
+        allPointsTried, population = run_spea2(population,
+                    CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress,
+                    executableName, executableInputList, rootResultFolderName, CBuildFolder,
+                    operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality, accurateSetUp, allConfs)
+# 
+#        allPointsTried, population = run_SP(population,
 #                    CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress,
 #                    executableName, executableInputList, rootResultFolderName, CBuildFolder,
 #                    operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality, accurateSetUp, allConfs)
 # 
-        allPointsTried, population = run_SP(population,
-                    CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress,
-                    executableName, executableInputList, rootResultFolderName, CBuildFolder,
-                    operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality, accurateSetUp, allConfs)
- 
 
 
 
@@ -695,9 +694,9 @@ if __name__ == "__main__":
     #---------guide::: show the graph
     #plt.show() 
     end = time.time()
-    print "here is the total time:"
+    #print "here is the total time:"
 
-    print end - start
+    #print end - start
     sys.stdout.flush()
 
 

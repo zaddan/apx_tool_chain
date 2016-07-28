@@ -42,7 +42,10 @@ include other heuristic search:
         make some search
 
 quantification of the difference b/w two flatten and partial methods
-run the new apx operation for the entire test_bench_run for jpeg
+
+include the pareto front of the lOfAllTriedPoints
+
+
 figure out the right power model
 
 
