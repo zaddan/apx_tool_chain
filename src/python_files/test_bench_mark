@@ -250,62 +250,62 @@ cp ../../generated_text/finalResult.png ref.png
 echo "done with the stage 1: flattening and apx of all files"
 
 
-## ---- starting stage 2(apx some files)
-#echo
-#echo
-#echo "---------starting stage 2"
-#python run_write_config.py $benchmark $root_folder $bench_suit_name $heuristic_intensity2
-#cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/localization/src/c/
-#cp fMtimes_mod_acc.txt fMtimes_mod.c
-#cp script_localization_acc.txt script_localization.c
-#
-#cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
-#python run_tool_chain.py
-#
-#rm ../../generated_text/finalResult.png 
-#rm pickled_results_pareto
-#cp pickled_results_all_points all_of_s2
-#cp pickled_results_pareto_of_all pareto_of_all_of_s2
-#echo "done with the stage 2: apx of some files"
-#
-#
-## ---- starting stage 3(apx some files)
-#echo
-#echo
-#echo "---------starting stage 3"
-#python run_write_config.py $benchmark $root_folder $bench_suit_name $heuristic_intensity2
-#cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/localization/src/c/
-#cp eul2quat_acc.txt eul2quat.c
-#cp quatMul_acc.txt quatMul.c
-#cp fTimes_mod_acc.txt fTimes_mod.c
-#cp fMtimes_mod_apx.txt fMtimes_mod.c
-#cp script_localization_apx.txt script_localization.c
-#
-#cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
-#python run_tool_chain.py
-#rm ../../generated_text/finalResult.png 
-#rm pickled_results_pareto
-#cp pickled_results_all_points all_of_s3
-#cp pickled_results_pareto_of_all pareto_of_all_of_s3
-#echo "done with the stage 3: apx of some files"
-#
-## ---- starting stage 4(combine and compare)
-##returning all the files to approximate version (so we can get the accurate result)
-#echo
-#echo
-#echo "---------starting stage 4"
-#cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/localization/src/c/
-#cp eul2quat_apx.txt eul2quat.c
-#cp quatMul_apx.txt quatMul.c
-#cp fTimes_mod_apx.txt fTimes_mod.c
-#cp fMtimes_mod_apx.txt fMtimes_mod.c
-#cp script_localization_apx.txt script_localization.c
-#
-#cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
-#python combine_paretos.py
-#python compare_pareto_curves.py >> compare_results.txt
-#cp ../../generated_text/finalResult.png combine.png
-#echo "done with stage 4:combining the paretos and comparing"
+# ---- starting stage 2(apx some files)
+echo
+echo
+echo "---------starting stage 2"
+python run_write_config.py $benchmark $root_folder $bench_suit_name $heuristic_intensity2
+cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/localization/src/c/
+cp fMtimes_mod_acc.txt fMtimes_mod.c
+cp script_localization_acc.txt script_localization.c
+
+cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
+python run_tool_chain.py
+
+rm ../../generated_text/finalResult.png 
+rm pickled_results_pareto
+cp pickled_results_all_points all_of_s2
+cp pickled_results_pareto_of_all pareto_of_all_of_s2
+echo "done with the stage 2: apx of some files"
+
+
+# ---- starting stage 3(apx some files)
+echo
+echo
+echo "---------starting stage 3"
+python run_write_config.py $benchmark $root_folder $bench_suit_name $heuristic_intensity2
+cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/localization/src/c/
+cp eul2quat_acc.txt eul2quat.c
+cp quatMul_acc.txt quatMul.c
+cp fTimes_mod_acc.txt fTimes_mod.c
+cp fMtimes_mod_apx.txt fMtimes_mod.c
+cp script_localization_apx.txt script_localization.c
+
+cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
+python run_tool_chain.py
+rm ../../generated_text/finalResult.png 
+rm pickled_results_pareto
+cp pickled_results_all_points all_of_s3
+cp pickled_results_pareto_of_all pareto_of_all_of_s3
+echo "done with the stage 3: apx of some files"
+
+# ---- starting stage 4(combine and compare)
+#returning all the files to approximate version (so we can get the accurate result)
+echo
+echo
+echo "---------starting stage 4"
+cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/localization/src/c/
+cp eul2quat_apx.txt eul2quat.c
+cp quatMul_apx.txt quatMul.c
+cp fTimes_mod_apx.txt fTimes_mod.c
+cp fMtimes_mod_apx.txt fMtimes_mod.c
+cp script_localization_apx.txt script_localization.c
+
+cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
+python combine_paretos.py
+python compare_pareto_curves.py >> compare_results.txt
+cp ../../generated_text/finalResult.png combine.png
+echo "done with stage 4:combining the paretos and comparing"
 elif [ "$benchmark" == "jpeg" ];then
 echo
 echo

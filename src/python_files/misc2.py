@@ -1,4 +1,16 @@
 import os
+def clean_doubles(lOfpoints):
+    result = [] 
+    for el in lOfpoints:
+        add = True 
+        for el2 in result:
+            if el.get_energy() == el2.get_energy() and el.get_quality() == el2.get_quality():
+                add = False
+                break
+        if (add):
+            result.append(el)
+    return result
+
 def write_benchmark_name(name):
     with open("config.txt", "wb") as f:
         f.write(name)

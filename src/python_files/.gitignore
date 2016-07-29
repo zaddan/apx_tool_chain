@@ -31,4 +31,15 @@ ref_results_pickled_all_points
 results_mod.png
 results_pickled_all_points_s2
 results_pickled_all_points_s3
+my_bash
+my_bash_disparity
+my_bash_localization
+my_bash_sift
 
+
+pareto_of_all_of_flattened
+pareto_of_all_of_s2
+pareto_of_all_of_s3
+pareto_of_flattened
+pareto_of_heur_flatt
+pickled_results_pareto_of_all

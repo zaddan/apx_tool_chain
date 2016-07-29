@@ -3,6 +3,18 @@ import multiprocessing
 from multiprocessing import Process, Manager
 import misc
 import misc2
+
+def get_quality_energy_values_directly(lOfPoints, symbol, points_to_graph,index, limit=False, lower_bound=-100, upper_bound=100):
+    lOfQualityVals = map(lambda x: x.get_quality(), lOfPoints)
+    lOfEnergyVals = map(lambda x: x.get_energy(), lOfPoints)
+    if (limit):
+        result = filter(lambda x: x[0] > lower_bound and x[0] <upper_bound, zip(lOfQualityVals, lOfEnergyVals))
+        lOfQualityVals = map(lambda x: x[0], result)
+        lOfEnergyVals = map(lambda x: x[1], result)
+    points_to_graph.append([lOfQualityVals, lOfEnergyVals, symbol, index])
+ 
+
+
 # Copyright (C) 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -48,7 +60,7 @@ import os
 
 from extract_unique_noise import *
 from inputs import *#this file contains all the inputs
-from genetic_algorithm import *
+from search_heuristic_algorithm import *
 from deap import algorithms
 from points_class import *
 from deap import base
@@ -155,6 +167,7 @@ if __name__ == "__main__":
 #    print "6. AllInputFileOrDirectoryName" #the user should be providing a file name if AllInputScenariosInOneFile is true and a direcoty other   
 #    print "7. finalResulstFileName"
 #    
+    symbolsToChooseFrom = ['*', 'x', "o", "+", "*", "-", "^", "1", "2", "3", "4"] #symbols to draw the plots with
     inputObj = inputClass()
     inputObj.expandAddress()
     maxX = settings.maxX
@@ -351,7 +364,7 @@ if __name__ == "__main__":
         #---------guide:::  run the CSrouce file with the new setUp(operators)
         if not(errorTest): 
             print("\n........running to get accurate values\n"); 
-            make_run_compile(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0) #first make_run
+            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0) #first make_run
             accurateValues = extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)
         else:
             newPath = "/home/local/bulkhead/behzad/usr/local/apx_tool_chain/src/python_files/scratch/acc.txt"
@@ -381,7 +394,7 @@ if __name__ == "__main__":
         for index,config in enumerate(allPossibleApxScenarioursList):
             individual = map(lambda x: x[2], config) 
             specializedEval(False, 1, accurateSetUp, ignoreListIndecies, accurateSetUp, inputObj,nameOfAllOperandFilesList, rootResultFolderName, executableName,
-            executableInputList, CBuildFolder, operandSampleFileName,lOfAccurateValues, allPointsTried,
+            executableInputList, CBuildFolder, operandSampleFileName,lOfAccurateValues, allPointsTried, True,
             individual)
         lOfPoints_out_of_heuristic = allPointsTried
     elif (mode == "genetic_algorithm" or mode == "swarm_particle"):
@@ -439,7 +452,7 @@ if __name__ == "__main__":
         possibly_worse_case_setup_individual = map (lambda x: x[2],  possibly_worse_case_setup[0])
         print("\n.......running to get possibly_worse_case_result\n"); 
         possibly_worse_case_result = specializedEval(False, 1, accurateSetUp, ignoreListIndecies, accurateSetUp, inputObj,nameOfAllOperandFilesList, rootResultFolderName, executableName,
-                executableInputList, CBuildFolder, operandSampleFileName,lOfAccurateValues, allPointsTried,
+                executableInputList, CBuildFolder, operandSampleFileName,lOfAccurateValues, allPointsTried,True,
                 possibly_worse_case_setup_individual)
         possibly_worse_case_result_energy = possibly_worse_case_result[0]   
         possibly_worse_case_result_quality = possibly_worse_case_result[1]   
@@ -469,8 +482,6 @@ if __name__ == "__main__":
 
 
 
-
-                
         #--store all the points acquired by the heuristic in the list
         for individual in population:
             newPoint = points()
@@ -481,13 +492,14 @@ if __name__ == "__main__":
                 newPoint.set_quality((individual.fitness.values[1])) 
             newPoint.set_energy(individual.fitness.values[0])
             newPoint.set_setUp(modifyMold(accurateSetUp, individual))
+            individual_converted_to_list = map(lambda x: x, individual)
+            newPoint.set_raw_setUp(individual_converted_to_list)
             newPoint.set_setUp_number(0)
             #lOfPoints.append(newPoint)
             lOfPoints_out_of_heuristic.append(newPoint)
         
         # lOfOperandSet[operandIndex].set_lOfPoints(copy.deepcopy(lOfPoints))
         operandIndex += 1
-    
     for individual in allPointsTried:
         newPoint = points()
         # newPoint.set_SNR(individual.fitness.values[1])
@@ -497,12 +509,42 @@ if __name__ == "__main__":
             newPoint.set_quality(individual.get_quality()) #normalizing the quality to the possibly_worse_case
         newPoint.set_energy(individual.get_energy())
         newPoint.set_setUp(list(individual.get_setUp()))
+        newPoint.set_raw_setUp(individual.get_raw_setUp())
         newPoint.set_setUp_number(0)
         lOfAllPointsTried.append(newPoint)
-        
-#        if (runMode == "parallel"):
-#            lOfPoints = lOfAllPointsTried
-#    
+    
+    
+    
+    #----note: lOfAllPointsTried need to be populated
+#    prob_heur_points = probabilistic_heuristic(pareto_frontier(lOfPoints_out_of_heuristic, maxX, maxY), CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress,
+#                        executableName, executableInputList, rootResultFolderName, CBuildFolder,
+#                        operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality, accurateSetUp, allConfs,
+#                        lOfAllPointsTried)
+#
+    """
+    lOfAllPointsTried_cleaned_of_doubles = clean_doubles(lOfAllPointsTried)
+    all_pareto_fronts_list = all_pareto_frontiers(lOfAllPointsTried_cleaned_of_doubles, maxX, maxY)
+
+    points_to_graph = [] 
+    for index, lOfPoints in enumerate(all_pareto_fronts_list):
+        get_quality_energy_values_directly(lOfPoints,symbolsToChooseFrom[index],  points_to_graph, symbolsToChooseFrom[index])
+        if (index >=2):
+            break
+    generateGraph_for_all(points_to_graph, "1/quality", "energy", "blah") 
+    
+    pylab.savefig("results.png") #saving the figure generated by generateGraph
+    print all_pareto_fronts_list
+    sys.exit()
+    """ 
+    """ 
+    while(True): 
+        number = raw_input('provide the num: ')
+        total = 0 
+        for el in my_histogram.keys():
+            if my_histogram[el] > int(number):
+                total +=1;
+        print "\n" + str(total) + "number of moves"    
+    """
     #---------guide:::  getting the end time
     timeAfterFindingResults = datetime.datetime.now()
     totalTime = findTotalTime(timeBeforeFindingResults, timeAfterFindingResults) 
@@ -531,10 +573,11 @@ if __name__ == "__main__":
                 pickle.dump(copy.deepcopy(point), f)
         with open(PIK_all_points, "wb") as f:
             points_to_dump = lOfAllPointsTried
+            #points_to_dump = prob_heur_points[:]
             for point in points_to_dump:
                 pickle.dump(copy.deepcopy(point), f)
         with open(PIK_pareto_of_all, "wb") as f:
-            points_to_dump = pareto_frontier(lOfAllPointsTried, maxX, maxY)
+            points_to_dump = pareto_frontier(lOfAllPointsTried, maxX, maxY) #righthere
             for point in points_to_dump:
                 pickle.dump(copy.deepcopy(point), f)
 
@@ -629,7 +672,6 @@ if __name__ == "__main__":
 #        print str(multiprocessing.current_process()._identity[0])  + "at the end" 
     # ---- drawing the pareto set
     symbolsCollected = [] #this list contains the symbols collected for every new input 
-    symbolsToChooseFrom = ['*', 'x', "o", "+", "*", "-", "^", "1", "2", "3", "4"] #symbols to draw the plots with
     symbolIndex = 0  
     # ---- generate the graph
 #    if settings.runToolChainGenerateGraph: 

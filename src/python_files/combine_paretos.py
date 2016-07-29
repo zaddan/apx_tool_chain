@@ -5,7 +5,7 @@ import os
 from plot_generation import *
 from compare_pareto_curves import getPoints
 import multiprocessing
-from genetic_algorithm import *
+from search_heuristic_algorithm import *
 import matplotlib
 matplotlib.use('Agg') 
 

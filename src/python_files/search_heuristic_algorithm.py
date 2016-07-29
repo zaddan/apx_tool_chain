@@ -12,6 +12,64 @@ from deap import tools
 from simulating_annealer import *
 from inputs import *
 import operator
+from misc2 import *
+# ---- probabilistic algorithm 
+def extract_move(pt1, pt2):
+    if ((pt1.get_energy() <= pt2.get_energy()) and (pt1.get_quality()<= pt2.get_quality())):
+        #print "now: " + str((pt1.get_energy(), pt1.get_quality())) + " " +str((pt2.get_energy(), pt2.get_quality())) 
+        return (map(operator.sub, pt1.get_raw_setUp(), pt2.get_raw_setUp()))
+    
+
+
+def collect_moves_of_interest(strategy, list_of_points):
+    moves = [] 
+    if (strategy == "all"):
+        lOfAllPointsTried = list_of_points 
+        print "total legnth of lOfAllPointsTried" + str(len(lOfAllPointsTried)) 
+        counter = 0 
+        for x in range(len(lOfAllPointsTried)):
+            for y in range(x+1,len(lOfAllPointsTried)):
+                counter +=1; 
+                extracted_move =  extract_move(lOfAllPointsTried[x], lOfAllPointsTried[y])
+                if not(extracted_move == None):
+                    moves.append(extracted_move)
+                if((counter % 10000) == 0):
+                    print "counter: " + str(counter)
+    if(strategy == "pareto_by_pareto"):
+        lOfAllPointsTried = list_of_points 
+        lOfAllPointsTried_cleaned_of_doubles = clean_doubles(lOfAllPointsTried)
+        all_pareto_fronts_list = all_pareto_frontiers(lOfAllPointsTried_cleaned_of_doubles, maxX, maxY)
+        #print all_pareto_fronts_list 
+        for index in range(len(all_pareto_fronts_list) - 1):
+            lone = all_pareto_fronts_list[index]
+            ltwo = all_pareto_fronts_list[index+1]
+            for x in range(len(lone)):
+                for y in range(len(ltwo)):
+                    extracted_move =  extract_move(lone[x], ltwo[y])
+                    if not(extracted_move == None):
+                        moves.append(extracted_move)
+
+    print "got here" 
+    print moves
+    return moves
+
+def stringify_list(inp):
+    standardize_val = map(lambda x: str((x+32)).zfill(2), inp) 
+    return  ''.join(str(e) for e in standardize_val)
+     
+def histogramize_list(in_list):
+    my_histogram = {} 
+    for el in in_list:
+        if el in my_histogram.keys():
+            my_histogram[el] +=1
+        else:
+            my_histogram[el] =1
+    return my_histogram
+
+def apply_move_to_individual(individual, move):
+    return map(operator.add, individual, move)
+
+
 #**--------------------**
 #**--------------------**
 #----disclaimers::: if dealingwith Pic and we are feeding couple of operands,
@@ -19,7 +77,6 @@ import operator
 #--- this requries adding a PSNR (or SNR) list to the points
 #**--------------------**
 #--------------------**
-
 def return_conf(config):
     number = 0 
     allConfsLenght = len(config) 
@@ -125,91 +182,8 @@ def eaMuPlusLambda_redefined(population, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN)
     return population
 
    
-"""
-def run_spea2(NGEN, MU, LAMBDA, CXPB, MUTPB, population, 
-        CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress, 
-        executableName, executableInputList, rootResultFolderName, 
-        CBuildFolder, operandSampleFileName, lOfAccurateValues, toolbox, nameOfAllOperandFilesList, inputObj, ignoreIndexList):
-     
-    def specializedEval(individual):
-        print "started specialized Eval" 
-        sys.stdout.flush() 
-        newPoint = points() 
-        newPoint.set_dealing_with_pics(eval(inputObj.dealingWithPics))
-        for operandIndex, operandSampleFileName in enumerate(nameOfAllOperandFilesList):
-            print "operandblah blah" + str(operandIndex) 
-            energyValue = [getEnergy(individual)]
-            open(CSourceOutputForVariousSetUpFileName, "w").close()
-             
-            modifyOperatorSampleFile(operatorSampleFileFullAddress, individual)
-            if not(errorTest): #if errorTest generate acc.txt and apx.txt which contain accurate and apx values
-                make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, inputObj.bench_suit_name)
-            # print "here is the accurate" + str(lOfAccurateValues) 
-            
-            if (errorTest):
-                newPath = "/home/local/bulkhead/behzad/usr/local/apx_tool_chain/src/python_files/scratch/apx.txt"
-                print "error values are " 
-                print errorValue 
-                sys.exit() #temporary    errorValue = [extractErrorForOneInput(newPath, lOfAccurateValues[operandIndex])]
-            else:
-                errantValues =  extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)
-                errorValue = [calculateError(lOfAccurateValues[operandIndex],errantValues, error_mode)]
-
-           
-            configValue = [individual]
-            rawValues = [extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)]
-            # print "where" 
-            # print errorValue 
-            newPoint.append_raw_values(rawValues[0])  
-            newPoint.append_error(errorValue[0])
-            newPoint.set_energy(energyValue[0])
-            newPoint.set_setUp(configValue[0])
-            newPoint.append_lOf_operand(get_operand_values(operandSampleFileName))
-            newPoint.append_accurate_values(lOfAccurateValues[operandIndex])
-            newPoint.set_dealing_with_pics(eval(inputObj.dealingWithPics)) 
-            newPoint.set_dealing_with_pics(eval(inputObj.dealingWithPics)) 
-            newPoint.set_input_obj(inputObj)
-            if (eval(inputObj.dealingWithPics)):
-                newPoint.calculate_PSNR()
-        
-
-         
-        # print "here is the config " + str(newPoint.get_setUp())
-        if not(eval(inputObj.dealingWithPics)):
-            newPoint.calculate_quality()
-            print "errors" 
-            print newPoint.get_lOfError()
-            print "here is my quality values"
-            print newPoint.get_quality()
-        # if (inputObj.dealingWithPics):
-        #     newPoint.calculate_PSNR()
-        if eval(inputObj.dealingWithPics):
-            return (newPoint.get_energy(), newPoint.get_PSNR())
-        else:
-            return (newPoint.get_energy(), newPoint.get_quality())
-
-       
-    stats = tools.Statistics(lambda ind: ind.fitness.values)
-    a = [1,2] 
-    b = [1,2] 
-    #pool = multiprocessing.Pool() 
-    #toolbox.register("map", pool.map) 
-
-    toolbox.register("evaluate", specializedEval)
-    toolbox.register("mate", tools.cxTwoPoint)
-    toolbox.register("mutate", specializedMutate, ignoreIndexList) 
-    toolbox.register("select", tools.selSPEA2)
-
-    # population = eaMuPlusLambda_redefined(population, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN)
-    algorithms.eaMuPlusLambda(population, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN, stats)
-    # nonDominatedSort = tools.sortNondominated(population, len(population))
-    # print nonDominatedSort 
-    print "end specialized Eval" 
-    sys.stdout.flush() 
-    return population
-"""
 def specializedEval(normalize,possibly_worse_case_result_quality,  mold, ignoreListIndecies, accurateSetUp, inputObj, nameOfAllOperandFilesList, rootResultFolderName,executableName,
-        executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, individual):
+        executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, collect_pts, individual):
         exe_annex = 0
         if (runMode == "parallel"): 
             if(multiprocessing.current_process()._identity == ()):
@@ -222,8 +196,8 @@ def specializedEval(normalize,possibly_worse_case_result_quality,  mold, ignoreL
         #print multiprocessing.current_process()
         #--- zeroing out the ignoreList 
         for x in ignoreListIndecies:
-            mold[x][2] = 0
-
+            individual[x] = 0
+        
         newSetUp = modifyMold(accurateSetUp, individual) 
         sys.stdout.flush() 
         newPoint = points() 
@@ -275,6 +249,8 @@ def specializedEval(normalize,possibly_worse_case_result_quality,  mold, ignoreL
             newPoint.append_raw_values(rawValues[0])  
             newPoint.append_error(errorValue[0])
             newPoint.set_energy(energyValue[0])
+            #newPoint.set_raw_setUp(individual)
+            newPoint.set_raw_setUp(map(lambda x: x, individual))
             newPoint.set_setUp(configValue[0])
             newPoint.append_lOf_operand(get_operand_values(operandSampleFileName))
             newPoint.append_accurate_values(lOfAccurateValues[operandIndex])
@@ -298,15 +274,13 @@ def specializedEval(normalize,possibly_worse_case_result_quality,  mold, ignoreL
             #print "here is my quality values"
             #print newPoint.get_quality()
         if eval(inputObj.dealingWithPics):
-            allPointsTried.append(newPoint)
+            if (collect_pts): 
+                allPointsTried.append(newPoint)
             return (newPoint.get_energy(), newPoint.get_PSNR())
         else:
-            allPointsTried.append(newPoint)
+            if(collect_pts): 
+                allPointsTried.append(newPoint)
             return (newPoint.get_energy(), newPoint.get_quality())
-
-
-
-
 
 
 def run_SP(population, 
@@ -363,7 +337,7 @@ def run_SP(population,
     toolbox.register("population", tools.initRepeat, list, toolbox.particle)
     toolbox.register("update", updateParticle, phi1=2.0, phi2=2.0)
     toolbox.register("evaluate", specializedEval, True, possibly_worse_case_result_quality, accurateSetUp, ignoreListIndecies, accurateSetUp, inputObj, nameOfAllOperandFilesList, rootResultFolderName,
-            executableName, executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried)
+            executableName, executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, True)
        
     pop = toolbox.population(n=settings.numberOfIndividualsToStartWith)
     stats = tools.Statistics(lambda ind: ind.fitness.values)
@@ -432,7 +406,7 @@ def run_spea2(population,
     toolbox.register("individual", tools.initRepeat, creator.Individual)
     stats = tools.Statistics(lambda ind: ind.fitness.values)
     toolbox.register("evaluate", specializedEval, True, possibly_worse_case_result_quality, accurateSetUp, ignoreListIndecies, accurateSetUp, inputObj, nameOfAllOperandFilesList, rootResultFolderName,
-            executableName, executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried)
+            executableName, executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, True)
     toolbox.register("mate", tools.cxTwoPoint)
     toolbox.register("mutate", specializedMutate, ignoreListIndecies)
     toolbox.register("select", tools.selSPEA2)
@@ -451,7 +425,82 @@ def run_spea2(population,
             myGenerator = return_conf(allConfs[index])
             population.append(toolbox.individual(lambda: next(myGenerator), len(allConfs[index])))
 
-    
     algorithms.eaMuPlusLambda(population, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN, stats)
     return allPointsTried, population
+
+
+def de_stringify_and_disect(s):
+    o = []    
+    while s:
+        o.append(s[:2])
+        s = s[2:]
+    result = map(lambda x: int(x)-32, o)
+    return result
+
+def fish_a_move(my_histogram_inv_map, prob_dis):
+    move_intensity = random.choice(prob_dis)
+    move = random.choice(my_histogram_inv_map[int(move_intensity)])
+#    print move_intensity
+#    print my_histogram_inv_map
+#    print move 
+    result = de_stringify_and_disect(move) 
+    
+    return result 
+
+def probabilistic_heuristic(points_to_explore_from,
+                        CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress,
+                        executableName, executableInputList, rootResultFolderName, CBuildFolder,
+                        operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality, accurateSetUp, allConfs,
+                        lOfAllPointsTried):
+
+    #---get improvement_vectors
+    impv_vectors = []
+    #impv_vectors = collect_moves_of_interest("all", lOfAllPointsTried)
+    impv_vectors = collect_moves_of_interest("pareto_by_pareto", lOfAllPointsTried)
+    #---stringify the impv_vector by adding 32(to get rid of <0 values and then zfill) 
+    impv_vectors_stringtified = []
+    for el in impv_vectors:
+        impv_vectors_stringtified.append(stringify_list(el))
+    
+    #---histogramize 
+    my_histogram = histogramize_list(impv_vectors_stringtified)
+
+    #---soring the dictionary(histogram)   
+    #sorted_imp = sorted(my_histogram.items(), key=operator.itemgetter(1))
+    #sorted_imp.reverse()
+    
+    #---creating a prob distribution for fishing 
+    unique_values = set(my_histogram.values())
+#     print unique_values 
+    unique_values_string = map(lambda(x) : [str(x)], unique_values)
+#     print unique_values_string
+    prob_dis_unflattened = map(operator.mul, unique_values, unique_values_string)
+    prob_dis = list(itertools.chain.from_iterable(prob_dis_unflattened))
+    
+    #---inverse mapping of histogram (swapping keys, and values)
+    my_histogram_inv_map = {}
+    for k, v in my_histogram.iteritems():
+        my_histogram_inv_map[v] = my_histogram_inv_map.get(v, [])
+        my_histogram_inv_map[v].append(k) 
+    
+
+    prob_heur_points = [] #points acquired by running the probabilistic algo
+    for pt in points_to_explore_from:
+        for i in range(settings.number_of_probabilistic_trial): 
+            move = fish_a_move(my_histogram_inv_map, prob_dis)
+            individual = pt.get_raw_setUp() 
+            new_individual_raw_setUp = apply_move_to_individual(individual, move) 
+            result = specializedEval(True,possibly_worse_case_result_quality,  accurateSetUp, ignoreListIndecies, accurateSetUp, inputObj, nameOfAllOperandFilesList, rootResultFolderName,executableName,
+        executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, lOfAllPointsTried, False, new_individual_raw_setUp)
+            newPoint = points()
+            newPoint.set_energy(result[0])
+            newPoint.set_quality(result[1])
+            newPoint.set_setUp(modifyMold(accurateSetUp, new_individual_raw_setUp))
+            newPoint.set_raw_setUp(new_individual_raw_setUp)
+            newPoint.set_setUp_number(0)
+            prob_heur_points.append(newPoint)
+         
+    return prob_heur_points
+
+
 

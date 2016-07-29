@@ -27,6 +27,8 @@ class points:
         self.lOfError.append(error)
     def set_energy(self, energy):
         self.energy = energy
+    def set_raw_setUp(self, raw_setUp):
+        self.raw_setUp = raw_setUp
     def set_setUp(self, setUp):
         self.setUp = setUp
     def set_setUp_number(self, setUpNumber):
@@ -60,6 +62,8 @@ class points:
         return self.energy 
     def get_setUp(self):
         return self.setUp 
+    def get_raw_setUp(self):
+        return self.raw_setUp 
     def get_setUp_number(self):
         return self.setUpNumber 
     def get_lOf_operand(self, operand):

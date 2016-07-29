@@ -51,26 +51,6 @@ def pareto_frontier(lOfPoints , maxX , maxY) :
         
         Ys.append(point.get_energy())
 
-    
-#     myList = sorted([[Xs[i], Ys[i], i] for i in range(len(Xs))], reverse=maxX)
-    # # Start the Pareto frontier with the first value in the sorted list
-    # p_front = [myList[0]]    
-    # # Loop through the sorted list
-    # for pair in myList[1:]:
-        # if maxY: 
-            # if pair[1] > p_front[-1][1]: #Look for higher values of Y 
-                # p_front.append(pair) #and add them to the Pareto frontier
-        # else:
-            # if pair[1] < p_front[-1][1]: # Look for lower values of Y
-                # p_front.append(pair) # and add them to the Pareto frontier
-    # # Turn resulting pairs back into a list of Xs and Ys
-    # p_frontX_X_sorted = [pair[0] for pair in p_front]
-    # p_frontY_X_sorted = [pair[1] for pair in p_front]
-    # p_index_X_sorted = [pair[2] for pair in p_front] 
-    # # return p_frontX, p_frontY
-    
-    
-     
     # ---- now get pareto front by sorting out Y
     myList = sorted([[Xs[i], Ys[i], i] for i in range(len(Xs))], reverse=maxX)
     # Start the Pareto frontier with the first value in the sorted list
@@ -122,6 +102,78 @@ def pareto_frontier(lOfPoints , maxX , maxY) :
     
         
     return lOfParetoPoints
+
+
+def all_pareto_frontiers(lOfPoints , maxX , maxY) :
+    if (len(lOfPoints) ==  0):
+        return []
+    
+    quality_energy_list = []
+    for el in lOfPoints:
+        quality_energy_list.append((el.get_quality(), el.get_energy()))
+    if (settings.DEBUG): 
+        print "points (before pareto extraction): " + str(quality_energy_list)
+    
+    # Sort the list in either ascending or descending order of X
+    Xs = []  
+    Ys = []  
+    for point in lOfPoints:
+        if (point.get_dealing_with_pics()):
+            Xs.append(point.get_PSNR())
+        else:
+            Xs.append(point.get_quality())
+        Ys.append(point.get_energy())
+
+    # ---- now get pareto front by sorting out Y
+    myList = sorted([[Xs[i], Ys[i], i] for i in range(len(Xs))], reverse=maxX)
+    # Start the Pareto frontier with the first value in the sorted list
+    p_front = [myList[0]]    
+    # Loop through the sorted list
+    for pair in myList[1:]:
+        if maxY: 
+            if pair[1] > p_front[-1][1]: #Look for higher values of Y 
+                if (maxX): 
+                    if (p_front[-1][0] == pair[0]):
+                        p_front[-1] = pair
+                    else: 
+                        p_front.append(pair) # and add them to the Pareto frontier
+                else: 
+                    p_front.append(pair) #and add them to the Pareto frontier
+        else:
+            if pair[1] < p_front[-1][1]: # Look for lower values of Y
+                if (maxX): 
+                    if (p_front[-1][0] == pair[0]):
+                        p_front[-1] = pair
+                    else: 
+                        p_front.append(pair) # and add them to the Pareto frontier
+                else: 
+                    p_front.append(pair) # and add them to the Pareto frontier
+    # Turn resulting pairs back into a list of Xs and Ys
+    p_frontX_Y_sorted = [pair[0] for pair in p_front]
+    p_frontY_Y_sorted = [pair[1] for pair in p_front]
+    p_index_Y_sorted = [pair[2] for pair in p_front] 
+    # return p_frontX, p_frontY
+    lOfParetoPoints = [] 
+    lOfIndex = set(p_index_Y_sorted).intersection(p_index_Y_sorted) 
+    for index in sorted(lOfIndex):
+        lOfParetoPoints.append(lOfPoints[index])
+    
+    
+    for el in lOfParetoPoints:
+        lOfPoints.remove(el)
+   
+
+    lOfParetoPoints = [lOfParetoPoints] + all_pareto_frontiers(lOfPoints, maxX, maxY)
+
+    """ 
+    quality_energy_list = []
+    for el in lOfParetoPoints:
+        quality_energy_list.append((el.get_quality(), el.get_energy()))
+    if(settings.DEBUG): 
+        print "pareto points: " + str(quality_energy_list)
+    """
+    return lOfParetoPoints
+
 
 
 def pareto_frontier_2(lOfPoints , maxX , maxY ):
