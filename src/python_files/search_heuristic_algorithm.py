@@ -12,13 +12,15 @@ from deap import tools
 from simulating_annealer import *
 from inputs import *
 import operator
+from move_objs import *
 from misc2 import *
 # ---- probabilistic algorithm 
 def extract_move(pt1, pt2):
     if ((pt1.get_energy() <= pt2.get_energy()) and (pt1.get_quality()<= pt2.get_quality())):
         #print "now: " + str((pt1.get_energy(), pt1.get_quality())) + " " +str((pt2.get_energy(), pt2.get_quality())) 
         return (map(operator.sub, pt1.get_raw_setUp(), pt2.get_raw_setUp()))
-    
+    else:
+        return []
 
 
 def collect_moves_of_interest(strategy, list_of_points):
@@ -31,8 +33,9 @@ def collect_moves_of_interest(strategy, list_of_points):
             for y in range(x+1,len(lOfAllPointsTried)):
                 counter +=1; 
                 extracted_move =  extract_move(lOfAllPointsTried[x], lOfAllPointsTried[y])
-                if not(extracted_move == None):
-                    moves.append(extracted_move)
+                if (len(extracted_move) > 0):
+                    new_move = move_obj(extracted_move, 1) 
+                    moves.append(copy.deepcopy(new_move))
                 if((counter % 10000) == 0):
                     print "counter: " + str(counter)
     if(strategy == "pareto_by_pareto"):
@@ -46,24 +49,22 @@ def collect_moves_of_interest(strategy, list_of_points):
             for x in range(len(lone)):
                 for y in range(len(ltwo)):
                     extracted_move =  extract_move(lone[x], ltwo[y])
-                    if not(extracted_move == None):
-                        moves.append(extracted_move)
+                    if (len(extracted_move) > 0):
+                        new_move = move_obj(extracted_move, len(all_pareto_fronts_list)-index) 
+                        moves.append(copy.deepcopy(new_move))
 
-    print "got here" 
-    print moves
     return moves
 
-def stringify_list(inp):
-    standardize_val = map(lambda x: str((x+32)).zfill(2), inp) 
-    return  ''.join(str(e) for e in standardize_val)
+#def stringify_list(inp):
+#    map(lambda x: x.stringify_val())
      
-def histogramize_list(in_list):
+def histogramize_list(l_move):
     my_histogram = {} 
-    for el in in_list:
-        if el in my_histogram.keys():
-            my_histogram[el] +=1
+    for el in l_move:
+        if el.get_stringified_val() in my_histogram.keys():
+            my_histogram[el.get_stringified_val()] +=1
         else:
-            my_histogram[el] =1
+            my_histogram[el.get_stringified_val()] = el.get_strength()
     return my_histogram
 
 def apply_move_to_individual(individual, move):
@@ -372,7 +373,7 @@ def run_SP(population,
 def run_spea2(population, 
         CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress, 
         executableName, executableInputList, rootResultFolderName, 
-        CBuildFolder, operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality,accurateSetUp, allConfs):
+        CBuildFolder, operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality,accurateSetUp, allConfs, NGEN, MU, LAMBDA):
     
     
     allPointsTried = []
@@ -389,9 +390,9 @@ def run_spea2(population,
 
     
     
-    NGEN = settings.NGEN
-    MU = settings.MU#number of indi for the next gen
-    LAMBDA = settings.LAMBDA#number of children
+    #NGEN = settings.NGEN
+    #MU = settings.MU#number of indi for the next gen
+    #LAMBDA = settings.LAMBDA#number of children
     CXPB = settings.CXPB 
     MUTPB = settings.MUTPB
     creator.create("FitnessMin", base.Fitness, weights=(x_direction, y_direction))
@@ -457,13 +458,20 @@ def probabilistic_heuristic(points_to_explore_from,
     impv_vectors = []
     #impv_vectors = collect_moves_of_interest("all", lOfAllPointsTried)
     impv_vectors = collect_moves_of_interest("pareto_by_pareto", lOfAllPointsTried)
+     
+#    for el in impv_vectors:
+#        print ("move_val: " + str(el.get_move()) + " strength: " + str(el.get_strength()))
+#    sys.exit()
+#
+    
     #---stringify the impv_vector by adding 32(to get rid of <0 values and then zfill) 
-    impv_vectors_stringtified = []
     for el in impv_vectors:
-        impv_vectors_stringtified.append(stringify_list(el))
+        el.stringify_val()
+        
+    #impv_vectors_stringtified.append(el.get_stringified_val())
     
     #---histogramize 
-    my_histogram = histogramize_list(impv_vectors_stringtified)
+    my_histogram = histogramize_list(impv_vectors)
 
     #---soring the dictionary(histogram)   
     #sorted_imp = sorted(my_histogram.items(), key=operator.itemgetter(1))
@@ -485,6 +493,7 @@ def probabilistic_heuristic(points_to_explore_from,
     
 
     prob_heur_points = [] #points acquired by running the probabilistic algo
+    print str(len(points_to_explore_from)*settings.number_of_probabilistic_trial) + " more points were explored" 
     for pt in points_to_explore_from:
         for i in range(settings.number_of_probabilistic_trial): 
             move = fish_a_move(my_histogram_inv_map, prob_dis)

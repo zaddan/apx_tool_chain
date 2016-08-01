@@ -7,7 +7,7 @@ from compare_pareto_curves import getPoints
 import multiprocessing
 
 import matplotlib
-matplotlib.use('Agg') 
+#matplotlib.use('Agg') 
 
 import pylab
 import matplotlib.pyplot as plt
