@@ -187,6 +187,7 @@ if __name__ == "__main__":
     PIK_all_points = inputObj.PIK_all_points
     PIK_pareto  = inputObj.PIK_pareto
     PIK_pareto_of_all = inputObj.PIK_pareto_of_all 
+    PIK_UTC_file = inputObj.PIK_UTC_file
     bench_suit_name = inputObj.bench_suit_name; 
     
     #---------guide:::  checking the validity of the input and making necessary files
@@ -315,7 +316,7 @@ if __name__ == "__main__":
     #---------guide:::  sampling operands
     inputNumber = 0 
     nameOfAllOperandFilesList = getNameOfFilesInAFolder(AllOperandsFolderName)
-    operandIndex = 0
+    #operandIndex = 0
     
     numberOfTriesList = [] 
     numberOfSuccessfulTriesList = []
@@ -365,7 +366,7 @@ if __name__ == "__main__":
         #---------guide:::  run the CSrouce file with the new setUp(operators)
         if not(errorTest): 
             print("\n........running to get accurate values\n"); 
-            make_run_compile(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0) #first make_run
+            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0) #first make_run
             accurateValues = extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)
         else:
             newPath = "/home/local/bulkhead/behzad/usr/local/apx_tool_chain/src/python_files/scratch/acc.txt"
@@ -379,6 +380,57 @@ if __name__ == "__main__":
         
     lOfPoints = []  
     allPointsTried = []
+    unique_point_list = []
+    output_list = []
+    previous_ideal_setUp_list = []
+    previous_ideal_setUp_output_list = []
+    previous_ideal_setUp_list_reduced = []
+    # ---- read previous ideal setUps and populate the ideal_pts(only contain the # of apx bits)
+    print "right here" 
+    sys.stdout.flush()
+    
+
+    if(settings.get_UTC_optimal_configs or settings.adjust_NGEN): 
+        ideal_pts = []
+        with open(PIK_UTC_file , "rb") as f:
+            while True: 
+                try: 
+                    point = pickle.load(f)
+                    ideal_pts.append(point) 
+                    # listOfPeople.append(copy.copy(person))# 
+                except Exception as ex:
+                    if not (type(ex).__name__ == "EOFError"):
+                        print type(ex).__name__ 
+                        print ex.args
+                        print "something went wrong"
+                    break
+        
+        for pt in ideal_pts:
+            previous_ideal_setUp_list.append(pt.get_raw_setUp())
+            previous_ideal_setUp_output_list.append(pt.get_raw_values())
+        
+    
+        # ---- santiy check
+        assert not(settings.get_UTC_optimal_configs and len(previous_ideal_setUp_list)== 0)
+    
+        # ---- more sanity check
+        for el in previous_ideal_setUp_list: 
+            assert(len(accurateSetUp) == len(el))
+   
+        # ---- reduce the ideal_setUp_list to reduce computation time
+        previous_ideal_setUp_list_reduced = reduce_ideal_setUp_list(previous_ideal_setUp_list, previous_ideal_setUp_output_list)
+    
+    
+    if (settings.adjust_NGEN):
+        NGEN_to_use = settings.NGEN*len(previous_ideal_setUp_list_reduced)
+    else:
+        NGEN_to_use = settings.NGEN
+    
+    if not(settings.get_UTC_optimal_configs):
+        previous_ideal_setUp_list_reduced = [(map(lambda x:x[2], accurateSetUp))]
+        previous_ideal_setUp_output_list = []
+
+    print "NGEN_to_use" + str(NGEN_to_use) 
     if (mode == "allPermutations"): 
         lengthSoFar = 1 
         
@@ -392,68 +444,32 @@ if __name__ == "__main__":
             it is bigger than:""" + str(settings.veryHugeNumber)
 
         allPossibleApxScenarioursList = generateAllPossibleApxScenariousList(allPossibleScenariosForEachOperator)
-        for index,config in enumerate(allPossibleApxScenarioursList):
-            individual = map(lambda x: x[2], config) 
-            specializedEval(False, 1, accurateSetUp, ignoreListIndecies, accurateSetUp, inputObj,nameOfAllOperandFilesList, rootResultFolderName, executableName,
-            executableInputList, CBuildFolder, operandSampleFileName,lOfAccurateValues, allPointsTried, True,
-            individual)
-        lOfPoints_out_of_heuristic = allPointsTried
+        for previous_ideal_setUp in previous_ideal_setUp_list_reduced:
+            for index,config in enumerate(allPossibleApxScenarioursList):
+                individual = map(lambda x: x[2], config) 
+                specializedEval(False, 1, accurateSetUp, ignoreListIndecies, accurateSetUp, inputObj,nameOfAllOperandFilesList, rootResultFolderName, executableName,
+                executableInputList, CBuildFolder, operandSampleFileName,lOfAccurateValues, allPointsTried, True, unique_point_list, output_list, previous_ideal_setUp,
+                individual)
+            lOfPoints_out_of_heuristic = allPointsTried
     elif (mode == "genetic_algorithm" or mode == "swarm_particle"):
         if (runMode == "parallel"): 
             the_lock = multiprocessing.Lock() 
+        
         allConfs = [] #first generation
-        # remainingPopulation = allPossibleApxScenarioursList[:]
-        # numberOfIndividualsToStartWith = min(settings.numberOfIndividualsToStartWith, len(allPossibleApxScenarioursList)) 
         numberOfIndividualsToStartWith = settings.numberOfIndividualsToStartWith
         tempAcc = accurateSetUp
-        # tempAcc[8][2] = 5
         opIndexSelectedFile  = settings.opIndexSelectedFile
         limitedList = [] 
         limitedListValues = getLimitedList(opIndexSelectedFile)
-        # allConfs = generateInitialPopulation(accurateSetUp, numberOfIndividualsToStartWith, inputObj,ignoreIndexList)
-         
-        #ignoreListIndecies = modify_ignoreList(len(tempAcc), 52) 
-        
         allConfs = generateInitialPopulation(tempAcc, numberOfIndividualsToStartWith, inputObj,ignoreListIndecies, limitedListValues, limitedListIndecies)
-        # for index in range(numberOfIndividualsToStartWith):
-            # indexToChoose =  random.choice(range(0, len(remainingPopulation), 1))
-            # sampleSetUp =  remainingPopulation[indexToChoose]
-            # remainingPopulation.pop(indexToChoose) 
-        #     allConfs.append(sampleSetUp)
-        
         possibly_worse_case_setup = generate_possibly_worse_case_setup(tempAcc)
-        
-        
-        
-        """ 
-        for el in allConfs:
-            print el
-        sys.exit()#temp
-        """ 
-        
-        
-        
-        #toolbox.register("map", futures.map) 
-        # toolbox.register("population", tools.initRepeat, list, toolbox.individual )
         population = []
-        #print allConfs[0] 
-        #print allConfs[1] 
-
-        #population is a list of numbers (containting the bit to bit truncated) 
-#        [0, 0, 0, 0, 0, 0, 0]
-#        [6, 13, 2, 15, 19, 12, 8]
-#        [8, 11, 8, 18, 9, 19, 10]
-        
-        
-        
-        
-       
 
         #---geting the possibly_worse_case_result info 
         possibly_worse_case_setup_individual = map (lambda x: x[2],  possibly_worse_case_setup[0])
         print("\n.......running to get possibly_worse_case_result\n"); 
-        possibly_worse_case_result = specializedEval(False, 1, accurateSetUp, ignoreListIndecies, accurateSetUp, inputObj,nameOfAllOperandFilesList, rootResultFolderName, executableName,
-                executableInputList, CBuildFolder, operandSampleFileName,lOfAccurateValues, allPointsTried,True,
+        possibly_worse_case_result = specializedEval(False, 1, accurateSetUp, [], accurateSetUp, inputObj,nameOfAllOperandFilesList, rootResultFolderName, executableName,
+                executableInputList, CBuildFolder, operandSampleFileName,lOfAccurateValues, allPointsTried,True, unique_point_list, output_list,[],
                 possibly_worse_case_setup_individual)
         possibly_worse_case_result_energy = possibly_worse_case_result[0]   
         possibly_worse_case_result_quality = possibly_worse_case_result[1]   
@@ -468,41 +484,65 @@ if __name__ == "__main__":
             print "worse_case quality: " + str(possibly_worse_case_result[1])
  
         
-         
-        if (mode == "genetic_algorithm"): 
-            allPointsTried, population = run_spea2(population,
-                        CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress,
-                        executableName, executableInputList, rootResultFolderName, CBuildFolder,
-                        operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality, accurateSetUp, allConfs, settings.NGEN,
-                        settings.MU, settings.LAMBDA)
         
-        elif (mode == "swarm_particle"):
-            allPointsTried, population = run_SP(population,
-                        CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress,
-                        executableName, executableInputList, rootResultFolderName, CBuildFolder,
-                        operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality, accurateSetUp, allConfs)
-        else:
-            print "this mode" + str(mode) +" not defined"
-            exit()
+        print "total Number of itrations: " + str(len(previous_ideal_setUp_list_reduced))
+        for iteration,previous_ideal_setUp in enumerate(previous_ideal_setUp_list_reduced):
+            print  "iteration number: " + str(iteration)
+            if (mode == "genetic_algorithm"): 
+                population = run_spea2(population,
+                            CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress,
+                            executableName, executableInputList, rootResultFolderName, CBuildFolder,
 
-        #--store all the points acquired by the heuristic in the list
-        for individual in population:
-            newPoint = points()
-            # newPoint.set_SNR(individual.fitness.values[1])
-            if(eval(inputObj.dealingWithPics)): 
-                newPoint.set_PSNR(individual.fitness.values[1])
+                            operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality, accurateSetUp, allConfs, NGEN_to_use,
+                            settings.MU, settings.LAMBDA, unique_point_list, output_list,allPointsTried,  previous_ideal_setUp)
+            
+            elif (mode == "swarm_particle"):
+                population = run_SP(population, NGEN_to_use,
+                            CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress,
+                            executableName, executableInputList, rootResultFolderName, CBuildFolder,
+                            operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality, accurateSetUp, allConfs,
+                            unique_point_list, output_list, allPointsTried, previous_ideal_setUp)
             else:
-                newPoint.set_quality((individual.fitness.values[1])) 
-            newPoint.set_energy(individual.fitness.values[0])
-            newPoint.set_setUp(modifyMold(accurateSetUp, individual))
-            individual_converted_to_list = map(lambda x: x, individual)
-            newPoint.set_raw_setUp(individual_converted_to_list)
-            newPoint.set_setUp_number(0)
-            #lOfPoints.append(newPoint)
-            lOfPoints_out_of_heuristic.append(newPoint)
+                print "this mode" + str(mode) +" not defined"
+                exit()
+
+            #---some sanity check 
+            #if (settings.get_UTC_optimal_configs): 
+            assert (len(unique_point_list) > 0)
+            assert(len(output_list) > 0)
+            assert(len(allPointsTried) > 0)
+            
+            #--store all the points acquired by the heuristic in the list
+            for individual in population:
+                newPoint = points()
+                if(eval(inputObj.dealingWithPics)): 
+                    newPoint.set_PSNR(individual.fitness.values[1])
+                else:
+                    newPoint.set_quality((individual.fitness.values[1])) 
+                newPoint.set_energy(individual.fitness.values[0])
+                newPoint.set_setUp(modifyMold(accurateSetUp, individual))
+                individual_converted_to_list = map(lambda x: x, individual)
+                newPoint.set_raw_setUp(individual_converted_to_list)
+                newPoint.set_setUp_number(0)
+                lOfPoints_out_of_heuristic.append(newPoint)
+            
         # lOfOperandSet[operandIndex].set_lOfPoints(copy.deepcopy(lOfPoints))
-        operandIndex += 1
+        #operandIndex += 1
     
+    # --- update output_list, unique_point_list
+    #if (settings.get_UTC_optimal_configs): 
+#    for el in lOfPoints_out_of_heuristic: 
+#        print "999" 
+#        el.get_raw_values() 
+#        update_unique(el, output_list, unique_point_list)
+#
+    
+    #-- dumping the the points associated w/ new input to a file
+    if (settings.write_UTC_optimal_configs): 
+        with open(PIK_UTC_file, "wb") as f:
+            for el in unique_point_list:
+                pickle.dump(copy.deepcopy(el), f)
+
     for individual in allPointsTried:
         newPoint = points()
         # newPoint.set_SNR(individual.fitness.values[1])
@@ -537,7 +577,7 @@ if __name__ == "__main__":
 
     _, population = run_spea2(population, CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress, executableName, executableInputList, rootResultFolderName, CBuildFolder,
             operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality, accurateSetUp, new_allConfs, new_NGEN,
-            settings.MU, settings.LAMBDA)
+            settings.MU, settings.LAMBDA, unique_point_list, output_list)
 
 
     lOfPoints_out_of_heuristic_2nd_round = []
@@ -699,8 +739,9 @@ if __name__ == "__main__":
     pointSet= point_set(pareto_points, "pareto", maxX, maxY)
     #fix req: delmiter should be defined properly, change the numbers
     pointSet.set_delimeter(delimeter)
-    with open(settings.lOfParetoSetFileName, "a") as f:
-        pickle.dump(copy.deepcopy(pointSet), f)
+    if not(settings.get_UTC_optimal_configs): 
+        with open(settings.lOfParetoSetFileName, "a") as f:
+            pickle.dump(copy.deepcopy(pointSet), f)
 #    if (runMode == "parallel"): 
 #        print str(multiprocessing.current_process()._identity)
 #        print str(multiprocessing.current_process()._identity[0])  + "at the end" 

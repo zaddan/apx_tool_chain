@@ -184,7 +184,7 @@ def eaMuPlusLambda_redefined(population, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN)
 
    
 def specializedEval(normalize,possibly_worse_case_result_quality,  mold, ignoreListIndecies, accurateSetUp, inputObj, nameOfAllOperandFilesList, rootResultFolderName,executableName,
-        executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, collect_pts, individual):
+        executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, collect_pts, unique_point_list, output_list, previous_ideal_setUp, individual):
         exe_annex = 0
         if (runMode == "parallel"): 
             if(multiprocessing.current_process()._identity == ()):
@@ -197,7 +197,7 @@ def specializedEval(normalize,possibly_worse_case_result_quality,  mold, ignoreL
         #print multiprocessing.current_process()
         #--- zeroing out the ignoreList 
         for x in ignoreListIndecies:
-            individual[x] = 0
+            individual[x] = previous_ideal_setUp[x]
         
         newSetUp = modifyMold(accurateSetUp, individual) 
         sys.stdout.flush() 
@@ -230,7 +230,6 @@ def specializedEval(normalize,possibly_worse_case_result_quality,  mold, ignoreL
                     print "errant Vals:" 
                     print errantValues
                     errorValue = [calculateError( lOfAccurateValues[operandIndex],errantValues)]
-
                     print "error Vals:"
                     print errorValue 
                     print "------" 
@@ -277,17 +276,20 @@ def specializedEval(normalize,possibly_worse_case_result_quality,  mold, ignoreL
         if eval(inputObj.dealingWithPics):
             if (collect_pts): 
                 allPointsTried.append(newPoint)
+                update_unique(newPoint, output_list, unique_point_list)
             return (newPoint.get_energy(), newPoint.get_PSNR())
         else:
             if(collect_pts): 
                 allPointsTried.append(newPoint)
+                update_unique(newPoint, output_list, unique_point_list)
             return (newPoint.get_energy(), newPoint.get_quality())
 
 
-def run_SP(population, 
+def run_SP(population, NGEN_to_use,
         CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress, 
         executableName, executableInputList, rootResultFolderName, 
-        CBuildFolder, operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality,accurateSetUp, allConfs):
+        CBuildFolder, operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality,accurateSetUp, allConfs, unique_point_list,
+        output_list, allPointsTried, previous_ideal_setUp):
    
     def generate(size, pmin, pmax, smin, smax):
         part = creator.Particle(random.uniform(pmin, pmax) for _ in range(size)) 
@@ -315,7 +317,7 @@ def run_SP(population,
         
         part[:] = list(map(operator.add, part, part.speed))  
 
-    allPointsTried = []
+    #allPointsTried = []
     if (settings.maxX):
             x_direction = 1
     else:
@@ -338,7 +340,7 @@ def run_SP(population,
     toolbox.register("population", tools.initRepeat, list, toolbox.particle)
     toolbox.register("update", updateParticle, phi1=2.0, phi2=2.0)
     toolbox.register("evaluate", specializedEval, True, possibly_worse_case_result_quality, accurateSetUp, ignoreListIndecies, accurateSetUp, inputObj, nameOfAllOperandFilesList, rootResultFolderName,
-            executableName, executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, True)
+            executableName, executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, True, unique_point_list, output_list, previous_ideal_setUp)
        
     pop = toolbox.population(n=settings.numberOfIndividualsToStartWith)
     stats = tools.Statistics(lambda ind: ind.fitness.values)
@@ -350,7 +352,7 @@ def run_SP(population,
     logbook.header = ["gen", "evals"] + stats.fields
     best = None
     
-    for g in range(NGEN):
+    for g in range(NGEN_to_use):
         for part in pop:
             part.fitness.values = toolbox.evaluate(part)
             if not part.best or part.best.fitness < part.fitness:
@@ -367,16 +369,18 @@ def run_SP(population,
         print(logbook.stream)
     
     
-    return allPointsTried, pop
+    
+    return pop
 
 
 def run_spea2(population, 
         CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress, 
         executableName, executableInputList, rootResultFolderName, 
-        CBuildFolder, operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality,accurateSetUp, allConfs, NGEN, MU, LAMBDA):
+        CBuildFolder, operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality,accurateSetUp, allConfs, NGEN, MU, LAMBDA,
+        unique_point_list, output_list, allPointsTried, previous_ideal_setUp):
     
     
-    allPointsTried = []
+    #allPointsTried = []
     if (settings.maxX):
             x_direction = 1
     else:
@@ -407,7 +411,7 @@ def run_spea2(population,
     toolbox.register("individual", tools.initRepeat, creator.Individual)
     stats = tools.Statistics(lambda ind: ind.fitness.values)
     toolbox.register("evaluate", specializedEval, True, possibly_worse_case_result_quality, accurateSetUp, ignoreListIndecies, accurateSetUp, inputObj, nameOfAllOperandFilesList, rootResultFolderName,
-            executableName, executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, True)
+            executableName, executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, True, unique_point_list, output_list, previous_ideal_setUp)
     toolbox.register("mate", tools.cxTwoPoint)
     toolbox.register("mutate", specializedMutate, ignoreListIndecies)
     toolbox.register("select", tools.selSPEA2)
@@ -415,7 +419,7 @@ def run_spea2(population,
         #the_lock = multiprocessing.Lock() 
         #pool = multiprocessing.Pool() 
         toolbox.register("map", pool.map)
-        allPointsTried = [] #since deap is not compatible with multiprocessor
+        #allPointsTried = [] #since deap is not compatible with multiprocessor
                             #library (when it comes to sharing a list accross
                             #processes), we set allPointsTried to empty to 
                             #avoid any unwanted consequences
@@ -427,7 +431,7 @@ def run_spea2(population,
             population.append(toolbox.individual(lambda: next(myGenerator), len(allConfs[index])))
 
     algorithms.eaMuPlusLambda(population, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN, stats)
-    return allPointsTried, population
+    return population
 
 
 def de_stringify_and_disect(s):
@@ -453,7 +457,10 @@ def probabilistic_heuristic(points_to_explore_from,
                         executableName, executableInputList, rootResultFolderName, CBuildFolder,
                         operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality, accurateSetUp, allConfs,
                         lOfAllPointsTried):
-
+    print "accomedate previous ideal setUp to probabilistic_heuristic as well. for ref, look at run_spea2"
+    sys.exit()
+    print "I ma not using adjust_NGEN. incorperate it"
+    sys.exit()
     #---get improvement_vectors
     impv_vectors = []
     #impv_vectors = collect_moves_of_interest("all", lOfAllPointsTried)
@@ -500,7 +507,7 @@ def probabilistic_heuristic(points_to_explore_from,
             individual = pt.get_raw_setUp() 
             new_individual_raw_setUp = apply_move_to_individual(individual, move) 
             result = specializedEval(True,possibly_worse_case_result_quality,  accurateSetUp, ignoreListIndecies, accurateSetUp, inputObj, nameOfAllOperandFilesList, rootResultFolderName,executableName,
-        executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, lOfAllPointsTried, False, new_individual_raw_setUp)
+        executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, lOfAllPointsTried, False, unique_point_list, output_list, previous_ideal_setUp, new_individual_raw_setUp)
             newPoint = points()
             newPoint.set_energy(result[0])
             newPoint.set_quality(result[1])

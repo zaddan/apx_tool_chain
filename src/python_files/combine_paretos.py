@@ -217,7 +217,7 @@ if __name__ == "__main__":
     lOfParetoSetDirctions  = [] 
     # ---- get pointSet
     lOfPointSet= get_point_set(srcFile) 
-    #print len(lOfPointSet) 
+    print "length of paretoSet is: " + str(len(lOfPointSet))
     
     #print "number of pareto set is " + str(len(lOfPointSet)) 
 

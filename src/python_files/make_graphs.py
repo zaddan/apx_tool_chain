@@ -73,9 +73,15 @@ def main():
         if(arg == "only_pareto"):
             get_quality_energy_values("pareto_of_all_of_s3", "+", points_to_graph, limit, lower_bound, upper_bound)
             get_quality_energy_values("pareto_of_all_of_s2", "+", points_to_graph, limit, lower_bound, upper_bound)
-            get_quality_energy_values("pareto_of_combined", "o", points_to_graph, limit, lower_bound, upper_bound)
+            #get_quality_energy_values("pareto_of_combined", "o", points_to_graph, limit, lower_bound, upper_bound)
             get_quality_energy_values("pareto_of_heur_flattened", "^", points_to_graph, limit,  lower_bound, upper_bound) 
             get_quality_energy_values("pareto_of_all_of_flattened", "^", points_to_graph, limit, lower_bound, upper_bound) 
+        if(arg == "compare_pareto"):
+            get_quality_energy_values("pareto_of_all_of_s3", "+", points_to_graph, limit, lower_bound, upper_bound)
+            get_quality_energy_values("pareto_of_all_of_s2", "+", points_to_graph, limit, lower_bound, upper_bound)
+            get_quality_energy_values("pareto_of_combined", "o", points_to_graph, limit, lower_bound, upper_bound)
+            get_quality_energy_values("pareto_of_all_of_s4", "*", points_to_graph, limit, lower_bound, upper_bound) 
+            #get_quality_energy_values("pareto_of_combined", "o", points_to_graph, limit, lower_bound, upper_bound)
         if(arg == "all"): #--all graph
             get_quality_energy_values("all_of_s2", "+", points_to_graph, limit, lower_bound, upper_bound)
             get_quality_energy_values("all_of_s3", "1", points_to_graph, limit, lower_bound, upper_bound)

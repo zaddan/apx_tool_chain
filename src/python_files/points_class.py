@@ -17,12 +17,18 @@ class points:
         self.lOfOperand = [] 
         self.lOfAccurateValues = [] 
         self.lOfRawValues = []
+        self.lOfOutput = [] 
         self.dealingWithPics = False
         self.quality_is_set = False
         self.quality_calculatable = True
 
     def set_dealing_with_pics(self, dealingWithPics):
         self.dealingWithPics = dealingWithPics
+    def append_Output(self, output):
+        self.lOfOutput.append(output)
+    def get_lOf_output(self):
+        assert (len(self.lOfOutput) > 0) 
+        return self.lOfOutput
     def append_error(self, error):
         self.lOfError.append(error)
     def set_energy(self, energy):
@@ -71,6 +77,7 @@ class points:
     def get_accurate_values(self):
         return self.lOfAccurateValues
     def get_raw_values(self):
+        assert(len(self.lOfRawValues)>0)
         return self.lOfRawValues
     def get_input_obj(self):
         return inputObj 
