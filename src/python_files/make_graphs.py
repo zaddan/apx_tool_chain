@@ -50,8 +50,8 @@ def get_quality_energy_values(src_file, symbol, points_to_graph, limit=False, lo
     
     
      
-    points_to_graph.append([lOfQualityVals, lOfEnergyVals, lOfInput_number, src_file])
-    #points_to_graph.append([lOfQualityVals, lOfEnergyVals, symbol, src_file])
+    #points_to_graph.append([lOfQualityVals, lOfEnergyVals, lOfInput_number, src_file])
+    points_to_graph.append([lOfQualityVals, lOfEnergyVals, symbol, src_file])
 
 #only reads the files and generate a graph. This module is for convenience of
 #graphing the info that I need. simply comment the points that you don't want
@@ -85,7 +85,8 @@ def main():
             get_quality_energy_values("pareto_of_all_of_flattened", "^", points_to_graph, limit, lower_bound, upper_bound) 
         if(arg == "s4"):
             get_quality_energy_values("all_of_s4", "*", points_to_graph, limit, lower_bound, upper_bound) 
-        
+        if(arg == "UTC"):
+            get_quality_energy_values("UTC_file", "*", points_to_graph, limit, lower_bound, upper_bound) 
         if(arg == "compare_pareto"):
 #            get_quality_energy_values("pareto_of_all_of_s3", "+", points_to_graph, limit, lower_bound, upper_bound)
 #            get_quality_energy_values("pareto_of_all_of_s2", "+", points_to_graph, limit, lower_bound, upper_bound)
@@ -109,6 +110,7 @@ def main():
 
         if (arg == "s2"): #---stage 2 points
             get_quality_energy_values("all_of_s2", "+", points_to_graph, limit, lower_bound, upper_bound)
+            print "go" 
         if (arg == "s3"): #---stage 3 points
             get_quality_energy_values("all_of_s3", "1", points_to_graph, limit, lower_bound, upper_bound)
         if (arg == "combined_all"): #combined_all 

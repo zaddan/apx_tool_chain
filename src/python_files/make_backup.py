@@ -30,10 +30,13 @@ def comeUpWithNewFolderNameAccordingly(folderToCopyTo):
 #print comeUpWithNewFolderNameAccordingly("test_folder")
 
 def main():
-    benchmark_name = raw_input("name of the benchmark:  ")
-    run_nature = raw_input("run nature: (ref for only reference and complete for a complete run): ")
+#    benchmark_name = raw_input("name of the benchmark:  ")
+#    run_nature = raw_input("run nature: (ref for only reference and complete for a complete run): ")
+#    
+    benchmark_name = sys.argv[1]
+    run_nature = sys.argv[2]
     print run_nature 
-    if (not((run_nature == "ref")or (run_nature == "complete"))):
+    if (not((run_nature == "ref")or (run_nature == "complete") or (run_nature == "s4"))):
         print "this run nature is not defined"
         exit()
      
@@ -52,6 +55,10 @@ def main():
         os.system("cp pareto_set_file.txt res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
         os.system("cp pareto_of_combined res_bu/"+run_nature+"/"+benchmark_name+"/" + backup_folder)
         os.system("cp all_of_combined res_bu/"+run_nature+"/"+benchmark_name+"/" + backup_folder)
+
+    if (run_nature == "s4"):
+        os.system("cp all_of_s2 res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
+        os.system("cp all_of_s4 res_bu/" +run_nature+"/"+benchmark_name+"/"+ backup_folder)
 
     os.system("cp settings.py res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
     os.system("cp inputs.py res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
