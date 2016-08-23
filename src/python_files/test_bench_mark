@@ -1,5 +1,5 @@
 #!/bin/bash
-
+python send_email.py "starting a run" "start the test_benchmark"
 echo "======================"
 echo "REMINDERS"
 echo "======================"
@@ -157,23 +157,23 @@ echo "done with the stage 0, removing all the files"
 ## ---- starting stage 1(apx all files, flattened version)
 echo
 echo
-echo "---------starting stage 1"
-python run_write_config.py $benchmark $root_folder $bench_suit_name "False" "False" "False"  $heuristic_intensity1
-#python run_write_config.py $benchmark $root_folder $bench_suit_name "False" $heuristic_intensity1
-cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/
-cp computeSAD_apx.txt computeSAD.c
-cp finalSAD_apx.txt finalSAD.c
-cp integralImage2D2D_apx.txt integralImage2D2D.c
-
-cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
-python run_tool_chain.py
-cp pickled_results_pareto pareto_of_heur_flattened
-cp pickled_results_all_points all_of_flattned
-cp pickled_results_pareto_of_all pareto_of_all_of_flattened
-rm pareto_set_file.txt
-cp ../../generated_text/finalResult.png ref.png
-echo "done with the stage 1: flattening and apx of all files"
-
+#echo "---------starting stage 1"
+#python run_write_config.py $benchmark $root_folder $bench_suit_name "False" "False" "False"  $heuristic_intensity1
+##python run_write_config.py $benchmark $root_folder $bench_suit_name "False" $heuristic_intensity1
+#cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/
+#cp computeSAD_apx.txt computeSAD.c
+#cp finalSAD_apx.txt finalSAD.c
+#cp integralImage2D2D_apx.txt integralImage2D2D.c
+#
+#cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
+#python run_tool_chain.py
+#cp pickled_results_pareto pareto_of_heur_flattened
+#cp pickled_results_all_points all_of_flattned
+#cp pickled_results_pareto_of_all pareto_of_all_of_flattened
+#rm pareto_set_file.txt
+#cp ../../generated_text/finalResult.png ref.png
+#echo "done with the stage 1: flattening and apx of all files"
+#
 # ---- starting stage 2(apx some files)
 echo
 echo
@@ -198,25 +198,25 @@ echo "done with the stage 2: apx of some files"
 
 
 ## ---- starting stage 3(apx some files)
-echo
-echo
-echo "---------starting stage 3"
-python run_write_config.py $benchmark $root_folder $bench_suit_name "False" "False" "True" $heuristic_intensity2
-cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/
-cp computeSAD_acc.txt computeSAD.c
-cp finalSAD_acc.txt finalSAD.c
-cp integralImage2D2D_acc.txt integralImage2D2D.c
-
-cp finalSAD_apx.txt finalSAD.c
-
-cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
-python run_tool_chain.py
-rm ../../generated_text/finalResult.png 
-rm pickled_results_pareto
-cp pickled_results_all_points all_of_s3
-cp pickled_results_pareto_of_all pareto_of_all_of_s3
-echo "done with the stage 3: apx of some files"
-
+#echo
+#echo
+#echo "---------starting stage 3"
+#python run_write_config.py $benchmark $root_folder $bench_suit_name "False" "False" "True" $heuristic_intensity2
+#cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/
+#cp computeSAD_acc.txt computeSAD.c
+#cp finalSAD_acc.txt finalSAD.c
+#cp integralImage2D2D_acc.txt integralImage2D2D.c
+#
+#cp finalSAD_apx.txt finalSAD.c
+#
+#cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
+#python run_tool_chain.py
+#rm ../../generated_text/finalResult.png 
+#rm pickled_results_pareto
+#cp pickled_results_all_points all_of_s3
+#cp pickled_results_pareto_of_all pareto_of_all_of_s3
+#echo "done with the stage 3: apx of some files"
+#
 ## ---- starting stage 4(apx some files, using UTC)
 echo
 echo
@@ -239,20 +239,20 @@ echo "done with the stage 4: apx of some files"
 
 
 # ---- starting stage 5(combine and compare)
-echo
-echo
-echo "---------starting stage 5"
-cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/
-#returning all the files to approximate version (so we can get the accurate result)
-cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/
-cp computeSAD_apx.txt computeSAD.c
-cp finalSAD_apx.txt finalSAD.c
-cp integralImage2D2D_apx.txt integralImage2D2D.c
-
-cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
-python combine_paretos.py
-python compare_pareto_curves.py >> compare_results.txt
-cp ../../generated_text/finalResult.png combine.png
+#echo
+#echo
+#echo "---------starting stage 5"
+#cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/
+##returning all the files to approximate version (so we can get the accurate result)
+#cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/
+#cp computeSAD_apx.txt computeSAD.c
+#cp finalSAD_apx.txt finalSAD.c
+#cp integralImage2D2D_apx.txt integralImage2D2D.c
+#
+#cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
+#python combine_paretos.py
+#python compare_pareto_curves.py >> compare_results.txt
+#cp ../../generated_text/finalResult.png combine.png
 echo "done with stage 5:combining the paretos and comparing"
 
 elif [ $benchmark == "localization" ];then
@@ -292,84 +292,84 @@ cp ../../generated_text/finalResult.png ref.png
 echo "done with the stage 1: flattening and apx of all files"
 
 
-## ---- starting stage 2(apx some files)
-#echo
-#echo
-#echo "---------starting stage 2"
-#python run_write_config.py $benchmark $root_folder $bench_suit_name "False" "True" "False" $heuristic_intensity2
-#cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/localization/src/c/
-#cp fMtimes_mod_acc.txt fMtimes_mod.c
-#cp script_localization_acc.txt script_localization.c
-#
-#cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
-#python run_tool_chain.py
-#
-#rm ../../generated_text/finalResult.png 
-#rm pickled_results_pareto
-#cp pickled_results_all_points all_of_s2
-#cp pickled_results_pareto_of_all pareto_of_all_of_s2
-#echo "done with the stage 2: apx of some files"
-#
-#
-## ---- starting stage 3(apx some files)
-#echo
-#echo
-#echo "---------starting stage 3"
-#python run_write_config.py $benchmark $root_folder $bench_suit_name "False" "False" "True" $heuristic_intensity2
-#cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/localization/src/c/
-#cp eul2quat_acc.txt eul2quat.c
-#cp quatMul_acc.txt quatMul.c
-#cp fTimes_mod_acc.txt fTimes_mod.c
-#cp fMtimes_mod_apx.txt fMtimes_mod.c
-#cp script_localization_apx.txt script_localization.c
-#
-#cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
-#python run_tool_chain.py
-#rm ../../generated_text/finalResult.png 
-#rm pickled_results_pareto
-#cp pickled_results_all_points all_of_s3
-#cp pickled_results_pareto_of_all pareto_of_all_of_s3
-#echo "done with the stage 3: apx of some files"
-#
+# ---- starting stage 2(apx some files)
+echo
+echo
+echo "---------starting stage 2"
+python run_write_config.py $benchmark $root_folder $bench_suit_name "False" "True" "False" $heuristic_intensity2
+cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/localization/src/c/
+cp fMtimes_mod_acc.txt fMtimes_mod.c
+cp script_localization_acc.txt script_localization.c
 
-## ---- starting stage 4(apx some files, using uTC)
-#echo
-#echo
-#echo "---------starting stage 4"
-#python run_write_config.py $benchmark $root_folder $bench_suit_name "True" "False" "False" $heuristic_intensity2
-#cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/localization/src/c/
-#cp eul2quat_acc.txt eul2quat.c
-#cp quatMul_acc.txt quatMul.c
-#cp fTimes_mod_acc.txt fTimes_mod.c
-#cp fMtimes_mod_apx.txt fMtimes_mod.c
-#cp script_localization_apx.txt script_localization.c
-#
-#cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
-#python run_tool_chain.py
-#rm ../../generated_text/finalResult.png 
-#rm pickled_results_pareto
-#cp pickled_results_all_points all_of_s4
-#cp pickled_results_pareto_of_all pareto_of_all_of_s4
-#echo "done with the stage 4: apx of some files"
-#
+cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
+python run_tool_chain.py
 
-## ---- starting stage 5(combine and compare)
-##returning all the files to approximate version (so we can get the accurate result)
-#echo
-#echo
-#echo "---------starting stage 5"
-#cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/localization/src/c/
-#cp eul2quat_apx.txt eul2quat.c
-#cp quatMul_apx.txt quatMul.c
-#cp fTimes_mod_apx.txt fTimes_mod.c
-#cp fMtimes_mod_apx.txt fMtimes_mod.c
-#cp script_localization_apx.txt script_localization.c
-#
-#cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
-#python combine_paretos.py
-#python compare_pareto_curves.py >> compare_results.txt
-#cp ../../generated_text/finalResult.png combine.png
-#echo "done with stage 5:combining the paretos and comparing"
+rm ../../generated_text/finalResult.png 
+rm pickled_results_pareto
+cp pickled_results_all_points all_of_s2
+cp pickled_results_pareto_of_all pareto_of_all_of_s2
+echo "done with the stage 2: apx of some files"
+
+
+# ---- starting stage 3(apx some files)
+echo
+echo
+echo "---------starting stage 3"
+python run_write_config.py $benchmark $root_folder $bench_suit_name "False" "False" "True" $heuristic_intensity2
+cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/localization/src/c/
+cp eul2quat_acc.txt eul2quat.c
+cp quatMul_acc.txt quatMul.c
+cp fTimes_mod_acc.txt fTimes_mod.c
+cp fMtimes_mod_apx.txt fMtimes_mod.c
+cp script_localization_apx.txt script_localization.c
+
+cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
+python run_tool_chain.py
+rm ../../generated_text/finalResult.png 
+rm pickled_results_pareto
+cp pickled_results_all_points all_of_s3
+cp pickled_results_pareto_of_all pareto_of_all_of_s3
+echo "done with the stage 3: apx of some files"
+
+
+# ---- starting stage 4(apx some files, using uTC)
+echo
+echo
+echo "---------starting stage 4"
+python run_write_config.py $benchmark $root_folder $bench_suit_name "True" "False" "False" $heuristic_intensity2
+cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/localization/src/c/
+cp eul2quat_acc.txt eul2quat.c
+cp quatMul_acc.txt quatMul.c
+cp fTimes_mod_acc.txt fTimes_mod.c
+cp fMtimes_mod_apx.txt fMtimes_mod.c
+cp script_localization_apx.txt script_localization.c
+
+cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
+python run_tool_chain.py
+rm ../../generated_text/finalResult.png 
+rm pickled_results_pareto
+cp pickled_results_all_points all_of_s4
+cp pickled_results_pareto_of_all pareto_of_all_of_s4
+echo "done with the stage 4: apx of some files"
+
+
+# ---- starting stage 5(combine and compare)
+#returning all the files to approximate version (so we can get the accurate result)
+echo
+echo
+echo "---------starting stage 5"
+cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/localization/src/c/
+cp eul2quat_apx.txt eul2quat.c
+cp quatMul_apx.txt quatMul.c
+cp fTimes_mod_apx.txt fTimes_mod.c
+cp fMtimes_mod_apx.txt fMtimes_mod.c
+cp script_localization_apx.txt script_localization.c
+
+cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
+python combine_paretos.py
+python compare_pareto_curves.py >> compare_results.txt
+cp ../../generated_text/finalResult.png combine.png
+echo "done with stage 5:combining the paretos and comparing"
 elif [ "$benchmark" == "jpeg" ];then
 echo
 echo
@@ -486,4 +486,4 @@ runtime=$((end - start))
 echo $runtime
 runtime_in_min=$((runtime/60))
 echo total running time of the script was: $runtime_in_min
-
+python send_email.py "ending_a_run" "done with test_benchmark"

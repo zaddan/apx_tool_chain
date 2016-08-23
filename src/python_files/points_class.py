@@ -21,7 +21,10 @@ class points:
         self.dealingWithPics = False
         self.quality_is_set = False
         self.quality_calculatable = True
+        self.input_number = -1
 
+    def set_input_number(self, inputNumber):
+        self.input_number = inputNumber
     def set_dealing_with_pics(self, dealingWithPics):
         self.dealingWithPics = dealingWithPics
     def append_Output(self, output):
@@ -29,6 +32,9 @@ class points:
     def get_lOf_output(self):
         assert (len(self.lOfOutput) > 0) 
         return self.lOfOutput
+    def get_input_number(self):
+        assert ((self.input_number) >= 0)
+        return self.input_number
     def append_error(self, error):
         self.lOfError.append(error)
     def set_energy(self, energy):

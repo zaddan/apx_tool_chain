@@ -184,7 +184,7 @@ def eaMuPlusLambda_redefined(population, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN)
 
    
 def specializedEval(normalize,possibly_worse_case_result_quality,  mold, ignoreListIndecies, accurateSetUp, inputObj, nameOfAllOperandFilesList, rootResultFolderName,executableName,
-        executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, collect_pts, unique_point_list, output_list, previous_ideal_setUp, individual):
+        executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, collect_pts, unique_point_list, output_list, previous_ideal_setUp,iteration, individual):
         exe_annex = 0
         if (runMode == "parallel"): 
             if(multiprocessing.current_process()._identity == ()):
@@ -263,6 +263,7 @@ def specializedEval(normalize,possibly_worse_case_result_quality,  mold, ignoreL
 
 
         # print "here is the config " + str(newPoint.get_setUp())
+        newPoint.set_input_number(iteration) 
         if not(eval(inputObj.dealingWithPics)):
             newPoint.calculate_quality(normalize, possibly_worse_case_result_quality)
             if (settings.DEBUG):
@@ -340,7 +341,7 @@ def run_SP(population, NGEN_to_use,
     toolbox.register("population", tools.initRepeat, list, toolbox.particle)
     toolbox.register("update", updateParticle, phi1=2.0, phi2=2.0)
     toolbox.register("evaluate", specializedEval, True, possibly_worse_case_result_quality, accurateSetUp, ignoreListIndecies, accurateSetUp, inputObj, nameOfAllOperandFilesList, rootResultFolderName,
-            executableName, executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, True, unique_point_list, output_list, previous_ideal_setUp)
+            executableName, executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, True, unique_point_list, output_list, previous_ideal_setUp, iteration)
        
     pop = toolbox.population(n=settings.numberOfIndividualsToStartWith)
     stats = tools.Statistics(lambda ind: ind.fitness.values)
@@ -377,7 +378,7 @@ def run_spea2(population,
         CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress, 
         executableName, executableInputList, rootResultFolderName, 
         CBuildFolder, operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality,accurateSetUp, allConfs, NGEN, MU, LAMBDA,
-        unique_point_list, output_list, allPointsTried, previous_ideal_setUp):
+        unique_point_list, output_list, allPointsTried, previous_ideal_setUp, iteration):
     
     
     #allPointsTried = []
@@ -411,7 +412,7 @@ def run_spea2(population,
     toolbox.register("individual", tools.initRepeat, creator.Individual)
     stats = tools.Statistics(lambda ind: ind.fitness.values)
     toolbox.register("evaluate", specializedEval, True, possibly_worse_case_result_quality, accurateSetUp, ignoreListIndecies, accurateSetUp, inputObj, nameOfAllOperandFilesList, rootResultFolderName,
-            executableName, executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, True, unique_point_list, output_list, previous_ideal_setUp)
+            executableName, executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, True, unique_point_list, output_list, previous_ideal_setUp, iteration)
     toolbox.register("mate", tools.cxTwoPoint)
     toolbox.register("mutate", specializedMutate, ignoreListIndecies)
     toolbox.register("select", tools.selSPEA2)
@@ -458,6 +459,7 @@ def probabilistic_heuristic(points_to_explore_from,
                         operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality, accurateSetUp, allConfs,
                         lOfAllPointsTried):
     print "accomedate previous ideal setUp to probabilistic_heuristic as well. for ref, look at run_spea2"
+    print "accomodate the iteration" #iteration tells us which input we are using to feed into the stage of interest
     sys.exit()
     print "I ma not using adjust_NGEN. incorperate it"
     sys.exit()
@@ -507,7 +509,7 @@ def probabilistic_heuristic(points_to_explore_from,
             individual = pt.get_raw_setUp() 
             new_individual_raw_setUp = apply_move_to_individual(individual, move) 
             result = specializedEval(True,possibly_worse_case_result_quality,  accurateSetUp, ignoreListIndecies, accurateSetUp, inputObj, nameOfAllOperandFilesList, rootResultFolderName,executableName,
-        executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, lOfAllPointsTried, False, unique_point_list, output_list, previous_ideal_setUp, new_individual_raw_setUp)
+        executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, lOfAllPointsTried, False, unique_point_list, output_list, previous_ideal_setUp, new_individual_raw_setUp, iteration)
             newPoint = points()
             newPoint.set_energy(result[0])
             newPoint.set_quality(result[1])

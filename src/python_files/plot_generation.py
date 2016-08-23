@@ -95,9 +95,32 @@ def generateGraph_for_all(valueList, xName, yName, benchmark_name):
     plt.xscale('log')
     plt.ylabel(yName)
     plt.xlabel(xName)
-    for el in valueList:
-        ax.plot(el[0], el[1], el[2], label=el[3])
     
+    #----comment if not proving th s4 pont
+    symbolsToChooseFrom = ['*', 'x', "o", "+","^"] #symbols to draw the plots with
+    #symbolsToChooseFrom += ['1', '2', "3", "4"] #symbols to draw the plots with
+    
+    color =['r','y', 'g', 'b', 'w']
+    number_of_inputs_used = 25 
+    input_results = map(list, [[]]*number_of_inputs_used) 
+    counter = 0
+    
+    for val in valueList:
+        zipped = zip(*val[:-1])  
+        for el in zipped:
+            input_results[el[2]].append(el)
+        for index,res in enumerate(input_results):
+            if len(res) > 0:
+                el = map(lambda x: list(x), zip(*res))
+                ax.plot(el[0], el[1], symbolsToChooseFrom[counter%len(symbolsToChooseFrom)]+color[counter/len(symbolsToChooseFrom)], label=val[3])
+                counter +=1
+   #---comment up to here if not using proviing s4 point
+
+    #--uncomment the following two lines to return back to without s4 inut consideration
+#    for el in valueList: 
+#        ax.plot(el[0], el[1], el[2], label=el[3])
+    
+
     # ---- moving the legend outside of the graph (look bellow for placing inside)
     box = ax.get_position()
     ax.set_position([box.x0, box.y0, box.width * 0.85, box.height])
