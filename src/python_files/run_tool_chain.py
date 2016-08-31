@@ -1,4 +1,5 @@
 from scoop import futures, shared
+from reminder import *
 import multiprocessing
 from multiprocessing import Process, Manager
 import misc
@@ -367,11 +368,12 @@ if __name__ == "__main__":
         #---------guide:::  run the CSrouce file with the new setUp(operators)
         if not(errorTest): 
             print("\n........running to get accurate values\n"); 
-            make_run_compile(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0) #first make_run
-            accurateValues = extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)
+            reminder(settings.reminder_flag,"make sure to change make_run to make_run_compile if you change the content of any of the cSRC files")
+            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0) #first make_run
+            accurateValues = extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj)
         else:
             newPath = "/home/local/bulkhead/behzad/usr/local/apx_tool_chain/src/python_files/scratch/acc.txt"
-            accurateValues = extractCurrentValuesForOneInput(newPath)
+            accurateValues = extractCurrentValuesForOneInput(newPath, inputObj)
         
         assert(accurateValues != None)
         lOfAccurateValues.append(accurateValues)
@@ -384,7 +386,7 @@ if __name__ == "__main__":
     unique_point_list = []
     output_list = []
     previous_ideal_setUp_list = []
-    previous_ideal_setUp_output_list = []
+    #previous_ideal_setUp_output_list = []
     previous_ideal_setUp_list_reduced = []
     # ---- read previous ideal setUps and populate the ideal_pts(only contain the # of apx bits)
     print "right here" 
@@ -406,20 +408,35 @@ if __name__ == "__main__":
                         print "something went wrong"
                     break
         
+         
         for pt in ideal_pts:
             previous_ideal_setUp_list.append(pt.get_raw_setUp())
-            previous_ideal_setUp_output_list.append(pt.get_raw_values())
-        
+            #previous_ideal_setUp_output_list.append(pt.get_raw_values())
     
+        #from here
+        lOf_UTC_PF = pareto_frontier(ideal_pts, maxX, maxY) 
+        previous_ideal_setUp_list = []  
+        for el in lOf_UTC_PF: 
+            previous_ideal_setUp_list.append(el.get_raw_setUp())
+        with open("lOf_UTC_PF", "wb") as f:
+            for el in lOf_UTC_PF:     
+                pickle.dump(copy.deepcopy(el), f)
+
+        #to here
+        
         # ---- santiy check
         assert not(settings.get_UTC_optimal_configs and len(previous_ideal_setUp_list)== 0)
     
         # ---- more sanity check
         for el in previous_ideal_setUp_list: 
-            assert(len(accurateSetUp) == len(el))
+            print "accurate and el" 
+            print accurateSetUp
+            print el
+            assert (len(accurateSetUp) == len(el))
    
         # ---- reduce the ideal_setUp_list to reduce computation time
-        previous_ideal_setUp_list_reduced = reduce_ideal_setUp_list(previous_ideal_setUp_list, previous_ideal_setUp_output_list)
+        #previous_ideal_setUp_list_reduced = reduce_ideal_setUp_list(previous_ideal_setUp_list, previous_ideal_setUp_output_list)
+        previous_ideal_setUp_list_reduced = reduce_ideal_setUp_list(previous_ideal_setUp_list)
     
     
     if (settings.adjust_NGEN):
@@ -553,7 +570,7 @@ if __name__ == "__main__":
                 newPoint.set_input_number(iteration) 
                 #print "here is newPoint" + str(newPoint.get_input_number()) 
                 lOfPoints_out_of_heuristic.append(newPoint)
-         
+        
         with open(input_for_s4_file, "w") as f:
             for el in input_Point_list:
                 pickle.dump(el, f)   
@@ -571,7 +588,11 @@ if __name__ == "__main__":
     #-- dumping the the points associated w/ new input to a file
     if (settings.write_UTC_optimal_configs): 
         with open(PIK_UTC_file, "wb") as f:
+            reminder(settings.reminder_flag,"if UTC is used to extract rawValues and AccurateValues associated with points an error would happen b/c we empty the two list out. We did this to avoid the massive size of UTC otherwise")
             for el in unique_point_list:
+                el.lOfAccurateValues = [] #I empty out the list b/c the size of the file would be massive
+                                          #other wise
+                el.lOfRawValues = [] 
                 pickle.dump(copy.deepcopy(el), f)
 
     for individual in allPointsTried:

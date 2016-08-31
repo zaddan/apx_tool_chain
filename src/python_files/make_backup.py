@@ -59,7 +59,8 @@ def main():
     if (run_nature == "s4"):
         os.system("cp all_of_s2 res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
         os.system("cp all_of_s4 res_bu/" +run_nature+"/"+benchmark_name+"/"+ backup_folder)
-
+        os.system("cp input_for_s4 res_bu/" +run_nature+"/"+benchmark_name+"/"+ backup_folder)
+    
     os.system("cp settings.py res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
     os.system("cp inputs.py res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
     os.system("cp results.png res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)

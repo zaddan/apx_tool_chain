@@ -226,7 +226,7 @@ def specializedEval(normalize,possibly_worse_case_result_quality,  mold, ignoreL
                 if(errorTest):
                     print "Acurate Vals:"
                     print lOfAccurateValues
-                    errantValues =  extractCurrentValuesForOneInput(newPath)
+                    errantValues =  extractCurrentValuesForOneInput(newPath, inputObj)
                     print "errant Vals:" 
                     print errantValues
                     errorValue = [calculateError( lOfAccurateValues[operandIndex],errantValues)]
@@ -234,7 +234,7 @@ def specializedEval(normalize,possibly_worse_case_result_quality,  mold, ignoreL
                     print errorValue 
                     print "------" 
             else:
-                errantValues =  extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)
+                errantValues =  extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj)
                 errorValue = [calculateError(lOfAccurateValues[operandIndex], errantValues)]
                 if (settings.DEBUG):
                     print "Acurate Vals:" + str(lOfAccurateValues)
@@ -242,7 +242,7 @@ def specializedEval(normalize,possibly_worse_case_result_quality,  mold, ignoreL
                     print "error Vals:" + str(errorValue)
 
             configValue = [newSetUp]
-            rawValues = [extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)]
+            rawValues = [extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj)]
             #print errorValue
             # print "where" 
             # print errorValue 

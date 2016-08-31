@@ -156,7 +156,7 @@ if __name__ == "__main__":
         #---------guide:::  run the CSrouce file with the new setUp(operators)
         make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0)
         #---------guide::: error
-        accurateValues = extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)
+        accurateValues = extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj)
         lOfAccurateValues.append(accurateValues)
         # lOfOperandSet.append(newOperand)
         #---------guide:::  make a apx set up and get values associated with it
@@ -189,11 +189,11 @@ if __name__ == "__main__":
             make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, exe_annex)
             
             
-            errantValues =  extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)
+            errantValues =  extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj)
             errorValue = [calculateError( lOfAccurateValues[operandIndex], errantValues)]
                 
             configValue = [individual]
-            rawValues = [extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName)]
+            rawValues = [extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj)]
 
 
             newPoint.append_raw_values(rawValues[0])  

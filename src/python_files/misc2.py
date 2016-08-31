@@ -1,8 +1,9 @@
 import os
-def reduce_ideal_setUp_list(previous_ideal_setUp_list, previous_ideal_setUp_output_list):
+#def reduce_ideal_setUp_list(previous_ideal_setUp_list, previous_ideal_setUp_output_list):
+def reduce_ideal_setUp_list(previous_ideal_setUp_list):
     #return previous_ideal_setUp_list[:len(previous_ideal_setUp_list)/2]
     print "length is of previous_ideal_setUp_list: " + str(previous_ideal_setUp_list)
-    return previous_ideal_setUp_list[:23]
+    return previous_ideal_setUp_list[:1]
 
 
 
@@ -25,8 +26,10 @@ def update_unique(point, output_list, unique_point_list):
         output_list.append(point.get_raw_values())
         unique_point_list.append(point)
     else:
+        print "no addition to unique points"
         if (point.get_energy() < unique_point_list[index_value].get_energy()):
             unique_point_list[index_value] = point
+                
 
 
 

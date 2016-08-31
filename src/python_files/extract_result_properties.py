@@ -1,4 +1,5 @@
 from math import *
+from calc_psnr import *
 import os
 import sys
 import matplotlib.pyplot as plt
@@ -225,8 +226,8 @@ def calculateError(accurateValues, currentValues):
     return result
     #return sqrt(result)/len(accurateValues)
 
-"""
-def extractAccurateValues(sourceFileName ):
+
+def extractCurrentValuesForOneInput(sourceFileName, inputObj):
     start = 0 
     currentValues = []
     #whether the file exist or no 
@@ -234,131 +235,40 @@ def extractAccurateValues(sourceFileName ):
         print "source file with the name " + sourceFileName + "doesn't exist"
         exit();
     
-    with open(sourceFileName) as f:
-        for line in f:
-            if len(line.split()) >0: 
-                for words in line.rstrip().replace(',', ' ').replace('/',' ').replace(';', ' ').split(' '): #find the lines with key word and write it to another file
-                    if "end" in words: 
-                        if (outputMode == "uniform"): 
-                            flattened  = [val for sublist in currentValues for val in sublist]                            
-                            return flattened
-                        else: 
-                            return zip(*(currentValues[outputNumber_lower_bound_element:]))#if havn't gotten accurate values
-                    elif (start==1):
-                        currentValues = [(line.rstrip().split())]
-                        start +=1
-                        break 
-                    elif "start" in words: 
-                        start = 1 
-                        break
-                    elif (start >1):
-                        currentValues.append((line.rstrip().split()))
-                        break
-                    else:
-                        break
-
-
-
-"""
-
-
-
-## 
-# @brief name is explantory
-# 
-# @param sourceFileName
-# 
-# @return 
-"""
-def extractErrorForOneInput(sourceFileName, accurateValues):
-    start = 0 
-    currentValues = []
-    #whether the file exist or no 
-    if not(os.path.isfile(sourceFileName)):
-
-        print "source file with the name " + sourceFileName + "doesn't exist"
-        exit();
-    error = [] 
-    setup = 0 #the specific setup(same configuration but different type of operators) 
-    with open(sourceFileName) as f:
-        for line in f:
-
-            if len(line.split()) >0: 
-                for words in line.rstrip().replace(',', ' ').replace('/',' ').replace(';', ' ').split(' '): #find the lines with key word and write it to another file
-                    if "end" in words: 
-                        if (outputMode == "uniform"): #only one line of output
-                            currentValues = [val for sublist in currentValues for val in sublist]                            
-                        else: 
-                            currentValues = zip(*(currentValues[outputNumber_lower_bound_element:]))#if havn't gotten accurate values
-                        
-                        error = calculateError(accurateValues, currentValues)
-                        # print "here is the error " + str(error) 
-                        currentValues = [] 
-                        start = 0
-                        break 
-                    elif (start==1):
-                        currentValues = [line.rstrip().split()]
-                        # print "here is the current values " + str(currentValues)
-                        #print "\nfound currentValues; " + str(currentValues) 
-                        start +=1 
-                        break 
-                    elif "start" in words: 
-                        start = 1 
-                        break
-                    elif (start >1):
-                        currentValues.append((line.rstrip().split()))
-                        break
-                    else:
-                        break
-
-
-    
-    with open(sourceFileName) as f:
-        for line in f:
-            print line
-    
-    
-    #print "<<<<<<<<<<<<<here is the list of calculated errors:>>>>>>>>>>>>>>>>"
-    #print "      " + str(error)
-    assert(error != []) 
-    return error 
-
-
-
-"""
-
-def extractCurrentValuesForOneInput(sourceFileName):
-    start = 0 
-    currentValues = []
-    #whether the file exist or no 
-    if not(os.path.isfile(sourceFileName)):
-        print "source file with the name " + sourceFileName + "doesn't exist"
-        exit();
-    
-    with open(sourceFileName) as f:
-        for line in f:
-            if len(line.split()) >0: 
-                for words in line.rstrip().replace(',', ' ').replace('/',' ').replace(';', ' ').split(' '): #find the lines with key word and write it to another file
-                    if "end" in words: 
-                        if (outputMode == "uniform"): 
-                            flattened  = [val for sublist in currentValues for val in sublist]                            
-                            return flattened
-                        else: 
-                            return zip(*(currentValues[outputNumber_lower_bound_element:]))#if havn't gotten accurate values
-                    elif (start==1):
-                        #currentValues = [maplambda x:, (line.rstrip().split())]
-                        currentValues = [map(lambda x:float(x), (line.rstrip().split()))]
-                        start +=1
-                        break 
-                    elif "start" in words: 
-                        start = 1 
-                        break
-                    elif (start >1):
-                        #currentValues.append((line.rstrip().split()))
-                        currentValues.append(map(lambda x:float(x), (line.rstrip().split())))
-                        break
-                    else:
-                        break
+    if (settings.error_mode == "image"): #this means we are dealing with an image,
+                                         #in the case of an image, we don't write the 
+                                         #pixel values into the output text file
+                                         #but keep it in the .png file (and never update
+                                         #the usual output file located in the generated_text/
+                                         #csource_output_folder
+        
+        refImageRVal, refImageGVal, refImageBVal, img_size = get_RGB_values(inputObj.noisyImage)
+        return refImageRVal + refImageGVal + refImageBVal
+    else: 
+        with open(sourceFileName) as f:
+            for line in f:
+                if len(line.split()) >0: 
+                    for words in line.rstrip().replace(',', ' ').replace('/',' ').replace(';', ' ').split(' '): #find the lines with key word and write it to another file
+                        if "end" in words: 
+                            if (outputMode == "uniform"): 
+                                flattened  = [val for sublist in currentValues for val in sublist]                            
+                                return flattened
+                            else: 
+                                return zip(*(currentValues[outputNumber_lower_bound_element:]))#if havn't gotten accurate values
+                        elif (start==1):
+                            #currentValues = [maplambda x:, (line.rstrip().split())]
+                            currentValues = [map(lambda x:float(x), (line.rstrip().split()))]
+                            start +=1
+                            break 
+                        elif "start" in words: 
+                            start = 1 
+                            break
+                        elif (start >1):
+                            #currentValues.append((line.rstrip().split()))
+                            currentValues.append(map(lambda x:float(x), (line.rstrip().split())))
+                            break
+                        else:
+                            break
 
 
 

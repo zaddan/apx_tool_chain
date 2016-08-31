@@ -26,4 +26,4 @@ def send_email(user, pwd, recipient, subject, body):
 subject = sys.argv[1]
 body = sys.argv[2]
 #
-send_email("behzadboro@gmail.com", "+1mastermind+", "behzad_boro@gmail.com", subject, body)
+send_email("behzadboro@gmail.com", "+1mastermind+", "behzadboro@gmail.com", subject, body)
