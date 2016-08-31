@@ -67,8 +67,8 @@ def get_point_set(file1_name):
 
 #def point_combine(srcFile):
 
-def run_combine_pareto():
-    settings_obj = settingsClass()
+def run_combine_pareto(settings_obj):
+    #settings_obj = settingsClass()
     srcFile = "pareto_set_file.txt" #file containing paretoSets
     inputObj = inputClass(settings_obj)
     inputObj.expandAddress()
@@ -381,7 +381,7 @@ def run_combine_pareto():
 #    inputFileName = "pareto_set_file.txt" #file containing paretoSets
 #    point_combine(inputFileName)
 
-if __name__ == "__main__":
-    run_combine_pareto()
+#if __name__ == "__main__":
+#    run_combine_pareto()
 #if __name__ == "__main__":
 #    main()

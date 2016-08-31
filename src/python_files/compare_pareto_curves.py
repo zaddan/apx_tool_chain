@@ -248,8 +248,8 @@ def compare_two_pareto_fronts(curve1FeatureValues, curve2FeatureValues):
     # # plt.show() 
 
 
-def run_compare_pareto_curves():
-    settings_obj = settingsClass()
+def run_compare_pareto_curves(settings_obj):
+    #settings_obj = settingsClass()
     PIK1 = "pareto_of_heur_flattened"
     PIK2 = "pareto_of_combined" 
      
@@ -284,5 +284,5 @@ def run_compare_pareto_curves():
     # # compare_two_pareto_fronts(PIK1, PIK2)
     # plt.show() 
 
-if __name__ == "__main__":
-    run_compare_pareto_curves() 
+#if __name__ == "__main__":
+#    run_compare_pareto_curves() 

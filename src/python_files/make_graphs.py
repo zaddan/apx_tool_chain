@@ -38,7 +38,7 @@ from pareto_set_class import *
 
 def get_quality_energy_values(src_file, symbol, points_to_graph, limit=False, lower_bound=-100, upper_bound=100):
     lOfPoints = getPoints(src_file)
-    lOfInput_number =  map(lambda x: x.get_input_number(), lOfPoints) #this is used for
+    #lOfInput_number =  map(lambda x: x.get_input_number(), lOfPoints) #this is used for
                                                                       #only s4 and can be 
                                                                       #commented OW
     lOfQualityVals = map(lambda x: x.get_quality(), lOfPoints)
@@ -50,8 +50,8 @@ def get_quality_energy_values(src_file, symbol, points_to_graph, limit=False, lo
     
     
     #here
-    points_to_graph.append([lOfQualityVals, lOfEnergyVals, lOfInput_number, src_file])
-    #points_to_graph.append([lOfQualityVals, lOfEnergyVals, symbol, src_file])
+    #points_to_graph.append([lOfQualityVals, lOfEnergyVals, lOfInput_number, src_file])
+    points_to_graph.append([lOfQualityVals, lOfEnergyVals, symbol, src_file])
 
 #only reads the files and generate a graph. This module is for convenience of
 #graphing the info that I need. simply comment the points that you don't want
@@ -112,9 +112,11 @@ def main():
 
         if (arg == "s2"): #---stage 2 points
             get_quality_energy_values("all_of_s2", "+", points_to_graph, limit, lower_bound, upper_bound)
-            print "go" 
+            get_quality_energy_values("pareto_of_all_of_s2", "o", points_to_graph, limit, lower_bound, upper_bound)
+        
         if (arg == "s3"): #---stage 3 points
             get_quality_energy_values("all_of_s3", "1", points_to_graph, limit, lower_bound, upper_bound)
+            get_quality_energy_values("pareto_of_all_of_s3", "o", points_to_graph, limit, lower_bound, upper_bound)
         if (arg == "combined_all"): #combined_all 
             get_quality_energy_values("all_of_combined", "x", points_to_graph, limit, lower_bound, upper_bound)
         if (arg == "combined_pareto"): #combined_pareto

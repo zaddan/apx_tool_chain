@@ -3,7 +3,7 @@ import os
 def reduce_ideal_setUp_list(previous_ideal_setUp_list):
     #return previous_ideal_setUp_list[:len(previous_ideal_setUp_list)/2]
     print "length is of previous_ideal_setUp_list: " + str(previous_ideal_setUp_list)
-    return previous_ideal_setUp_list[:5]
+    return previous_ideal_setUp_list[:6]
 
 
 
