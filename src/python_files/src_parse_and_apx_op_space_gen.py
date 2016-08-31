@@ -60,7 +60,7 @@ def subtract(a, b):
 # @param lAllOpsInSrcFile: list of all the ops within the src file which can be replaced with the apx version
 # 
 # @return no return, infact, lAllOpsInSrcFile is where we store the output
-def sourceFileParse(sourceFileName):
+def sourceFileParse(sourceFileName, settings_obj):
     lAllOpsInSrcFile = [] 
     # if not(os.path.isfile(sourceFileName)):
         # print "the source file doesn't exist"
@@ -75,11 +75,11 @@ def sourceFileParse(sourceFileName):
             count = 0
             for line in f:
                 for words in line.replace(',', ' ').replace('/',' ').replace(';', ' ').split(' '): #find the lines with key word and write it to another file
-                    if words.strip() in settings.lAccurateOpFlags:
+                    if words.strip() in settings_obj.lAccurateOpFlags:
                         lAllOpsInSrcFile.append(words.strip())
-                    if "Ignore" in words.strip() and subtract(words.strip(), "Ignore") in settings.lAccurateOpFlags: #if ignore is part of the words, that means you can ignore that operator, but still add it
+                    if "Ignore" in words.strip() and subtract(words.strip(), "Ignore") in settings_obj.lAccurateOpFlags: #if ignore is part of the words, that means you can ignore that operator, but still add it
                         lAllOpsInSrcFile.append(words.strip())
-                    if "Limited" in words.strip() and subtract(words.strip(), "Ignore") in settings.lAccurateOpFlags: #if ignore is part of the words, that means you can ignore that operator, but still add it
+                    if "Limited" in words.strip() and subtract(words.strip(), "Ignore") in settings_obj.lAccurateOpFlags: #if ignore is part of the words, that means you can ignore that operator, but still add it
                         count +=1; 
     return lAllOpsInSrcFile
 def generateLimited(opIndexSelected, opTypeOpKind):
@@ -98,26 +98,26 @@ def getOpIndexSelected(srcFile, opIndex):
   
      
 
-def generateAllPossibleScenariosForEachOperator(outputFile, lAllOpsInSrcFile):
+def generateAllPossibleScenariosForEachOperator(outputFile, lAllOpsInSrcFile ,settings_obj):
     allPossibleScenariosForEachOperator = []
     allPossibleScenariosForEachOperator = [] 
-    opIndexSelectedFile = settings.opIndexSelectedFile 
+    opIndexSelectedFile = settings_obj.opIndexSelectedFile 
     limitedListIndecies = [] 
     ignoreListIndecies = [] 
     accurateConfig = [] 
     for opIndex,element in enumerate(lAllOpsInSrcFile):
         if "Ignore" in element:
-            allPossibleScenariosForEachOperator.append([settings.OpTypeOpKind[subtract(element,"Ignore")][0]])
+            allPossibleScenariosForEachOperator.append([settings_obj.OpTypeOpKind[subtract(element,"Ignore")][0]])
             ignoreListIndecies.append(opIndex)
-            accurateConfig.append(settings.OpTypeOpKind[subtract(element,"Ignore")][0])
+            accurateConfig.append(settings_obj.OpTypeOpKind[subtract(element,"Ignore")][0])
         elif "Limited" in element:
             limitedListIndecies.append(opIndex)
-            accurateConfig.append(settings.OpTypeOpKind[subtract(element,"Limited")][0])
+            accurateConfig.append(settings_obj.OpTypeOpKind[subtract(element,"Limited")][0])
             # opIndexSelected = getOpIndexSelected(opIndex,opIndexSelectedFile) 
         #     allPossibleScenariosForEachOperator.append(generateLimited(opIndexSelected,settings.OpTypeOpKind[subtract(element,"Limited")))
         else:
-            allPossibleScenariosForEachOperator.append(copy.deepcopy(settings.OpTypeOpKind[element]))
-            accurateConfig.append(settings.OpTypeOpKind[element][0])
+            allPossibleScenariosForEachOperator.append(copy.deepcopy(settings_obj.OpTypeOpKind[element]))
+            accurateConfig.append(settings_obj.OpTypeOpKind[element][0])
     return allPossibleScenariosForEachOperator, limitedListIndecies, ignoreListIndecies, accurateConfig 
 
 def turnAListOfTuplesToAListOfLists(listOfTuples):

@@ -5,6 +5,7 @@ from multiprocessing import Process, Manager
 import misc
 import misc2
 import tests
+from settings import *
 
 def get_quality_energy_values_directly(lOfPoints, symbol, points_to_graph,index, limit=False, lower_bound=-100, upper_bound=100):
     lOfQualityVals = map(lambda x: x.get_quality(), lOfPoints)
@@ -97,7 +98,7 @@ def polishSetup(setUp):
 
 
 
-def generate_snr_energy_graph(dealingWithPics, lOfPoints, plotPareto, symbolsToChooseFrom, lOfAccurateValues, symbolIndex, maxY, maxX):
+def generate_snr_energy_graph(dealingWithPics, lOfPoints, plotPareto, symbolsToChooseFrom, lOfAccurateValues, symbolIndex, maxY, maxX, settings_obj):
     symbolsCollected = [] 
     lOfPoints_refined =[]
     """ 
@@ -121,7 +122,7 @@ def generate_snr_energy_graph(dealingWithPics, lOfPoints, plotPareto, symbolsToC
     else:
         lOfQualityValues = [] 
         lOfEnergy = [] 
-        if (settings.quality_mode == "snr"): 
+        if (settings_obj.quality_mode == "snr"): 
             for point in lOfPoints_refined:
                 if point.quality_calculatable:
                     lOfQualityValues.append(point.get_quality())
@@ -157,8 +158,10 @@ def getLimitedList(src):
 # @return : no return
 
 #def main():
-if __name__ == "__main__":
+def run_task_and_collect_points():
+#if __name__ == "__main__":
     start = time.time() 
+    
     #---------guide:::  promting ther user regarding the required input
 #    print "the following inputs needs to be provided in the " + str(settings.userInputFile)
 #    print "1.source folder address"
@@ -170,16 +173,18 @@ if __name__ == "__main__":
 #    print "7. finalResulstFileName"
 #    
     symbolsToChooseFrom = ['*', 'x', "o", "+", "*", "-", "^", "1", "2", "3", "4"] #symbols to draw the plots with
-    inputObj = inputClass()
+    settings_obj = settingsClass()
+    inputObj = inputClass(settings_obj)
     inputObj.expandAddress()
-    maxX = settings.maxX
-    maxY = settings.maxY
+    maxX = settings_obj.maxX
+    maxY = settings_obj.maxY
     lOfAllPointsTried = []
     lOfPoints_out_of_heuristic = []  
-    opIndexSelectedFile =settings.opIndexSelectedFile
+    opIndexSelectedFile =settings_obj.opIndexSelectedFile
     open(opIndexSelectedFile, "w").close()
     CSrcFolderAddress = inputObj.CSrcFolderAddress
     lOfCSrcFileAddress = inputObj.lOfCSrcFileAddress 
+    CBuildFolderName = inputObj.CBuildFolderName 
     generateMakeFile = inputObj.generateMakeFile
     rootFolder = inputObj.rootFolder 
     AllInputScenariosInOneFile = inputObj.AllInputScenariosInOneFile
@@ -194,8 +199,8 @@ if __name__ == "__main__":
     
     #---------guide:::  checking the validity of the input and making necessary files
     #and folders
-    rootResultFolderName = rootFolder + "/" + settings.generatedTextFolderName
-    rootResultFolderBackupName =  rootFolder + "/" + settings.resultsBackups # is used to get a back up of the results generated in the previuos run of this program
+    rootResultFolderName = rootFolder + "/" + settings_obj.generatedTextFolderName
+    rootResultFolderBackupName =  rootFolder + "/" + settings_obj.resultsBackups # is used to get a back up of the results generated in the previuos run of this program
     if not(os.path.isdir(rootResultFolderBackupName)):
         os.system("mkdir" + " " + rootResultFolderBackupName)
     os.system("rm -r " + rootResultFolderName)
@@ -204,7 +209,7 @@ if __name__ == "__main__":
     CBuildFolder = rootFolder + "/" + CBuildFolderName
     #get the input to the executable 
     executableInputList = []
-    if (runMode == "parallel"): 
+    if (settings_obj.runMode == "parallel"): 
         #the_lock = multiprocessing.Lock() 
         pool = multiprocessing.Pool() 
 
@@ -235,7 +240,7 @@ if __name__ == "__main__":
         exit()
 
     #removing the result file
-    os.system("rm " + rootResultFolderName + "/" + settings.rawresultFileName)
+    os.system("rm " + rootResultFolderName + "/" + settings_obj.rawresultFileName)
 
     
     #---if make file needs to be re generated (generated) 
@@ -270,7 +275,7 @@ if __name__ == "__main__":
     inputNumber = 0 
     #os.system("rm -r" + " " +  rootResultFolderName + "/" +settings.AllOperandsFolderName)
     #os.system("rm -r" + " " +  rootResultFolderName + "/" + settings.rawResultFolderName)
-    os.system("mkdir" + " " + rootResultFolderName + "/" + settings.rawResultFolderName)
+    os.system("mkdir" + " " + rootResultFolderName + "/" + settings_obj.rawResultFolderName)
     #---------guide:::  if the operands were all given in a file: separate them to different files
     #...................else: use the folder that they are in, as an input to the C source files
     #if all in one file 
@@ -281,7 +286,7 @@ if __name__ == "__main__":
             exit();
 
         #make a directory for all operand inputs 
-        AllOperandsFolderName = rootResultFolderName + "/" + settings.AllOperandsFolderName
+        AllOperandsFolderName = rootResultFolderName + "/" + settings_obj.AllOperandsFolderName
         os.system("mkdir " + AllOperandsFolderName)
         #---------guide::: separates operands and put in a folder 
         with open(AllOperandScenariosFullAddress) as f:
@@ -308,8 +313,8 @@ if __name__ == "__main__":
     #                        be approximatable
     lAllOpsInSrcFile = [] 
     for CSrcFileAddressItem in lOfCSrcFileAddress:
-        lAllOpsInSrcFile += sourceFileParse(CSrcFileAddressItem)
-    settings.totalNumberOfOpCombinations = 1;
+        lAllOpsInSrcFile += sourceFileParse(CSrcFileAddressItem, settings_obj)
+    settings_obj.totalNumberOfOpCombinations = 1;
     energy = []
     error = []
     config = []
@@ -325,13 +330,13 @@ if __name__ == "__main__":
     errorRequirementList = []
     errorDiffList =[] #contains the difference between the error request and the error recieved from simulated annealing ( in percentage)
      
-    allPossibleScenariosForEachOperator, limitedListIndecies, ignoreListIndecies, accurateSetUp = generateAllPossibleScenariosForEachOperator(rootResultFolderName, lAllOpsInSrcFile)
+    allPossibleScenariosForEachOperator, limitedListIndecies, ignoreListIndecies, accurateSetUp = generateAllPossibleScenariosForEachOperator(rootResultFolderName, lAllOpsInSrcFile, settings_obj)
     #---------guide:::  generate all possible apx setUps Possible (mainly used for full permutation design exploration, otherwise called exhustive search)
-    IOAndProcessCharFileName = rootResultFolderName + "/" + settings.IOAndProcessCharFileName
+    IOAndProcessCharFileName = rootResultFolderName + "/" + settings_obj.IOAndProcessCharFileName
     IOAndProcessCharP = open(IOAndProcessCharFileName, "w")
     
-    open(settings.annealerProgressionOutputFileName, "w").close()
-    open(rootResultFolderName +  "/" + settings.annealerOutputFileName, "w").close()
+    open(settings_obj.annealerProgressionOutputFileName, "w").close()
+    open(rootResultFolderName +  "/" + settings_obj.annealerOutputFileName, "w").close()
     
     #---------guide::: go through operand files and sweep the apx space
     # lOfOperandSet = [] 
@@ -340,7 +345,7 @@ if __name__ == "__main__":
     for inputNumber,operandSampleFileName in enumerate(nameOfAllOperandFilesList):
         countSoFar = 0 
         #clearly state where the new results associated with the new input starts 
-        CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings.rawResultFolderName + "/" + settings.csourceOutputFileName + str(inputNumber) + ".txt" #where to collect C++ source results
+        CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings_obj.rawResultFolderName + "/" + settings_obj.csourceOutputFileName + str(inputNumber) + ".txt" #where to collect C++ source results
         # newOperand =  operandSet(get_operand_values(operandSampleFileName))
         
         accurateValues = []
@@ -348,8 +353,8 @@ if __name__ == "__main__":
         energy.append( [])
         config.append( [])
         inputFileNameList.append([])
-        mode = settings.mode 
-        operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings.operatorSampleFileName + str(0) + ".txt"
+        mode = settings_obj.mode 
+        operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings_obj.operatorSampleFileName + str(0) + ".txt"
         
         
         #---------guide:::  getting accurate values associated with the CSource output
@@ -366,14 +371,14 @@ if __name__ == "__main__":
         
         sys.stdout.flush()
         #---------guide:::  run the CSrouce file with the new setUp(operators)
-        if not(errorTest): 
+        if not(settings_obj.errorTest): 
             print("\n........running to get accurate values\n"); 
-            reminder(settings.reminder_flag,"make sure to change make_run to make_run_compile if you change the content of any of the cSRC files")
-            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0) #first make_run
-            accurateValues = extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj)
+            reminder(settings_obj.reminder_flag,"make sure to change make_run to make_run_compile if you change the content of any of the cSRC files")
+            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0, settings_obj) #first make_run
+            accurateValues = extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj, settings_obj)
         else:
             newPath = "/home/local/bulkhead/behzad/usr/local/apx_tool_chain/src/python_files/scratch/acc.txt"
-            accurateValues = extractCurrentValuesForOneInput(newPath, inputObj)
+            accurateValues = extractCurrentValuesForOneInput(newPath, inputObj, settings_obj)
         
         assert(accurateValues != None)
         lOfAccurateValues.append(accurateValues)
@@ -393,7 +398,7 @@ if __name__ == "__main__":
     sys.stdout.flush()
     
 
-    if(settings.get_UTC_optimal_configs or settings.adjust_NGEN): 
+    if(settings_obj.get_UTC_optimal_configs or settings_obj.adjust_NGEN): 
         ideal_pts = []
         with open(PIK_UTC_file , "rb") as f:
             while True: 
@@ -414,7 +419,7 @@ if __name__ == "__main__":
             #previous_ideal_setUp_output_list.append(pt.get_raw_values())
     
         #from here
-        lOf_UTC_PF = pareto_frontier(ideal_pts, maxX, maxY) 
+        lOf_UTC_PF = pareto_frontier(ideal_pts, maxX, maxY, settings_obj) 
         previous_ideal_setUp_list = []  
         for el in lOf_UTC_PF: 
             previous_ideal_setUp_list.append(el.get_raw_setUp())
@@ -425,7 +430,7 @@ if __name__ == "__main__":
         #to here
         
         # ---- santiy check
-        assert not(settings.get_UTC_optimal_configs and len(previous_ideal_setUp_list)== 0)
+        assert not(settings_obj.get_UTC_optimal_configs and len(previous_ideal_setUp_list)== 0)
     
         # ---- more sanity check
         for el in previous_ideal_setUp_list: 
@@ -439,12 +444,12 @@ if __name__ == "__main__":
         previous_ideal_setUp_list_reduced = reduce_ideal_setUp_list(previous_ideal_setUp_list)
     
     
-    if (settings.adjust_NGEN):
-        NGEN_to_use = settings.NGEN*len(previous_ideal_setUp_list_reduced)
+    if (settings_obj.adjust_NGEN):
+        NGEN_to_use = settings_obj.NGEN*len(previous_ideal_setUp_list_reduced)
     else:
-        NGEN_to_use = settings.NGEN
+        NGEN_to_use = settings_obj.NGEN
     
-    if not(settings.get_UTC_optimal_configs):
+    if not(settings_obj.get_UTC_optimal_configs):
         previous_ideal_setUp_list_reduced = [(map(lambda x:x[2], accurateSetUp))]
         previous_ideal_setUp_output_list = []
 
@@ -460,48 +465,47 @@ if __name__ == "__main__":
         for opOptions in allPossibleScenariosForEachOperator:
             print opOptions
             lengthSoFar *= len(opOptions)
-            assert(lengthSoFar < settings.veryHugeNumber), """numbr of permuations:""" + str(lengthSoFar)+""" is too big. 
-            it is bigger than:""" + str(settings.veryHugeNumber)
+            assert(lengthSoFar < settings_obj.veryHugeNumber), """numbr of permuations:""" + str(lengthSoFar)+""" is too big. 
+            it is bigger than:""" + str(settings_obj.veryHugeNumber)
 
         allPossibleApxScenarioursList = generateAllPossibleApxScenariousList(allPossibleScenariosForEachOperator)
         for previous_ideal_setUp in previous_ideal_setUp_list_reduced:
             for index,config in enumerate(allPossibleApxScenarioursList):
                 individual = map(lambda x: x[2], config) 
                 specializedEval(False, 1, accurateSetUp, ignoreListIndecies, accurateSetUp, inputObj,nameOfAllOperandFilesList, rootResultFolderName, executableName,
-                executableInputList, CBuildFolder, operandSampleFileName,lOfAccurateValues, allPointsTried, True, unique_point_list, output_list, previous_ideal_setUp, 0,
-                individual)
+                executableInputList, CBuildFolder, operandSampleFileName,lOfAccurateValues, allPointsTried, True, unique_point_list, output_list, previous_ideal_setUp, 0, settings_obj, individual)
             lOfPoints_out_of_heuristic = allPointsTried
     elif (mode == "genetic_algorithm" or mode == "swarm_particle"):
         input_Point_list = [] 
-        if (runMode == "parallel"): 
+        if (settings_obj.runMode == "parallel"): 
             the_lock = multiprocessing.Lock() 
         
         allConfs = [] #first generation
-        numberOfIndividualsToStartWith = settings.numberOfIndividualsToStartWith
+        numberOfIndividualsToStartWith = settings_obj.numberOfIndividualsToStartWith
         tempAcc = accurateSetUp
-        opIndexSelectedFile  = settings.opIndexSelectedFile
+        opIndexSelectedFile  = settings_obj.opIndexSelectedFile
         limitedList = [] 
         limitedListValues = getLimitedList(opIndexSelectedFile)
-        allConfs = generateInitialPopulation(tempAcc, numberOfIndividualsToStartWith, inputObj,ignoreListIndecies, limitedListValues, limitedListIndecies)
-        possibly_worse_case_setup = generate_possibly_worse_case_setup(tempAcc)
+        allConfs = generateInitialPopulation(tempAcc, numberOfIndividualsToStartWith, inputObj,ignoreListIndecies, limitedListValues, limitedListIndecies, settings_obj)
+        possibly_worse_case_setup = generate_possibly_worse_case_setup(tempAcc, settings_obj)
         population = []
 
         #---geting the possibly_worse_case_result info 
         possibly_worse_case_setup_individual = map (lambda x: x[2],  possibly_worse_case_setup[0])
         print("\n.......running to get possibly_worse_case_result\n"); 
         possibly_worse_case_result = specializedEval(False, 1, accurateSetUp, [], accurateSetUp, inputObj,nameOfAllOperandFilesList, rootResultFolderName, executableName,
-                executableInputList, CBuildFolder, operandSampleFileName,lOfAccurateValues, allPointsTried,True, unique_point_list, output_list,[], 0,
+                executableInputList, CBuildFolder, operandSampleFileName,lOfAccurateValues, allPointsTried,True, unique_point_list, output_list,[], 0, settings_obj,
                 possibly_worse_case_setup_individual)
         possibly_worse_case_result_energy = possibly_worse_case_result[0]   
         possibly_worse_case_result_quality = possibly_worse_case_result[1]   
         
-        if (settings.benchmark_name == "sift"): 
+        if (settings_obj.benchmark_name == "sift"): 
              
             #print "here is the possibly_worse_case quality " + str(possibly_worse_case_result_quality)
             possibly_worse_case_result_energy = 1
             possibly_worse_case_result_quality = 1
         #----printing the possibly_worse_case_result info and exiting
-        if (settings.DEBUG): 
+        if (settings_obj.DEBUG): 
             print "worse_case energy: " + str(possibly_worse_case_result[0])
             print "worse_case quality: " + str(possibly_worse_case_result[1])
  
@@ -512,7 +516,7 @@ if __name__ == "__main__":
             print  "iteration number: " + str(iteration)
             print "\n...... running the  accurate version of the succeeding stage with " + str(iteration) + "th"  + "iteration"
             UTC_acc = specializedEval(False, 1, accurateSetUp, [], accurateSetUp, inputObj,nameOfAllOperandFilesList, rootResultFolderName, executableName,
-                    executableInputList, CBuildFolder, operandSampleFileName,lOfAccurateValues, allPointsTried,False, unique_point_list, output_list,[], 0,
+                    executableInputList, CBuildFolder, operandSampleFileName,lOfAccurateValues, allPointsTried,False, unique_point_list, output_list,[], 0, settings_obj,
                     previous_ideal_setUp)
             previous_ideal_setUp_energy = UTC_acc[0]   
             previous_ideal_setUp_quality = UTC_acc[1]   
@@ -537,14 +541,14 @@ if __name__ == "__main__":
                             executableName, executableInputList, rootResultFolderName, CBuildFolder,
 
                             operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality, accurateSetUp, allConfs, NGEN_to_use,
-                            settings.MU, settings.LAMBDA, unique_point_list, output_list,allPointsTried,  previous_ideal_setUp, iteration)
+                            settings_obj.MU, settings_obj.LAMBDA, unique_point_list, output_list,allPointsTried,  previous_ideal_setUp, iteration, settings_obj)
             
             elif (mode == "swarm_particle"):
                 population = run_SP(population, NGEN_to_use,
                             CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress,
                             executableName, executableInputList, rootResultFolderName, CBuildFolder,
                             operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality, accurateSetUp, allConfs,
-                            unique_point_list, output_list, allPointsTried, previous_ideal_setUp)
+                            unique_point_list, output_list, allPointsTried, previous_ideal_setUp, settings_obj)
             else:
                 print "this mode" + str(mode) +" not defined"
                 exit()
@@ -586,9 +590,9 @@ if __name__ == "__main__":
 #
     
     #-- dumping the the points associated w/ new input to a file
-    if (settings.write_UTC_optimal_configs): 
+    if (settings_obj.write_UTC_optimal_configs): 
         with open(PIK_UTC_file, "wb") as f:
-            reminder(settings.reminder_flag,"if UTC is used to extract rawValues and AccurateValues associated with points an error would happen b/c we empty the two list out. We did this to avoid the massive size of UTC otherwise")
+            reminder(settings_obj.reminder_flag,"if UTC is used to extract rawValues and AccurateValues associated with points an error would happen b/c we empty the two list out. We did this to avoid the massive size of UTC otherwise")
             for el in unique_point_list:
                 el.lOfAccurateValues = [] #I empty out the list b/c the size of the file would be massive
                                           #other wise
@@ -694,7 +698,7 @@ if __name__ == "__main__":
     # ---- pickle and write the results
     if not(mode == "only_read_values"):
         with open(PIK_pareto, "wb") as f:
-            points_to_dump = pareto_frontier(lOfPoints_out_of_heuristic, maxX, maxY)
+            points_to_dump = pareto_frontier(lOfPoints_out_of_heuristic, maxX, maxY, settings_obj)
             for point in points_to_dump:
                 pickle.dump(copy.deepcopy(point), f)
         with open(PIK_all_points, "wb") as f:
@@ -704,7 +708,7 @@ if __name__ == "__main__":
                 pickle.dump(copy.deepcopy(point), f)
         with open(PIK_pareto_of_all, "wb") as f:
             #points_to_dump = pareto_frontier(lOfPoints_out_of_heuristic_2nd_round, maxX, maxY) #righthere
-            points_to_dump = pareto_frontier(lOfAllPointsTried, maxX, maxY) #righthere
+            points_to_dump = pareto_frontier(lOfAllPointsTried, maxX, maxY, settings_obj) #righthere
             for point in points_to_dump:
                 pickle.dump(copy.deepcopy(point), f)
 
@@ -788,12 +792,12 @@ if __name__ == "__main__":
     elif (settings.method == "allPoints"):
     """ 
     #resultPoints = lOfPoints_out_of_heuristic
-    pareto_points =  pareto_frontier(lOfPoints_out_of_heuristic, maxX, maxY)
+    pareto_points =  pareto_frontier(lOfPoints_out_of_heuristic, maxX, maxY, settings_obj)
     pointSet= point_set(pareto_points, "pareto", maxX, maxY)
     #fix req: delmiter should be defined properly, change the numbers
     pointSet.set_delimeter(delimeter)
-    if not(settings.get_UTC_optimal_configs): 
-        with open(settings.lOfParetoSetFileName, "a") as f:
+    if not(settings_obj.get_UTC_optimal_configs): 
+        with open(settings_obj.lOfParetoSetFileName, "a") as f:
             pickle.dump(copy.deepcopy(pointSet), f)
 #    if (runMode == "parallel"): 
 #        print str(multiprocessing.current_process()._identity)
@@ -823,7 +827,7 @@ if __name__ == "__main__":
         else:
             resultTuple.append((point.get_setUp(), point.get_quality(), point.get_energy()))
 
-    if(settings.DEBUG):
+    if(settings_obj.DEBUG):
         print "---printing the results:" 
         for el in resultTuple:
             print el
@@ -833,10 +837,10 @@ if __name__ == "__main__":
 #        writeReadableOutput(resultTuple,  symbolsCollected, finalResultFileFullAddress)
 #        pylab.savefig(finalResultFileFullAddress[:-4]+".png") #saving the figure generated by generateGraph
     #----:::  getting back up of the results
-    folderToCopyToNameProcessed = comeUpWithNewFolderNameAccordingly(rootFolder + "/" + settings.resultsBackups) 
+    folderToCopyToNameProcessed = comeUpWithNewFolderNameAccordingly(rootFolder + "/" + settings_obj.resultsBackups) 
     listOfFoldersToCopyFrom = [rootResultFolderName, CSrcFolderAddress]  
     #generateBackup(rootResultFolderBackupName, listOfFoldersToCopyFrom, folderToCopyToNameProcessed) #generating a back of the results
-    cleanUpExtras(rootResultFolderName) 
+    cleanUpExtras(rootResultFolderName, settings_obj) 
     #---------guide::: show the graph
     #plt.show() 
     end = time.time()
@@ -846,5 +850,7 @@ if __name__ == "__main__":
     sys.stdout.flush()
 
 
-#if __name__ == "__main__":
-#    main()
+
+if __name__ == "__main__":
+    run_task_and_collect_points()
+    #    main()

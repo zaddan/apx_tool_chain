@@ -1,5 +1,5 @@
 #!/bin/bash
-python send_email.py "starting a run" "start the test_benchmark"
+#python send_email.py "starting a run" "start the test_benchmark"
 echo "======================"
 echo "REMINDERS"
 echo "======================"
@@ -174,7 +174,7 @@ rm pareto_set_file.txt
 cp ../../generated_text/finalResult.png ref.png
 echo "done with the stage 1: flattening and apx of all files"
 #
-# ---- starting stage 2(apx some files)
+ #---- starting stage 2(apx some files)
 echo
 echo
 echo "---------starting stage 2"
@@ -217,26 +217,26 @@ cp pickled_results_all_points all_of_s3
 cp pickled_results_pareto_of_all pareto_of_all_of_s3
 echo "done with the stage 3: apx of some files"
 
-## ---- starting stage 4(apx some files, using UTC)
-#echo
-#echo
-#echo "---------starting stage 4"
-#python run_write_config.py $benchmark $root_folder $bench_suit_name "True" "False" "False" $heuristic_intensity2
-#cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/
-#cp computeSAD_acc.txt computeSAD.c
-#cp finalSAD_acc.txt finalSAD.c
-#cp integralImage2D2D_acc.txt integralImage2D2D.c
-#
-#cp finalSAD_apx.txt finalSAD.c
-#
-#cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
-#python run_tool_chain.py
-#rm ../../generated_text/finalResult.png 
-#rm pickled_results_pareto
-#cp pickled_results_all_points all_of_s4
-#cp pickled_results_pareto_of_all pareto_of_all_of_s4
-#echo "done with the stage 4: apx of some files"
-#
+# ---- starting stage 4(apx some files, using UTC)
+echo
+echo
+echo "---------starting stage 4"
+python run_write_config.py $benchmark $root_folder $bench_suit_name "True" "False" "False" $heuristic_intensity2
+cd /home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/
+cp computeSAD_acc.txt computeSAD.c
+cp finalSAD_acc.txt finalSAD.c
+cp integralImage2D2D_acc.txt integralImage2D2D.c
+
+cp finalSAD_apx.txt finalSAD.c
+
+cd /home/polaris/behzad/behzad_local/"$root_folder"/src/python_files/
+python run_tool_chain.py
+rm ../../generated_text/finalResult.png 
+rm pickled_results_pareto
+cp pickled_results_all_points all_of_s4
+cp pickled_results_pareto_of_all pareto_of_all_of_s4
+echo "done with the stage 4: apx of some files"
+
 
 #---- starting stage 5(combine and compare)
 echo
@@ -486,4 +486,4 @@ runtime=$((end - start))
 echo $runtime
 runtime_in_min=$((runtime/60))
 echo total running time of the script was: $runtime_in_min
-python send_email.py "ending_a_run" "done with test_benchmark"
+#python send_email.py "ending_a_run" "done with test_benchmark"

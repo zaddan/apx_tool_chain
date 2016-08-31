@@ -95,23 +95,23 @@ class points:
         noisyImage = self.inputObj.noisyImage
         self.PSNR = calculate_psnr(refImage, noisyImage)
     
-    def calculate_quality(self,normalize, possibly_worse_case_result_quality):
+    def calculate_quality(self,normalize, possibly_worse_case_result_quality, settings_obj):
         #---- calculate mean of accurate values 
-        if (settings.error_mode == "image"):
+        if (settings_obj.error_mode == "image"):
             mean_of_acc_values = calculate_mean_acc_for_image(self.inputObj.refImage, self.inputObj.noisyImage)
-        elif(settings.error_mode == "nearest_neighbors_2d" and benchmark_name =="sift"):
+        elif(settings_obj.error_mode == "nearest_neighbors_2d" and benchmark_name =="sift"):
             mean_of_acc_values = numpy.mean(map( lambda x: numpy.mean(x, axis=0)[:-1], self.lOfAccurateValues), axis=0)
         else: 
             mean_of_acc_values = numpy.mean(map( lambda x: numpy.mean(x, axis=0), self.lOfAccurateValues),axis=0)
         
         #--- calculate mean of error values
-        if (settings.error_mode == "image"):
+        if (settings_obj.error_mode == "image"):
             mean_of_error_values = calculate_error_for_image(self.inputObj.refImage, self.inputObj.noisyImage)
         else: 
             mean_of_error_values = numpy.mean(map( lambda x: numpy.mean(x, axis=0), self.lOfError), axis=0)
         
         #--- specific case of errorTest
-        if (errorTest): 
+        if (settings_obj.errorTest): 
             print "---------------" 
             print "Vector ass with mean of Acc Vals"
             print numpy.mean(self.lOfAccurateValues[0], axis=0) 
@@ -124,7 +124,7 @@ class points:
             print mean_of_error_values
             print "---------------" 
        
-        if (settings.outputMode == "uniform"): #convert to a list for compatibility issues
+        if (settings_obj.outputMode == "uniform"): #convert to a list for compatibility issues
             mean_of_error_values = [float(mean_of_error_values)]
             mean_of_acc_values = [ float(mean_of_acc_values)]
         
@@ -142,7 +142,7 @@ class points:
 #         NSR= (mean_of_error_values/mean_of_acc_values)
         
         #divide the corresponding values for avg of errors and acc values  
-        if (settings.DEBUG):
+        if (settings_obj.DEBUG):
             print "mean of acc-val: " + str(mean_of_acc_values);
             print "mean of error-val: " + str(mean_of_error_values);
         
@@ -151,7 +151,7 @@ class points:
         NSR = np.mean(NSR_vector_abs) #this should be a scalar number
         if (normalize and not(possibly_worse_case_result_quality == float("inf"))):
             NSR = NSR/possibly_worse_case_result_quality
-        if (settings.quality_mode == "snr"):
+        if (settings_obj.quality_mode == "snr"):
             if(NSR == 0):
                 print "*******ERROR(kind of) noise is zero, make sure SNR is the right quality mode****"
                 self.quality_calculatable = False
@@ -162,11 +162,11 @@ class points:
                 self.SNR =  1/NSR
                 self.quality = abs(1/NSR)
                 self.quality_is_set = True
-        elif (settings.quality_mode == "nsr"):
+        elif (settings_obj.quality_mode == "nsr"):
             self.quality = abs(NSR)
             self.quality_is_set = True
         else:
-            print "*****ERROR: this quality_mode: " + str(settings.quality_mode) + " is not defined***"
+            print "*****ERROR: this quality_mode: " + str(settings_obj.quality_mode) + " is not defined***"
             sys.exit();
        
     

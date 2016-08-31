@@ -109,11 +109,11 @@ def modifyOperatorSubSetupExactly(operator, numberOfApxBits):
         print "the operator type with the name of " + operatorType + "is not acceptable"
         exit()
 
-def specializedMutate(ignoreIndexList, setUp):
+def specializedMutate(ignoreIndexList, settings_obj, setUp):
     newSetUp = copy.copy(setUp)
     operatorToChooseIndex = random.choice(range(0, len(setUp)))
     # numberOfApxBits = int(random.gauss(10 , 5.2))
-    numberOfApxBits = int(random.choice(range(settings.apxLowBound, settings.apxUpBound)))
+    numberOfApxBits = int(random.choice(range(settings_obj.apxLowBound, settings_obj.apxUpBound)))
     newSetUp[operatorToChooseIndex] = numberOfApxBits 
 #    if operatorToChooseIndex in ignoreIndexList:
 #        return newSetUp,
@@ -122,13 +122,13 @@ def specializedMutate(ignoreIndexList, setUp):
     return newSetUp,
     
 
-def generate_possibly_worse_case_setup(accurateSetUp):
+def generate_possibly_worse_case_setup(accurateSetUp, settings_obj):
     population = [] 
     newSetUp = copy.copy(accurateSetUp)
     for index, element in enumerate(newSetUp): 
         # operatorToChooseIndex = random.choice(range(0, len(accurateSetUp)))
         # numberOfApxBits = int(random.gauss(10 , 4))
-        numberOfApxBits = settings.worseCase
+        numberOfApxBits = settings_obj.worseCase
         
         operatorModified = modifyOperatorSubSetupExactly(accurateSetUp[index], numberOfApxBits) 
         newSetUp[index] = operatorModified
@@ -136,7 +136,7 @@ def generate_possibly_worse_case_setup(accurateSetUp):
     return population
  
 
-def generateInitialPopulation(accurateSetUp, numberOfIndividualsToStartWith,inputObj, ignoreIndexList, limitedListValues, limitedListIndecies):
+def generateInitialPopulation(accurateSetUp, numberOfIndividualsToStartWith,inputObj, ignoreIndexList, limitedListValues, limitedListIndecies, settings_obj):
     population = [] 
     population.append(accurateSetUp) 
     for count in range(numberOfIndividualsToStartWith - 1):
@@ -149,7 +149,7 @@ def generateInitialPopulation(accurateSetUp, numberOfIndividualsToStartWith,inpu
             if (index in limitedListIndecies):
                 numberOfApxBits = int(random.choice(limitedListValues[index]))
             else: 
-                numberOfApxBits = int(random.choice(range(settings.apxLowBound, settings.apxUpBound)))
+                numberOfApxBits = int(random.choice(range(settings_obj.apxLowBound, settings_obj.apxUpBound)))
             
             operatorModified = modifyOperatorSubSetupExactly(accurateSetUp[index], numberOfApxBits) 
             newSetUp[index] = operatorModified
@@ -184,9 +184,9 @@ def eaMuPlusLambda_redefined(population, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN)
 
    
 def specializedEval(normalize,possibly_worse_case_result_quality,  mold, ignoreListIndecies, accurateSetUp, inputObj, nameOfAllOperandFilesList, rootResultFolderName,executableName,
-        executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, collect_pts, unique_point_list, output_list, previous_ideal_setUp,iteration, individual):
+        executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, collect_pts, unique_point_list, output_list, previous_ideal_setUp,iteration, settings_obj, individual):
         exe_annex = 0
-        if (runMode == "parallel"): 
+        if (settings_obj.runMode == "parallel"): 
             if(multiprocessing.current_process()._identity == ()):
                 exe_annex = 0
             else:
@@ -206,43 +206,44 @@ def specializedEval(normalize,possibly_worse_case_result_quality,  mold, ignoreL
         for operandIndex, operandSampleFileName in enumerate(nameOfAllOperandFilesList):
             energyValue = [getEnergy(newSetUp)]
 
-            if (runMode == "parallel"): 
-                CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings.rawResultFolderName + "/" + settings.csourceOutputFileName + str(exe_annex) + ".txt" #where to collect C++ source results
-                operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings.operatorSampleFileName + str(exe_annex) + ".txt"
+            if (settings_obj.runMode == "parallel"): 
+                CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings_obj.rawResultFolderName + "/" + settings_obj.csourceOutputFileName + str(exe_annex) + ".txt" #where to collect C++ source results
+                operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings_obj.operatorSampleFileName + str(exe_annex) + ".txt"
             else: 
-                CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings.rawResultFolderName + "/" + settings.csourceOutputFileName + str(0) + ".txt" #where to collect C++ source results
-                operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings.operatorSampleFileName + str(0) + ".txt"
+                CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings_obj.rawResultFolderName + "/" + settings_obj.csourceOutputFileName + str(0) + ".txt" #where to collect C++ source results
+                operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings_obj.operatorSampleFileName + str(0) + ".txt"
 
             open(CSourceOutputForVariousSetUpFileName, "w").close()
 
             modifyOperatorSampleFile(operatorSampleFileFullAddress, newSetUp)
 
 
-            if not(errorTest): #if errorTest generate acc.txt and apx.txt which contain accurate and apx values
-                make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, inputObj.bench_suit_name,exe_annex) 
+            if not(settings_obj.errorTest): #if errorTest generate acc.txt and apx.txt which contain accurate and apx values
+                make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, inputObj.bench_suit_name,exe_annex,
+                        settings_obj) 
             # print "here is the accurate" + str(lOfAccurateValues) 
-            if (errorTest):
+            if (settings_obj.errorTest):
                 newPath = "/home/local/bulkhead/behzad/usr/local/apx_tool_chain/src/python_files/scratch/apx.txt"
-                if(errorTest):
+                if(settings_obj.errorTest):
                     print "Acurate Vals:"
                     print lOfAccurateValues
-                    errantValues =  extractCurrentValuesForOneInput(newPath, inputObj)
+                    errantValues =  extractCurrentValuesForOneInput(newPath, inputObj, settings_obj)
                     print "errant Vals:" 
                     print errantValues
-                    errorValue = [calculateError( lOfAccurateValues[operandIndex],errantValues)]
+                    errorValue = [calculateError( lOfAccurateValues[operandIndex],errantValues, settings_obj)]
                     print "error Vals:"
                     print errorValue 
                     print "------" 
             else:
-                errantValues =  extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj)
-                errorValue = [calculateError(lOfAccurateValues[operandIndex], errantValues)]
-                if (settings.DEBUG):
+                errantValues =  extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj, settings_obj)
+                errorValue = [calculateError(lOfAccurateValues[operandIndex], errantValues, settings_obj)]
+                if (settings_obj.DEBUG):
                     print "Acurate Vals:" + str(lOfAccurateValues)
                     print "errant Vals:" +str(errantValues)
                     print "error Vals:" + str(errorValue)
 
             configValue = [newSetUp]
-            rawValues = [extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj)]
+            rawValues = [extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj, settings_obj)]
             #print errorValue
             # print "where" 
             # print errorValue 
@@ -265,10 +266,10 @@ def specializedEval(normalize,possibly_worse_case_result_quality,  mold, ignoreL
         # print "here is the config " + str(newPoint.get_setUp())
         newPoint.set_input_number(iteration) 
         if not(eval(inputObj.dealingWithPics)):
-            newPoint.calculate_quality(normalize, possibly_worse_case_result_quality)
-            if (settings.DEBUG):
+            newPoint.calculate_quality(normalize, possibly_worse_case_result_quality, settings_obj)
+            if (settings_obj.DEBUG):
                 print "quality is: " + str(newPoint.get_quality())
-            if (errorTest):
+            if (settings_obj.errorTest):
                 print "quality is" 
                 print newPoint.get_quality()
                 sys.exit()
@@ -290,7 +291,7 @@ def run_SP(population, NGEN_to_use,
         CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress, 
         executableName, executableInputList, rootResultFolderName, 
         CBuildFolder, operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality,accurateSetUp, allConfs, unique_point_list,
-        output_list, allPointsTried, previous_ideal_setUp):
+        output_list, allPointsTried, previous_ideal_setUp, settings_obj):
    
     def generate(size, pmin, pmax, smin, smax):
         part = creator.Particle(random.uniform(pmin, pmax) for _ in range(size)) 
@@ -319,20 +320,20 @@ def run_SP(population, NGEN_to_use,
         part[:] = list(map(operator.add, part, part.speed))  
 
     #allPointsTried = []
-    if (settings.maxX):
+    if (settings_obj.maxX):
             x_direction = 1
     else:
         x_direction = -1
 
-    if (settings.maxY):
+    if (settings_obj.maxY):
         y_direction = 1
     else:
         y_direction = -1
 
-    MU = settings.MU#number of indi for the next gen
-    LAMBDA = settings.LAMBDA#number of children
-    CXPB = settings.CXPB 
-    MUTPB = settings.MUTPB
+    MU = settings_obj.MU#number of indi for the next gen
+    LAMBDA = settings_obj.LAMBDA#number of children
+    CXPB = settings_obj.CXPB 
+    MUTPB = settings_obj.MUTPB
     creator.create("FitnessMin", base.Fitness, weights=(x_direction, y_direction))
     creator.create("Particle", list, fitness=creator.FitnessMin, speed=list, 
                smin=None, smax=None, best=None, pmin=None, pmax=None)
@@ -341,9 +342,10 @@ def run_SP(population, NGEN_to_use,
     toolbox.register("population", tools.initRepeat, list, toolbox.particle)
     toolbox.register("update", updateParticle, phi1=2.0, phi2=2.0)
     toolbox.register("evaluate", specializedEval, True, possibly_worse_case_result_quality, accurateSetUp, ignoreListIndecies, accurateSetUp, inputObj, nameOfAllOperandFilesList, rootResultFolderName,
-            executableName, executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, True, unique_point_list, output_list, previous_ideal_setUp, iteration)
+            executableName, executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, True, unique_point_list, output_list, previous_ideal_setUp, iteration,
+            settings_obj)
        
-    pop = toolbox.population(n=settings.numberOfIndividualsToStartWith)
+    pop = toolbox.population(n=settings_obj.numberOfIndividualsToStartWith)
     stats = tools.Statistics(lambda ind: ind.fitness.values)
     stats.register("avg", numpy.mean)
     stats.register("std", numpy.std)
@@ -378,16 +380,16 @@ def run_spea2(population,
         CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress, 
         executableName, executableInputList, rootResultFolderName, 
         CBuildFolder, operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality,accurateSetUp, allConfs, NGEN, MU, LAMBDA,
-        unique_point_list, output_list, allPointsTried, previous_ideal_setUp, iteration):
+        unique_point_list, output_list, allPointsTried, previous_ideal_setUp, iteration, settings_obj):
     
     
     #allPointsTried = []
-    if (settings.maxX):
+    if (settings_obj.maxX):
             x_direction = 1
     else:
         x_direction = -1
 
-    if (settings.maxY):
+    if (settings_obj.maxY):
         y_direction = 1
     else:
         y_direction = -1
@@ -398,8 +400,8 @@ def run_spea2(population,
     #NGEN = settings.NGEN
     #MU = settings.MU#number of indi for the next gen
     #LAMBDA = settings.LAMBDA#number of children
-    CXPB = settings.CXPB 
-    MUTPB = settings.MUTPB
+    CXPB = settings_obj.CXPB 
+    MUTPB = settings_obj.MUTPB
     creator.create("FitnessMin", base.Fitness, weights=(x_direction, y_direction))
     creator.create("Individual", list, fitness=creator.FitnessMin)
     toolbox = base.Toolbox()
@@ -412,11 +414,12 @@ def run_spea2(population,
     toolbox.register("individual", tools.initRepeat, creator.Individual)
     stats = tools.Statistics(lambda ind: ind.fitness.values)
     toolbox.register("evaluate", specializedEval, True, possibly_worse_case_result_quality, accurateSetUp, ignoreListIndecies, accurateSetUp, inputObj, nameOfAllOperandFilesList, rootResultFolderName,
-            executableName, executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, True, unique_point_list, output_list, previous_ideal_setUp, iteration)
+            executableName, executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, True, unique_point_list, output_list, previous_ideal_setUp, iteration,
+            settings_obj)
     toolbox.register("mate", tools.cxTwoPoint)
-    toolbox.register("mutate", specializedMutate, ignoreListIndecies)
+    toolbox.register("mutate", specializedMutate, ignoreListIndecies, settings_obj)
     toolbox.register("select", tools.selSPEA2)
-    if (runMode == "parallel"): 
+    if (settings_obj.runMode == "parallel"): 
         #the_lock = multiprocessing.Lock() 
         #pool = multiprocessing.Pool() 
         toolbox.register("map", pool.map)
@@ -443,7 +446,7 @@ def de_stringify_and_disect(s):
     result = map(lambda x: int(x)-32, o)
     return result
 
-def fish_a_move(my_histogram_inv_map, prob_dis):
+def fish_a_move(my_histogram_inv_map, prob_dis, setting_obj):
     move_intensity = random.choice(prob_dis)
     move = random.choice(my_histogram_inv_map[int(move_intensity)])
 #    print move_intensity
@@ -457,7 +460,7 @@ def probabilistic_heuristic(points_to_explore_from,
                         CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress,
                         executableName, executableInputList, rootResultFolderName, CBuildFolder,
                         operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality, accurateSetUp, allConfs,
-                        lOfAllPointsTried):
+                        lOfAllPointsTried, settings_obj):
     print "accomedate previous ideal setUp to probabilistic_heuristic as well. for ref, look at run_spea2"
     print "accomodate the iteration" #iteration tells us which input we are using to feed into the stage of interest
     sys.exit()
@@ -502,14 +505,15 @@ def probabilistic_heuristic(points_to_explore_from,
     
 
     prob_heur_points = [] #points acquired by running the probabilistic algo
-    print str(len(points_to_explore_from)*settings.number_of_probabilistic_trial) + " more points were explored" 
+    print str(len(points_to_explore_from)*settings_obj.number_of_probabilistic_trial) + " more points were explored" 
     for pt in points_to_explore_from:
-        for i in range(settings.number_of_probabilistic_trial): 
-            move = fish_a_move(my_histogram_inv_map, prob_dis)
+        for i in range(settings_obj.number_of_probabilistic_trial): 
+            move = fish_a_move(my_histogram_inv_map, prob_dis, settings_obj)
             individual = pt.get_raw_setUp() 
             new_individual_raw_setUp = apply_move_to_individual(individual, move) 
             result = specializedEval(True,possibly_worse_case_result_quality,  accurateSetUp, ignoreListIndecies, accurateSetUp, inputObj, nameOfAllOperandFilesList, rootResultFolderName,executableName,
-        executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, lOfAllPointsTried, False, unique_point_list, output_list, previous_ideal_setUp, new_individual_raw_setUp, iteration)
+        executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, lOfAllPointsTried, False, unique_point_list, output_list, previous_ideal_setUp, new_individual_raw_setUp,
+        iteration, settings_obj)
             newPoint = points()
             newPoint.set_energy(result[0])
             newPoint.set_quality(result[1])

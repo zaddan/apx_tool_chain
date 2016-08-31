@@ -96,7 +96,7 @@ def generateGraph_for_all(valueList, xName, yName, benchmark_name):
     plt.ylabel(yName)
     plt.xlabel(xName)
     
-    """ 
+    
     #here
     #----comment if not proving th s4 pont
     symbolsToChooseFrom = ['*', 'x', "o", "+","^"] #symbols to draw the plots with
@@ -117,10 +117,10 @@ def generateGraph_for_all(valueList, xName, yName, benchmark_name):
                 ax.plot(el[0], el[1], symbolsToChooseFrom[counter%len(symbolsToChooseFrom)]+color[counter/len(symbolsToChooseFrom)], label=val[3])
                 counter +=1
     #---comment up to here if not using proviing s4 point
-    """
+    
     #--uncomment the following two lines to return back to without s4 inut consideration
-    for el in valueList: 
-        ax.plot(el[0], el[1], el[2], label=el[3])
+#    for el in valueList: 
+#        ax.plot(el[0], el[1], el[2], label=el[3])
 
     # ---- moving the legend outside of the graph (look bellow for placing inside)
     box = ax.get_position()

@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import sys
 import math
-import settings 
+#import settings 
 # Copyright (C) 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -32,11 +32,11 @@ Default behaviour is to find the maximum for both X and Y, but the option is
 available to specify maxX = False or maxY = False to find the minimum for either
 or both of the parameters.
 '''
-def pareto_frontier(lOfPoints , maxX , maxY) :
+def pareto_frontier(lOfPoints , maxX , maxY, settings_obj) :
     quality_energy_list = []
     for el in lOfPoints:
         quality_energy_list.append((el.get_quality(), el.get_energy()))
-    if (settings.DEBUG): 
+    if (settings_obj.DEBUG): 
         print "points (before pareto extraction): " + str(quality_energy_list)
     
     # Sort the list in either ascending or descending order of X
@@ -96,7 +96,7 @@ def pareto_frontier(lOfPoints , maxX , maxY) :
     quality_energy_list = []
     for el in lOfParetoPoints:
         quality_energy_list.append((el.get_quality(), el.get_energy()))
-    if(settings.DEBUG): 
+    if(settings_obj.DEBUG): 
         print "pareto points: " + str(quality_energy_list)
     
     
@@ -104,14 +104,14 @@ def pareto_frontier(lOfPoints , maxX , maxY) :
     return lOfParetoPoints
 
 
-def all_pareto_frontiers(lOfPoints , maxX , maxY) :
+def all_pareto_frontiers(lOfPoints , maxX , maxY, settings_obj) :
     if (len(lOfPoints) ==  0):
         return []
     
     quality_energy_list = []
     for el in lOfPoints:
         quality_energy_list.append((el.get_quality(), el.get_energy()))
-    if (settings.DEBUG): 
+    if (settings_obj.DEBUG): 
         print "points (before pareto extraction): " + str(quality_energy_list)
     
     # Sort the list in either ascending or descending order of X
@@ -163,7 +163,7 @@ def all_pareto_frontiers(lOfPoints , maxX , maxY) :
         lOfPoints.remove(el)
    
 
-    lOfParetoPoints = [lOfParetoPoints] + all_pareto_frontiers(lOfPoints, maxX, maxY)
+    lOfParetoPoints = [lOfParetoPoints] + all_pareto_frontiers(lOfPoints, maxX, maxY, settings_obj)
 
     """ 
     quality_energy_list = []
@@ -304,7 +304,7 @@ def extract_all_pareto_frontier(lOfPoints , maxX , maxY):
 def paretoTest():
     x = [1,2,3,4,5,6,7,8]
     y = [100,80,90, 40, 85, 30, 10,15]
-    paretoX, paretoY = pareto_frontier(x, y, maxX , maxY)
+    paretoX, paretoY = pareto_frontier(x, y, maxX , maxY, settings_obj)
     plt.plot(x, y, 'rx')
     #plt.plot(paretoX, paretoY, 'go')
     plt.show()

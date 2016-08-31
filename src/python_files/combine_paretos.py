@@ -17,7 +17,7 @@ from scipy.spatial import distance
 from src_parse_and_apx_op_space_gen import *
 from modify_operator_sample_file import *
 #from sample_operand_and_sweep_apx_space import *
-import settings 
+from settings import *
 from extract_result_properties import *
 from plot_generation import *
 import matplotlib.pyplot as plt
@@ -66,9 +66,11 @@ def get_point_set(file1_name):
  
 
 #def point_combine(srcFile):
-if __name__ == "__main__":
+
+def run_combine_pareto():
+    settings_obj = settingsClass()
     srcFile = "pareto_set_file.txt" #file containing paretoSets
-    inputObj = inputClass()
+    inputObj = inputClass(settings_obj)
     inputObj.expandAddress()
     CSrcFolderAddress = inputObj.CSrcFolderAddress
     lOfCSrcFileAddress = inputObj.lOfCSrcFileAddress 
@@ -94,18 +96,18 @@ if __name__ == "__main__":
     
     
     rootFolder = inputObj.rootFolder 
-    rootResultFolderName = rootFolder + "/" + settings.generatedTextFolderName
-    rootResultFolderName = rootFolder + "/" + settings.generatedTextFolderName
-    AllOperandsFolderName = rootResultFolderName + "/" + settings.AllOperandsFolderName
+    rootResultFolderName = rootFolder + "/" + settings_obj.generatedTextFolderName
+    rootResultFolderName = rootFolder + "/" + settings_obj.generatedTextFolderName
+    AllOperandsFolderName = rootResultFolderName + "/" + settings_obj.AllOperandsFolderName
     inputNumber = 0 
     nameOfAllOperandFilesList = getNameOfFilesInAFolder(AllOperandsFolderName)
     
-    CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings.rawResultFolderName + "/" + settings.csourceOutputFileName + str(0) + ".txt" #where to collect C++ source results
-    operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings.operatorSampleFileName
+    CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings_obj.rawResultFolderName + "/" + settings_obj.csourceOutputFileName + str(0) + ".txt" #where to collect C++ source results
+    operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings_obj.operatorSampleFileName
     executableName = "tool_exe" #src file to be analyzed
     executableInputList = [] 
-    CBuildFolder = rootFolder + "/" + CBuildFolderName
-    AllOperandsFolderName = rootResultFolderName + "/" + settings.AllOperandsFolderName
+    CBuildFolder = rootFolder + "/" + inputObj.CBuildFolderName
+    AllOperandsFolderName = rootResultFolderName + "/" + settings_obj.AllOperandsFolderName
     
 
     if (AllInputScenariosInOneFile): #if a file
@@ -125,49 +127,49 @@ if __name__ == "__main__":
         exit()
     lAllOpsInSrcFile = [] 
     for CSrcFileAddressItem in lOfCSrcFileAddress:
-        lAllOpsInSrcFile += sourceFileParse(CSrcFileAddressItem)
+        lAllOpsInSrcFile += sourceFileParse(CSrcFileAddressItem, settings_obj)
 
     nameOfAllOperandFilesList = getNameOfFilesInAFolder(AllOperandsFolderName)
-    allPossibleScenariosForEachOperator, limitedListIndecies, ignoreListIndecies, accurateSetUp = generateAllPossibleScenariosForEachOperator(rootResultFolderName, lAllOpsInSrcFile)
+    allPossibleScenariosForEachOperator, limitedListIndecies, ignoreListIndecies, accurateSetUp = generateAllPossibleScenariosForEachOperator(rootResultFolderName, lAllOpsInSrcFile, settings_obj)
 
 
     for inputNumber,operandSampleFileName in enumerate(nameOfAllOperandFilesList):
         countSoFar = 0 
         #clearly state where the new results associated with the new input starts 
-        CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings.rawResultFolderName + "/" + settings.csourceOutputFileName + str(0) + ".txt" #where to collect C++ source results
+        CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings_obj.rawResultFolderName + "/" + settings_obj.csourceOutputFileName + str(0) + ".txt" #where to collect C++ source results
         # newOperand =  operandSet(get_operand_values(operandSampleFileName))
         accurateValues = []
         error.append([])
         energy.append( [])
         config.append( [])
         inputFileNameList.append([])
-        mode = settings.mode 
-        operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings.operatorSampleFileName + str(0) + ".txt"
+        mode = settings_obj.mode 
+        operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings_obj.operatorSampleFileName + str(0) + ".txt"
         
         #---------guide:::  getting accurate values associated with the CSource output
         #accurateSetUp,_,_= generateAccurateScenario(allPossibleScenariosForEachOperator,ignoreListIndecies)
         apxIndexSetUp = 0 #zero is associated with the accurate results (this is a contract that needs to be obeyed)
-        # status, setUp = generateAPossibleApxScenarios(rootResultFolderName + "/" + settings.AllPossibleApxOpScenarios, allPossibleApxScenarioursList , apxIndexSetUp, mode) 
+        # status, setUp = generateAPossibleApxScenarios(rootResultFolderName + "/" + settings_obj.AllPossibleApxOpScenarios, allPossibleApxScenarioursList , apxIndexSetUp, mode) 
         
         #---------guide:::  erasing the previuos content of the file
         CSourceOutputForVariousSetUpP = open(CSourceOutputForVariousSetUpFileName, "w").close()
         #---------guide:::  modify the operator sample file
         modifyOperatorSampleFile(operatorSampleFileFullAddress, accurateSetUp)
         #---------guide:::  run the CSrouce file with the new setUp(operators)
-        make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0)
+        make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0, settings_obj)
         #---------guide::: error
-        accurateValues = extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj)
+        accurateValues = extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj, settings_obj)
         lOfAccurateValues.append(accurateValues)
         # lOfOperandSet.append(newOperand)
         #---------guide:::  make a apx set up and get values associated with it
      
 
 
-    def specializedEval(normalize, possibly_worse_case_result_quality, individual):
+    def specializedEval(normalize, possibly_worse_case_result_quality, settings_obj, individual):
         newPoint = points() 
         newPoint.set_dealing_with_pics(eval(inputObj.dealingWithPics))
         
-        if (runMode == "parallel"): 
+        if (settings_obj.runMode == "parallel"): 
             exe_annex = multiprocessing.current_process()._identity[0] 
             print "proccess id: " 
         else:
@@ -177,23 +179,23 @@ if __name__ == "__main__":
         for operandIndex, operandSampleFileName in enumerate(nameOfAllOperandFilesList):
             energyValue = [getEnergy(individual)]
             
-            if (runMode == "parallel"): 
-                CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings.rawResultFolderName + "/" + settings.csourceOutputFileName + str(multiprocessing.current_process()._identity[0]) + ".txt" #where to collect C++ source results
-                operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings.operatorSampleFileName + str(multiprocessing.current_process()._identity[0]) + ".txt"
+            if (settings_obj.runMode == "parallel"): 
+                CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings_obj.rawResultFolderName + "/" + settings_obj.csourceOutputFileName + str(multiprocessing.current_process()._identity[0]) + ".txt" #where to collect C++ source results
+                operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings_obj.operatorSampleFileName + str(multiprocessing.current_process()._identity[0]) + ".txt"
             else: 
-                CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings.rawResultFolderName + "/" + settings.csourceOutputFileName + str(0) + ".txt" #where to collect C++ source results
-                operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings.operatorSampleFileName + str(0) + ".txt"
+                CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings_obj.rawResultFolderName + "/" + settings_obj.csourceOutputFileName + str(0) + ".txt" #where to collect C++ source results
+                operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings_obj.operatorSampleFileName + str(0) + ".txt"
             
             open(CSourceOutputForVariousSetUpFileName, "w").close()
             modifyOperatorSampleFile(operatorSampleFileFullAddress, individual)
-            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, exe_annex)
+            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, exe_annex, settings_obj)
             
             
-            errantValues =  extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj)
-            errorValue = [calculateError( lOfAccurateValues[operandIndex], errantValues)]
+            errantValues =  extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj, settings_obj)
+            errorValue = [calculateError( lOfAccurateValues[operandIndex], errantValues, settings_obj)]
                 
             configValue = [individual]
-            rawValues = [extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj)]
+            rawValues = [extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj, settings_obj)]
 
 
             newPoint.append_raw_values(rawValues[0])  
@@ -209,7 +211,7 @@ if __name__ == "__main__":
             if (eval(inputObj.dealingWithPics)):
                 newPoint.calculate_PSNR()
         if not(eval(inputObj.dealingWithPics)):
-            newPoint.calculate_quality(True, possibly_worse_case_result_quality)
+            newPoint.calculate_quality(True, possibly_worse_case_result_quality, settings_obj)
         
         return newPoint
 
@@ -268,18 +270,18 @@ if __name__ == "__main__":
     newListOfPoints = []   
     
     
-    possibly_worse_case_setup = generate_possibly_worse_case_setup(accurateSetUp)
-    possibly_worse_case_result_point = specializedEval(False, 1, possibly_worse_case_setup[0])
+    possibly_worse_case_setup = generate_possibly_worse_case_setup(accurateSetUp, settings_obj)
+    possibly_worse_case_result_point = specializedEval(False, 1, settings_obj, possibly_worse_case_setup[0])
     possibly_worse_case_result_energy = possibly_worse_case_result_point.get_energy()
     possibly_worse_case_result_quality = possibly_worse_case_result_point.get_quality()   
     def specializedEval_with_arg(setUp):
-        return specializedEval(True, possibly_worse_case_result_quality, setUp)
+        return specializedEval(True, possibly_worse_case_result_quality, settings_obj, setUp)
     
     #--combining the points 
-    if (runMode == "parallel"):
+    if (settings_obj.runMode == "parallel"):
         pool = multiprocessing.Pool()
         newListOfPoints = pool.map(specializedEval_with_arg, lOfNewSetUp)
-    elif (runMode == "serial"):
+    elif (settings_obj.runMode == "serial"):
         newListOfPoints = map(specializedEval_with_arg, lOfNewSetUp)
     else: 
         print ("*******ERROR: this runMode not defined*****")
@@ -293,7 +295,7 @@ if __name__ == "__main__":
     # lOfParetoPoints = pareto_frontier(newListOfPoints, maxX= True, maxY = False)
     # ---- adding the first blocks pareto points to the list
     # newListOfPoints += pointSet[0].get_points()
-    lOfParetoPoints = pareto_frontier(newListOfPoints, maxX, maxY)
+    lOfParetoPoints = pareto_frontier(newListOfPoints, settings_obj.maxX, settings_obj.maxY, settings_obj)
     finalResultFileFullAddress = rootResultFolderName + "/" + finalResultFileName
     
 
@@ -336,7 +338,7 @@ if __name__ == "__main__":
             pickle.dump(copy.deepcopy(point), f)
 
 
-#    if settings.runToolChainGenerateGraph: 
+#    if settings_obj.runToolChainGenerateGraph: 
 #        generateGraph(lOfQualityValue_ref,lOfEnergyValue_ref, "quality", "Energy", "*") #flattened version
 #        
 #        generateGraph(lOfQualityValue_s2,lOfEnergyValue_s2, "quality", "Energy", "o")   #after s2
@@ -379,6 +381,7 @@ if __name__ == "__main__":
 #    inputFileName = "pareto_set_file.txt" #file containing paretoSets
 #    point_combine(inputFileName)
 
-
+if __name__ == "__main__":
+    run_combine_pareto()
 #if __name__ == "__main__":
 #    main()

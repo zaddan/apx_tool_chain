@@ -3,7 +3,7 @@ from calc_psnr import *
 import os
 import sys
 import matplotlib.pyplot as plt
-import settings
+#import settings
 from list_all_files_in_a_folder import *
 import numpy
 import matplotlib.pyplot as plt
@@ -11,7 +11,7 @@ from mpl_toolkits.mplot3d import axes3d
 import numpy as np
 from matplotlib import cm
 from inputs import *
-from settings import *
+#from settings import *
 
 
 
@@ -138,7 +138,7 @@ def dictionarize(mylist):
 
 #calculating the error ass with 2d array (note that this uses nearest neighbour
 #as the error calculation method)
-def calc_error_for_nearest_neighbors_2d(accurate_values, current_values):
+def calc_error_for_nearest_neighbors_2d(accurate_values, current_values, settings_obj):
     error = [] 
     #---turn the lists into dictionaries 
     mydict_of_acc = dictionarize(accurate_values)
@@ -160,7 +160,7 @@ def calc_error_for_nearest_neighbors_2d(accurate_values, current_values):
             for i in range(len(indecies)):
                 error.append(tuple(numpy.subtract(ref2[key][i], ref1[key][indecies[i]])))
                 #error.append(find_dis(ref2[key][i], ref1[key][indecies[i]]))
-    if (len(error) == 0  and not(settings.benchmark_name == "sift")):
+    if (len(error) == 0  and not(settings_obj.benchmark_name == "sift")):
         print "assert(len(error)>0) unless benchmark =sift"
         exit(0)
     """
@@ -185,16 +185,16 @@ def calc_error_for_nearest_neighbors_2d(accurate_values, current_values):
 # @param currentValues
 # 
 # @return 
-def calculateError(accurateValues, currentValues):
+def calculateError(accurateValues, currentValues, settings_obj):
     result = [] 
     
-    if (settings.error_mode == "corresponding_elements"): 
+    if (settings_obj.error_mode == "corresponding_elements"): 
         if not(len(accurateValues) == len(currentValues)):
             print "**********ERRR********" 
             print "here is the accurate values: " + str(accurateValues)
             print "here is the current values: " + str(currentValues)
             print "number of results subelements for currentValues and accuratValues are not the same"
-            print "check the " + settings.rawresultFileName + " file"
+            print "check the " + settings_obj.rawresultFileName + " file"
             print "**********ERROR********" 
             exit()
         
@@ -206,19 +206,19 @@ def calculateError(accurateValues, currentValues):
         #for accurateValue,currentValue in zip(accurateValues,currentValues):
         #    result += [(euclid_dis(accurateValue, currentValue))]
             #result += pow(float(accurateValue) - float(currentValue), 2)
-    elif (settings.error_mode == "nearest_neighbors"): 
+    elif (settings_obj.error_mode == "nearest_neighbors"): 
         result = calc_error_for_nearest_neighbors(map(lambda x: float(x), accurateValues), map(lambda x: float(x), currentValues))
-    elif (settings.error_mode == "nearest_neighbors_2d"): 
+    elif (settings_obj.error_mode == "nearest_neighbors_2d"): 
         if (benchmark_name == "sift"): 
-            result = calc_error_for_nearest_neighbors_2d(accurateValues , currentValues)
+            result = calc_error_for_nearest_neighbors_2d(accurateValues , currentValues, settings_obj)
         else:
             print "*****ERRR****"
             print "nearest neigbour for benchmarks other than sift has not yet. There are minor changes that need to be applied to calc_error_for_nearest_neighbors_2d function to allow this"
             sys.exit()
-    elif (settings.error_mode == "image"): 
+    elif (settings_obj.error_mode == "image"): 
         result = [1] #this shouldn't mattejjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjr
     else:
-        print "***ERRR: this mode:" + str(settings.error_mode) + "  is not defined"
+        print "***ERRR: this mode:" + str(settings_obj.error_mode) + "  is not defined"
         sys.exit()
     #print "here is the error calculated"
     #print result
@@ -227,7 +227,7 @@ def calculateError(accurateValues, currentValues):
     #return sqrt(result)/len(accurateValues)
 
 
-def extractCurrentValuesForOneInput(sourceFileName, inputObj):
+def extractCurrentValuesForOneInput(sourceFileName, inputObj, settings_obj):
     start = 0 
     currentValues = []
     #whether the file exist or no 
@@ -235,7 +235,7 @@ def extractCurrentValuesForOneInput(sourceFileName, inputObj):
         print "source file with the name " + sourceFileName + "doesn't exist"
         exit();
     
-    if (settings.error_mode == "image"): #this means we are dealing with an image,
+    if (settings_obj.error_mode == "image"): #this means we are dealing with an image,
                                          #in the case of an image, we don't write the 
                                          #pixel values into the output text file
                                          #but keep it in the .png file (and never update
@@ -250,7 +250,7 @@ def extractCurrentValuesForOneInput(sourceFileName, inputObj):
                 if len(line.split()) >0: 
                     for words in line.rstrip().replace(',', ' ').replace('/',' ').replace(';', ' ').split(' '): #find the lines with key word and write it to another file
                         if "end" in words: 
-                            if (outputMode == "uniform"): 
+                            if (settings_obj.outputMode == "uniform"): 
                                 flattened  = [val for sublist in currentValues for val in sublist]                            
                                 return flattened
                             else: 

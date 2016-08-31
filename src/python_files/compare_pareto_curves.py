@@ -10,7 +10,7 @@ from scipy.spatial import distance
 from src_parse_and_apx_op_space_gen import *
 from modify_operator_sample_file import *
 #from sample_operand_and_sweep_apx_space import *
-import settings 
+from settings import *
 from extract_result_properties import *
 from plot_generation import *
 import matplotlib.pyplot as plt
@@ -248,7 +248,8 @@ def compare_two_pareto_fronts(curve1FeatureValues, curve2FeatureValues):
     # # plt.show() 
 
 
-def main():
+def run_compare_pareto_curves():
+    settings_obj = settingsClass()
     PIK1 = "pareto_of_heur_flattened"
     PIK2 = "pareto_of_combined" 
      
@@ -271,12 +272,12 @@ def main():
     curve2FeatureValues.append(map(lambda x: x.get_energy(), lOfParetoPoints2))
      
     # ---- comparing the two curves
-    if (pareto_comparison_mode == "comparison_of_nearest_neighbours"):
+    if (settings_obj.pareto_comparison_mode == "comparison_of_nearest_neighbours"):
         refZipped = zip(curve1FeatureValues[0], curve1FeatureValues[1])
         tobeComparedZipped = zip(curve2FeatureValues[0], curve2FeatureValues[1])
         print "the mean distance between the two curve is:" 
         print np.mean(calc_distance_for_nearest_neighbors_2d(refZipped, tobeComparedZipped))
-    if (pareto_comparison_mode == "subsumption_comparison"):
+    if (settings_obj.pareto_comparison_mode == "subsumption_comparison"):
         compare_two_pareto_fronts(curve1FeatureValues, curve2FeatureValues)
     
     # generateGraph(map(lambda x: x.get_PSNR(), lOfParetoPoints1), map(lambda x: x.get_energy(), lOfParetoPoints1), "PSNR", "Energy", symbolsToChooseFrom[symbolIndex])
@@ -284,4 +285,4 @@ def main():
     # plt.show() 
 
 if __name__ == "__main__":
-    main()
+    run_compare_pareto_curves() 
