@@ -24,6 +24,7 @@
 from run_task import *
 import os
 from settings import * 
+from inputs import *
 from combine_paretos import *
 from compare_pareto_curves import *
 
@@ -41,7 +42,7 @@ def run_test_bench_mark(benchmark, root_folder, bench_suit_name, UTC, write_UTC,
 
     
     settings_obj = settingsClass(benchmark, root_folder, bench_suit_name, False, False, False, heuristic_intensity1)
-    
+    inputObj = inputClass(settings_obj)
 
     ## ---- starting stage 1(apx all files, flattened version)
     print ""
@@ -55,8 +56,8 @@ def run_test_bench_mark(benchmark, root_folder, bench_suit_name, UTC, write_UTC,
     os.system("cp integralImage2D2D_apx.txt integralImage2D2D.c")
 
     os.chdir("/home/polaris/behzad/behzad_local/"+ root_folder +"/src/python_files/")
-    run_task_and_collect_points(settings_obj)
     
+    unique_point_list, lOf_UTC_PF, pareto_frontier_of_lOfPoints_out_of_heuristic, lOfAllPointsTried, pareto_frontier_of_lOfAllPointsTried, pointSet, input_Point_list = run_task_and_collect_points(settings_obj, inputObj)
     os.system("cp pickled_results_pareto pareto_of_heur_flattened");
     os.system("cp pickled_results_all_points all_of_flattned")
     os.system("cp pickled_results_pareto_of_all pareto_of_all_of_flattened")
@@ -81,7 +82,7 @@ def run_test_bench_mark(benchmark, root_folder, bench_suit_name, UTC, write_UTC,
     os.system("cp integralImage2D2D_apx.txt integralImage2D2D.c")
 
     os.chdir("/home/polaris/behzad/behzad_local/" + root_folder + "/src/python_files/")
-    run_task_and_collect_points(settings_obj)
+    unique_point_list, lOf_UTC_PF, pareto_frontier_of_lOfPoints_out_of_heuristic, lOfAllPointsTried, pareto_frontier_of_lOfAllPointsTried, pointSet, input_Point_list = run_task_and_collect_points(settings_obj, inputObj)
 
     os.system("rm ../../generated_text/finalResult.png ")
     os.system("rm pickled_results_pareto")
@@ -104,7 +105,7 @@ def run_test_bench_mark(benchmark, root_folder, bench_suit_name, UTC, write_UTC,
     os.system("cp finalSAD_apx.txt finalSAD.c")
 
     os.chdir("/home/polaris/behzad/behzad_local/"+root_folder+"/src/python_files/")
-    run_task_and_collect_points(settings_obj)
+    unique_point_list, lOf_UTC_PF, pareto_frontier_of_lOfPoints_out_of_heuristic, lOfAllPointsTried, pareto_frontier_of_lOfAllPointsTried, pointSet, input_Point_list = run_task_and_collect_points(settings_obj, inputObj)
     #python run_tool_chain.py
     os.system("rm ../../generated_text/finalResult.png ")
     os.system("rm pickled_results_pareto")
@@ -126,7 +127,8 @@ def run_test_bench_mark(benchmark, root_folder, bench_suit_name, UTC, write_UTC,
     os.system("cp finalSAD_apx.txt finalSAD.c")
 
     os.chdir("/home/polaris/behzad/behzad_local/"+root_folder+"/src/python_files/")
-    run_task_and_collect_points(settings_obj)
+    unique_point_list, lOf_UTC_PF, pareto_frontier_of_lOfPoints_out_of_heuristic, lOfAllPointsTried, pareto_frontier_of_lOfAllPointsTried, pointSet, input_Point_list = run_task_and_collect_points(settings_obj, inputObj)
+    #run_task_and_collect_points(settings_obj)
     #python run_tool_chain.py
     os.system("rm ../../generated_text/finalResult.png ")
     os.system("rm pickled_results_pareto")

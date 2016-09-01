@@ -323,10 +323,12 @@ def run_combine_pareto(settings_obj):
     lOfQualityValue_s3 = map(lambda x: x.get_quality(), lOfParetoPoints_s3)
     lOfEnergyValue_s3 = map(lambda x: x.get_energy(), lOfParetoPoints_s3)
 
-
+    all_of_combined_list = [] 
+    pareto_of_combined_list = []
 
     PIK = "all_of_combined" 
     with open(PIK, "wb") as f:
+        all_of_combined_list = newListOfPoints 
         for point in newListOfPoints: 
             pickle.dump(copy.deepcopy(point), f)
 
@@ -334,10 +336,11 @@ def run_combine_pareto(settings_obj):
     
     PIK = "pareto_of_combined" 
     with open(PIK, "wb") as f:
+        pareto_of_combined_list = lOfParetoPoints 
         for point in lOfParetoPoints: 
             pickle.dump(copy.deepcopy(point), f)
 
-
+    return pareto_of_combined_list, all_of_combined_list
 #    if settings_obj.runToolChainGenerateGraph: 
 #        generateGraph(lOfQualityValue_ref,lOfEnergyValue_ref, "quality", "Energy", "*") #flattened version
 #        
