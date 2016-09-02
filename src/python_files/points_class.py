@@ -23,6 +23,8 @@ class points:
         self.quality_calculatable = True
         self.input_number = -1
 
+    
+            
     def set_input_number(self, inputNumber):
         self.input_number = inputNumber
     def set_dealing_with_pics(self, dealingWithPics):
@@ -182,4 +184,12 @@ class points:
         assert(self.quality_is_set) 
         assert(self.quality >=0) 
         return self.quality
+    
+    def set_varios_values(self, energy, quality, setup,raw_setup, input_number, setupNumber): 
+        self.set_energy(energy)
+        self.set_quality(quality)
+        self.set_setUp(setup)
+        self.set_raw_setUp(raw_setup)
+        self.set_input_number(input_number) 
+        self.set_setUp_number(setupNumber)
 

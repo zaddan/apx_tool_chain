@@ -1,4 +1,52 @@
 import os
+import pickle
+import copy
+import pylab
+import sys
+from extract_pareto_set_from_raw_material import *
+
+def write_results(unique_point_list, lOfAllPointsTried,lOfPoints_out_of_heuristic, pointSet, input_Point_list, stage_number,
+        inputObj, settings_obj):
+        with open(inputObj.PIK_pareto, "wb") as f:
+            pareto_frontier_of_lOfPoints_out_of_heuristic = pareto_frontier(lOfPoints_out_of_heuristic, settings_obj.maxX, settings_obj.maxY, settings_obj)
+            points_to_dump = pareto_frontier_of_lOfPoints_out_of_heuristic
+            for point in points_to_dump:
+                pickle.dump(copy.deepcopy(point), f)
+        with open(inputObj.PIK_all_points, "wb") as f:
+            points_to_dump = lOfAllPointsTried
+            for point in points_to_dump:
+                pickle.dump(copy.deepcopy(point), f)
+        with open(inputObj.PIK_pareto_of_all, "wb") as f:
+            pareto_frontier_of_lOfAllPointsTried = pareto_frontier(lOfAllPointsTried, settings_obj.maxX, settings_obj.maxY, settings_obj)
+            points_to_dump = pareto_frontier_of_lOfAllPointsTried 
+            for point in points_to_dump:
+                pickle.dump(copy.deepcopy(point), f)
+
+        with open(inputObj.input_for_s4_file, "w") as f:
+            for el in input_Point_list:
+                pickle.dump(el, f)   
+
+def append_results(pointSet, settings_obj):
+        with open(settings_obj.lOfParetoSetFileName, "a") as f:
+            pickle.dump(copy.deepcopy(pointSet), f)
+
+
+
+def read_pickled_points(file_addr):
+    with open(file_addr, "rb") as f:
+            while True: 
+                try: 
+                    point = pickle.load(f)
+                    ideal_pts.append(point) 
+                    # listOfPeople.append(copy.copy(person))# 
+                except Exception as ex:
+                    if not (type(ex).__name__ == "EOFError"):
+                        print type(ex).__name__ 
+                        print ex.args
+                        print "something went wrong"
+                    break
+
+
 #def reduce_ideal_setUp_list(previous_ideal_setUp_list, previous_ideal_setUp_output_list):
 def reduce_ideal_setUp_list(previous_ideal_setUp_list):
     #return previous_ideal_setUp_list[:len(previous_ideal_setUp_list)/2]

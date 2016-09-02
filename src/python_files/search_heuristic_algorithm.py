@@ -198,7 +198,6 @@ def specializedEval(normalize,possibly_worse_case_result_quality,  mold, ignoreL
         #--- zeroing out the ignoreList 
         for x in ignoreListIndecies:
             individual[x] = previous_ideal_setUp[x]
-        
         newSetUp = modifyMold(accurateSetUp, individual) 
         sys.stdout.flush() 
         newPoint = points() 

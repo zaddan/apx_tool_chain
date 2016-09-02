@@ -43,13 +43,9 @@ def run_test_bench_mark(benchmark, root_folder, bench_suit_name, UTC, write_UTC,
     
     settings_obj = settingsClass(benchmark, root_folder, bench_suit_name, False, False, False, heuristic_intensity1)
     inputObj = inputClass(settings_obj)
-
     ## ---- starting stage 1(apx all files, flattened version)
-    print ""
-    print ""
-    print "---------starting stage 1"
-    #python run_write_config.py $benchmark $root_folder $bench_suit_name "False" "False" "False"  $heuristic_intensity1
-    #python run_write_config.py $benchmark $root_folder $bench_suit_name "False" $heuristic_intensity1
+    print "\n\n---------starting stage 1"
+    stage_number = 1 
     os.chdir("/home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/")
     os.system("cp computeSAD_apx.txt computeSAD.c")
     os.system("cp finalSAD_apx.txt finalSAD.c")
@@ -57,22 +53,22 @@ def run_test_bench_mark(benchmark, root_folder, bench_suit_name, UTC, write_UTC,
 
     os.chdir("/home/polaris/behzad/behzad_local/"+ root_folder +"/src/python_files/")
     
-    unique_point_list, lOf_UTC_PF, pareto_frontier_of_lOfPoints_out_of_heuristic, lOfAllPointsTried, pareto_frontier_of_lOfAllPointsTried, pointSet, input_Point_list = run_task_and_collect_points(settings_obj, inputObj)
+    unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, pointSet, input_Point_list, accurateSetUp = run_task_and_collect_points(settings_obj, inputObj)
+    write_results(unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, pointSet, input_Point_list, stage_number, inputObj, settings_obj)
+    
     os.system("cp pickled_results_pareto pareto_of_heur_flattened");
     os.system("cp pickled_results_all_points all_of_flattned")
     os.system("cp pickled_results_pareto_of_all pareto_of_all_of_flattened")
     os.system("rm pareto_set_file.txt")
     os.system("cp ../../generated_text/finalResult.png ref.png")
     print "done with the stage 1: flattening and apx of all files"
-    #
-    
     #---- starting stage 2(apx some files)
-    print ""
-    print ""
-    print "---------starting stage 2"
+    stage_number = 2
+    print "\n\n---------starting stage 2"
     settings_obj = settingsClass(benchmark, root_folder, bench_suit_name, False, True, False, heuristic_intensity2)
-    
-    #python run_write_config.py $benchmark $root_folder $bench_suit_name "False" "True" "False" $heuristic_intensity2
+    inputObj.set_lOfSetUps([])
+    inputObj.is_primary_input = True
+
     os.chdir("/home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/")
     os.system("cp computeSAD_acc.txt computeSAD.c")
     os.system("cp finalSAD_acc.txt finalSAD.c")
@@ -82,21 +78,27 @@ def run_test_bench_mark(benchmark, root_folder, bench_suit_name, UTC, write_UTC,
     os.system("cp integralImage2D2D_apx.txt integralImage2D2D.c")
 
     os.chdir("/home/polaris/behzad/behzad_local/" + root_folder + "/src/python_files/")
-    unique_point_list, lOf_UTC_PF, pareto_frontier_of_lOfPoints_out_of_heuristic, lOfAllPointsTried, pareto_frontier_of_lOfAllPointsTried, pointSet, input_Point_list = run_task_and_collect_points(settings_obj, inputObj)
-
+    
+    unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic_2, pointSet, input_Point_list, accurateSetUp = run_task_and_collect_points(settings_obj, inputObj)
+    write_results(unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic_2, pointSet, input_Point_list, stage_number, inputObj, settings_obj)
+    
+    append_results(pointSet, settings_obj)
+    
     os.system("rm ../../generated_text/finalResult.png ")
     os.system("rm pickled_results_pareto")
     os.system("cp pickled_results_all_points all_of_s2")
     os.system("cp pickled_results_pareto_of_all pareto_of_all_of_s2")
     print "done with the stage 2: apx of some files"
-
+   
 
     # ---- starting stage 3(apx some files)
     print ""
     print ""
     print "---------starting stage 3"
+    stage_number = 3 
     settings_obj = settingsClass(benchmark, root_folder, bench_suit_name, False, False, True, heuristic_intensity2)
-    #python run_write_config.py $benchmark $root_folder $bench_suit_name "False" "False" "True" $heuristic_intensity2
+    inputObj.set_lOfSetUps([accurateSetUp])
+    inputObj.is_primary_input = False
     os.chdir("/home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/")
     os.system("cp computeSAD_acc.txt computeSAD.c")
     os.system("cp finalSAD_acc.txt finalSAD.c")
@@ -105,8 +107,10 @@ def run_test_bench_mark(benchmark, root_folder, bench_suit_name, UTC, write_UTC,
     os.system("cp finalSAD_apx.txt finalSAD.c")
 
     os.chdir("/home/polaris/behzad/behzad_local/"+root_folder+"/src/python_files/")
-    unique_point_list, lOf_UTC_PF, pareto_frontier_of_lOfPoints_out_of_heuristic, lOfAllPointsTried, pareto_frontier_of_lOfAllPointsTried, pointSet, input_Point_list = run_task_and_collect_points(settings_obj, inputObj)
-    #python run_tool_chain.py
+    unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, pointSet, input_Point_list, accurateSetUp = run_task_and_collect_points(settings_obj, inputObj)
+    write_results(unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, pointSet, input_Point_list, stage_number, inputObj, settings_obj)
+    append_results(pointSet, settings_obj)
+    
     os.system("rm ../../generated_text/finalResult.png ")
     os.system("rm pickled_results_pareto")
     os.system("cp pickled_results_all_points all_of_s3")
@@ -114,10 +118,14 @@ def run_test_bench_mark(benchmark, root_folder, bench_suit_name, UTC, write_UTC,
     print "done with the stage 3: apx of some files"
 
     # ---- starting stage 4(apx some files, using UTC)
-    print 
-    print
-    print "---------starting stage 4"
+    print "\n\n---------starting stage 4"
+    stage_number = 4
+    #unique_point_list, lOf_UTC_PF, pareto_frontier_of_lOfPoints_out_of_heuristic, lOfAllPointsTried, pareto_frontier_of_lOfAllPointsTried, pointSet, input_Point_list = read_results()
+    inputObj.is_primary_input = False
+     
+    inputObj.set_lOfSetUps(reduce_ideal_setUp_list(map(lambda x: x.get_setUp(), lOfPoints_out_of_heuristic_2)))
     settings_obj = settingsClass(benchmark, root_folder, bench_suit_name, True, False, False, heuristic_intensity2)
+       
     #python run_write_config.py $benchmark $root_folder $bench_suit_name "True" "False" "False" $heuristic_intensity2
     os.chdir("/home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/")
     os.system("cp computeSAD_acc.txt computeSAD.c")
@@ -127,9 +135,10 @@ def run_test_bench_mark(benchmark, root_folder, bench_suit_name, UTC, write_UTC,
     os.system("cp finalSAD_apx.txt finalSAD.c")
 
     os.chdir("/home/polaris/behzad/behzad_local/"+root_folder+"/src/python_files/")
-    unique_point_list, lOf_UTC_PF, pareto_frontier_of_lOfPoints_out_of_heuristic, lOfAllPointsTried, pareto_frontier_of_lOfAllPointsTried, pointSet, input_Point_list = run_task_and_collect_points(settings_obj, inputObj)
-    #run_task_and_collect_points(settings_obj)
-    #python run_tool_chain.py
+    
+    unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, pointSet, input_Point_list, accurateSetUp = run_task_and_collect_points(settings_obj, inputObj)
+    write_results(unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, pointSet, input_Point_list, stage_number, inputObj, settings_obj)
+
     os.system("rm ../../generated_text/finalResult.png ")
     os.system("rm pickled_results_pareto")
     os.system("cp pickled_results_all_points all_of_s4")
@@ -138,9 +147,8 @@ def run_test_bench_mark(benchmark, root_folder, bench_suit_name, UTC, write_UTC,
 
 
     #---- starting stage 5(combine and compare)
-    print 
-    print
-    print "---------starting stage 5"
+    print "\n\n---------starting stage 5"
+    stage_number = 5
     os.chdir("/home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/")
     #returning all the files to approximate version (so we can get the accurate result)
     os.chdir("/home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/")
