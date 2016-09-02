@@ -254,7 +254,7 @@ def extractCurrentValuesForOneInput(sourceFileName, inputObj, settings_obj):
                                 flattened  = [val for sublist in currentValues for val in sublist]                            
                                 return flattened
                             else: 
-                                return zip(*(currentValues[outputNumber_lower_bound_element:]))#if havn't gotten accurate values
+                                return zip(*(currentValues[settings_obj.outputNumber_lower_bound_element:]))#if havn't gotten accurate values
                         elif (start==1):
                             #currentValues = [maplambda x:, (line.rstrip().split())]
                             currentValues = [map(lambda x:float(x), (line.rstrip().split()))]
