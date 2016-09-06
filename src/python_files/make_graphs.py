@@ -38,8 +38,8 @@ from pareto_set_class import *
 
 def get_quality_energy_values_directly(src_file, symbol, lOfPoints, points_to_graph, limit=False, lower_bound=-100, upper_bound=100):
     #only change here
-    for el in lOfPoints:
-        el.set_input_number(0)
+#    for el in lOfPoints:
+#        el.set_input_number(0)
 
     lOfInput_number =  map(lambda x: x.get_input_number(), lOfPoints) #this is used for
                                                                       #only s4 and can be 
