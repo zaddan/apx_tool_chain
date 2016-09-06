@@ -32,12 +32,14 @@ from make_graphs import *
 def run_test_bench_mark(benchmark, root_folder, bench_suit_name, heuristic_intensity1, heuristic_intensity2):
     #removing all the previous files
     print "---------starting stage 0"
-    os.system("rm pareto_of_heur_flattened.PIK")
-    os.system("rm pareto_set_file.PIK")
-    os.system("rm ref.png")
-    os.system("rm combine.png")
-    os.system("rm pickled_results_pareto.PIK")
-    os.system("rm pareto_of_combined.PIK")
+    os.system("rm *.PIK") 
+    os.system("rm *.png") 
+#    os.system("rm pareto_of_heur_flattened.PIK")
+#    os.system("rm pareto_set_file.PIK")
+#    os.system("rm ref.png")
+#    os.system("rm combine.png")
+#    os.system("rm pickled_results_pareto.PIK")
+#    os.system("rm pareto_of_combined.PIK")
     print "done with the stage 0, removing all the files"
 
     ## ---- starting stage 1(apx all files, flattened version)

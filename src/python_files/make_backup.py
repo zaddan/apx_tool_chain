@@ -3,10 +3,10 @@ import sys
 import glob
 def getNameOfFilesInAFolder(folderAddress):
     if not(os.path.isdir(folderAddress)):
-            print "the folder with the name " + folderAddress + " (for which you requested to get the files for does not exist" 
-            exit()
-    else:
-        return glob.glob(folderAddress + "/*")
+            print "the folder with the name " + folderAddress + " (for which you requested to get the files for does not exist, so we are making it" 
+            os.system("mkdir " + folderAddress) 
+            
+    return glob.glob(folderAddress + "/*")
 
 
 
@@ -36,15 +36,32 @@ def main():
     benchmark_name = sys.argv[1]
     run_nature = sys.argv[2]
     print run_nature 
-    if (not((run_nature == "ref")or (run_nature == "complete") or (run_nature == "s4"))):
+    if not((run_nature == "ref")or (run_nature == "complete") or (run_nature == "s4") or (run_nature == "s6")):
         print "this run nature is not defined"
         exit()
      
     backup_folder = comeUpWithNewFolderNameAccordingly("res_bu/"+run_nature+"/"+benchmark_name+"/")
     os.system("mkdir  res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
-    os.system("cp config.txt res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
-    os.system("cp nohup.out res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
     
+   
+    
+    #---errors and logs
+    os.system("cp nohup.out res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
+    os.system("cp log res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
+    
+    #---configs
+    os.system("cp settings.py res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
+    os.system("cp inputs.py res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
+    os.system("cp run_tool.py res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
+    
+    #--text results
+    os.system("cp compare_results.txt res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
+    os.system("cp *.PIK res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
+    
+    #---visual results 
+    os.system("cp *.png res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
+    
+    """ 
     if (run_nature == "complete"):
         os.system("cp compare_results.txt res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
         os.system("cp pareto_of_heur_flattened res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
@@ -60,11 +77,8 @@ def main():
         os.system("cp all_of_s2 res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
         os.system("cp all_of_s4 res_bu/" +run_nature+"/"+benchmark_name+"/"+ backup_folder)
         os.system("cp input_for_s4 res_bu/" +run_nature+"/"+benchmark_name+"/"+ backup_folder)
-
-    os.system("cp settings.py res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
-    os.system("cp inputs.py res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
-    os.system("cp results.png res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
-    #os.system("cp ref.png res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
-    os.system("cp log res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
+    """
+    
+    
 
 main()
