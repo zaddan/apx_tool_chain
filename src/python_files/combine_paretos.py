@@ -67,9 +67,9 @@ def get_point_set(file1_name):
 
 #def point_combine(srcFile):
 
-def run_combine_pareto(settings_obj):
+def run_combine_pareto(settings_obj, lOfPointSet):
     #settings_obj = settingsClass()
-    srcFile = "pareto_set_file.txt" #file containing paretoSets
+    #srcFile = "pareto_set_file.txt" #file containing paretoSets
     inputObj = inputClass(settings_obj)
     inputObj.expandAddress()
     CSrcFolderAddress = inputObj.CSrcFolderAddress
@@ -218,11 +218,16 @@ def run_combine_pareto(settings_obj):
 
     lOfParetoSetDirctions  = [] 
     # ---- get pointSet
-    lOfPointSet= get_point_set(srcFile) 
+    #lOfPointSet= get_point_set(srcFile) 
     print "length of paretoSet is: " + str(len(lOfPointSet))
     
+    input_number_list = []
+    for el in lOfPointSet[0].get_points():
+        input_number_list +=[el.get_input_number()]*len(lOfPointSet[1].get_points())
+         
+    print "before stuff" 
+    print input_number_list
     #print "number of pareto set is " + str(len(lOfPointSet)) 
-
     for paretoSet in lOfPointSet:
         lOfParetoSetDirctions.append(paretoSet.get_direction())
     #print lOfParetoSetDirctions 
@@ -261,12 +266,16 @@ def run_combine_pareto(settings_obj):
             pointSetElement.get_delimeter()[1]], pointSet)
         lOfParetoSetWithConfigChopped.append(configChopped)
 
-    
+    print "okok"
+    print lOfParetoSetWithConfigChopped
     permutedConfig = list(itertools.product(*lOfParetoSetWithConfigChopped))
     lOfNewSetUp = [] 
     for elm in permutedConfig: 
         mergedConfig = list(itertools.chain.from_iterable(elm)) 
         lOfNewSetUp.append(mergedConfig)
+    
+    print "after merge" 
+    print lOfNewSetUp 
     newListOfPoints = []   
     
     
@@ -290,6 +299,8 @@ def run_combine_pareto(settings_obj):
     #for element in lOfNewSetUp:
         #newListOfPoints.append(specializedEval(element))
     
+    for index,el in enumerate(newListOfPoints):
+        el.set_input_number(input_number_list[index])
     #---------------------------------
     #---------------------------------
     # lOfParetoPoints = pareto_frontier(newListOfPoints, maxX= True, maxY = False)
@@ -308,25 +319,25 @@ def run_combine_pareto(settings_obj):
     lOfEnergy_after_combining_pareto_points = map(lambda x: x.get_energy(), lOfParetoPoints)
 
     #---pareto points for ref 
-    lOfParetoPoints_ref = getPoints("pareto_of_heur_flattened") #getting the ref points
+    lOfParetoPoints_ref = getPoints("pareto_of_heur_flattened.PIK") #getting the ref points
     lOfQualityValue_ref = map(lambda x: x.get_quality(), lOfParetoPoints_ref)
     lOfEnergyValue_ref = map(lambda x: x.get_energy(), lOfParetoPoints_ref)
     
     #---all points for s2
-    lOfParetoPoints_s2 = getPoints("all_of_s2") #getting the ref points
+    lOfParetoPoints_s2 = getPoints("all_of_s2.PIK") #getting the ref points
     lOfQualityValue_s2 = map(lambda x: x.get_quality(), lOfParetoPoints_s2)
     lOfEnergyValue_s2 = map(lambda x: x.get_energy(), lOfParetoPoints_s2)
 
     
     #---all points for s3
-    lOfParetoPoints_s3 = getPoints("all_of_s3") #getting the ref points
+    lOfParetoPoints_s3 = getPoints("all_of_s3.PIK") #getting the ref points
     lOfQualityValue_s3 = map(lambda x: x.get_quality(), lOfParetoPoints_s3)
     lOfEnergyValue_s3 = map(lambda x: x.get_energy(), lOfParetoPoints_s3)
 
     all_of_combined_list = [] 
     pareto_of_combined_list = []
 
-    PIK = "all_of_combined" 
+    PIK = "all_of_combined.PIK" 
     with open(PIK, "wb") as f:
         all_of_combined_list = newListOfPoints 
         for point in newListOfPoints: 
@@ -334,7 +345,7 @@ def run_combine_pareto(settings_obj):
 
 
     
-    PIK = "pareto_of_combined" 
+    PIK = "pareto_of_combined.PIK" 
     with open(PIK, "wb") as f:
         pareto_of_combined_list = lOfParetoPoints 
         for point in lOfParetoPoints: 

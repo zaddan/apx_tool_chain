@@ -3,7 +3,15 @@ import pickle
 import copy
 import pylab
 import sys
+import random
+import numpy as np
+import random
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from sklearn.cluster import KMeans
+
 from extract_pareto_set_from_raw_material import *
+
 
 def write_results(unique_point_list, lOfAllPointsTried,lOfPoints_out_of_heuristic, pointSet, input_Point_list, stage_number,
         inputObj, settings_obj):
@@ -47,11 +55,53 @@ def read_pickled_points(file_addr):
                     break
 
 
+
+def cluster_input(lOfPoints, settings_obj):
+    clustered_input = [[] for i in range(settings_obj.n_clusters)]
+    #[[]]*settings_obj.n_clusters
+    data = [] 
+    for el in lOfPoints:
+        data.append([el.get_energy(), el.get_quality()])
+    myKMeans = KMeans(k=settings_obj.n_clusters, init='k-means++', n_init=4, max_iter=300, tol=0.0001, precompute_distances='auto', verbose=0, random_state=None, copy_x=True, n_jobs=1)
+    data_fitted = myKMeans.fit(data)
+    labels = data_fitted.labels_
+    
+    #---creat a list of clusters with each element of the list containing all the points belonging to that cluster 
+    for index,el in enumerate(lOfPoints):
+        clustered_input[labels[index]].append(el)
+    
+    return clustered_input
+def pick_rep_from_each_cluster(clustered_input):
+    rep_list = [] 
+    num = 0 
+    
+    for clstr in  clustered_input:
+        print "---cluster:" + str(num) 
+        for pt in clstr:
+            print str(pt.get_quality())  + " " + str(pt.get_energy())
+        num +=1 
+    
+    for cluster in clustered_input:
+       rep_list.append(random.choice(cluster))
+
+    return rep_list
+
 #def reduce_ideal_setUp_list(previous_ideal_setUp_list, previous_ideal_setUp_output_list):
-def reduce_ideal_setUp_list(previous_ideal_setUp_list):
+def reduce_ideal_setUp_list(previous_ideal_setUp_list, settings_obj):
     #return previous_ideal_setUp_list[:len(previous_ideal_setUp_list)/2]
     print "length is of previous_ideal_setUp_list: " + str(previous_ideal_setUp_list)
-    return previous_ideal_setUp_list[:4]
+    result = [] 
+    
+    mode = "random"
+    if (mode == "random"):
+        for x in  range(0, settings_obj.num_of_cluster):
+            result += [random.choice(previous_ideal_setUp_list)]
+    elif(mode == "range"):
+        result = previous_ideal_setUp_list[:settings_obj.num_of_cluster]
+    else:
+        print "this mode is not defined for reduction"
+        exit()
+    return result
 
 
 

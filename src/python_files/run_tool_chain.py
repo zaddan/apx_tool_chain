@@ -158,7 +158,7 @@ def getLimitedList(src):
 # @return : no return
 
 #def main():
-def run_task_and_collect_points():
+def run_task_and_collect_points(settings_obj):
 #if __name__ == "__main__":
     start = time.time() 
     
@@ -173,7 +173,7 @@ def run_task_and_collect_points():
 #    print "7. finalResulstFileName"
 #    
     symbolsToChooseFrom = ['*', 'x', "o", "+", "*", "-", "^", "1", "2", "3", "4"] #symbols to draw the plots with
-    settings_obj = settingsClass()
+    #settings_obj = settingsClass()
     inputObj = inputClass(settings_obj)
     inputObj.expandAddress()
     maxX = settings_obj.maxX
@@ -851,6 +851,6 @@ def run_task_and_collect_points():
 
 
 
-if __name__ == "__main__":
-    run_task_and_collect_points()
+#if __name__ == "__main__":
+#    run_task_and_collect_points()
     #    main()

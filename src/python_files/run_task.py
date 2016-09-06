@@ -153,8 +153,192 @@ def getLimitedList(src):
 
     return opListSlectedIndex
 
+def run_task_and_collect_infor(settings_obj, inputObj):
+    symbolsToChooseFrom = ['*', 'x', "o", "+", "*", "-", "^", "1", "2", "3", "4"] #symbols to draw the plots with
+    inputObj.expandAddress()
+    maxX = settings_obj.maxX
+    maxY = settings_obj.maxY
+    mode = settings_obj.mode 
+    lOfAllPointsTried = []
+    lOfPoints_out_of_heuristic = []  
+    lOfAccurateValues = [] #list of accurate values associated with the primary inputs
+    lOfPoints = []  
+    allPointsTried = []
+    unique_point_list = []
+    output_list = []
+    input_setUp_list_element_list = []
+    lOf_UTC_PF = [] 
+    pareto_frontier_of_lOfPoints_out_of_heuristic = []
+    pareto_frontier_of_lOfAllPointsTried  = []
+    opIndexSelectedFile =settings_obj.opIndexSelectedFile
+    open(opIndexSelectedFile, "w").close()
+    CSrcFolderAddress = inputObj.CSrcFolderAddress
+    lOfCSrcFileAddress = inputObj.lOfCSrcFileAddress 
+    CBuildFolderName = inputObj.CBuildFolderName 
+    generateMakeFile = inputObj.generateMakeFile
+    rootFolder = inputObj.rootFolder 
+    rootResultFolderName = rootFolder + "/" + settings_obj.generatedTextFolderName
+    operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings_obj.operatorSampleFileName + str(0) + ".txt"
+    AllInputScenariosInOneFile = inputObj.AllInputScenariosInOneFile
+    AllInputFileOrDirectoryName = inputObj.AllInputFileOrDirectoryName 
+    finalResultFileName = inputObj.finalResultFileName
+    PIK_all_points = inputObj.PIK_all_points
+    PIK_pareto  = inputObj.PIK_pareto
+    PIK_pareto_of_all = inputObj.PIK_pareto_of_all 
+    PIK_UTC_file = inputObj.PIK_UTC_file
+    input_for_s4_file = inputObj.input_for_s4_file
+    bench_suit_name = inputObj.bench_suit_name; 
+    
+    #--------------------------------------------------------------------------------
+    #--------------------------------------------------------------------------------
+    #-----sanity checking the variabels
+    #--------------------------------------------------------------------------------
+    #---------guide:::  checking the validity of the input and making necessary files and folders
+    #--------------------------------------------------------------------------------
+    rootResultFolderBackupName =  rootFolder + "/" + settings_obj.resultsBackups # is used to get a back up of the results generated in the previuos run of this program
+    if not(os.path.isdir(rootResultFolderBackupName)):
+        os.system("mkdir" + " " + rootResultFolderBackupName)
+    os.system("rm -r " + rootResultFolderName)
+    os.system("mkdir " + rootResultFolderName)
+    executableName = "tool_exe" #src file to be analyzed
+    CBuildFolder = rootFolder + "/" + CBuildFolderName
+    #get the input to the executable 
+    executableInputList = []
+    if (settings_obj.runMode == "parallel"): 
+        #the_lock = multiprocessing.Lock() 
+        pool = multiprocessing.Pool() 
+    #-------checking whether the file (or directory) containging the operands(input) exist or no
+    if (AllInputScenariosInOneFile): #if a file
+        #print AllInputFileOrDirectoryName
+        if not(os.path.isfile(AllInputFileOrDirectoryName)):
+            print "All OperandsFile:" + AllInputFileOrDirectoryName + " does not exist"
+            exit();
+    else: #checking for the directory
+        if not(os.path.isdir(AllInputFileOrDirectoryName)):
+            print "All OperandsDir does not exist"
+            exit();
+    #---------guide:::  generate make file or no
+    if not((generateMakeFile == "YES") or (generateMakeFile == "NO")): 
+        #print generateMakeFile 
+        print "generateMakeFile can only take YES or NO value (capital letters)"
+        exit()
+    #----------removing the result file
+    os.system("rm " + rootResultFolderName + "/" + settings_obj.rawresultFileName)
+    #---if make file needs to be re generated (generated) 
+    if (generateMakeFile == "YES"): 
+        currentDir = os.getcwd() #getting the current directory
+        #CBuildFolder = "./../../" 
+        os.chdir(rootFolder) #chaning the directory
+        # os.system("cp CMakeLists_tool_chain.txt CMakeLists.txt") #restoring the correct CMakeLists.txt file
+        os.chdir(currentDir) 
+        #generate the makefile using CMAKE 
+        print "**********************************************************************"
+        print "******************************GENERATING MAKE FILE********************"
+        print "**********************************************************************"
+        currentDir = os.getcwd() #getting the current directory
+        if not(os.path.isdir(CBuildFolder)):
+            os.system("mkdir " + CBuildFolder); #making a new one
+        os.chdir(CBuildFolder) #chaning the directory
+        # os.system("export CC=clang++; export CXX=clang++") 
+        os.environ["CC"] = "clag++";
+        os.environ["CXX"] = "clag++";
+        os.system("cmake ..");
+        print "**********************************************************************"
+        print "done generating the makeFile using CMake"
+        print "**********************************************************************"
+        os.chdir(currentDir) #chaning the directory
+        #done generating the make file 
+    
+    #---------guide:::  removing the results associated with the previous runs
+    AllOperandScenariosFullAddress = AllInputFileOrDirectoryName
+    inputNumber = 0 
+    os.system("mkdir" + " " + rootResultFolderName + "/" + settings_obj.rawResultFolderName)
+    #---------guide:::  if the operands were all given in a file: separate them to different files
+    #...................else: use the folder that they are in, as an input to the C source files
+    #if all in one file 
+    if (AllInputScenariosInOneFile):
+        if not(os.path.isfile(AllOperandScenariosFullAddress)):
+            print AllOperandScenariosFullAddress + " does not exist"
+            exit();
+        #make a directory for all operand inputs 
+        AllOperandsFolderName = rootResultFolderName + "/" + settings_obj.AllOperandsFolderName
+        os.system("mkdir " + AllOperandsFolderName)
+        #---------guide::: separates operands and put in a folder 
+        with open(AllOperandScenariosFullAddress) as f:
+            for line in f:
+                if len(line.split())>0: 
+                    fileToWriteName = AllOperandsFolderName + "/" + str(inputNumber) +".txt"
+                    fileToWriteP = open(fileToWriteName ,"w");  
+                    fileToWriteP.write(line)
+                    fileToWriteP.close()
+                    inputNumber +=1
+    else: #this case is the case in which they are in a foler already ready
+        if not(os.path.isdir(AllOperandScenariosFullAddress)):
+            print "***********************ERRROR**************" 
+            print "the folder that is told to contain the operands does not exist: " + AllOperandsFolderName
+            exit();
+        else: 
+            AllOperandsFolderName = AllInputFileOrDirectoryName
 
-def run_task_and_collect_points(settings_obj, inputObj):
+    
+    #inputs. This means that we have multiple operand sets)
+    #---------guide:::   parse the C source file to collect all the operands that can 
+    #                        be approximatable
+    lAllOpsInSrcFile = [] 
+    for CSrcFileAddressItem in lOfCSrcFileAddress:
+        lAllOpsInSrcFile += sourceFileParse(CSrcFileAddressItem, settings_obj)
+    settings_obj.totalNumberOfOpCombinations = 1;
+    
+    #---------guide:::  sampling operands
+    nameOfAllOperandFilesList = getNameOfFilesInAFolder(AllOperandsFolderName)
+    numberOfTriesList = [] 
+    numberOfSuccessfulTriesList = []
+    errorRequirementList = []
+    errorDiffList =[] #contains the difference between the error request and the error recieved from simulated annealing ( in percentage)
+     
+    allPossibleScenariosForEachOperator, limitedListIndecies, ignoreListIndecies, accurateSetUp = generateAllPossibleScenariosForEachOperator(rootResultFolderName, lAllOpsInSrcFile, settings_obj)
+    workingList = generateWorkingList(ignoreListIndecies, allPossibleScenariosForEachOperator )
+    
+    #---------guide:::  generate all possible apx setUps Possible (mainly used for full permutation design exploration, otherwise called exhustive search)
+    IOAndProcessCharFileName = rootResultFolderName + "/" + settings_obj.IOAndProcessCharFileName
+    IOAndProcessCharP = open(IOAndProcessCharFileName, "w")
+    open(settings_obj.annealerProgressionOutputFileName, "w").close()
+    open(rootResultFolderName +  "/" + settings_obj.annealerOutputFileName, "w").close()
+    
+
+
+
+    #--------------------------------------------------------------------------
+    #--------------------------------------------------------------------------
+    #---------gather list of accurate values associated with the primary inputs
+    #--------------------------------------------------------------------------
+    #--------------------------------------------------------------------------
+    for inputNumber,operandSampleFileName in enumerate(nameOfAllOperandFilesList):
+        CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings_obj.rawResultFolderName + "/" + settings_obj.csourceOutputFileName + str(inputNumber) + ".txt" #where to collect C++ source results
+        modifyOperatorSampleFile(operatorSampleFileFullAddress, accurateSetUp)
+        
+        if not(settings_obj.errorTest): 
+            print("\n........running to get accurate values\n"); 
+            reminder(settings_obj.reminder_flag,"make sure to change make_run to make_run_compile if you change the content of any of the cSRC files")
+            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0, settings_obj) #first make_run
+            accurateValues = extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj, settings_obj)
+        else:
+            newPath = "/home/local/bulkhead/behzad/usr/local/apx_tool_chain/src/python_files/scratch/acc.txt"
+            accurateValues = extractCurrentValuesForOneInput(newPath, inputObj, settings_obj)
+        assert(accurateValues != None)
+        lOfAccurateValues.append(accurateValues)
+
+    
+   
+    
+    
+    
+    
+    
+    
+    
+
+def apply_heuristic_on_task(settings_obj, inputObj):
     start = time.time() 
     timeBeforeFindingResults = datetime.datetime.now()
     
@@ -406,7 +590,7 @@ def run_task_and_collect_points(settings_obj, inputObj):
                     executableInputList, CBuildFolder, operandSampleFileName,lOfAccurateValues, allPointsTried,False, unique_point_list, output_list,[], 0, settings_obj,
                     input_setUp_list_element)
             input_Point = points()
-            input_Point.set_varios_values(UTC_acc[0], UTC_acc[1], input_setUp_list_element, input_setUp_list_element, iteration, 0)
+            input_Point.set_varios_values(UTC_acc[0], UTC_acc[1], modifyMold(accurateSetUp, input_setUp_list_element), input_setUp_list_element, iteration, 0)
             input_Point_list.append(input_Point) 
              
             #-----run genetic algo for an iteration 
@@ -578,4 +762,4 @@ def run_task_and_collect_points(settings_obj, inputObj):
     end = time.time()
     
 
-    return unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, pointSet, input_Point_list, accurateSetUp
+    return unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, pointSet, input_Point_list, accurateSetUp, delimeter

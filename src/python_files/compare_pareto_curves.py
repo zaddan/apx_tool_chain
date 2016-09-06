@@ -250,8 +250,8 @@ def compare_two_pareto_fronts(curve1FeatureValues, curve2FeatureValues):
 
 def run_compare_pareto_curves(settings_obj):
     #settings_obj = settingsClass()
-    PIK1 = "pareto_of_heur_flattened"
-    PIK2 = "pareto_of_combined" 
+    PIK1 = "pareto_of_heur_flattened.PIK"
+    PIK2 = "pareto_of_combined.PIK" 
      
     lOfParetoPoints1 = getPoints(PIK1)
     lOfParetoPoints2 = getPoints(PIK2)
