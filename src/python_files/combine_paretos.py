@@ -67,10 +67,11 @@ def get_point_set(file1_name):
 
 #def point_combine(srcFile):
 
-def run_combine_pareto(settings_obj, lOfPointSet):
+def run_combine_pareto(settings_obj, lOfPointSet,inputObj):
     #settings_obj = settingsClass()
     #srcFile = "pareto_set_file.txt" #file containing paretoSets
-    inputObj = inputClass(settings_obj)
+    #inputObj = inputClass(settings_obj)
+    run_input_list = inputObj.get_run_input() 
     inputObj.expandAddress()
     CSrcFolderAddress = inputObj.CSrcFolderAddress
     lOfCSrcFileAddress = inputObj.lOfCSrcFileAddress 
@@ -156,7 +157,7 @@ def run_combine_pareto(settings_obj, lOfPointSet):
         #---------guide:::  modify the operator sample file
         modifyOperatorSampleFile(operatorSampleFileFullAddress, accurateSetUp)
         #---------guide:::  run the CSrouce file with the new setUp(operators)
-        make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0, settings_obj)
+        make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0, settings_obj, run_input_list)
         #---------guide::: error
         accurateValues = extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj, settings_obj)
         lOfAccurateValues.append(accurateValues)
@@ -188,7 +189,7 @@ def run_combine_pareto(settings_obj, lOfPointSet):
             
             open(CSourceOutputForVariousSetUpFileName, "w").close()
             modifyOperatorSampleFile(operatorSampleFileFullAddress, individual)
-            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, exe_annex, settings_obj)
+            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, exe_annex, settings_obj, run_input_list)
             
             
             errantValues =  extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj, settings_obj)
