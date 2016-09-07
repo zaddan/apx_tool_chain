@@ -594,8 +594,10 @@ def run_test_bench_mark(benchmark, root_folder, bench_suit_name, heuristic_inten
         
         #run_input_list= ["roki_320_240"]
         #run_input_list= ["lena512"]
-        run_input_list= ["west_1"]
+        #run_input_list= ["west_1"]
         #run_input_list= ["stop_1"]
+        #run_input_list= ["moreboxes_1"]
+        run_input_list= ["tree_1"]
         
         inputObj.set_run_input(run_input_list) 
 

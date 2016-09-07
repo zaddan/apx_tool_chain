@@ -94,7 +94,7 @@ def run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name, heu
         
         
         #---- get optimal setUps for various inputs 
-        lOf_run_input_list = [["west_1"], ["stop_1"]]
+        lOf_run_input_list = [["west_1"], ["stop_1"], ["moreboxes_1"], ["tree_1"]]
         optimal_setUps_for_various_inputs =  apply_heuristic_on_task_with_multiple_prime_input(settings_obj, inputObj, lOf_run_input_list)
          
         optimal_setUps_for_various_inputs_flattened = list(itertools.chain(*optimal_setUps_for_various_inputs))

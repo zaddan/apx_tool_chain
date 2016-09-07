@@ -23,7 +23,6 @@ def send_email(user, pwd, recipient, subject, body):
     except:
         print "failed to send mail"
 
-subject = sys.argv[1]
-body = sys.argv[2]
+#subject = sys.argv[1]
+#body = sys.argv[2]
 #
-send_email("behzadboro@gmail.com", "+1mastermind+", "behzadboro@gmail.com", subject, body)
