@@ -8,10 +8,10 @@ bench_suit_name= "my_micro_benchmark"
 
 root_folder= "apx_tool_chain"
 
-heuristic_intensity1="small"
-heuristic_intensity2= "small"
-#heuristic_intensity1="medium"
-#heuristic_intensity2= "medium"
+#heuristic_intensity1="small"
+#heuristic_intensity2= "small"
+heuristic_intensity1="medium"
+heuristic_intensity2= "medium"
 #heuristic_intensity1="large"
 #heuristic_intensity2= "large"
 #

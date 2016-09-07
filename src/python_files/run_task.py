@@ -580,7 +580,6 @@ def apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj):
             accurateValues = extractCurrentValuesForOneInput(newPath, inputObj, settings_obj)
         assert(accurateValues != None)
         lOfAccurateValues.append(accurateValues)
-
     #--------------------------------------------------------------------------
     #--------------------------------------------------------------------------
     #---------run a heuristic to collect points
