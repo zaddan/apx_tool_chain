@@ -184,7 +184,8 @@ def eaMuPlusLambda_redefined(population, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN)
 
    
 def specializedEval(normalize,possibly_worse_case_result_quality, _mld_ , ignoreListIndecies, accurateSetUp, inputObj, nameOfAllOperandFilesList, rootResultFolderName,executableName,
-        executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, collect_pts, unique_point_list, output_list, previous_ideal_setUp,iteration, settings_obj, individual):
+        executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, collect_pts, unique_point_list, output_list, previous_ideal_setUp,iteration, settings_obj,
+        run_input_list, individual):
         exe_annex = 0
         if (settings_obj.runMode == "parallel"): 
             if(multiprocessing.current_process()._identity == ()):
@@ -219,7 +220,7 @@ def specializedEval(normalize,possibly_worse_case_result_quality, _mld_ , ignore
 
             if not(settings_obj.errorTest): #if errorTest generate acc.txt and apx.txt which contain accurate and apx values
                 make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, inputObj.bench_suit_name,exe_annex,
-                        settings_obj) 
+                        settings_obj, run_input_list) 
             # print "here is the accurate" + str(lOfAccurateValues) 
             if (settings_obj.errorTest):
                 newPath = "/home/local/bulkhead/behzad/usr/local/apx_tool_chain/src/python_files/scratch/apx.txt"
@@ -342,7 +343,7 @@ def run_SP(population, NGEN_to_use,
     toolbox.register("update", updateParticle, phi1=2.0, phi2=2.0)
     toolbox.register("evaluate", specializedEval, True, possibly_worse_case_result_quality, accurateSetUp, ignoreListIndecies, accurateSetUp, inputObj, nameOfAllOperandFilesList, rootResultFolderName,
             executableName, executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, True, unique_point_list, output_list, previous_ideal_setUp, iteration,
-            settings_obj)
+            settings_obj, run_input_list)
        
     pop = toolbox.population(n=settings_obj.numberOfIndividualsToStartWith)
     stats = tools.Statistics(lambda ind: ind.fitness.values)
@@ -379,7 +380,7 @@ def run_spea2(population,
         CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress, 
         executableName, executableInputList, rootResultFolderName, 
         CBuildFolder, operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality,accurateSetUp, allConfs, NGEN, MU, LAMBDA,
-        unique_point_list, output_list, allPointsTried, previous_ideal_setUp, iteration, settings_obj):
+        unique_point_list, output_list, allPointsTried, previous_ideal_setUp, iteration, settings_obj, run_input_list):
     
     
     #allPointsTried = []
@@ -414,7 +415,7 @@ def run_spea2(population,
     stats = tools.Statistics(lambda ind: ind.fitness.values)
     toolbox.register("evaluate", specializedEval, True, possibly_worse_case_result_quality, accurateSetUp, ignoreListIndecies, accurateSetUp, inputObj, nameOfAllOperandFilesList, rootResultFolderName,
             executableName, executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, True, unique_point_list, output_list, previous_ideal_setUp, iteration,
-            settings_obj)
+            settings_obj, run_input_list)
     toolbox.register("mate", tools.cxTwoPoint)
     toolbox.register("mutate", specializedMutate, ignoreListIndecies, settings_obj)
     toolbox.register("select", tools.selSPEA2)
@@ -512,7 +513,7 @@ def probabilistic_heuristic(points_to_explore_from,
             new_individual_raw_setUp = apply_move_to_individual(individual, move) 
             result = specializedEval(True,possibly_worse_case_result_quality,  accurateSetUp, ignoreListIndecies, accurateSetUp, inputObj, nameOfAllOperandFilesList, rootResultFolderName,executableName,
         executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, lOfAllPointsTried, False, unique_point_list, output_list, previous_ideal_setUp, new_individual_raw_setUp,
-        iteration, settings_obj)
+        iteration, settings_obj, run_input_list)
             newPoint = points()
             newPoint.set_energy(result[0])
             newPoint.set_quality(result[1])

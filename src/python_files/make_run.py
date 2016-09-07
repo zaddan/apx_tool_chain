@@ -76,7 +76,7 @@ def parseAndPrint(srcFileName):
 # @param resultFileName: what file to store the result to
 # 
 # @return no return
-def make_run_compile(executableName, executableInputList, resultFolderName, resultFileName, CBuildFolder, operandSampleFileName, bench_suit_name, process_id, settings_obj):
+def make_run_compile(executableName, executableInputList, resultFolderName, resultFileName, CBuildFolder, operandSampleFileName, bench_suit_name, process_id, settings_obj, input_list):
     if (bench_suit_name == "my_micro_benchmark"): 
         #validating the number of inputs
         #validating the existance of the dir, and making it other wise
@@ -102,16 +102,16 @@ def make_run_compile(executableName, executableInputList, resultFolderName, resu
         os.system("pwd"); 
         #os.system("gdb --args ./sift ~/behzad_local/sd-vbs/benchmarks/sift/data/sim");
         if (settings_obj.runMode == "parallel"): 
-            os.system("gmake c-run-compile " + "exe_annex="+str(process_id))
+            os.system("gmake c-run-compile " + "exe_annex="+str(process_id) + "first_input="+input_list[0] + "second_input="+input_list[1])
         else:  
-            os.system("gmake c-run-compile " + "exe_annex="+str(0))
+            os.system("gmake c-run-compile " + "exe_annex="+str(0) + " first_input="+input_list[0] + " second_input="+input_list[1])
         os.chdir(currentDir) #chaning the directory
 
     
  
 
 
-def make_run(executableName, executableInputList, resultFolderName, resultFileName, CBuildFolder, operandSampleFileName, bench_suit_name, process_id, settings_obj):
+def make_run(executableName, executableInputList, resultFolderName, resultFileName, CBuildFolder, operandSampleFileName, bench_suit_name, process_id, settings_obj, input_list):
     if (bench_suit_name == "my_micro_benchmark"): 
         #validating the number of inputs
         #validating the existance of the dir, and making it other wise
@@ -128,7 +128,7 @@ def make_run(executableName, executableInputList, resultFolderName, resultFileNa
         if (settings_obj.runMode == "parallel"): 
             os.system("gmake c-run " + "exe_annex="+str(process_id))
         else:  
-            os.system("gmake c-run " + "exe_annex="+str(0))
+            os.system("gmake c-run " + "exe_annex="+str(0) + " first_input="+input_list[0] + " second_input="+input_list[1])
         os.chdir(currentDir) #chaning the directory
 
     

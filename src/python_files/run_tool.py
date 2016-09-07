@@ -8,9 +8,20 @@ bench_suit_name= "sd-vbs"
 
 root_folder= "apx_tool_chain"
 
-heuristic_intensity1="medium"
-heuristic_intensity2= "medium"
-from test_bench_mark import *
+heuristic_intensity1="small"
+heuristic_intensity2= "small"
+#heuristic_intensity1="medium"
+#heuristic_intensity2= "medium"
+#heuristic_intensity1="large"
+#heuristic_intensity2= "large"
+#
 
 
-run_test_bench_mark(benchmark, root_folder, bench_suit_name,  heuristic_intensity1, heuristic_intensity2)
+
+
+from test_benchmark import *
+from test_benchmark_4_input_dep import *
+
+
+#run_test_bench_mark(benchmark, root_folder, bench_suit_name,  heuristic_intensity1, heuristic_intensity2)
+run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name,  heuristic_intensity1, heuristic_intensity2)

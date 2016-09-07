@@ -13,6 +13,11 @@ from sklearn.cluster import KMeans
 from extract_pareto_set_from_raw_material import *
 
 
+def write_points(lOfPoints, file_addr):
+    with open(file_addr, "wb") as f:
+        for point in lOfPoints:
+            pickle.dump(copy.deepcopy(point), f)
+
 def write_results(unique_point_list, lOfAllPointsTried,lOfPoints_out_of_heuristic, pointSet, input_Point_list, stage_number,
         inputObj, settings_obj):
         with open(inputObj.PIK_pareto, "wb") as f:
