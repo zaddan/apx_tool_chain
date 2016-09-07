@@ -60,6 +60,7 @@ def run_test_bench_mark(benchmark, root_folder, bench_suit_name, heuristic_inten
         
         run_input_list= ["1.bmp", "2.bmp"]
         inputObj.set_run_input(run_input_list) 
+        
         unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, pointSet, input_Point_list, accurateSetUp, delimeter = apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj)
         write_results(unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, pointSet, input_Point_list, stage_number, inputObj, settings_obj)
         
@@ -246,6 +247,9 @@ def run_test_bench_mark(benchmark, root_folder, bench_suit_name, heuristic_inten
         
         os.chdir("/home/polaris/behzad/behzad_local/"+ root_folder +"/src/python_files/")
         
+        run_input_list= ["1.bmp", "2.bmp"]
+        inputObj.set_run_input(run_input_list) 
+
         unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, pointSet, input_Point_list, accurateSetUp, delimeter = apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj)
         write_results(unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, pointSet, input_Point_list, stage_number, inputObj, settings_obj)
         
@@ -367,7 +371,7 @@ def run_test_bench_mark(benchmark, root_folder, bench_suit_name, heuristic_inten
         os.chdir("/home/polaris/behzad/behzad_local/" +root_folder+"/src/python_files/")
        
         
-        run_combine_pareto(settings_obj, [pointSet_2, pointSet_3])
+        run_combine_pareto(settings_obj, [pointSet_2, pointSet_3], inputObj)
         #python combine_paretos.py
         run_compare_pareto_curves(settings_obj)
         #python compare_pareto_curves.py >> compare_results.txt
@@ -386,7 +390,7 @@ def run_test_bench_mark(benchmark, root_folder, bench_suit_name, heuristic_inten
         
         pointSet_x = point_set(input_Point_list_4, "pareto", settings_obj.maxX, settings_obj.maxY)
         pointSet_x.set_delimeter(delimeter_2)
-        run_combine_pareto(settings_obj, [pointSet_x, pointSet_3])
+        run_combine_pareto(settings_obj, [pointSet_x, pointSet_3], inputObj)
         #python combine_paretos.py
         run_compare_pareto_curves(settings_obj)
         #python compare_pareto_curves.py >> compare_results.txt
@@ -411,6 +415,9 @@ def run_test_bench_mark(benchmark, root_folder, bench_suit_name, heuristic_inten
         
         os.chdir("/home/polaris/behzad/behzad_local/"+ root_folder +"/src/python_files/")
         
+        run_input_list= ["1.bmp", "2.bmp"]
+        inputObj.set_run_input(run_input_list) 
+
         unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, pointSet, input_Point_list, accurateSetUp, delimeter = apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj)
         write_results(unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, pointSet, input_Point_list, stage_number, inputObj, settings_obj)
         
@@ -538,7 +545,7 @@ def run_test_bench_mark(benchmark, root_folder, bench_suit_name, heuristic_inten
         os.chdir("/home/polaris/behzad/behzad_local/" +root_folder+"/src/python_files/")
        
         
-        run_combine_pareto(settings_obj, [pointSet_2, pointSet_3])
+        run_combine_pareto(settings_obj, [pointSet_2, pointSet_3], inputObj)
         #python combine_paretos.py
         run_compare_pareto_curves(settings_obj)
         #python compare_pareto_curves.py >> compare_results.txt
@@ -562,7 +569,7 @@ def run_test_bench_mark(benchmark, root_folder, bench_suit_name, heuristic_inten
 
         pointSet_x = point_set(input_Point_list_4, "pareto", settings_obj.maxX, settings_obj.maxY)
         pointSet_x.set_delimeter(delimeter_2)
-        run_combine_pareto(settings_obj, [pointSet_x, pointSet_3])
+        run_combine_pareto(settings_obj, [pointSet_x, pointSet_3], inputObj)
         #python combine_paretos.py
         run_compare_pareto_curves(settings_obj)
         #python compare_pareto_curves.py >> compare_results.txt
@@ -586,8 +593,11 @@ def run_test_bench_mark(benchmark, root_folder, bench_suit_name, heuristic_inten
 
         os.chdir("/home/polaris/behzad/behzad_local/"+ root_folder +"/src/python_files/")
         
-        unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, pointSet, input_Point_list, accurateSetUp, delimeter = apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj,
-                run_input_list)
+        run_input_list= ["1.bmp", "2.bmp"]
+        inputObj.set_run_input(run_input_list) 
+
+        unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, pointSet, input_Point_list, accurateSetUp, delimeter = apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj
+)
         write_results(unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, pointSet, input_Point_list, stage_number, inputObj, settings_obj)
         
         os.system("cp pickled_results_pareto.PIK pareto_of_heur_flattened.PIK");
@@ -614,7 +624,7 @@ def run_test_bench_mark(benchmark, root_folder, bench_suit_name, heuristic_inten
         os.chdir("/home/polaris/behzad/behzad_local/" + root_folder + "/src/python_files/")
         
         unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic_2, pointSet_2, input_Point_list, accurateSetUp, delimeter_2 = apply_heuristic_on_task_with_one_prime_input(settings_obj,
-                inputObj, run_input_list)
+                inputObj)
         write_results(unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic_2, pointSet_2, input_Point_list, stage_number, inputObj, settings_obj)
         
         append_results(pointSet_2, settings_obj)
@@ -647,8 +657,7 @@ def run_test_bench_mark(benchmark, root_folder, bench_suit_name, heuristic_inten
         os.system("cp quant_apx.txt quant.cpp")
 
         os.chdir("/home/polaris/behzad/behzad_local/"+root_folder+"/src/python_files/")
-        unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, pointSet_3, input_Point_list, accurateSetUp, delimeter = apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj,
-                run_input_list)
+        unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, pointSet_3, input_Point_list, accurateSetUp, delimeter = apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj)
         write_results(unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, pointSet_3, input_Point_list, stage_number, inputObj, settings_obj)
         append_results(pointSet_3, settings_obj)
         
@@ -688,8 +697,7 @@ def run_test_bench_mark(benchmark, root_folder, bench_suit_name, heuristic_inten
 
         os.chdir("/home/polaris/behzad/behzad_local/"+root_folder+"/src/python_files/")
         
-        unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, pointSet, input_Point_list_4, accurateSetUp, delimeter = apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj,
-                run_input_list)
+        unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, pointSet, input_Point_list_4, accurateSetUp, delimeter = apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj)
         write_results(unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, pointSet, input_Point_list_4, stage_number, inputObj, settings_obj)
 
         os.system("rm ../../generated_text/finalResult.png ")
@@ -710,7 +718,7 @@ def run_test_bench_mark(benchmark, root_folder, bench_suit_name, heuristic_inten
         os.chdir("/home/polaris/behzad/behzad_local/" +root_folder+"/src/python_files/")
        
         
-        run_combine_pareto(settings_obj, [pointSet_2, pointSet_3])
+        run_combine_pareto(settings_obj, [pointSet_2, pointSet_3], inputObj)
         #python combine_paretos.py
         run_compare_pareto_curves(settings_obj)
         #python compare_pareto_curves.py >> compare_results.txt
@@ -729,7 +737,7 @@ def run_test_bench_mark(benchmark, root_folder, bench_suit_name, heuristic_inten
 
         pointSet_x = point_set(input_Point_list_4, "pareto", settings_obj.maxX, settings_obj.maxY)
         pointSet_x.set_delimeter(delimeter_2)
-        run_combine_pareto(settings_obj, [pointSet_x, pointSet_3])
+        run_combine_pareto(settings_obj, [pointSet_x, pointSet_3], inputObj)
         #python combine_paretos.py
         run_compare_pareto_curves(settings_obj)
         #python compare_pareto_curves.py >> compare_results.txt

@@ -1,10 +1,10 @@
-benchmark= "disparity"
+#benchmark= "disparity"
 #benchmark= "sift"
 #benchmark= "localization"
-#benchmark= "jpeg"
+benchmark= "jpeg"
 
-bench_suit_name= "sd-vbs"
-#bench_suit_name= "my_micro_benchmark"
+#bench_suit_name= "sd-vbs"
+bench_suit_name= "my_micro_benchmark"
 
 root_folder= "apx_tool_chain"
 
