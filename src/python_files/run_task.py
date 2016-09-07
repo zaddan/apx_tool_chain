@@ -346,7 +346,7 @@ def run_task_with_one_set_up_and_collect_info(settings_obj, inputObj, input_setU
         if not(settings_obj.errorTest): 
             print("\n........running to get accurate values\n"); 
             reminder(settings_obj.reminder_flag,"make sure to change make_run to make_run_compile if you change the content of any of the cSRC files")
-            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0, settings_obj,
+            make_run_compile(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0, settings_obj,
                     run_input_list) #first make_run
             accurateValues = extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj, settings_obj)
         else:
@@ -572,7 +572,7 @@ def apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj):
         if not(settings_obj.errorTest): 
             print("\n........running to get accurate values\n"); 
             reminder(settings_obj.reminder_flag,"make sure to change make_run to make_run_compile if you change the content of any of the cSRC files")
-            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0, settings_obj,
+            make_run_compile(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0, settings_obj,
                     run_input_list) #first make_run
             accurateValues = extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj, settings_obj)
         else:

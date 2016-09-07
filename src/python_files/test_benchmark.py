@@ -577,7 +577,6 @@ def run_test_bench_mark(benchmark, root_folder, bench_suit_name, heuristic_inten
 
 
     if (benchmark == "jpeg"):
-        run_input_list= ["1.bmp", "2.bmp"]
         
         settings_obj = settingsClass(benchmark, root_folder, bench_suit_name,heuristic_intensity1)
         settings_obj.outputMode = "uniform"
@@ -593,7 +592,7 @@ def run_test_bench_mark(benchmark, root_folder, bench_suit_name, heuristic_inten
 
         os.chdir("/home/polaris/behzad/behzad_local/"+ root_folder +"/src/python_files/")
         
-        run_input_list= ["1.bmp", "2.bmp"]
+        run_input_list= ["roki_320_240"]
         inputObj.set_run_input(run_input_list) 
 
         unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, pointSet, input_Point_list, accurateSetUp, delimeter = apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj

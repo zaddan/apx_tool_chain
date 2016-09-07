@@ -76,6 +76,42 @@ def run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name, heu
         
         write_points(lOfmyPoints, "various_inputs_same_setUp.PIK") 
 
+    if (benchmark == "jpeg"):
+        #run_input_list= ["1.bmp", "2.bmp"]
+        settings_obj = settingsClass(benchmark, root_folder, bench_suit_name,heuristic_intensity1)
+        settings_obj.outputMode = "uniform"
+        settings_obj.error_mode = "image"
+        inputObj = inputClass(settings_obj)
+        print "\n\n---------starting stage 1"
+        stage_number = 1 
+        
+        os.chdir("/home/polaris/behzad/behzad_local/" + root_folder + "/src/CSrc/")
+        
+        os.system("cp dct_apx.txt dct.cpp")
+        os.system("cp quant_apx.txt quant.cpp")
+
+        os.chdir("/home/polaris/behzad/behzad_local/"+ root_folder +"/src/python_files/")
+        
+        
+        #---- get optimal setUps for various inputs 
+        lOf_run_input_list = [["1.bmp", "2.bmp"], ["3.bmp", "4.bmp"]]
+        optimal_setUps_for_various_inputs =  apply_heuristic_on_task_with_multiple_prime_input(settings_obj, inputObj, lOf_run_input_list)
+         
+        optimal_setUps_for_various_inputs_flattened = list(itertools.chain(*optimal_setUps_for_various_inputs))
+        write_points(optimal_setUps_for_various_inputs_flattened, "various_inputs.PIK") 
+        """
+        #----apply first input's optimal setUp for various inputs
+        lOfmyPoints = [] 
+        for iteration, input_ in enumerate(lOf_run_input_list): 
+            inputObj.set_run_input(input_) 
+            for el in optimal_setUps_for_various_inputs[0]: 
+                myPoint = run_task_with_one_set_up_and_collect_info(settings_obj, inputObj,el.get_raw_setUp())
+                myPoint.set_input_number(iteration) 
+                lOfmyPoints.append(myPoint)
+        
+        write_points(lOfmyPoints, "various_inputs_same_setUp.PIK") 
+        """
+
 #if __name__ == "__main__":
 #    main() 
 #python send_email.py "ending_a_run" "done with test_benchmark"
