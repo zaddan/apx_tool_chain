@@ -48,6 +48,7 @@ def main():
     #---errors and logs
     os.system("cp nohup.out res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
     os.system("cp log res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
+    os.system("cp config.txt res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
     
     #---configs
     os.system("cp settings.py res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
