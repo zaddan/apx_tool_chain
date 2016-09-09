@@ -21,6 +21,7 @@
 #echo 
 #echo
 #
+from error import *
 from run_task import *
 import os
 from settings import * 
@@ -49,6 +50,7 @@ def run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name, heu
         settings_obj.error_mode= "corresponding_elements"
         
         inputObj = inputClass(settings_obj)
+          
         print "\n\n---------starting stage 1"
         stage_number = 1 
         os.chdir("/home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/disparity/src/c/")
@@ -61,7 +63,12 @@ def run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name, heu
          
         #---- get optimal setUps for various inputs 
         lOf_run_input_list = [["1.bmp", "2.bmp"], ["3.bmp", "4.bmp"], ["5.bmp","6.bmp" ]]
-        optimal_setUps_for_various_inputs =  apply_heuristic_on_task_with_multiple_prime_input(settings_obj, inputObj, lOf_run_input_list)
+        try: 
+            optimal_setUps_for_various_inputs =  apply_heuristic_on_task_with_multiple_prime_input(settings_obj, inputObj, lOf_run_input_list)
+        except BenchMarkError as er:
+            write_error(er)
+            raise ToolError 
+        
         optimal_setUps_for_various_inputs_flattened = list(itertools.chain(*optimal_setUps_for_various_inputs))
         write_points(optimal_setUps_for_various_inputs_flattened, "various_inputs.PIK") 
         
@@ -73,7 +80,6 @@ def run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name, heu
                 myPoint = run_task_with_one_set_up_and_collect_info(settings_obj, inputObj,el.get_raw_setUp())
                 myPoint.set_input_number(iteration) 
                 lOfmyPoints.append(myPoint)
-        
         write_points(lOfmyPoints, "various_inputs_same_setUp.PIK") 
 
     if (benchmark == "jpeg"):

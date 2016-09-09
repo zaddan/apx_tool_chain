@@ -1,3 +1,4 @@
+import error
 from math import *
 from calc_psnr import *
 import os
@@ -12,7 +13,6 @@ import numpy as np
 from matplotlib import cm
 from inputs import *
 #from settings import *
-
 
 
 def euclid_dis(in1, in2):
@@ -177,7 +177,7 @@ def calc_error_for_nearest_neighbors_2d(accurate_values, current_values, setting
 
 
 
-
+global_counter = 0
 ## 
 # @brief : name is self explanatory
 # 
@@ -186,8 +186,33 @@ def calc_error_for_nearest_neighbors_2d(accurate_values, current_values, setting
 # 
 # @return 
 def calculateError(accurateValues, currentValues, settings_obj):
-    result = [] 
     
+    result = [] 
+#    global global_counter 
+#    global_counter +=1
+#    if (global_counter % 10 == 9):
+#        accurateValues = []
+    try: 
+        if (accurateValues == None or len(accurateValues)==0):
+            raise error.AccurateValueNoneError
+        if (currentValues== None or len(currentValues)==0):
+            raise error.CurrentValueNoneError
+        if not(len(accurateValues) == len(currentValues)):
+            raise error.NoneLengthEqualityError
+    
+    except error.AccurateValueNoneError as er:
+            raise error.WithinCalcError(type(er).__name__)
+            exit()
+    except error.CurrentValueNoneError as er:
+            raise error.WithinCalcError(type(er).__name__)
+            exit()
+    except error.NoneLengthEqualityError  as er:
+            raise error.WithinCalcError(type(er).__name__)
+            exit()
+
+
+
+
     if (settings_obj.error_mode == "corresponding_elements"): 
         if not(len(accurateValues) == len(currentValues)):
             print "**********ERRR********" 

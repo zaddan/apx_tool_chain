@@ -83,7 +83,7 @@ def getPoints(file1_name):
                 if not (type(ex).__name__ == "EOFError"):
                     print type(ex).__name__ 
                     print ex.args
-                    print "something went wrong"
+                    print "something went wrongss"
                 break
 
 

@@ -14,6 +14,7 @@ from inputs import *
 import operator
 from move_objs import *
 from misc2 import *
+from error import *
 # ---- probabilistic algorithm 
 def extract_move(pt1, pt2):
     if ((pt1.get_energy() <= pt2.get_energy()) and (pt1.get_quality()<= pt2.get_quality())):
@@ -230,13 +231,17 @@ def specializedEval(normalize,possibly_worse_case_result_quality, _mld_ , ignore
                     errantValues =  extractCurrentValuesForOneInput(newPath, inputObj, settings_obj)
                     print "errant Vals:" 
                     print errantValues
-                    errorValue = [calculateError( lOfAccurateValues[operandIndex],errantValues, settings_obj)]
+                    errorValue = [calculateError(lOfAccurateValues[operandIndex],errantValues, settings_obj)]
                     print "error Vals:"
                     print errorValue 
                     print "------" 
             else:
                 errantValues =  extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj, settings_obj)
-                errorValue = [calculateError(lOfAccurateValues[operandIndex], errantValues, settings_obj)]
+                try: 
+                    errorValue = [calculateError(lOfAccurateValues[operandIndex], errantValues, settings_obj)]
+                except WithinCalcError as er:
+                    raise WithinSpecEval(er.error_name, map(lambda x: x, individual))
+                
                 if (settings_obj.DEBUG):
                     print "Acurate Vals:" + str(lOfAccurateValues)
                     print "errant Vals:" +str(errantValues)

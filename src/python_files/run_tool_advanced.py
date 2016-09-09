@@ -42,26 +42,26 @@ root_folder= "apx_tool_chain"
 #heuristic_intensity2= "large"
 
 tool_type = "multiple_inputs"
-heuristic_intensity1="xl"
-heuristic_intensity2= "xl"
+heuristic_intensity1="xxl"
+heuristic_intensity2= "xxl"
 run_a_tool(benchmark, bench_suit_name, root_folder, heuristic_intensity1, heuristic_intensity2,tool_type)
 
-heuristic_intensity1="xl"
-heuristic_intensity2= "xl"
+heuristic_intensity1="xxl"
+heuristic_intensity2= "xxl"
 tool_type = "s6"
 run_a_tool(benchmark, bench_suit_name, root_folder, heuristic_intensity1, heuristic_intensity2,tool_type)
 #
 #
 
 tool_type = "multiple_inputs"
-heuristic_intensity1="xxl"
-heuristic_intensity2= "xxl"
+heuristic_intensity1="xxxl"
+heuristic_intensity2= "xxxl"
 run_a_tool(benchmark, bench_suit_name, root_folder, heuristic_intensity1, heuristic_intensity2,tool_type)
 
 
 
-heuristic_intensity1="xxl"
-heuristic_intensity2= "xxl"
+heuristic_intensity1="xxxl"
+heuristic_intensity2= "xxxl"
 tool_type = "s6"
 run_a_tool(benchmark, bench_suit_name, root_folder, heuristic_intensity1, heuristic_intensity2,tool_type)
 #

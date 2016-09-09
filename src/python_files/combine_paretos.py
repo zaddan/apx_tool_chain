@@ -56,8 +56,10 @@ def get_point_set(file1_name):
                 if not (type(ex).__name__ == "EOFError"):
                     print type(ex).__name__ 
                     print ex.args
-                    print "something went wrong"
+                    print "something went wrongs"
                 break
+            finally:
+                print "was in the get_point set"
 
     # lOfParetoPoints = pareto_frontier(lOfPoints, maxX= True, maxY = False)
     return lOfPointSet

@@ -6,6 +6,8 @@ import misc
 import misc2
 import tests
 from settings import *
+from error import *
+#from error import *
 
 def get_quality_energy_values_directly(lOfPoints, symbol, points_to_graph,index, limit=False, lower_bound=-100, upper_bound=100):
     lOfQualityVals = map(lambda x: x.get_quality(), lOfPoints)
@@ -160,12 +162,16 @@ def getLimitedList(src):
     
 def apply_heuristic_on_task_with_multiple_prime_input(settings_obj, inputObj, lOf_run_input_list):
     lOflOfPoints_out_of_heuristic = [] 
-    for iteration, run_input_list in enumerate(lOf_run_input_list): 
-        inputObj.set_run_input(run_input_list) 
-        unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, pointSet, input_Point_list, accurateSetUp, delimeter = apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj)
-        for points in lOfPoints_out_of_heuristic:
-            points.set_input_number(iteration)
-        lOflOfPoints_out_of_heuristic.append(lOfPoints_out_of_heuristic)
+    try: 
+        for iteration, run_input_list in enumerate(lOf_run_input_list): 
+            inputObj.set_run_input(run_input_list) 
+            unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, pointSet, input_Point_list, accurateSetUp, delimeter = apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj)
+            for points in lOfPoints_out_of_heuristic:
+                points.set_input_number(iteration)
+            lOflOfPoints_out_of_heuristic.append(lOfPoints_out_of_heuristic)
+    except TaskError as er:
+        raise BenchMarkError(er.error_name, er.input_obj, er.setUp)
+
     return lOflOfPoints_out_of_heuristic
 
 
@@ -346,13 +352,22 @@ def run_task_with_one_set_up_and_collect_info(settings_obj, inputObj, input_setU
         if not(settings_obj.errorTest): 
             print("\n........running to get accurate values\n"); 
             reminder(settings_obj.reminder_flag,"make sure to change make_run to make_run_compile if you change the content of any of the cSRC files")
-            make_run_compile(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0, settings_obj,
+            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0, settings_obj,
                     run_input_list) #first make_run
             accurateValues = extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj, settings_obj)
         else:
             newPath = "/home/local/bulkhead/behzad/usr/local/apx_tool_chain/src/python_files/scratch/acc.txt"
             accurateValues = extractCurrentValuesForOneInput(newPath, inputObj, settings_obj)
-        assert(accurateValues != None)
+        
+        try:
+            if (accurateValues == None or len(accurateValues)==0):
+                raise AccurateValueNoneError
+        except AccurateValueNoneError as er:
+            raise TaskError(type(er).__name__, inputObj, map(lambda x: x[2],  accurateSetUp))
+
+            exit()
+        #assert(accurateValues != None)
+        
         lOfAccurateValues.append(accurateValues)
 
         input_Point_list = [] 
@@ -369,9 +384,12 @@ def run_task_with_one_set_up_and_collect_info(settings_obj, inputObj, input_setU
         #---geting the possibly_worse_case_result info 
         possibly_worse_case_setup_individual = map (lambda x: x[2],  possibly_worse_case_setup[0])
         print("\n.......running to get possibly_worse_case_result\n"); 
-        possibly_worse_case_result = specializedEval(False, 1, accurateSetUp, [], accurateSetUp, inputObj,nameOfAllOperandFilesList, rootResultFolderName, executableName,
-                executableInputList, CBuildFolder, operandSampleFileName,lOfAccurateValues, allPointsTried,True, unique_point_list, output_list,[], 0, settings_obj, run_input_list,
-                possibly_worse_case_setup_individual)
+        try: 
+            possibly_worse_case_result = specializedEval(False, 1, accurateSetUp, [], accurateSetUp, inputObj,nameOfAllOperandFilesList, rootResultFolderName, executableName, executableInputList, CBuildFolder, operandSampleFileName,lOfAccurateValues, allPointsTried,True, unique_point_list, output_list,[], 0, settings_obj, run_input_list, possibly_worse_case_setup_individual)
+        except WithinSpecEval as er:
+            raise TaskError(er.error_name, inputObj, er.setUp)
+            exit()          
+        
         possibly_worse_case_result_energy = possibly_worse_case_result[0]   
         possibly_worse_case_result_quality = possibly_worse_case_result[1]   
         
@@ -384,9 +402,13 @@ def run_task_with_one_set_up_and_collect_info(settings_obj, inputObj, input_setU
             print "worse_case energy: " + str(possibly_worse_case_result[0])
             print "worse_case quality: " + str(possibly_worse_case_result[1])
         
-        result = specializedEval(True, possibly_worse_case_result_quality, accurateSetUp, [], accurateSetUp, inputObj,nameOfAllOperandFilesList, rootResultFolderName, executableName,
+        try: 
+            result = specializedEval(True, possibly_worse_case_result_quality, accurateSetUp, [], accurateSetUp, inputObj,nameOfAllOperandFilesList, rootResultFolderName, executableName,
                 executableInputList, CBuildFolder, operandSampleFileName,lOfAccurateValues, allPointsTried,True, unique_point_list, output_list,[], 0, settings_obj, run_input_list,
                 input_setUp)
+        except WithinSpecEval as er:
+            raise TaskError(er.error_name, inputObj, er.setUp)
+            exit()          
 
         newPoint = points() 
         newPoint.set_varios_values(result[0], result[1],modifyMold(accurateSetUp, input_setUp), input_setUp, 0, 0)
@@ -572,21 +594,28 @@ def apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj):
         if not(settings_obj.errorTest): 
             print("\n........running to get accurate values\n"); 
             reminder(settings_obj.reminder_flag,"make sure to change make_run to make_run_compile if you change the content of any of the cSRC files")
-            make_run_compile(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0, settings_obj,
+            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0, settings_obj,
                     run_input_list) #first make_run
             accurateValues = extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj, settings_obj)
         else:
             newPath = "/home/local/bulkhead/behzad/usr/local/apx_tool_chain/src/python_files/scratch/acc.txt"
             accurateValues = extractCurrentValuesForOneInput(newPath, inputObj, settings_obj)
-        assert(accurateValues != None)
+        
+        
+        #-----sanity check
+        try:
+            if (accurateValues == None or len(accurateValues)==0):
+                raise AccurateValueNoneError
+        except AccurateValueNoneError as er:
+            raise TaskError(type(er).__name__, inputObj, map(lambda x: x[2],  accurateSetUp))
+            exit()
+        #assert(accurateValues != None)
         lOfAccurateValues.append(accurateValues)
+    
     #--------------------------------------------------------------------------
     #--------------------------------------------------------------------------
     #---------run a heuristic to collect points
     #--------------------------------------------------------------------------
-
-
-
     #--------------------------------------------------------------------------
 #    if (mode == "allPermutations"): 
 #        lengthSoFar = 1 
@@ -623,9 +652,16 @@ def apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj):
         #---geting the possibly_worse_case_result info 
         possibly_worse_case_setup_individual = map (lambda x: x[2],  possibly_worse_case_setup[0])
         print("\n.......running to get possibly_worse_case_result\n"); 
-        possibly_worse_case_result = specializedEval(False, 1, accurateSetUp, [], accurateSetUp, inputObj,nameOfAllOperandFilesList, rootResultFolderName, executableName,
-                executableInputList, CBuildFolder, operandSampleFileName,lOfAccurateValues, allPointsTried,True, unique_point_list, output_list,[], 0, settings_obj, run_input_list,
-                possibly_worse_case_setup_individual)
+        
+        try: 
+            possibly_worse_case_result = specializedEval(False, 1, accurateSetUp, [], accurateSetUp, inputObj,nameOfAllOperandFilesList, rootResultFolderName, executableName,
+                    executableInputList, CBuildFolder, operandSampleFileName,lOfAccurateValues, allPointsTried,True, unique_point_list, output_list,[], 0, settings_obj, run_input_list,
+                    possibly_worse_case_setup_individual)
+        except WithinSpecEval as er:
+            raise TaskError(er.error_name, inputObj, er.setUp)
+            exit()
+
+        
         possibly_worse_case_result_energy = possibly_worse_case_result[0]   
         possibly_worse_case_result_quality = possibly_worse_case_result[1]   
         
@@ -647,9 +683,17 @@ def apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj):
             print "got here now"
             input_setUp_list_element = map(lambda x: x[2], input_setUp_list_element_complete)
             #-----collecting the input point 
-            UTC_acc = specializedEval(False, 1, accurateSetUp, [], accurateSetUp, inputObj,nameOfAllOperandFilesList, rootResultFolderName, executableName,
+            
+           
+
+            try:
+                UTC_acc = specializedEval(False, 1, accurateSetUp, [], accurateSetUp, inputObj,nameOfAllOperandFilesList, rootResultFolderName, executableName,
                     executableInputList, CBuildFolder, operandSampleFileName,lOfAccurateValues, allPointsTried,False, unique_point_list, output_list,[], 0, settings_obj, run_input_list,
                     input_setUp_list_element)
+            except WithinSpecEval as er:
+                raise TaskError(er.error_name, inputObj, er.setUp)
+                exit()          
+
             input_Point = points()
             input_Point.set_varios_values(UTC_acc[0], UTC_acc[1], modifyMold(accurateSetUp, input_setUp_list_element), input_setUp_list_element, iteration, 0)
             input_Point_list.append(input_Point) 
@@ -657,12 +701,16 @@ def apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj):
             #-----run genetic algo for an iteration 
             NGEN_to_use = settings_obj.NGEN 
             if (mode == "genetic_algorithm"): 
-                population = run_spea2(population,
+                try: 
+                    population = run_spea2(population,
                             CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress,
                             executableName, executableInputList, rootResultFolderName, CBuildFolder,
 
                             operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality, accurateSetUp, allConfs, NGEN_to_use,
                             settings_obj.MU, settings_obj.LAMBDA, unique_point_list, output_list,allPointsTried,  input_setUp_list_element, iteration, settings_obj, run_input_list)
+                except WithinSpecEval as er:
+                    raise TaskError(er.error_name, inputObj, er.setUp)
+                    exit()
             elif (mode == "swarm_particle"):
                 population = run_SP(population, NGEN_to_use,
                             CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress,

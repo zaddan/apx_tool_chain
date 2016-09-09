@@ -60,8 +60,13 @@ def run_test_bench_mark(benchmark, root_folder, bench_suit_name, heuristic_inten
         
         run_input_list= ["1.bmp", "2.bmp"]
         inputObj.set_run_input(run_input_list) 
-        
         unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, pointSet, input_Point_list, accurateSetUp, delimeter = apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj)
+
+#            raise BenchMarkError(er.error_name, er.input_obj, er.setUp)
+#        except BenchMarkError as er:
+#            write_error(er)
+#            raise ToolError 
+        
         write_results(unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, pointSet, input_Point_list, stage_number, inputObj, settings_obj)
         
         os.system("cp pickled_results_pareto.PIK pareto_of_heur_flattened.PIK");

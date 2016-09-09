@@ -56,9 +56,10 @@ def read_pickled_points(file_addr):
                     if not (type(ex).__name__ == "EOFError"):
                         print type(ex).__name__ 
                         print ex.args
-                        print "something went wrong"
+                        print "something went wrongsss"
                     break
-
+                finally:
+                    print "was insed the read_pickled_points"
 
 
 def cluster_input(lOfPoints, settings_obj):
