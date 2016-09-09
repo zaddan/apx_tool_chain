@@ -36,7 +36,7 @@ def main():
     benchmark_name = sys.argv[1]
     run_nature = sys.argv[2]
     print run_nature 
-    if not((run_nature == "ref")or (run_nature == "complete") or (run_nature == "s4") or (run_nature == "s6") or (run_nature == "multiple_inputs")):
+    if not((run_nature == "ref")or (run_nature == "complete") or (run_nature == "s4") or (run_nature == "s6") or (run_nature == "various_inputs")):
         print "this run nature is not defined"
         exit()
      
