@@ -80,6 +80,7 @@ def run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name, heu
         #----apply first input's optimal setUp for various inputs
         lOfmyPoints = [] 
         for iteration, input_ in enumerate(lOf_run_input_list): 
+            inputObj.settings_obj.runMode = "serial" 
             inputObj.set_run_input(input_) 
             for el in optimal_setUps_for_various_inputs[0]: 
                 myPoint = run_task_with_one_set_up_and_collect_info(settings_obj, inputObj,el.get_raw_setUp())
@@ -106,7 +107,8 @@ def run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name, heu
         
         #---- get optimal setUps for various inputs 
         #lOf_run_input_list = [["west_1"], ["stop_1"], ["moreboxes_1"], ["tree_1"]]
-        lOf_run_input_list = [["flowerpots_1"], ["aloe_1"], ["monopoly_1"], ["baby1_1"], ["plastic_1"], ["rocks1_1"]]
+        lOf_run_input_list = [["flowerpots_1"], ["aloe_1"]]
+        #, ["monopoly_1"], ["baby1_1"], ["plastic_1"], ["rocks1_1"]]
         optimal_setUps_for_various_inputs,lOflOfAllPointsTried =  apply_heuristic_on_task_with_multiple_prime_input(settings_obj, inputObj, lOf_run_input_list)
          
         optimal_setUps_for_various_inputs_flattened = list(itertools.chain(*optimal_setUps_for_various_inputs))
@@ -114,11 +116,11 @@ def run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name, heu
         
         lOflOfAllPointsTried_flattened = list(itertools.chain(*lOflOfAllPointsTried))
         write_points(lOflOfAllPointsTried_flattened, "pickled_results_all_points.PIK")
-
-
         #----apply first input's optimal setUp for various inputs
+         
         lOfmyPoints = [] 
         for iteration, input_ in enumerate(lOf_run_input_list): 
+            inputObj.settings_obj.runMode = "serial" 
             inputObj.set_run_input(input_) 
             for el in optimal_setUps_for_various_inputs[0]: 
                 myPoint = run_task_with_one_set_up_and_collect_info(settings_obj, inputObj,el.get_raw_setUp())
@@ -162,6 +164,7 @@ def run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name, heu
         #----apply first input's optimal setUp for various inputs
         lOfmyPoints = [] 
         for iteration, input_ in enumerate(lOf_run_input_list): 
+            inputObj.settings_obj.runMode = "serial" 
             inputObj.set_run_input(input_) 
             for el in optimal_setUps_for_various_inputs[0]: 
                 myPoint = run_task_with_one_set_up_and_collect_info(settings_obj, inputObj,el.get_raw_setUp())

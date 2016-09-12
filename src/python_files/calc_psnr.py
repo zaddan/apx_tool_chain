@@ -3,10 +3,17 @@ from PIL import Image
 from PIL import ImageFile
 import math 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
-
+import multiprocessing
 # ---- get the RGB values of an image
 def get_RGB_values(imageName):
-    im = Image.open(imageName)
+    
+    try: 
+        im = Image.open(imageName)
+    except Exception as ex:
+        print "an exception happend"
+        print "process num: " + str(multiprocessing.current_process()._identity[0] - 1)
+        print "image Name: " + str(imageName)
+        exit()
     pix = im.load()
     RValues = []
     GValues = []

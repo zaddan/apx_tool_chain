@@ -3,26 +3,30 @@ from tool_shed import run_a_tool
 import os
 from error import *
 os.system("rm *.er") 
-benchmark= "disparity"
+#benchmark= "disparity"
 #benchmark= "sift"
 #benchmark= "localization"
-#benchmark= "jpeg"
+benchmark= "jpeg"
 
-bench_suit_name= "sd-vbs"
-#bench_suit_name= "my_micro_benchmark"
+#bench_suit_name= "sd-vbs"
+bench_suit_name= "my_micro_benchmark"
 
 root_folder= "apx_tool_chain"
 
-heuristic_intensity1="small"
-heuristic_intensity2= "small"
+#heuristic_intensity1="small"
+#heuristic_intensity2= "small"
 #heuristic_intensity1="medium"
 #heuristic_intensity2= "medium"
+#heuristic_intensity1="large"
+#heuristic_intensity2= "large"
+
 #heuristic_intensity1="xl"
 #heuristic_intensity2= "xl"
 
+
 tool_type = "various_inputs"
-#heuristic_intensity1="xxxxl"
-#heuristic_intensity2= "xxxxl"
+heuristic_intensity1="xxxxl"
+heuristic_intensity2= "xxxxl"
 try:
     run_a_tool(benchmark, bench_suit_name, root_folder, heuristic_intensity1, heuristic_intensity2,tool_type)
 except TaskError as er:

@@ -179,18 +179,21 @@ def apply_heuristic_on_task_with_multiple_prime_input(settings_obj, inputObj, lO
 
     return lOflOfPoints_out_of_heuristic,lOflOfAllPointsTried
 """
-def run_serial(settings_obj, inputObj, run_input_list, iteration):
+def run_serial(settings_obj, in_inputObj, run_input_list, iteration):
         lOfPoints_out_of_heuristic_serial = [] 
         lOfAllPointsTried_serial = [] 
+        #print "process vs image " + str(multiprocessing.current_process()._identity[0] - 1) + " " + str(run_input_list)
+        
         try: 
-#            if (settings_obj.runMode == "parallel"): 
-#                inputObj = copy.deepcopy(in_inputObj) 
-#                inputObj.set_run_input(run_input_list) 
-#            else: 
-#                inputObj = in_inputObj
-#                inputObj.set_run_input(run_input_list) 
+            if (settings_obj.runMode == "parallel"): 
+                inputObj = copy.deepcopy(in_inputObj) 
+                inputObj.set_run_input(run_input_list) 
+            else: 
+                inputObj = in_inputObj
+                inputObj.set_run_input(run_input_list) 
             
-            inputObj.set_run_input(run_input_list) 
+            #inputObj.set_run_input(run_input_list) 
+            #inputObj = in_inputObj
             unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, \
                     pointSet, input_Point_list, accurateSetUp, delimeter = \
                     apply_heuristic_on_task_with_one_prime_input(settings_obj,
@@ -216,6 +219,17 @@ def apply_heuristic_on_task_with_multiple_prime_input(settings_obj, inputObj, lO
     if (settings_obj.runMode == "parallel"): 
         num_cores = len(lOf_run_input_list) 
         
+#        l_iteration = range(len(lOf_run_input_list))
+#        l_inputObj = []
+#        for el in lOf_run_input_list:
+#            new_inputObj = copy.deepcopy(inputObj) 
+#            new_inputObj.set_run_input(el)
+#            l_inputObj.append(new_inputObj)
+#        
+#        for el in l_inputObj:
+#            print el.get_run_input()
+#        
+#        parallel_results = Parallel(n_jobs=num_cores)(delayed(run_serial)(settings_obj, in_inputObj,  run_input_list, iteration) for iteration, run_input_list,in_inputObj in zip(l_iteration, lOf_run_input_list, l_inputObj))
         parallel_results = Parallel(n_jobs=num_cores)(delayed(run_serial)(settings_obj, inputObj,  run_input_list, iteration) for iteration, run_input_list in enumerate(lOf_run_input_list))
         lOflOfPoints_out_of_heuristic = map(lambda x: x[0], parallel_results)
         lOflOfAllPointsTried = map(lambda x: x[1], parallel_results)
@@ -376,7 +390,14 @@ def run_task_with_one_set_up_and_collect_info(settings_obj, inputObj, input_setU
     
     #---------guide:::  sampling operands
     
-    nameOfAllOperandFilesList = getNameOfFilesInAFolder(AllOperandsFolderName)
+    if (inputObj.settings_obj.runMode == "parallel"): 
+        print "ERROR: we don't have the capability for parallelizing this yet"
+    
+    nameOfAllOperandFilesList  = [AllOperandsFolderName +"/" + "0.txt"]
+    #nameOfAllOperandFilesList = getNameOfFilesInAFolder(AllOperandsFolderName)
+    
+
+
     numberOfTriesList = [] 
     numberOfSuccessfulTriesList = []
     errorRequirementList = []
@@ -632,7 +653,10 @@ def apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj):
     settings_obj.totalNumberOfOpCombinations = 1;
     
     #---------guide:::  sampling operands
-    nameOfAllOperandFilesList = getNameOfFilesInAFolder(AllOperandsFolderName)
+    if (inputObj.settings_obj.runMode == "parallel"): 
+        nameOfAllOperandFilesList = [AllOperandsFolderName +"/" + "0.txt" + str(multiprocessing.current_process()._identity[0] - 1)]
+    else:
+        nameOfAllOperandFilesList  = [AllOperandsFolderName +"/" + "0.txt"]
     numberOfTriesList = [] 
     numberOfSuccessfulTriesList = []
     errorRequirementList = []
