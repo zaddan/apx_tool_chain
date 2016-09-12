@@ -17,12 +17,13 @@ def parseAndReturn(srcFileName):
 def run(executableFileName, runInput1, runInput2, runInput3, runInput4):
     #print executable + " " + ' '.join(executableInputList);
     operandSampleFileName = runInput4 
+    print "goh " + operandSampleFileName 
     lOfAllInputs = parseAndReturn(operandSampleFileName).split()
     for index, element in enumerate(lOfAllInputs):
         if (element.split("/")[0] == "~"):
             lOfAllInputs[index] = os.path.expanduser('~') + element[1:]
     lOfAllInputsConvertedToString = ' '.join(str(e) for e in lOfAllInputs)
-    print "run with the following command" 
+    print "run with the following command"  + str(lOfAllInputsConvertedToString)
     print   "./"+str(executableFileName) + " " + runInput1 + " " +  runInput2 + " " + runInput3 + " " + lOfAllInputsConvertedToString
     os.system("./"+str(executableFileName) + " " + runInput1 + " " +  runInput2 + " " + runInput3 + " " + lOfAllInputsConvertedToString)
     # if (error == 0):

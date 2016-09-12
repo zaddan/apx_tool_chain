@@ -161,6 +161,7 @@ class points:
                 self.quality = abs(self.SNR)
                 self.quality_is_set = True
             else: 
+                print "goftam " + str(self.SNR)
                 self.SNR =  1/NSR
                 self.quality = abs(1/NSR)
                 self.quality_is_set = True

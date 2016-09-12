@@ -183,6 +183,13 @@ def run_serial(settings_obj, inputObj, run_input_list, iteration):
         lOfPoints_out_of_heuristic_serial = [] 
         lOfAllPointsTried_serial = [] 
         try: 
+#            if (settings_obj.runMode == "parallel"): 
+#                inputObj = copy.deepcopy(in_inputObj) 
+#                inputObj.set_run_input(run_input_list) 
+#            else: 
+#                inputObj = in_inputObj
+#                inputObj.set_run_input(run_input_list) 
+            
             inputObj.set_run_input(run_input_list) 
             unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, \
                     pointSet, input_Point_list, accurateSetUp, delimeter = \
@@ -578,7 +585,12 @@ def apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj):
         #done generating the make file 
     
     #---------guide:::  removing the results associated with the previous runs
-    AllOperandScenariosFullAddress = AllInputFileOrDirectoryName
+    if (settings_obj.runMode == "parallel"): 
+        print "fuckitye" + str( AllInputFileOrDirectoryName)
+        AllOperandScenariosFullAddress = AllInputFileOrDirectoryName + str(multiprocessing.current_process()._identity[0] - 1)
+    else: 
+        AllOperandScenariosFullAddress = AllInputFileOrDirectoryName 
+    print "goh begire " + AllOperandScenariosFullAddress 
     inputNumber = 0 
     os.system("mkdir" + " " + rootResultFolderName + "/" + settings_obj.rawResultFolderName)
     #---------guide:::  if the operands were all given in a file: separate them to different files
@@ -595,7 +607,10 @@ def apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj):
         with open(AllOperandScenariosFullAddress) as f:
             for line in f:
                 if len(line.split())>0: 
-                    fileToWriteName = AllOperandsFolderName + "/" + str(inputNumber) +".txt"
+                    if (settings_obj.runMode == "parallel"): 
+                        fileToWriteName = AllOperandsFolderName + "/" + str(inputNumber) +".txt" + str(multiprocessing.current_process()._identity[0] - 1)
+                    else:
+                        fileToWriteName = AllOperandsFolderName + "/" + str(inputNumber) +".txt" 
                     fileToWriteP = open(fileToWriteName ,"w");  
                     fileToWriteP.write(line)
                     fileToWriteP.close()

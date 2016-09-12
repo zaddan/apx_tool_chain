@@ -13,12 +13,12 @@ bench_suit_name= "sd-vbs"
 
 root_folder= "apx_tool_chain"
 
-#heuristic_intensity1="small"
-#heuristic_intensity2= "small"
+heuristic_intensity1="small"
+heuristic_intensity2= "small"
 #heuristic_intensity1="medium"
 #heuristic_intensity2= "medium"
-heuristic_intensity1="xl"
-heuristic_intensity2= "xl"
+#heuristic_intensity1="xl"
+#heuristic_intensity2= "xl"
 
 tool_type = "various_inputs"
 #heuristic_intensity1="xxxxl"

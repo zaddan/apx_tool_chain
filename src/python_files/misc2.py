@@ -194,7 +194,8 @@ def get_benchmark_name():
         with f:
             for line in f:
                 benchmark_name= line.rstrip().replace(',', ' ').replace('/',' ').replace(';', ' ').split(' ')
-    return benchmark_name[0]
+                break
+    return benchmark_name[1]
 
 def get_root_folder_name():
     sourceFileName = "config.txt" 
