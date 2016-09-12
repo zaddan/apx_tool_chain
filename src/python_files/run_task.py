@@ -156,23 +156,75 @@ def getLimitedList(src):
     return opListSlectedIndex
 
 
-    
-    
-    
-    
+"""
 def apply_heuristic_on_task_with_multiple_prime_input(settings_obj, inputObj, lOf_run_input_list):
     lOflOfPoints_out_of_heuristic = [] 
-    try: 
-        for iteration, run_input_list in enumerate(lOf_run_input_list): 
+    lOflOfAllPointsTried = [] 
+    if (settings_obj.runMode == "parallel"): 
+        #the_lock = multiprocessing.Lock() 
+        pool = multiprocessing.Pool(len(lOf_run_input_list)) 
+
+    for iteration, run_input_list in enumerate(lOf_run_input_list): 
+        try: 
             inputObj.set_run_input(run_input_list) 
             unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, pointSet, input_Point_list, accurateSetUp, delimeter = apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj)
             for points in lOfPoints_out_of_heuristic:
                 points.set_input_number(iteration)
             lOflOfPoints_out_of_heuristic.append(lOfPoints_out_of_heuristic)
-    except TaskError as er:
-        raise BenchMarkError(er.error_name, er.input_obj, er.setUp)
+            for points_ in lOfAllPointsTried:
+                points_.set_input_number(iteration)
+            lOflOfAllPointsTried.append(lOfAllPointsTried)
+        except TaskError as er:
+            raise BenchMarkError(er.error_name, er.input_obj, er.setUp)
 
-    return lOflOfPoints_out_of_heuristic
+    return lOflOfPoints_out_of_heuristic,lOflOfAllPointsTried
+"""
+
+def apply_heuristic_on_task_with_multiple_prime_input(settings_obj, inputObj, lOf_run_input_list):
+    
+    def run_serial(settings_obj, inputObj, run_input_list, iteration):
+        lOfPoints_out_of_heuristic_serial = [] 
+        lOfAllPointsTried_serial = [] 
+        try: 
+            inputObj.set_run_input(run_input_list) 
+            unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, \
+                    pointSet, input_Point_list, accurateSetUp, delimeter = \
+                    apply_heuristic_on_task_with_one_prime_input(settings_obj,
+                    inputObj)
+            for points in lOfPoints_out_of_heuristic:
+                points.set_input_number(iteration)
+            lOfPoints_out_of_heuristic_serial = lOfPoints_out_of_heuristic
+            for points_ in lOfAllPointsTried:
+                points_.set_input_number(iteration)
+            lOfAllPointsTried_serial = lOfAllPointsTried
+        except TaskError as er:
+            raise BenchMarkError(er.error_name, er.input_obj, er.setUp)
+        
+        return lOfPoints_out_of_heuristic_serial, lOfAllPointsTried_serial
+    
+    
+    lOflOfPoints_out_of_heuristic = [] 
+    lOflOfAllPointsTried = [] 
+    
+
+    if (settings_obj.runMode == "parallel"): 
+        num_cores = len(lOf_run_input_list) 
+        
+        parallel_results = Parallel(n_jobs=num_cores)\
+                (delayed(run_serial)(settings_obj, inputObj,  run_input_list, iteration) \
+                for iteration, run_input_list in enumerate(lOf_run_input_list))
+
+        lOflOfPoints_out_of_heuristic = map(lambda x: x[0], parallel_results)
+        lOflOfAllPointsTried = map(lambda x: x[1], parallel_results)
+    else:
+        for iteration, run_input_list in enumerate(lOf_run_input_list):
+            lOfPoints_out_of_heuristic, lOfAllPointsTried = run_serial(settings_obj, inputObj, run_input_list, iteration)
+            lOflOfPoints_out_of_heuristic.append(lOfPoints_out_of_heuristic)
+            lOflOfAllPointsTried.append(lOfAllPointsTried)
+
+    
+    return lOflOfPoints_out_of_heuristic,lOflOfAllPointsTried
+
 
 
 def run_task_with_one_set_up_and_collect_info(settings_obj, inputObj, input_setUp):
@@ -235,9 +287,9 @@ def run_task_with_one_set_up_and_collect_info(settings_obj, inputObj, input_setU
     CBuildFolder = rootFolder + "/" + CBuildFolderName
     #get the input to the executable 
     executableInputList = []
-    if (settings_obj.runMode == "parallel"): 
+    #if (settings_obj.runMode == "parallel"): 
         #the_lock = multiprocessing.Lock() 
-        pool = multiprocessing.Pool() 
+        #pool = multiprocessing.Pool() 
     #-------checking whether the file (or directory) containging the operands(input) exist or no
     if (AllInputScenariosInOneFile): #if a file
         #print AllInputFileOrDirectoryName
@@ -352,7 +404,9 @@ def run_task_with_one_set_up_and_collect_info(settings_obj, inputObj, input_setU
         if not(settings_obj.errorTest): 
             print("\n........running to get accurate values\n"); 
             reminder(settings_obj.reminder_flag,"make sure to change make_run to make_run_compile if you change the content of any of the cSRC files")
-            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0, settings_obj,
+            
+            process_id = 0 
+            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, process_id, settings_obj,
                     run_input_list) #first make_run
             accurateValues = extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj, settings_obj)
         else:
@@ -479,9 +533,9 @@ def apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj):
     CBuildFolder = rootFolder + "/" + CBuildFolderName
     #get the input to the executable 
     executableInputList = []
-    if (settings_obj.runMode == "parallel"): 
+    #if (settings_obj.runMode == "parallel"): 
         #the_lock = multiprocessing.Lock() 
-        pool = multiprocessing.Pool() 
+        #pool = multiprocessing.Pool() 
     #-------checking whether the file (or directory) containging the operands(input) exist or no
     if (AllInputScenariosInOneFile): #if a file
         #print AllInputFileOrDirectoryName
@@ -594,7 +648,9 @@ def apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj):
         if not(settings_obj.errorTest): 
             print("\n........running to get accurate values\n"); 
             reminder(settings_obj.reminder_flag,"make sure to change make_run to make_run_compile if you change the content of any of the cSRC files")
-            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, 0, settings_obj,
+            
+            process_id = 0 
+            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, process_id, settings_obj,
                     run_input_list) #first make_run
             accurateValues = extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj, settings_obj)
         else:

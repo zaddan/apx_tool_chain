@@ -25,4 +25,4 @@ def run_a_tool(benchmark, bench_suit_name, root_folder, heuristic_intensity1, he
 
     subject = "ending a run"
     body = "end the test_benchmark with benchmark: " + benchmark + " heuristic_intensity1:" + heuristic_intensity1 + " heuristic_intensity2:" + heuristic_intensity2 + " tool_type:" + tool_type
-#     send_email("behzadboro@gmail.com", "+1mastermind+", "behzadboro@gmail.com", subject, body)
+    send_email("behzadboro@gmail.com", "+1mastermind+", "behzadboro@gmail.com", subject, body)
