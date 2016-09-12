@@ -102,7 +102,7 @@ def make_run_compile(executableName, executableInputList, resultFolderName, resu
         os.system("pwd"); 
         #os.system("gdb --args ./sift ~/behzad_local/sd-vbs/benchmarks/sift/data/sim");
         if (settings_obj.runMode == "parallel"): 
-            os.system("gmake c-run-compile " + "exe_annex="+str(process_id) + "first_input="+input_list[0] + "second_input="+input_list[1])
+            os.system("gmake c-run-compile " + "exe_annex="+str(process_id) + " first_input="+input_list[0] + " second_input="+input_list[1])
         else:  
             os.system("gmake c-run-compile " + "exe_annex="+str(0) + " first_input="+input_list[0] + " second_input="+input_list[1])
         os.chdir(currentDir) #chaning the directory
@@ -126,7 +126,7 @@ def make_run(executableName, executableInputList, resultFolderName, resultFileNa
         os.system("pwd"); 
         #os.system("gdb --args ./sift ~/behzad_local/sd-vbs/benchmarks/sift/data/sim");
         if (settings_obj.runMode == "parallel"): 
-            os.system("gmake c-run " + "exe_annex="+str(process_id))
+            os.system("gmake c-run " + "exe_annex="+str(process_id) + " first_input="+input_list[0] + " second_input="+input_list[1])
         else:  
             os.system("gmake c-run " + "exe_annex="+str(0) + " first_input="+input_list[0] + " second_input="+input_list[1])
         os.chdir(currentDir) #chaning the directory

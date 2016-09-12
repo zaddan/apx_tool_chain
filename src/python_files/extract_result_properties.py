@@ -198,6 +198,7 @@ def calculateError(accurateValues, currentValues, settings_obj):
         if (currentValues== None or len(currentValues)==0):
             raise error.CurrentValueNoneError
         if not(len(accurateValues) == len(currentValues)):
+            print "pretty weird " + str(accurateValues) + " " + str(currentValues)
             raise error.NoneLengthEqualityError
     
     except error.AccurateValueNoneError as er:

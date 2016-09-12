@@ -15,6 +15,10 @@ import operator
 from move_objs import *
 from misc2 import *
 from error import *
+from joblib import Parallel, delayed                                                              
+import multiprocessing
+
+
 # ---- probabilistic algorithm 
 def extract_move(pt1, pt2):
     if ((pt1.get_energy() <= pt2.get_energy()) and (pt1.get_quality()<= pt2.get_quality())):
@@ -192,7 +196,7 @@ def specializedEval(normalize,possibly_worse_case_result_quality, _mld_ , ignore
             if(multiprocessing.current_process()._identity == ()):
                 exe_annex = 0
             else:
-                exe_annex = multiprocessing.current_process()._identity[0] 
+                exe_annex = multiprocessing.current_process()._identity[0] - 1
             print "proccess id: " 
 
         #print "-----end" 
@@ -424,6 +428,7 @@ def run_spea2(population,
     toolbox.register("mate", tools.cxTwoPoint)
     toolbox.register("mutate", specializedMutate, ignoreListIndecies, settings_obj)
     toolbox.register("select", tools.selSPEA2)
+    """ 
     if (settings_obj.runMode == "parallel"): 
         #the_lock = multiprocessing.Lock() 
         #pool = multiprocessing.Pool() 
@@ -432,7 +437,8 @@ def run_spea2(population,
                             #library (when it comes to sharing a list accross
                             #processes), we set allPointsTried to empty to 
                             #avoid any unwanted consequences
-
+    """
+    
     #--run the genetic algo
     print("\n......running genetic algo\n")
     for index in range(len(allConfs)):

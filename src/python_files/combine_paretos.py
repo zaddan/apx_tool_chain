@@ -172,7 +172,7 @@ def run_combine_pareto(settings_obj, lOfPointSet,inputObj):
         newPoint = points() 
         newPoint.set_dealing_with_pics(eval(inputObj.dealingWithPics))
         
-        if (settings_obj.runMode == "parallel"): 
+        if (settings_obj.runMode == "NeverUseThis"): 
             exe_annex = multiprocessing.current_process()._identity[0] 
             print "proccess id: " 
         else:
@@ -182,7 +182,7 @@ def run_combine_pareto(settings_obj, lOfPointSet,inputObj):
         for operandIndex, operandSampleFileName in enumerate(nameOfAllOperandFilesList):
             energyValue = [getEnergy(individual)]
             
-            if (settings_obj.runMode == "parallel"): 
+            if (settings_obj.runMode == "neverUseThis"): 
                 CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings_obj.rawResultFolderName + "/" + settings_obj.csourceOutputFileName + str(multiprocessing.current_process()._identity[0]) + ".txt" #where to collect C++ source results
                 operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings_obj.operatorSampleFileName + str(multiprocessing.current_process()._identity[0]) + ".txt"
             else: 
@@ -290,7 +290,7 @@ def run_combine_pareto(settings_obj, lOfPointSet,inputObj):
         return specializedEval(True, possibly_worse_case_result_quality, settings_obj, setUp)
     
     #--combining the points 
-    if (settings_obj.runMode == "parallel"):
+    if (settings_obj.runMode == "NeverUseThis"):
         pool = multiprocessing.Pool()
         newListOfPoints = pool.map(specializedEval_with_arg, lOfNewSetUp)
     elif (settings_obj.runMode == "serial"):

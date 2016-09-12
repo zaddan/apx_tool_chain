@@ -179,10 +179,7 @@ def apply_heuristic_on_task_with_multiple_prime_input(settings_obj, inputObj, lO
 
     return lOflOfPoints_out_of_heuristic,lOflOfAllPointsTried
 """
-
-def apply_heuristic_on_task_with_multiple_prime_input(settings_obj, inputObj, lOf_run_input_list):
-    
-    def run_serial(settings_obj, inputObj, run_input_list, iteration):
+def run_serial(settings_obj, inputObj, run_input_list, iteration):
         lOfPoints_out_of_heuristic_serial = [] 
         lOfAllPointsTried_serial = [] 
         try: 
@@ -198,11 +195,13 @@ def apply_heuristic_on_task_with_multiple_prime_input(settings_obj, inputObj, lO
                 points_.set_input_number(iteration)
             lOfAllPointsTried_serial = lOfAllPointsTried
         except TaskError as er:
+            print "fuck" 
+            print "and " + er.error_name
             raise BenchMarkError(er.error_name, er.input_obj, er.setUp)
         
         return lOfPoints_out_of_heuristic_serial, lOfAllPointsTried_serial
-    
-    
+
+def apply_heuristic_on_task_with_multiple_prime_input(settings_obj, inputObj, lOf_run_input_list):
     lOflOfPoints_out_of_heuristic = [] 
     lOflOfAllPointsTried = [] 
     
@@ -210,10 +209,7 @@ def apply_heuristic_on_task_with_multiple_prime_input(settings_obj, inputObj, lO
     if (settings_obj.runMode == "parallel"): 
         num_cores = len(lOf_run_input_list) 
         
-        parallel_results = Parallel(n_jobs=num_cores)\
-                (delayed(run_serial)(settings_obj, inputObj,  run_input_list, iteration) \
-                for iteration, run_input_list in enumerate(lOf_run_input_list))
-
+        parallel_results = Parallel(n_jobs=num_cores)(delayed(run_serial)(settings_obj, inputObj,  run_input_list, iteration) for iteration, run_input_list in enumerate(lOf_run_input_list))
         lOflOfPoints_out_of_heuristic = map(lambda x: x[0], parallel_results)
         lOflOfAllPointsTried = map(lambda x: x[1], parallel_results)
     else:
@@ -221,7 +217,6 @@ def apply_heuristic_on_task_with_multiple_prime_input(settings_obj, inputObj, lO
             lOfPoints_out_of_heuristic, lOfAllPointsTried = run_serial(settings_obj, inputObj, run_input_list, iteration)
             lOflOfPoints_out_of_heuristic.append(lOfPoints_out_of_heuristic)
             lOflOfAllPointsTried.append(lOfAllPointsTried)
-
     
     return lOflOfPoints_out_of_heuristic,lOflOfAllPointsTried
 
@@ -398,14 +393,14 @@ def run_task_with_one_set_up_and_collect_info(settings_obj, inputObj, input_setU
     #--------------------------------------------------------------------------
     #--------------------------------------------------------------------------
     for inputNumber,operandSampleFileName in enumerate(nameOfAllOperandFilesList):
+        process_id = 0 
+        
         CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings_obj.rawResultFolderName + "/" + settings_obj.csourceOutputFileName + str(inputNumber) + ".txt" #where to collect C++ source results
         modifyOperatorSampleFile(operatorSampleFileFullAddress, accurateSetUp)
         
         if not(settings_obj.errorTest): 
             print("\n........running to get accurate values\n"); 
             reminder(settings_obj.reminder_flag,"make sure to change make_run to make_run_compile if you change the content of any of the cSRC files")
-            
-            process_id = 0 
             make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, process_id, settings_obj,
                     run_input_list) #first make_run
             accurateValues = extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj, settings_obj)
@@ -507,7 +502,11 @@ def apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj):
     generateMakeFile = inputObj.generateMakeFile
     rootFolder = inputObj.rootFolder 
     rootResultFolderName = rootFolder + "/" + settings_obj.generatedTextFolderName
-    operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings_obj.operatorSampleFileName + str(0) + ".txt"
+    if (settings_obj.runMode == "parallel"):
+        operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings_obj.operatorSampleFileName + str(multiprocessing.current_process()._identity[0] - 1) + ".txt"
+    else:
+        operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings_obj.operatorSampleFileName + str(0) + ".txt"
+       
     AllInputScenariosInOneFile = inputObj.AllInputScenariosInOneFile
     AllInputFileOrDirectoryName = inputObj.AllInputFileOrDirectoryName 
     finalResultFileName = inputObj.finalResultFileName
@@ -642,14 +641,16 @@ def apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj):
     #--------------------------------------------------------------------------
     #--------------------------------------------------------------------------
     for inputNumber,operandSampleFileName in enumerate(nameOfAllOperandFilesList):
-        CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings_obj.rawResultFolderName + "/" + settings_obj.csourceOutputFileName + str(inputNumber) + ".txt" #where to collect C++ source results
+        if (settings_obj.runMode == "parallel"): 
+            process_id = multiprocessing.current_process()._identity[0] - 1
+        else: 
+            process_id = 0 
+        CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings_obj.rawResultFolderName + "/" + settings_obj.csourceOutputFileName + str(process_id) + ".txt" #where to collect C++ source results
         modifyOperatorSampleFile(operatorSampleFileFullAddress, accurateSetUp)
         
         if not(settings_obj.errorTest): 
             print("\n........running to get accurate values\n"); 
             reminder(settings_obj.reminder_flag,"make sure to change make_run to make_run_compile if you change the content of any of the cSRC files")
-            
-            process_id = 0 
             make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, process_id, settings_obj,
                     run_input_list) #first make_run
             accurateValues = extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj, settings_obj)
@@ -694,8 +695,8 @@ def apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj):
 #            lOfPoints_out_of_heuristic = allPointsTried
     if (mode == "genetic_algorithm" or mode == "swarm_particle"):
         input_Point_list = [] 
-        if (settings_obj.runMode == "parallel"): 
-            the_lock = multiprocessing.Lock() 
+        #if (settings_obj.runMode == "parallel"): 
+        #    the_lock = multiprocessing.Lock() 
         
         numberOfIndividualsToStartWith = settings_obj.numberOfIndividualsToStartWith
         tempAcc = accurateSetUp
