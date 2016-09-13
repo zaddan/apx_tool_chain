@@ -205,8 +205,6 @@ def run_serial(settings_obj, in_inputObj, run_input_list, iteration):
                 points_.set_input_number(iteration)
             lOfAllPointsTried_serial = lOfAllPointsTried
         except TaskError as er:
-            print "fuck" 
-            print "and " + er.error_name
             raise BenchMarkError(er.error_name, er.input_obj, er.setUp)
         
         return lOfPoints_out_of_heuristic_serial, lOfAllPointsTried_serial
@@ -214,7 +212,6 @@ def run_serial(settings_obj, in_inputObj, run_input_list, iteration):
 def apply_heuristic_on_task_with_multiple_prime_input(settings_obj, inputObj, lOf_run_input_list):
     lOflOfPoints_out_of_heuristic = [] 
     lOflOfAllPointsTried = [] 
-    
 
     if (settings_obj.runMode == "parallel"): 
         num_cores = len(lOf_run_input_list) 
@@ -429,6 +426,7 @@ def run_task_with_one_set_up_and_collect_info(settings_obj, inputObj, input_setU
         if not(settings_obj.errorTest): 
             print("\n........running to get accurate values\n"); 
             reminder(settings_obj.reminder_flag,"make sure to change make_run to make_run_compile if you change the content of any of the cSRC files")
+            reminder(settings_obj.reminder_flag,"the parallel execution requires all_input_scenarious.txt (to the number of inputs) even for sd-vbs that does not really uses them, hence, make sure you have have all_inut_scnearios.txt$(number) where number if the lenght of the input")
             make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, process_id, settings_obj,
                     run_input_list) #first make_run
             accurateValues = extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj, settings_obj)

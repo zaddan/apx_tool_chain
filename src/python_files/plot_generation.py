@@ -1,4 +1,5 @@
 from math import *
+from reminder import *
 import os
 import sys
 import matplotlib.pyplot as plt
@@ -86,6 +87,103 @@ def generateGraph(x, y, xName, yName, symbol):
         
     
     #plt.show()
+
+def generateGraph_for_all_alternative(valueList, valueList_2, xName, yName, benchmark_name, input_number, graph_title="pareto comparison for"):
+    fig, ax = plt.subplots()
+    #plt.yscale('log')
+    plt.xscale('log')
+    plt.ylabel(yName)
+    plt.xlabel(xName)
+    
+    symbolsToChooseFrom = ['*', 'x', "o", "+","^"] #symbols to draw the plots with
+    symbolsToChooseFrom += ['1', '2', "3"] #symbols to draw the plots with
+    
+    #color =['r','y', 'g', 'b', 'w']
+    color =['b','g', 'r', 'c', 'm', 'y', 'k', 'w']
+    number_of_inputs_used = 25 
+    
+    #lOf_run_input_list = [["flowerpots_1"], ["aloe_1"], ["monopoly_1"], ["baby1_1"], ["plastic_1"], ["rocks1_1"]]
+    lOf_run_input_list = [["room_1.bmp", "room_2.bmp"], ["papers_1.bmp", "papers_2.bmp"], ["odd_1.bmp", "odd_2.bmp"], ["baby1_1.bmp", "baby1_2.bmp"], ["plastic_1.bmp", "plastic_2.bmp"], ["rocks1_1.bmp", "rocks1_2.bmp"]]
+    #= [[] for i in range(settings_obj.n_clusters)]
+    
+    input_results = map(list, [[]]*number_of_inputs_used) 
+    counter = 0
+    for val in valueList:
+        input_results = map(list, [[]]*number_of_inputs_used) 
+        zipped = zip(*val[:-1])  
+        for el in zipped:
+            if (el[2] == input_number):
+                input_results[el[2]].append(el)
+        for index,res in enumerate(input_results):
+            if len(res) > 0:
+                el = map(lambda x: list(x), zip(*res))
+                quality_values_shifted = map(lambda x: x+1, el[0]) 
+                #ax.plot(quality_values_shifted, el[1], symbolsToChooseFrom[counter%len(symbolsToChooseFrom)]+color[counter/len(symbolsToChooseFrom)], label=val[3]) 
+                
+                
+                reminder(True,"this label generation requires lOf_run_input_list which needs to be copied over manually")
+                #---un comment(from here) the next line whenever you want to provide the resuls t professor, 
+                #-- this requires manually updating lOf_run_input_list (by copying it from test_bench_mark_4.._)
+                my_label =  lOf_run_input_list[index][0]
+                ax.plot(quality_values_shifted, el[1], symbolsToChooseFrom[input_number]+color[0], label=my_label)
+                # to here
+                
+                #--uncomment if you want to use regular labels 
+                #ax.plot(quality_values_shifted, el[1], symbolsToChooseFrom[counter%len(symbolsToChooseFrom)]+color[counter%len(symbolsToChooseFrom)], label=val[3])
+                
+                counter +=1
+    #---comment up to here if not using proviing s4 point
+    #--uncomment the following two lines to return back to without s4 inut consideration
+#    for el in valueList: 
+#        quality_values_shifted = map(lambda x: x+1, el[0]) 
+#        ax.plot(quality_values_shifted, el[1], el[2], label=el[3])
+#
+    
+    
+    input_results = map(list, [[]]*number_of_inputs_used) 
+    counter = 0
+    for val in valueList_2:
+        input_results = map(list, [[]]*number_of_inputs_used) 
+        zipped = zip(*val[:-1])  
+        for el in zipped:
+            if (el[2] == input_number):
+                input_results[el[2]].append(el)
+        for index,res in enumerate(input_results):
+            if len(res) > 0:
+                el = map(lambda x: list(x), zip(*res))
+                quality_values_shifted = map(lambda x: x+1, el[0]) 
+                #ax.plot(quality_values_shifted, el[1], symbolsToChooseFrom[counter%len(symbolsToChooseFrom)]+color[counter/len(symbolsToChooseFrom)], label=val[3]) 
+                
+                #--here 
+                #---un comment the next line whenever you want to provide the resuls t professor, 
+                #-- this requires manually updating lOf_run_input_list (by copying it from test_bench_mark_4.._)
+                my_label =  lOf_run_input_list[index][0]
+                ax.plot(quality_values_shifted, el[1], symbolsToChooseFrom[input_number]+color[1], label=my_label)
+                #ax.plot(quality_values_shifted, el[1], symbolsToChooseFrom[counter%len(symbolsToChooseFrom)]+color[counter%len(symbolsToChooseFrom)], label=val[3])
+                
+                counter +=1
+
+    # ---- moving the legend outside of the graph (look bellow for placing inside)
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0, box.width * 0.85, box.height])
+    # Put a legend to the right of the current axis (note: prop changes the fontsize)
+    ax.legend(loc='center left', bbox_to_anchor=(1, .9), prop={'size':8})
+    plt.title(graph_title + str(benchmark_name) + " benchmark")
+    # ---- the following was commented cause it will place the lgend inside the graph
+#    legend = ax.legend(loc='upper right', shadow=True)
+#
+#    # The frame is matplotlib.patches.Rectangle instance surrounding the legend.
+#    frame = legend.get_frame()
+#    frame.set_facecolor('0.90')
+#
+#    # Set the fontsize
+#    for label in legend.get_texts():
+#        label.set_fontsize('small')
+#
+#    for label in legend.get_lines():
+#        label.set_linewidth(1.5)  # the legend line width  
+#        
+
 
 
 def generateGraph_for_all(valueList, xName, yName, benchmark_name, graph_title="pareto comparison for"):

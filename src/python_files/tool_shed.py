@@ -21,7 +21,7 @@ def run_a_tool(benchmark, bench_suit_name, root_folder, heuristic_intensity1, he
     config_addr.write("tool_type: " + tool_type + "\n")
     config_addr.write("run duration(minutes): " + str((end_time - start_time)/60))
     config_addr.close() 
-#     os.system("python make_backup.py " + benchmark + "  "  + tool_type)
+    #os.system("python make_backup.py " + benchmark + "  "  + tool_type)
 
     subject = "ending a run"
     body = "end the test_benchmark with benchmark: " + benchmark + " heuristic_intensity1:" + heuristic_intensity1 + " heuristic_intensity2:" + heuristic_intensity2 + " tool_type:" + tool_type

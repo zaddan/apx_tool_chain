@@ -72,7 +72,12 @@ def write_error(error):
     with open(error.input_obj.error_dump_file, "a") as f:
         pickle.dump(error, f)
 
-
+#def write_system_exception(ex):
+#    with open(exception_dump_file, "w") as f:
+#        f.write(type(ex).__name__)
+#        f.write("\n") 
+#        f.write(str(ex.args))
+#
 def read_error(file_addr):
     l_of_error = getPoints(file_addr)
     for er in l_of_error:

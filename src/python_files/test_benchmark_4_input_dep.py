@@ -63,8 +63,8 @@ def run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name, heu
          
         #---- get optimal setUps for various inputs 
         #lOf_run_input_list = [["1.bmp", "2.bmp"], ["3.bmp", "4.bmp"], ["5.bmp","6.bmp" ]]
-        #lOf_run_input_list = [["room_1.bmp", "room_2.bmp"], ["papers_1.bmp", "papers_2.bmp"], ["odd_1.bmp", "odd_2.bmp"], ["baby1_1.bmp", "baby1_2.bmp"], ["plastic_1.bmp", "plastic_2.bmp"], ["rocks1_1.bmp", "rocks1_2.bmp"]]
-        lOf_run_input_list = [["room_1.bmp", "room_2.bmp"], ["baby1_1.bmp", "baby1_2.bmp"]]
+        lOf_run_input_list = [["room_1.bmp", "room_2.bmp"], ["papers_1.bmp", "papers_2.bmp"], ["odd_1.bmp", "odd_2.bmp"], ["baby1_1.bmp", "baby1_2.bmp"], ["plastic_1.bmp", "plastic_2.bmp"], ["rocks1_1.bmp", "rocks1_2.bmp"]]
+        #lOf_run_input_list = [["room_1.bmp", "room_2.bmp"], ["baby1_1.bmp", "baby1_2.bmp"]]
         try: 
             optimal_setUps_for_various_inputs, lOflOfAllPointsTried =  apply_heuristic_on_task_with_multiple_prime_input(settings_obj, inputObj, lOf_run_input_list)
         except BenchMarkError as er:
