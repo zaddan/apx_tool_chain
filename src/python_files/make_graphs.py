@@ -96,7 +96,7 @@ def main():
             exit()
 
         if (arg == "various_inputs_alter"):
-            for index in range(5): 
+            for index in range(6): 
                 points_to_graph = [] 
                 points_to_graph_2 = [] 
                 get_quality_energy_values("various_inputs.PIK", "+", points_to_graph, limit, lower_bound, upper_bound)

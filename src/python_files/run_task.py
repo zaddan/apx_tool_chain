@@ -183,7 +183,7 @@ def run_serial(settings_obj, in_inputObj, run_input_list, iteration):
         lOfPoints_out_of_heuristic_serial = [] 
         lOfAllPointsTried_serial = [] 
         #print "process vs image " + str(multiprocessing.current_process()._identity[0] - 1) + " " + str(run_input_list)
-        
+            
         try: 
             if (settings_obj.runMode == "parallel"): 
                 inputObj = copy.deepcopy(in_inputObj) 
@@ -214,6 +214,17 @@ def apply_heuristic_on_task_with_multiple_prime_input(settings_obj, inputObj, lO
     lOflOfAllPointsTried = [] 
 
     if (settings_obj.runMode == "parallel"): 
+        reminder(settings_obj.reminder_flag, "still not sure if paralleilsm work.\
+        we know that if i want to throttle the number of cpus used (by using a negative\
+        number), I get an error b/c some files are not defined. I am not sure if \
+        I would have the same problem if the n_jobs exceed the num of cores in the system")
+        reminder(settings_obj.reminder_flag, "for each processes we need to have\
+                all_input_scenarios.txt* defined. This means that if we want to \
+                run 5 processes we need to have 5 all_input_scnearios.txt*")
+        reminder(settings_obj.reminder_flag, "with parallel execution, we can't\
+        call run_a_tool more than once, this seems to be b/c for each run_a_tool\
+        a set of processes are defined, hence we need more all_input_scenarios.txt* \
+        files")
         num_cores = len(lOf_run_input_list) 
         
 #        l_iteration = range(len(lOf_run_input_list))
@@ -227,9 +238,11 @@ def apply_heuristic_on_task_with_multiple_prime_input(settings_obj, inputObj, lO
 #            print el.get_run_input()
 #        
 #        parallel_results = Parallel(n_jobs=num_cores)(delayed(run_serial)(settings_obj, in_inputObj,  run_input_list, iteration) for iteration, run_input_list,in_inputObj in zip(l_iteration, lOf_run_input_list, l_inputObj))
+        #multiprocessing.Pool(processes=(multiprocessing.cpu_count() - 1)) 
         parallel_results = Parallel(n_jobs=num_cores)(delayed(run_serial)(settings_obj, inputObj,  run_input_list, iteration) for iteration, run_input_list in enumerate(lOf_run_input_list))
         lOflOfPoints_out_of_heuristic = map(lambda x: x[0], parallel_results)
         lOflOfAllPointsTried = map(lambda x: x[1], parallel_results)
+        print len(parallel_results)
     else:
         for iteration, run_input_list in enumerate(lOf_run_input_list):
             lOfPoints_out_of_heuristic, lOfAllPointsTried = run_serial(settings_obj, inputObj, run_input_list, iteration)
@@ -363,6 +376,7 @@ def run_task_with_one_set_up_and_collect_info(settings_obj, inputObj, input_setU
         with open(AllOperandScenariosFullAddress) as f:
             for line in f:
                 if len(line.split())>0: 
+                    print ("input Number is ", inputNumber) 
                     fileToWriteName = AllOperandsFolderName + "/" + str(inputNumber) +".txt"
                     fileToWriteP = open(fileToWriteName ,"w");  
                     fileToWriteP.write(line)
