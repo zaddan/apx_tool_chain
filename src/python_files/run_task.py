@@ -198,6 +198,7 @@ def run_serial(settings_obj, in_inputObj, run_input_list, iteration):
                     pointSet, input_Point_list, accurateSetUp, delimeter = \
                     apply_heuristic_on_task_with_one_prime_input(settings_obj,
                     inputObj)
+
             for points in lOfPoints_out_of_heuristic:
                 points.set_input_number(iteration)
             lOfPoints_out_of_heuristic_serial = lOfPoints_out_of_heuristic
@@ -243,12 +244,17 @@ def apply_heuristic_on_task_with_multiple_prime_input(settings_obj, inputObj, lO
         lOflOfPoints_out_of_heuristic = map(lambda x: x[0], parallel_results)
         lOflOfAllPointsTried = map(lambda x: x[1], parallel_results)
         print len(parallel_results)
-    else:
+    elif(settings_obj.runMode == "serial"):
         for iteration, run_input_list in enumerate(lOf_run_input_list):
             lOfPoints_out_of_heuristic, lOfAllPointsTried = run_serial(settings_obj, inputObj, run_input_list, iteration)
             lOflOfPoints_out_of_heuristic.append(lOfPoints_out_of_heuristic)
             lOflOfAllPointsTried.append(lOfAllPointsTried)
-    
+    else:
+        for iteration, run_input_list in enumerate(lOf_run_input_list):
+            inputObj.set_run_input(run_input_list) 
+            apply_heuristic_on_task_with_one_prime_input(settings_obj,
+                    inputObj)
+
     return lOflOfPoints_out_of_heuristic,lOflOfAllPointsTried
 
 
