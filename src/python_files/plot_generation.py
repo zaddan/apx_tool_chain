@@ -2,6 +2,8 @@ from math import *
 from reminder import *
 import pylab
 import os
+from matplotlib import cm
+from matplotlib.ticker import LinearLocator, FormatStrFormatter
 import sys
 import matplotlib.pyplot as plt
 import settings
@@ -16,6 +18,7 @@ import image_list
 from extract_result_properties import *
 from extract_pareto_set_from_raw_material import *
 import cluster_images 
+import gen_color_spec 
 #def generateParetoGraph(energy, noise, graphType = "2d")
 #    symbolsToChooseFrom = ['*', 'x', "o", "+", "*", "-", "^"]
 #    if (graphType == "3d"): 
@@ -189,15 +192,15 @@ def generateGraph_for_all_alternative(valueList, valueList_2, xName, yName, benc
 
 
 
-def generateGraph_for_all(valueList, xName, yName, benchmark_name, graph_title="pareto comparison for", name = "various_inputs", graph_type = "2d"):
+def generateGraph_for_all(valueList, xName, yName, benchmark_name, graph_title="pareto comparison for", name = "various_inputs", graph_type = "3d"):
     
     fig = plt.figure(figsize=plt.figaspect(0.5)) 
-    
     if (graph_type == "3d"): 
-        ax = fig.add_subplot(111, projection='3d') 
-        ax.set_xlabel('Energy')
-        ax.set_ylabel('1/Q')
-        ax.set_zlabel('std')
+        ax = fig.gca(projection='3d')
+        #ax = fig.add_subplot(111, projection='3d') 
+        ax.set_xlabel('1/Q')
+        ax.set_ylabel('std')
+        ax.set_zlabel('Energy')
     else: 
         fig, ax = plt.subplots()
         plt.xscale('log')
@@ -207,20 +210,27 @@ def generateGraph_for_all(valueList, xName, yName, benchmark_name, graph_title="
     #here
     #----comment if not proving th s4 pont
     symbolsToChooseFrom = ['*', 'x', "o", "+","^", '1', '2', "3"] 
-    color =['b','g', 'r', 'c', 'm', 'y', 'k', 'w']
+    #color =['k', 'c', 'b','g', 'y', 'r', 'm']
+    color =['.9', '.4', '.9','g', 'y', 'r', 'm']
+    
     lOf_run_input_list = image_list.lOf_run_input_list
     number_of_inputs_used = len(lOf_run_input_list)
     input_results = map(list, [[]]*number_of_inputs_used) 
     base_dir = "/home/local/bulkhead/behzad/usr/local/apx_tool_chain/inputPics/"
-    
     counter = 0
+    energy_list_to_be_drawn = []
+    quality_list_to_be_drawn = []
+    std_list_to_be_drawn = []
+    z_vals = [] 
+    
     for val in valueList:
         input_results = map(list, [[]]*number_of_inputs_used) 
         zipped = zip(*val[:-1])  
         for el in zipped:
             input_results[el[2]].append(el)
         for index,res in enumerate(input_results):
-#            if (index >20):
+            print counter 
+#            if (index >5):
 #                break;
             if len(res) > 0:
                 el = map(lambda x: list(x), zip(*res))
@@ -237,26 +247,64 @@ def generateGraph_for_all(valueList, xName, yName, benchmark_name, graph_title="
                     my_label =  str(int(np.mean([mR,mG,mB]))) + "," + str(int(np.mean([stdR,stdG,stdB])))
                 
                 if (graph_type == "3d"): 
-                    ax.scatter(quality_values_shifted, [int(np.mean([mR,mG,mB]))]*len(quality_values_shifted) , el[1], c=color[counter%len(symbolsToChooseFrom)], marker = symbolsToChooseFrom[counter%len(symbolsToChooseFrom)])
-                    #ax.plot_wire_frame(quality_values_shifted, int(np.mean([mR,mG,mB]), el[1])
+                    #""" the following is for plotting a zframe
+                    #--- sort based on the quality
+                    Q = quality_values_shifted[:20]
+                    E = el[1][:20]
+                    Q_index_sorted = sorted(enumerate(Q), key=lambda x: x[1])
+                    index_of_Q_sorted = map(lambda y: y[0], Q_index_sorted)
+                    Q_sorted = [Q[i] for i in index_of_Q_sorted]
+                    E_sorted = [E[i] for i in index_of_Q_sorted]
+                    
+                    quality_list_to_be_drawn.append(Q_sorted)
+                    energy_list_to_be_drawn.append(E_sorted)
+                    std_list_to_be_drawn.append([int(np.mean([mR,mG,mB]))]*20)
+                    z_vals.append( int(np.mean([mR,mG,mB])))
+                    #ax.scatter(quality_values_shifted, [int(np.mean([mR,mG,mB]))]*len(quality_values_shifted) , el[1], c=color[counter/len(color)], marker = symbolsToChooseFrom[counter%len(symbolsToChooseFrom)])
+                    #""" 
+                    #ax.scatter(quality_values_shifted, [int(np.mean([mR,mG,mB]))]*len(quality_values_shifted) , el[1], c=color[counter/len(color)], marker = symbolsToChooseFrom[counter%len(symbolsToChooseFrom)])
+                    #ax.scatter(quality_values_shifted,  el[1], [int(np.mean([mR,mG,mB]))]*len(quality_values_shifted) ,c=color[counter%len(color)], marker = symbolsToChooseFrom[counter/len(symbolsToChooseFrom)])
                 else:
                     ax.plot(quality_values_shifted, el[1], symbolsToChooseFrom[counter%len(symbolsToChooseFrom)]+color[counter%len(symbolsToChooseFrom)], label=my_label)
                 counter +=1
             reminder(True,"the following lines which creates a new image every len(symbolsToChooseFrom) should be commented if we use any flag but various_inputs")
-            if (counter % len(symbolsToChooseFrom) == 0): 
-                box = ax.get_position()
-                ax.set_position([box.x0, box.y0, box.width * 0.85, box.height])
-                # Put a legend to the right of the current axis (note: prop changes the fontsize)
-                ax.legend(loc='center left', bbox_to_anchor=(1, .9), prop={'size':8})
-                plt.title(graph_title + str(benchmark_name) + " benchmark")
-                pylab.savefig(name+ str(int(counter/len(symbolsToChooseFrom)))+".png") #saving the figure generated by generateGraph
-                plt.close()
-                fig, ax = plt.subplots()
-                #plt.yscale('log')
-                plt.xscale('log')
-                plt.ylabel(yName)
-                plt.xlabel(xName)
+            #if (counter % (len(symbolsToChooseFrom)*len(color)) == 0): 
+        #if (counter % 10 == 0):
+        if (graph_type == "3d"): 
+            zvals_index_sorted = sorted(enumerate(z_vals), key=lambda x: x[1])
+            index_of_zvals_sorted = map(lambda y: y[0], zvals_index_sorted)
+            quality_list_sorted_based_on_z = [quality_list_to_be_drawn[i] for i in index_of_zvals_sorted]                
+            energy_list_sorted_based_on_z = [energy_list_to_be_drawn[i] for i in index_of_zvals_sorted]                
+            std_list_sorted_based_on_z = [std_list_to_be_drawn[i] for i in index_of_zvals_sorted]                
+            
+            """ the following is for plotting a wire_frame or surface plot
+            print  np.asarray(quality_list_sorted_based_on_z)
+            print np.asarray(std_list_sorted_based_on_z)
+            print np.asarray(energy_list_sorted_based_on_z)
+            surf = ax.plot_surface(np.asarray(energy_list_sorted_based_on_z), np.asarray(quality_list_sorted_based_on_z), np.asarray(std_list_sorted_based_on_z), rstride=1, cstride=1, cmap=cm.coolwarm, linewidth=0, antialiased=False)
+            fig.colorbar(surf, shrink=0.5, aspect=5)
+            #ax.plot_wireframe(np.asarray(quality_list_sorted_based_on_z), np.asarray(std_list_sorted_based_on_z), np.asarray(energy_list_sorted_based_on_z))
+            """ 
+            colors = gen_color_spec.gen_color(len(quality_list_sorted_based_on_z), 'seismic') 
+            for x in range(len(quality_list_sorted_based_on_z)):
+                ax.scatter(quality_list_sorted_based_on_z[x], std_list_sorted_based_on_z[x] , energy_list_sorted_based_on_z[x], c=colors[x], marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)])
+                #ax.scatter(quality_list_sorted_based_on_z[x], std_list_sorted_based_on_z[x] , energy_list_sorted_based_on_z[x], c=color[x/len(color)], marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)])
+        
+        box = ax.get_position()
+        ax.set_position([box.x0, box.y0, box.width * 0.85, box.height])
+        # Put a legend to the right of the current axis (note: prop changes the fontsize)
+        ax.legend(loc='center left', bbox_to_anchor=(1, .9), prop={'size':8})
+        plt.title(graph_title + str(benchmark_name) + " benchmark")
+        pylab.savefig(name+ str(int(counter/len(symbolsToChooseFrom)))+".png") #saving the figure generated by generateGraph
+        plt.close()
+        fig, ax = plt.subplots()
+        #plt.yscale('log')
+        plt.xscale('log')
+        plt.ylabel(yName)
+        plt.xlabel(xName)
+            #sys.exit()
                
+    sys.exit() 
     #---comment up to here if not using proviing s4 point
     #--uncomment the following two lines to return back to without s4 inut consideration
 #    for el in valueList: 
@@ -266,7 +314,7 @@ def generateGraph_for_all(valueList, xName, yName, benchmark_name, graph_title="
     # ---- moving the legend outside of the graph (look bellow for placing inside)
     
     
-    
+    """
     box = ax.get_position()
     ax.set_position([box.x0, box.y0, box.width * 0.85, box.height])
     # Put a legend to the right of the current axis (note: prop changes the fontsize)
@@ -275,7 +323,7 @@ def generateGraph_for_all(valueList, xName, yName, benchmark_name, graph_title="
     if (counter % len(symbolsToChooseFrom) != 0):
         pylab.savefig(name+ str(int(counter/len(symbolsToChooseFrom)) + 1)+".png") #saving the figure generated by generateGraph
     plt.close()   
-
+    """
 def generateGraph3D(x, y, z, xName="blah", yName="now", zName="never"):
     fig = plt.figure(figsize=plt.figaspect(0.5)) 
     ax = fig.add_subplot(1, 2, 1, projection='3d') 
