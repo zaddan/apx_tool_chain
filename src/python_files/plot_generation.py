@@ -287,7 +287,7 @@ def generateGraph_for_all(valueList, xName, yName, benchmark_name, graph_title="
             """ 
             colors = gen_color_spec.gen_color(len(quality_list_sorted_based_on_z), 'seismic') 
             for x in range(len(quality_list_sorted_based_on_z)):
-                ax.scatter(quality_list_sorted_based_on_z[x], std_list_sorted_based_on_z[x] , energy_list_sorted_based_on_z[x], c=colors[x], marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)])
+                ax.scatter(quality_list_sorted_based_on_z[x], std_list_sorted_based_on_z[x] , energy_list_sorted_based_on_z[x], c=colors[x], marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], depthshade=False)
                 #ax.scatter(quality_list_sorted_based_on_z[x], std_list_sorted_based_on_z[x] , energy_list_sorted_based_on_z[x], c=color[x/len(color)], marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)])
         
         box = ax.get_position()
