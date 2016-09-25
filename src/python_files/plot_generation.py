@@ -229,6 +229,8 @@ def generateGraph_for_all(valueList, xName, yName, benchmark_name, graph_title="
         for el in zipped:
             input_results[el[2]].append(el)
         for index,res in enumerate(input_results):
+            if (counter > 20):
+                break
             print counter 
             if len(res) > 0:
                 el = map(lambda x: list(x), zip(*res))
@@ -250,6 +252,7 @@ def generateGraph_for_all(valueList, xName, yName, benchmark_name, graph_title="
                 energy_list_to_be_drawn.append(E_sorted)
                 std_list_to_be_drawn.append([int(np.mean([mR,mG,mB]))]*len(E_sorted))
                 z_vals.append( int(np.mean([mR,mG,mB])))
+                
                 counter +=1
         
         reminder(True,"the following lines which creates a new image every len(symbolsToChooseFrom) should be commented if we use any flag but various_inputs")
@@ -263,10 +266,11 @@ def generateGraph_for_all(valueList, xName, yName, benchmark_name, graph_title="
         energy_list_sorted_based_on_z = [energy_list_to_be_drawn[i] for i in index_of_zvals_sorted]                
         
         #--- generate a spectrum of colors  
-        colors = gen_color_spec.gen_color(len(quality_list_sorted_based_on_z), 'seismic') 
+        colors = ['b', 'g'] 
+        #colors = gen_color_spec.gen_color(len(quality_list_sorted_based_on_z), 'seismic') 
         for x in range(len(quality_list_sorted_based_on_z)):
+            my_label =  str(int(std_list_sorted_based_on_z[x][0]))
             if (graph_type == "3d"): 
-                my_label =  str(int(np.mean([mR,mG,mB]))) + "," + str(int(np.mean([stdR,stdG,stdB])))
                 """ the following is for plotting a wire_frame or surface plot
         surf = ax.plot_surface(np.asarray(energy_list_sorted_based_on_z), np.asarray(quality_list_sorted_based_on_z), np.asarray(std_list_sorted_based_on_z), rstride=1, cstride=1, cmap=cm.coolwarm, linewidth=0, antialiased=False)
         fig.colorbar(surf, shrink=0.5, aspect=5)
@@ -274,9 +278,11 @@ def generateGraph_for_all(valueList, xName, yName, benchmark_name, graph_title="
         """ 
                 ax.scatter(quality_list_sorted_based_on_z[x], std_list_sorted_based_on_z[x] , energy_list_sorted_based_on_z[x], c=colors[x], marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], depthshade=False)
             else:
-                my_label =  str(int(np.mean([mR,mG,mB]))) + "," + str(int(np.mean([stdR,stdG,stdB])))
-                my_label +=  lOf_run_input_list[index][0] 
-                ax.plot(quality_list_sorted_based_on_z[x], energy_list_sorted_based_on_z[x], marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label)
+                #my_label +=  lOf_run_input_list[index][0] 
+                #--- note: get rid of linestyle='None' if you want a line through the graph 
+                line_style = 'None'
+                line_style = '-'
+                ax.plot(quality_list_sorted_based_on_z[x], energy_list_sorted_based_on_z[x], marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label, linestyle=line_style)
         
         #--- wrapping up making the graph 
         box = ax.get_position()

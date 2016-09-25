@@ -985,4 +985,6 @@ def apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj):
     end = time.time()
     
 
-    return unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, pointSet, input_Point_list, accurateSetUp, delimeter
+    reminder(settings_obj.reminder_flag, "returning parto points instead of the lOfPoints_out_of heuristic. Don't think this will be problematic, but consider as a source of error")
+    return unique_point_list, lOfAllPointsTried, pareto_points, pointSet, input_Point_list, accurateSetUp, delimeter
+    #return unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, pointSet, input_Point_list, accurateSetUp, delimeter
