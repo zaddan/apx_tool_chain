@@ -49,9 +49,9 @@ def main():
     os.system("cp nohup.out res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
     os.system("cp log res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
     os.system("cp config.txt res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
-    os.system("cp test_benchmark_4_input_dep.py res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
-    os.system("cp test_benchmark.py res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
-    
+    #os.system("cp test_benchmark_4_input_dep.py res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
+    #os.system("cp test_benchmark.py res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
+    os.system("cp image_list.py res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
     #---configs
     os.system("cp settings.py res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)
     os.system("cp inputs.py res_bu/"+run_nature+"/"+benchmark_name+"/"+ backup_folder)

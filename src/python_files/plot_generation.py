@@ -192,10 +192,14 @@ def generateGraph_for_all_alternative(valueList, valueList_2, xName, yName, benc
 
 
 
-def generateGraph_for_all(valueList, xName, yName, benchmark_name, graph_title="pareto comparison for", name = "various_inputs", graph_type = "2d"):
+def generateGraph_for_all(valueList, xName, yName, benchmark_name, graph_title="pareto comparison for", name = "various_inputs", graph_dim = "2d", graph_type ="Q_vs_E"):
     
     fig = plt.figure(figsize=plt.figaspect(0.5)) 
-    if (graph_type == "3d"): 
+    #--- sanity check 
+    if (graph_dim == "3d"): 
+        if (graph_type == "Q_E_product"): 
+            print "ERROR: graph_teyp and graph_dim are incompatible"
+            sys.exit()
         ax = fig.gca(projection='3d')
         #ax = fig.add_subplot(111, projection='3d') 
         ax.set_xlabel('1/Q')
@@ -203,9 +207,13 @@ def generateGraph_for_all(valueList, xName, yName, benchmark_name, graph_title="
         ax.set_zlabel('Energy')
     else: 
         fig, ax = plt.subplots()
-        plt.xscale('log')
-        plt.ylabel(yName)
-        plt.xlabel(xName)
+        if (graph_type == "Q_E_product"):
+            plt.ylabel("Q_E_product")
+            plt.xlabel("mean")
+        else: 
+            plt.xscale('log')
+            plt.ylabel(yName)
+            plt.xlabel(xName)
     
     #here
     #----comment if not proving th s4 pont
@@ -229,16 +237,20 @@ def generateGraph_for_all(valueList, xName, yName, benchmark_name, graph_title="
         for el in zipped:
             input_results[el[2]].append(el)
         for index,res in enumerate(input_results):
-            if (counter > 6):
+            if (counter > 30 ):
                 break
             print counter 
             if len(res) > 0:
-                el = map(lambda x: list(x), zip(*res))
-                quality_values_shifted = map(lambda x: x+1, el[0]) 
-                #--here 
-                #---un comment the next line whenever you want to provide the resuls t professor, 
                 image_addr =  base_dir+lOf_run_input_list[index][0] + ".ppm"
                 mR, mG, mB, stdR, stdG, stdB = cluster_images.calc_image_mean_std(image_addr)
+                if (int(np.mean([mR,mG,mB]))) in z_vals:
+                    continue
+                el = map(lambda x: list(x), zip(*res))
+                quality_values_shifted = map(lambda x: x+1, el[0]) 
+                
+                #--here 
+                #---un comment the next line whenever you want to provide the resuls t professor, 
+                
 
                 #--- sort based on the quality
                 Q = quality_values_shifted
@@ -255,6 +267,7 @@ def generateGraph_for_all(valueList, xName, yName, benchmark_name, graph_title="
 #                z_vals.append( int(np.mean([stdR,stdG,stdB])))
 
                 std_list_to_be_drawn.append([int(np.mean([mR,mG,mB]))]*len(E_sorted))
+               
                 z_vals.append( int(np.mean([mR,mG,mB])))
 
                 counter +=1
@@ -274,7 +287,7 @@ def generateGraph_for_all(valueList, xName, yName, benchmark_name, graph_title="
         colors = gen_color_spec.gen_color(len(quality_list_sorted_based_on_z), 'seismic') 
         for x in range(len(quality_list_sorted_based_on_z)):
             my_label =  'mean:' + str(int(std_list_sorted_based_on_z[x][0]))
-            if (graph_type == "3d"): 
+            if (graph_dim == "3d"): 
                 """ the following is for plotting a wire_frame or surface plot
         surf = ax.plot_surface(np.asarray(energy_list_sorted_based_on_z), np.asarray(quality_list_sorted_based_on_z), np.asarray(std_list_sorted_based_on_z), rstride=1, cstride=1, cmap=cm.coolwarm, linewidth=0, antialiased=False)
         fig.colorbar(surf, shrink=0.5, aspect=5)
@@ -285,16 +298,20 @@ def generateGraph_for_all(valueList, xName, yName, benchmark_name, graph_title="
                 #my_label +=  lOf_run_input_list[index][0] 
                 #--- note: get rid of linestyle='None' if you want a line through the graph 
                 line_style = 'None'
-                line_style = '-'
-                ax.plot(quality_list_sorted_based_on_z[x], energy_list_sorted_based_on_z[x], marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label, linestyle=line_style)
+                #line_style = '-'
+                if (graph_type == "Q_E_product") :
+                    Q_E_list = [a*b for a,b in zip(quality_list_sorted_based_on_z[x],energy_list_sorted_based_on_z[x])]
+                    ax.plot(std_list_sorted_based_on_z[x], Q_E_list, marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label, linestyle=line_style)
+                else:
+                    ax.plot(quality_list_sorted_based_on_z[x], energy_list_sorted_based_on_z[x], marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label, linestyle=line_style)
         
         #--- wrapping up making the graph 
         box = ax.get_position()
         ax.set_position([box.x0, box.y0, box.width*.8 ,  box.height])
         # Put a legend to the right of the current axis (note: prop changes the fontsize)
-        ax.legend(loc='center left', bbox_to_anchor=(1, .9), prop={'size':7})
+        ax.legend(loc='center left', bbox_to_anchor=(1, .9), prop={'size':6})
         plt.title(graph_title + str(benchmark_name) + " benchmark")
-        pylab.savefig(name+ str(int(counter/len(symbolsToChooseFrom)))+".png") #saving the figure generated by generateGraph
+        pylab.savefig(name+".png") #saving the figure generated by generateGraph
         plt.close()
         fig, ax = plt.subplots()
         #plt.yscale('log')
