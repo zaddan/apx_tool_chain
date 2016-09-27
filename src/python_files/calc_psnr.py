@@ -42,8 +42,16 @@ def calculate_psnr(refImage, noisyImage):
     mse = (mseR + mseG + mseB)/3;
 
     # ---  Calculate PSNR (Peak Signal to noise ratio).
+    really_small_number =  .0000000001
+
+    if mse < really_small_number:
+        print "you need to make really_small_number smaller b/c mse for some case\
+                has ended up being smaller: mse" + str(mse) + " really_small_number: "\
+                + str(really_small_number)
+    
     if mse == 0:
-        mse = .0000000001
+        mse = really_small_number
+    
     PSNR_Value = 10 * math.log10( 255*255 / mse);
     print "here is PSNR"
     return PSNR_Value

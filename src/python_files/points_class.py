@@ -151,8 +151,15 @@ class points:
         NSR_vector = np.divide(mean_of_error_values,mean_of_acc_values) #should be a vector
         NSR_vector_abs = map(lambda x: abs(x), NSR_vector) #should be a vector
         NSR = np.mean(NSR_vector_abs) #this should be a scalar number
+        if (mean_of_error_values[0]) == 0:
+            mean_of_error_values[0] = .00000000000001
+        PSNR = 10*math.log(((255^2)/ mean_of_error_values[0]), 10)
+        
+        
         if (normalize and not(possibly_worse_case_result_quality == float("inf"))):
-            NSR = NSR/possibly_worse_case_result_quality
+            NSR = NSR#/possibly_worse_case_result_quality
+            #NSR = NSR/possibly_worse_case_result_quality
+
         if (settings_obj.quality_mode == "snr"):
             if(NSR == 0):
                 print "*******ERROR(kind of) noise is zero, make sure SNR is the right quality mode****"
@@ -167,6 +174,13 @@ class points:
                 self.quality_is_set = True
         elif (settings_obj.quality_mode == "nsr"):
             self.quality = abs(NSR)
+            self.quality_is_set = True
+        elif (settings_obj.quality_mode == "psnr"):
+            if not(settings_obj.error_mode == "image"):
+                print "psnr is not defined for other applications but images. This is b/c\
+                        at the moment I am simply using mean_of_error_values[0] and I am \
+                        not sure if that would work if len(mean_of_error_values) > 0"
+            self.quality = abs(PSNR)
             self.quality_is_set = True
         else:
             print "*****ERROR: this quality_mode: " + str(settings_obj.quality_mode) + " is not defined***"
