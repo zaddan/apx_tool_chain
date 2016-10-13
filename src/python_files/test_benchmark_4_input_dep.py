@@ -118,11 +118,20 @@ def run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name, heu
         write_points(lOflOfAllPointsTried_flattened, "pickled_results_all_points.PIK")
         #----apply first input's optimal setUp for various inputs
          
+        #--- get the input with most number of set up founds
+        #--- this is done mainly for evaluating the dependency of input and quality
+        #--- we pick the input with the most number of setup b/c it give us the most
+        #--- number of points
+        input_n_setUps = [len(i) for i in optimal_setUps_for_various_inputs]
+        input_n_setUps_index_sorted = sorted(enumerate(input_n_setUps), key=lambda x: x[1])
+        index_of_n_setUps_sorted = map(lambda y: y[0], input_n_setUps_index_sorted)
+        max_n_setUps = index_of_n_setUps_sorted[-1] 
+
         lOfmyPoints = [] 
         for iteration, input_ in enumerate(lOf_run_input_list): 
             inputObj.settings_obj.runMode = "serial" 
             inputObj.set_run_input(input_) 
-            for el in optimal_setUps_for_various_inputs[0]: 
+            for el in optimal_setUps_for_various_inputs[max_n_setUps]: 
                 myPoint = run_task_with_one_set_up_and_collect_info(settings_obj, inputObj,el.get_raw_setUp())
                 myPoint.set_input_number(iteration) 
                 lOfmyPoints.append(myPoint)

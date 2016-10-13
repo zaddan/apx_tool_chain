@@ -26,6 +26,7 @@ public:
 
     virtual ~btm();
 
+void update_energy(int n_apx_b);
 virtual int calc(const int &a, const int &b);
 virtual int calc(const long &a, const int &b);
 virtual int calc(const int &a, const long &b);

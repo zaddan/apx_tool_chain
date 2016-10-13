@@ -342,7 +342,16 @@ def calculateMultiplierEnergy(numberOfBits):
 # @param currentValues
 # 
 # @return 
-def calculateEnergy(operatorNumberOfBitsList):
+def calculateEnergy(operatorNumberOfBitsList, settings_obj):
+    with open("../../" + settings_obj.generatedTextFolderName + "/energy_result.txt") as f:
+        for line in f:
+            for words in line.split():
+                print "energyval: " + str(words);
+                result = int(words); 
+                sys.stdout.flush()
+
+
+    return result
     result = 0 
     for element in operatorNumberOfBitsList:
         if (element[0][-1] == 'a'):  #it is an adder

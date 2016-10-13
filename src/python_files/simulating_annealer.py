@@ -219,8 +219,8 @@ def make_move(tabuList, bestSetUp, T, maxNumberOfIteation, lOfAcceptableOperator
     return newSetUp, operatorModified, operatorIndex
 
 
-def getEnergy(config):
-    energy = calculateEnergy(map(getFirstTwo, config))
+def getEnergy(config, settings_obj):
+    energy = calculateEnergy(map(getFirstTwo, config), settings_obj)
     return energy 
 
 

@@ -7,6 +7,8 @@
 using namespace std;
 #include <cstring>
 #include <cassert>
+extern int energy_value;
+
 
 bta::bta(size_t Nt, size_t Nia, size_t msb, size_t lsb, bool table_gen) {
 	this->Nt = Nt;
@@ -20,6 +22,9 @@ bta::bta(size_t Nt, size_t Nia, size_t msb, size_t lsb, bool table_gen) {
 
 bta::~bta(void) {}
 
+void bta::update_energy(int n_apx_bits){
+    energy_value += (32 - n_apx_bits) + 10;
+}
 size_t bta::get_ianum_bits(void) {
 	return Nia;
 }
@@ -35,7 +40,7 @@ int bta::calc(const int &number1, const long &number2) {
 }
 
 float bta::calc(const float &number1, const int &number2) {
-    #ifdef VERBOSE 
+#ifdef VERBOSE 
     cout<<"=============insde half float"<<endl; 
     #endif 
     float numOut = number2; 
@@ -51,7 +56,7 @@ float bta::calc(const int &number1, const float &number2) {
 
 
 float bta::calc(const float &number1, const float &number2) {
-   
+    update_energy(Nia); 
     /*
     FILE* fp;
     fp = fopen("diff_file.txt", "ab+");
@@ -117,6 +122,7 @@ float bta::calc(const float &number1, const float &number2) {
     float num2_restored, num1_restored; 
     memcpy(&num1_restored, &num1_ptr, sizeof(num1_restored));
     memcpy(&num2_restored, &num2_ptr, sizeof(num2_restored));
+    
     return num2_restored + num1_restored;
    /*
     fpType num1;
@@ -145,6 +151,7 @@ float bta::calc(const float &number1, const float &number2) {
 
 
 int bta::calc(const int &a, const int &b) {
+    update_energy(Nia); 
     // inaccurate part
     #ifdef VERBOSE 
     cout<<"=============in int version"<<endl; 
@@ -171,6 +178,7 @@ int bta::calc(const int &a, const int &b) {
 
 
 unsigned int bta::calc(const unsigned int &a, const unsigned int &b) {
+    update_energy(Nia); 
     // inaccurate part
     #ifdef VERBOSE 
     cout<<"=============in unsigned unsigned int version"<<endl; 
@@ -194,6 +202,7 @@ unsigned int bta::calc(const unsigned int &a, const unsigned int &b) {
 }
 
 int bta::calc(const unsigned int &a_unsigned, const int &b) {
+    update_energy(Nia); 
     // inaccurate part
     #ifdef VERBOSE 
     cout<<"=============in unsigned unsigned int version"<<endl; 
@@ -218,6 +227,7 @@ int bta::calc(const unsigned int &a_unsigned, const int &b) {
 }
 
 int bta::calc(const int &a, const unsigned int &b_unsigned) {
+    update_energy(Nia); 
     // inaccurate part
     #ifdef VERBOSE 
     cout<<"=============in unsigned unsigned int version"<<endl; 
@@ -246,7 +256,8 @@ int bta::calc(const int &a, const unsigned int &b_unsigned) {
 
 int bta::calc_ref(const int &a, const int &b) {
 	// this is adder
-	return a + b;
+    update_energy(Nia); 
+    return a + b;
 }
 
 void bta::tbl_gen() {

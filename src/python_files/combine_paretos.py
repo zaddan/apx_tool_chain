@@ -180,7 +180,7 @@ def run_combine_pareto(settings_obj, lOfPointSet,inputObj):
 
         
         for operandIndex, operandSampleFileName in enumerate(nameOfAllOperandFilesList):
-            energyValue = [getEnergy(individual)]
+            energyValue = [getEnergy(individual, settings_obj)]
             
             if (settings_obj.runMode == "neverUseThis"): 
                 CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings_obj.rawResultFolderName + "/" + settings_obj.csourceOutputFileName + str(multiprocessing.current_process()._identity[0]) + ".txt" #where to collect C++ source results

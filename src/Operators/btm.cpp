@@ -7,8 +7,12 @@
 #include "globals.h"
 using namespace std;
 #include <cstring>
-btm::btm(void) {}
+extern int energy_value;
 
+btm::btm(void) {}
+void btm::update_energy(int n_apx_bits){
+    energy_value += 31* (32 - n_apx_bits) + 10;
+}
 btm::btm(size_t Nt, size_t Nia, bool table_gen) {
     this->Nt = Nt;
     this->msb = Nia-1;
@@ -35,6 +39,7 @@ size_t btm::get_vbl_bits(void) {
 }
 
 int btm::calc(const long &a, const int &b) {
+    update_energy(vbl); 
     // inaccurate part
     int weight = pow(2, vbl) - 1;
     long abs_a = (a<0) ? -a : a;
@@ -70,6 +75,7 @@ int btm::calc(const long &a, const int &b) {
     return (sign ? -tmp : tmp);
 }
 int btm::calc(const int &a, const long &b) {
+    update_energy(vbl); 
     // inaccurate part
     int weight = pow(2, vbl) - 1;
     long abs_a = (a<0) ? -a : a;
@@ -163,6 +169,7 @@ float btm::calc(const float &number1, const float &number2) {
     *num2_ptr |= num2_mantisa;
     */
 
+    update_energy(vbl); 
     int num1_ptr;
     memcpy(&num1_ptr, &number1, sizeof(num1_ptr));
     int num1_mantisa =  num1_ptr & ~(0xff800000);
@@ -209,7 +216,8 @@ float btm::calc(const float &number1, const float &number2) {
 
 
 int btm::calc(const int &a, const int &b) {
-    #ifdef VERBOSE 
+   update_energy(vbl);    
+#ifdef VERBOSE 
     cout<<"=============in int version"<<endl; 
     #endif 
     // inaccurate part
@@ -249,7 +257,8 @@ int btm::calc(const int &a, const int &b) {
 
 
 unsigned int btm::calc(const unsigned int &a, const unsigned int &b) {
-    #ifdef VERBOSE 
+   update_energy(vbl);    
+#ifdef VERBOSE 
     cout<<"=============in unsigned int version"<<endl; 
     #endif 
     // inaccurate part
@@ -276,7 +285,8 @@ unsigned int btm::calc(const unsigned int &a, const unsigned int &b) {
 }
 
 int btm::calc(const unsigned int &a_unsigned, const int &b) {
-    #ifdef VERBOSE 
+   update_energy(vbl);    
+#ifdef VERBOSE 
     cout<<"=============in half usigned int version"<<endl; 
     #endif 
     int a = (int) a_unsigned ;
@@ -304,7 +314,8 @@ int btm::calc(const unsigned int &a_unsigned, const int &b) {
 }
 
 int btm::calc(const int &a, const unsigned int &b_unsigned) {
-    #ifdef VERBOSE 
+   update_energy(vbl);    
+#ifdef VERBOSE 
     cout<<"=============in half usigned int version"<<endl; 
     #endif 
     int b = (int) b_unsigned;
@@ -335,6 +346,7 @@ int btm::calc(const int &a, const unsigned int &b_unsigned) {
 
 
 int btm::calc_ref(const int &a, const int &b) {
+   update_energy(vbl);    
     return a*b;
 }
 

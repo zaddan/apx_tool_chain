@@ -209,7 +209,7 @@ def specializedEval(normalize,possibly_worse_case_result_quality, _mld_ , ignore
         newPoint = points() 
         newPoint.set_dealing_with_pics(eval(inputObj.dealingWithPics))
         for operandIndex, operandSampleFileName in enumerate(nameOfAllOperandFilesList):
-            energyValue = [getEnergy(newSetUp)]
+            energyValue = [getEnergy(newSetUp, settings_obj)]
 
             if (settings_obj.runMode == "parallel"): 
                 CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings_obj.rawResultFolderName + "/" + settings_obj.csourceOutputFileName + str(exe_annex) + ".txt" #where to collect C++ source results

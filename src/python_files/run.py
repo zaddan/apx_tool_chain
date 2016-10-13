@@ -18,7 +18,6 @@ def parseAndReturn(srcFileName):
 def run(executableFileName, runInput1, runInput2, runInput3, runInput4):
     #print executable + " " + ' '.join(executableInputList);
     operandSampleFileName = runInput4 
-    print "goh " + operandSampleFileName 
     lOfAllInputs = parseAndReturn(operandSampleFileName).split()
     for index, element in enumerate(lOfAllInputs):
         if (element.split("/")[0] == "~"):

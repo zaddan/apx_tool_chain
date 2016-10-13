@@ -438,6 +438,7 @@ def run_task_with_one_set_up_and_collect_info(settings_obj, inputObj, input_setU
     #--------------------------------------------------------------------------
     #--------------------------------------------------------------------------
     for inputNumber,operandSampleFileName in enumerate(nameOfAllOperandFilesList):
+         
         process_id = 0 
         
         CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings_obj.rawResultFolderName + "/" + settings_obj.csourceOutputFileName + str(inputNumber) + ".txt" #where to collect C++ source results
@@ -447,9 +448,10 @@ def run_task_with_one_set_up_and_collect_info(settings_obj, inputObj, input_setU
             print("\n........running to get accurate values\n"); 
             reminder(settings_obj.reminder_flag,"make sure to change make_run to make_run_compile if you change the content of any of the cSRC files")
             reminder(settings_obj.reminder_flag,"the parallel execution requires all_input_scenarious.txt (to the number of inputs) even for sd-vbs that does not really uses them, hence, make sure you have have all_inut_scnearios.txt$(number) where number if the lenght of the input")
-            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, process_id, settings_obj,
+            make_run_compile(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, process_id, settings_obj,
                     run_input_list) #first make_run
             accurateValues = extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj, settings_obj)
+            
         else:
             newPath = "/home/local/bulkhead/behzad/usr/local/apx_tool_chain/src/python_files/scratch/acc.txt"
             accurateValues = extractCurrentValuesForOneInput(newPath, inputObj, settings_obj)
@@ -708,7 +710,7 @@ def apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj):
         if not(settings_obj.errorTest): 
             print("\n........running to get accurate values\n"); 
             reminder(settings_obj.reminder_flag,"make sure to change make_run to make_run_compile if you change the content of any of the cSRC files")
-            make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, process_id, settings_obj,
+            make_run_compile(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, process_id, settings_obj,
                     run_input_list) #first make_run
             accurateValues = extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj, settings_obj)
         else:
