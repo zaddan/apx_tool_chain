@@ -3,6 +3,7 @@
 #include "setSubType.h"
 #include "operandFile_parser.h"
 //#define VERBOSE
+#define BT_RND
 #define APX
 void assign_global_variables(string, string);
 extern hw_ac **myOp; 

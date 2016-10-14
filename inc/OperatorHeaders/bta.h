@@ -27,6 +27,7 @@ void update_energy(int n_apx_b);
 virtual size_t get_ianum_bits(void);
 virtual int calc(const int &a, const int &b);
 virtual int calc(const long &a, const int &b);
+virtual int calc(const long &a, const long &b);
 virtual int calc(const int &a, const long &b);
 virtual unsigned int calc(const unsigned int &a, const unsigned int &b);
 virtual int calc(const int &a, const unsigned int &b);

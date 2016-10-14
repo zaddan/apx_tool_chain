@@ -38,8 +38,49 @@ size_t btm::get_vbl_bits(void) {
     return vbl;
 }
 
+int btm::calc(const long &a, const long &b) {
+    update_energy(vbl); 
+    
+
+    // inaccurate part
+    int weight = pow(2, vbl) - 1;
+    long abs_a = (a<0) ? -a : a;
+    long abs_b = (b<0) ? -b : b;
+    int sign = (a<0 && b>0) || (a>0 && b<0) ? 1 : 0;
+    //  int iap_a = weight&a;
+//  int iap_b = weight&b;
+//  int a_rnd = (((a >> vbl)&((int)(pow(2, Nt-vbl-1) - 1))) == ((int)pow(2, Nt-vbl-1) - 1)) ?
+//              (a >> vbl) : (a >> vbl) + 1;
+//  int b_rnd = (((b >> vbl)&((int)pow(2, Nt-vbl-1) - 1)) == ((int)pow(2, Nt-vbl-1) - 1)) ?
+//              (b >> vbl) : (b >> vbl) + 1;
+    //printf("SGLEE VBL: %d, %x, %x, %x\n", vbl, (b >> vbl), b_rnd, (int)(pow(2, Nt-vbl-1) - 1));
+    //if (((b >> vbl)&((int)pow(2, Nt-vbl-1) - 1)) == ((int)pow(2, Nt-vbl-1) - 1)) cout << "SGLEE OVERFLOW" << endl;
+    //if ((a >> vbl) == (pow(2, Nt) - 1)) cout << "SGLEE OVERFLOW" << endl;
+//  int a_op = (iap_a >> (vbl - 1)) == 0x1 ? a_rnd : (a >> vbl);
+//  int b_op = (iap_b >> (vbl - 1)) == 0x1 ? b_rnd : (b >> vbl);
+
+#ifdef BT_RND
+    int a_op = (abs_a >> (vbl - 1)) == 0x1 ? (abs_a >> vbl) + 1 : (abs_a >> vbl);
+#else
+    int a_op = (abs_a >> vbl);
+#endif
+
+#ifdef BT_RND
+    int b_op = (abs_b >> (vbl - 1)) == 0x1 ? (abs_b >> vbl) + 1 : (abs_b >> vbl);
+#else
+    int b_op = (abs_b >> vbl);
+#endif
+
+    //printf("SGLEE VBL: %d, %d, %d\n", a_op, b_op, ((a_op)*(b_op)) << (2*vbl));
+    int tmp = ((a_op)*(b_op)) << (2*vbl);
+    // accurate part
+    return (sign ? -tmp : tmp);
+}
+
 int btm::calc(const long &a, const int &b) {
     update_energy(vbl); 
+    
+
     // inaccurate part
     int weight = pow(2, vbl) - 1;
     long abs_a = (a<0) ? -a : a;
@@ -76,6 +117,8 @@ int btm::calc(const long &a, const int &b) {
 }
 int btm::calc(const int &a, const long &b) {
     update_energy(vbl); 
+    
+
     // inaccurate part
     int weight = pow(2, vbl) - 1;
     long abs_a = (a<0) ? -a : a;
@@ -124,7 +167,13 @@ float btm::calc(const int &number1, const float &number2) {
 
 
 float btm::calc(const float &number1, const float &number2) {
-        /*
+    
+    #ifdef BT_RND
+       printf("ERRR: rounding not defined for float,float btm \n");
+       exit(0);
+    #endif
+    
+    /*
     FILE* fp;
     fp = fopen("diff_file.txt", "ab+"); 
     
@@ -238,6 +287,7 @@ int btm::calc(const int &a, const int &b) {
 //  int b_op = (iap_b >> (vbl - 1)) == 0x1 ? b_rnd : (b >> vbl);
 
 #ifdef BT_RND
+    cout<<"rounding btm"<<endl;	
     int a_op = (abs_a >> (vbl - 1)) == 0x1 ? (abs_a >> vbl) + 1 : (abs_a >> vbl);
 #else
     int a_op = (abs_a >> vbl);
@@ -257,7 +307,13 @@ int btm::calc(const int &a, const int &b) {
 
 
 unsigned int btm::calc(const unsigned int &a, const unsigned int &b) {
-   update_energy(vbl);    
+   #ifdef BT_RND
+       printf("ERRR: rounding not defined for unsigned int,unsigned int\n");
+       exit(0);
+    #endif
+
+    
+    update_energy(vbl);    
 #ifdef VERBOSE 
     cout<<"=============in unsigned int version"<<endl; 
     #endif 
@@ -286,6 +342,12 @@ unsigned int btm::calc(const unsigned int &a, const unsigned int &b) {
 
 int btm::calc(const unsigned int &a_unsigned, const int &b) {
    update_energy(vbl);    
+
+   #ifdef BT_RND
+       printf("ERRR: rounding not defined for unsigned int,int\n");
+       exit(0);
+    #endif
+
 #ifdef VERBOSE 
     cout<<"=============in half usigned int version"<<endl; 
     #endif 
@@ -315,6 +377,12 @@ int btm::calc(const unsigned int &a_unsigned, const int &b) {
 
 int btm::calc(const int &a, const unsigned int &b_unsigned) {
    update_energy(vbl);    
+
+    #ifdef BT_RND
+       printf("ERRR: rounding not defined for unsigned int,unsigned int\n");
+       exit(0);
+    #endif
+
 #ifdef VERBOSE 
     cout<<"=============in half usigned int version"<<endl; 
     #endif 
