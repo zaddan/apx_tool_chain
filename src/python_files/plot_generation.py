@@ -19,6 +19,7 @@ from extract_result_properties import *
 from extract_pareto_set_from_raw_material import *
 import cluster_images 
 import gen_color_spec 
+import adjust
 #def generateParetoGraph(energy, noise, graphType = "2d")
 #    symbolsToChooseFrom = ['*', 'x', "o", "+", "*", "-", "^"]
 #    if (graphType == "3d"): 
@@ -70,6 +71,10 @@ import gen_color_spec
 # @param symbol
 # 
 # @return 
+
+#-- adjusting the values so they can be drawn and easily compared with one another
+
+
 def generateGraph(x, y, xName, yName, symbol):
     fig, ax = plt.plots()
     ax.plot(x, y, symbol, label="ok")
@@ -204,6 +209,109 @@ def finish_up_making_graph(ax, name, graph_title, benchmark_name, counter=0):
 #            plt.xscale('log')
 #            plt.ylabel(yName)
 #            plt.xlabel(xName)
+def generateGraph_for_all_simplified(valueList, xName, yName, benchmark_name, graph_title="pareto comparison for", name = "various_inputs", graph_dim = "2d", graph_type ="Q_vs_E", n_graphs="one"):
+    
+    name_counter = 0 
+    fig = plt.figure(figsize=plt.figaspect(0.5)) 
+    #--- sanity check 
+    if (graph_dim == "3d"): 
+        print "can't draw this" 
+        sys.exit() 
+    else: 
+        fig, ax = plt.subplots()
+        if (graph_type == "Q_E_product"):
+            plt.ylabel("Q_E_product")
+            plt.xlabel("mean")
+        else: 
+            #plt.xscale('log')
+            plt.xlabel("mean")
+            plt.ylabel("Energy")
+#            plt.ylabel(yName)
+#            plt.xlabel(xName)
+    
+    #here
+    #----comment if not proving th s4 pont
+    symbolsToChooseFrom = ['*', 'x', "o", "+","^", '1', '2', "3"] 
+    color =['g', 'y', 'r', 'm']
+    
+    lOf_run_input_list = image_list.lOf_run_input_list
+    number_of_inputs_used = len(lOf_run_input_list)
+    input_results = map(list, [[]]*number_of_inputs_used) 
+    base_dir = "/home/local/bulkhead/behzad/usr/local/apx_tool_chain/inputPics/"
+    counter = 0
+    energy_list_to_be_drawn = []
+    quality_list_to_be_drawn = []
+    std_list_to_be_drawn = []
+    image_list_to_be_drawn = [] 
+    z_vals = [] 
+    
+
+    for val in valueList:
+        input_results = map(list, [[]]*number_of_inputs_used) 
+        zipped = zip(*val[:-1])  
+        for el in zipped:
+            input_results[el[2]].append(el)
+        for index,res in enumerate(input_results):
+            """ 
+            if (counter > 50 ):
+                break
+            """ 
+            print counter 
+            if len(res) > 0:
+                image_addr =  base_dir+lOf_run_input_list[index][0] + ".ppm"
+                mR, mG, mB, stdR, stdG, stdB = cluster_images.calc_image_mean_std(image_addr)
+                if (int(np.mean([mR,mG,mB]))) in z_vals:
+                    continue
+                el = map(lambda x: list(x), zip(*res))
+                quality_values_shifted = map(lambda x: x+1, el[0]) 
+                
+                #--- sort based on the quality
+                Q = quality_values_shifted
+                E = el[1]
+                E_index_sorted = sorted(enumerate(E), key=lambda x: x[1])
+                index_of_E_sorted = map(lambda y: y[0], E_index_sorted)
+                Q_sorted = [Q[i] for i in index_of_E_sorted]
+                E_sorted = [E[i] for i in index_of_E_sorted]
+                quality_list_to_be_drawn.append(Q_sorted)
+                energy_list_to_be_drawn.append(E_sorted)
+                std_list_to_be_drawn.append([int(np.mean([mR,mG,mB]))]*len(E_sorted))
+                image_list_to_be_drawn.append([lOf_run_input_list[index][0]]*len(E_sorted))
+                z_vals.append( int(np.mean([mR,mG,mB])))
+                counter +=1
+        
+        reminder(True,"the following lines which creates a new image every len(symbolsToChooseFrom) should be commented if we use any flag but various_inputs")
+        
+        
+        #--sorting the data. This is necessary for wire frame 
+        zvals_index_sorted = sorted(enumerate(z_vals), key=lambda x: x[1])
+        index_of_zvals_sorted = map(lambda y: y[0], zvals_index_sorted)
+        quality_list_sorted_based_on_z = [quality_list_to_be_drawn[i] for i in index_of_zvals_sorted]                
+        std_list_sorted_based_on_z = [std_list_to_be_drawn[i] for i in index_of_zvals_sorted]                
+        energy_list_sorted_based_on_z = [energy_list_to_be_drawn[i] for i in index_of_zvals_sorted]                
+        
+        image_list_sorted_based_on_z = [image_list_to_be_drawn[i] for i in index_of_zvals_sorted]                
+        
+        print quality_list_sorted_based_on_z
+        print std_list_sorted_based_on_z
+        print energy_list_sorted_based_on_z
+        Qs, Es, stds, QSs = adjust.adjust_vals(quality_list_sorted_based_on_z, energy_list_sorted_based_on_z, std_list_sorted_based_on_z)
+        
+        #--- generate a spectrum of colors  
+        #colors = ['b', 'g'] 
+        second_axis = Es; 
+        third_axis = QSs; 
+        third_axis_name = "quality" 
+        n_lines = len(QSs)
+        colors = gen_color_spec.gen_color(n_lines, 'seismic') 
+        for x in range(len(third_axis)):
+            my_label =  third_axis_name +": " + str(int(third_axis[x]))
+            second_axis_as_w_diff_mean = map(lambda y: y[x], second_axis)
+            l_mean = map(lambda y: y[x], stds)
+            line_style = '-'
+            print "asdf" + str(second_axis_as_w_diff_mean )
+            ax.plot(l_mean, second_axis_as_w_diff_mean, marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label, linestyle=line_style)
+        finish_up_making_graph(ax, name, graph_title, benchmark_name,  0) 
+             
 
 def generateGraph_for_all(valueList, xName, yName, benchmark_name, graph_title="pareto comparison for", name = "various_inputs", graph_dim = "2d", graph_type ="Q_vs_E", n_graphs="one"):
     
@@ -311,7 +419,6 @@ def generateGraph_for_all(valueList, xName, yName, benchmark_name, graph_title="
         
         image_list_sorted_based_on_z = [image_list_to_be_drawn[i] for i in index_of_zvals_sorted]                
         
-
         #--- generate a spectrum of colors  
         #colors = ['b', 'g'] 
         n_energy_levels = 4
