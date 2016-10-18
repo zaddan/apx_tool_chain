@@ -5,14 +5,58 @@
 #include "btm.h"
 #include "fp_helpers.h"
 #include "globals.h"
+#include <string>
+#include <cstring>
+#include <vector>
 using namespace std;
 #include <cstring>
-extern int energy_value;
+extern long double energy_value;
 
 btm::btm(void) {}
-void btm::update_energy(int n_apx_bits){
-    energy_value += 31* (32 - n_apx_bits) + 10;
+//void btm::update_energy(int n_apx_bits){
+//    energy_value += 31* (32 - n_apx_bits) + 10;
+//}
+
+
+
+//vector<float> mul_long_long_energy_vals2 {0, 17.6200, 16.9703, 16.5727, 16.0470, 15.4340};
+
+
+vector<float> mul_long_long_energy_vals {17.9, 17.6200, 16.9703, 16.5727, 16.0470, 15.4340,  15.0166,14.5268 ,13.9600 ,13.6053 ,13.1328 ,12.6118 ,12.3106 ,11.8315 , 11.2906, 10.9915};
+
+
+vector<float> mul_long_int_energy_vals {8.8, 8.5007, 8.0576 , 7.6706 , 7.3762 , 6.9593 , 6.56237,6.2935 ,5.9425 ,5.5465 ,5.3194, 4.9607 ,4.6345, 4.4028 ,4.1278 ,3.7874};
+
+vector<float> mul_int_int_energy_vals {4.6, 4.4194, 4.1470, 3.8712, 3.6900, 3.4301,3.1957 ,3.0342 ,2.8028 ,2.5685 ,2.4261,2.558612,2.0411,1.9182,1.7561,1.5972};
+
+void btm::update_energy(int n_apx_bits, string op1_type, string op2_type){
+    /* 
+    cout <<energy_value<<endl; 
+    cout<<mul_long_long_energy_vals[n_apx_bits]<<endl;
+    cout<<energy_value+mul_long_long_energy_vals[n_apx_bits]<<endl;
+    cout <<"PRINTING"<<endl; 
+    */
+    if (op1_type ==  "long" && op2_type ==  "long") {
+        energy_value += mul_long_long_energy_vals[n_apx_bits];
+    }
+    else if (op1_type=="int" && op2_type =="long") {
+        energy_value += mul_long_int_energy_vals[n_apx_bits];
+    }
+    else if (op1_type == "long" && op2_type == "int") {
+        energy_value += mul_long_int_energy_vals[n_apx_bits];
+    }
+    else if (op1_type == "int" && op2_type== "int") {
+        energy_value += mul_int_int_energy_vals[n_apx_bits];
+    }
+    else {
+        cout<<"the energy value for this bta types is not defined"<<endl;
+        exit(0);
+    }
+    //energy_valuee+= (32 - n_apx_bits) + 10;
 }
+
+
+
 btm::btm(size_t Nt, size_t Nia, bool table_gen) {
     this->Nt = Nt;
     this->msb = Nia-1;
@@ -39,7 +83,7 @@ size_t btm::get_vbl_bits(void) {
 }
 
 int btm::calc(const long &a, const long &b) {
-    update_energy(vbl); 
+    update_energy(vbl, "long", "long"); 
     
 
     // inaccurate part
@@ -78,7 +122,7 @@ int btm::calc(const long &a, const long &b) {
 }
 
 int btm::calc(const long &a, const int &b) {
-    update_energy(vbl); 
+    update_energy(vbl, "long", "int"); 
     
 
     // inaccurate part
@@ -116,7 +160,7 @@ int btm::calc(const long &a, const int &b) {
     return (sign ? -tmp : tmp);
 }
 int btm::calc(const int &a, const long &b) {
-    update_energy(vbl); 
+    update_energy(vbl, "int", "long"); 
     
 
     // inaccurate part
@@ -164,6 +208,7 @@ float btm::calc(const int &number1, const float &number2) {
     float numOut = number1; 
     calc(numOut, number2);
 } 
+
 
 
 float btm::calc(const float &number1, const float &number2) {
@@ -218,7 +263,7 @@ float btm::calc(const float &number1, const float &number2) {
     *num2_ptr |= num2_mantisa;
     */
 
-    update_energy(vbl); 
+    update_energy(vbl, "float", "float"); 
     int num1_ptr;
     memcpy(&num1_ptr, &number1, sizeof(num1_ptr));
     int num1_mantisa =  num1_ptr & ~(0xff800000);
@@ -263,9 +308,17 @@ float btm::calc(const float &number1, const float &number2) {
     */
 }
 
+float btm::calc(const double &number1, const double &number2) {
+    cout<<"=============insde other half float"<<endl; 
+    float numOut = number1; 
+    float numOut2 = number2; 
+    calc(numOut, numOut2);
+}
+
+
 
 int btm::calc(const int &a, const int &b) {
-   update_energy(vbl);    
+   update_energy(vbl, "int", "int");    
 #ifdef VERBOSE 
     cout<<"=============in int version"<<endl; 
     #endif 
@@ -313,7 +366,7 @@ unsigned int btm::calc(const unsigned int &a, const unsigned int &b) {
     #endif
 
     
-    update_energy(vbl);    
+    update_energy(vbl, "int" ,"int");    
 #ifdef VERBOSE 
     cout<<"=============in unsigned int version"<<endl; 
     #endif 
@@ -341,7 +394,7 @@ unsigned int btm::calc(const unsigned int &a, const unsigned int &b) {
 }
 
 int btm::calc(const unsigned int &a_unsigned, const int &b) {
-   update_energy(vbl);    
+   update_energy(vbl, "int", "int");    
 
    #ifdef BT_RND
        printf("ERRR: rounding not defined for unsigned int,int\n");
@@ -376,7 +429,7 @@ int btm::calc(const unsigned int &a_unsigned, const int &b) {
 }
 
 int btm::calc(const int &a, const unsigned int &b_unsigned) {
-   update_energy(vbl);    
+   update_energy(vbl, "int", "int");    
 
     #ifdef BT_RND
        printf("ERRR: rounding not defined for unsigned int,unsigned int\n");
@@ -414,7 +467,7 @@ int btm::calc(const int &a, const unsigned int &b_unsigned) {
 
 
 int btm::calc_ref(const int &a, const int &b) {
-   update_energy(vbl);    
+   update_energy(vbl, "int", "int");    
     return a*b;
 }
 

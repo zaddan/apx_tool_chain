@@ -1,5 +1,6 @@
 import error
 from math import *
+import os.path
 from calc_psnr import *
 import os
 import sys
@@ -351,6 +352,10 @@ def calculateEnergy(operatorNumberOfBitsList, settings_obj):
                 sys.stdout.flush()
 
 
+    if not(os.path.exists("../../" + settings_obj.generatedTextFolderName + "/energy_result.txt")):
+        print "file doesn't exist" 
+        sys.exit()
+    os.system("rm ../../" + settings_obj.generatedTextFolderName + "/energy_result.txt")
     return result
     result = 0 
     for element in operatorNumberOfBitsList:

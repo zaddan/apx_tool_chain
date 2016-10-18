@@ -8,11 +8,11 @@
 using namespace std;
 
 hw_ac **myOp;   
-int energy_value;
+long double energy_value;
 //vector<int> inputVar;
 //void assign_global_variables(string resultFolderName, string operatorFileName, string operandFileName){
 void assign_global_variables(string resultFolderName, string operatorFileName){
-    energy_value = 0; 
+    energy_value = 0.0; 
     vector<vector<string> > OpTypeVec;
     enum status {SUCCESS, FAILURE}; 
     string OpListFile = resultFolderName;

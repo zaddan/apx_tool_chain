@@ -196,5 +196,4 @@ def find_apx_bit_boundary():
     # print lOfFunc_degree_tuple
 
 
-find_apx_bit_boundary()    
  

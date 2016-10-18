@@ -209,7 +209,6 @@ def specializedEval(normalize,possibly_worse_case_result_quality, _mld_ , ignore
         newPoint = points() 
         newPoint.set_dealing_with_pics(eval(inputObj.dealingWithPics))
         for operandIndex, operandSampleFileName in enumerate(nameOfAllOperandFilesList):
-            energyValue = [getEnergy(newSetUp, settings_obj)]
 
             if (settings_obj.runMode == "parallel"): 
                 CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings_obj.rawResultFolderName + "/" + settings_obj.csourceOutputFileName + str(exe_annex) + ".txt" #where to collect C++ source results
@@ -227,6 +226,7 @@ def specializedEval(normalize,possibly_worse_case_result_quality, _mld_ , ignore
                 make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, inputObj.bench_suit_name,exe_annex,
                         settings_obj, run_input_list) 
             # print "here is the accurate" + str(lOfAccurateValues) 
+            energyValue = [getEnergy(newSetUp, settings_obj)]
             if (settings_obj.errorTest):
                 newPath = "/home/local/bulkhead/behzad/usr/local/apx_tool_chain/src/python_files/scratch/apx.txt"
                 if(settings_obj.errorTest):

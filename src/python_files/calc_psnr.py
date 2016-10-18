@@ -4,6 +4,8 @@ from PIL import ImageFile
 import math 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 import multiprocessing
+import os
+import sys
 # ---- get the RGB values of an image
 def get_RGB_values(imageName):
     
@@ -29,6 +31,8 @@ def get_RGB_values(imageName):
 # ---- calculate the psnr of two images
 def calculate_psnr(refImage, noisyImage):
     # ---- get R,G,B values of the two image
+    
+    
     refImageRVal, refImageGVal, refImageBVal, img_size = get_RGB_values(refImage)
     noisyImageRVal, noisyImageGVal, noisyImageBVal,_  = get_RGB_values(noisyImage)
     
@@ -52,6 +56,7 @@ def calculate_psnr(refImage, noisyImage):
     if mse == 0:
         mse = really_small_number
     
+    print "here is mse " + str(mse)
     PSNR_Value = 10 * math.log10( 255*255 / mse);
     print "here is PSNR"
     return PSNR_Value
@@ -66,9 +71,11 @@ def calculate_mean_acc_for_image(refImage, noisyImage):
 
 def calculate_error_for_image(refImage, noisyImage):
     # ---- get R,G,B values of the two image
-    refImageRVal, refImageGVal, refImageBVal, img_size = get_RGB_values(refImage)
-    noisyImageRVal, noisyImageGVal, noisyImageBVal,_  = get_RGB_values(noisyImage)
-    
+    noisyImage_ppm = noisyImage[:-4]+".ppm" 
+    refImage_ppm =  refImage[:-4]+".ppm" 
+    os.system("convert " + noisyImage + " " + noisyImage_ppm)
+    refImageRVal, refImageGVal, refImageBVal, img_size = get_RGB_values(refImage_ppm)
+    noisyImageRVal, noisyImageGVal, noisyImageBVal,_  = get_RGB_values(noisyImage_ppm)
     # ---- calculate the mean squared error
     img_total_size = img_size[0]*img_size[1] 
     mseR = np.sum((np.asarray(refImageRVal) - np.asarray(noisyImageRVal)) **2)/img_total_size

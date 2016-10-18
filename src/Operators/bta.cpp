@@ -7,7 +7,8 @@
 using namespace std;
 #include <cstring>
 #include <cassert>
-extern int energy_value;
+#include <string>
+extern long double energy_value;
 
 
 bta::bta(size_t Nt, size_t Nia, size_t msb, size_t lsb, bool table_gen) {
@@ -21,17 +22,38 @@ bta::bta(size_t Nt, size_t Nia, size_t msb, size_t lsb, bool table_gen) {
 }
 
 bta::~bta(void) {}
+vector <float> add_long_long_energy_vals  {1.77, 1.7653 ,1.7620 ,1.7585, 1.7495, 1.7448, 1.7369,1.7321 ,1.7278 ,1.7240 ,1.7179,1.7135,1.7092,1.7052,1.6975,1.6945};
+vector <float> add_long_int_energy_vals {1.63,1.6204 , 1.6091 , 1.6080 , 1.5979 ,  1.6019, 1.5879,1.5896 ,1.5785 ,1.5811 ,1.5667,1.5715,1.5566,1.5591,1.5450, 1.5469};
+vector <float> add_int_int_energy_vals{.894, .8892198 , .8846183 , .8785046 , .8740424 , .8694106 ,  .8630022 ,.8601716 ,.8548939 ,.8502534 ,.8421492, .8393752 ,.8353899 ,.8289224 ,.8231492 ,.8175684};
 
-void bta::update_energy(int n_apx_bits){
-    energy_value += (32 - n_apx_bits) + 10;
+
+void bta::update_energy(int n_apx_bits, string op1_type, string op2_type){
+    if (op1_type == "long" && op2_type == "long") {
+        energy_value += add_long_long_energy_vals[n_apx_bits];
+    }
+    else if (op1_type=="int" && op2_type =="long") {
+        energy_value += add_long_int_energy_vals[n_apx_bits];
+    }
+    else if (op1_type == "long" && op2_type == "int") {
+        energy_value += add_long_int_energy_vals[n_apx_bits];
+    }
+    else if (op1_type == "int" && op2_type== "int") {
+        energy_value += add_int_int_energy_vals[n_apx_bits];
+    }
+    else {
+        cout<<"the energy value for this bta types is not defined"<<endl;
+        exit(0);
+    }
+    //energy_valuee+= (32 - n_apx_bits) + 10;
 }
+
 size_t bta::get_ianum_bits(void) {
 	return Nia;
 }
 
 int bta::calc(const long &a, const int &b) {
     // inaccurate part
-    update_energy(Nia); 
+    update_energy(Nia, "long", "int"); 
 
 #ifdef VERBOSE 
     cout<<"=============long int version"<<endl; 
@@ -56,7 +78,7 @@ int bta::calc(const long &a, const int &b) {
 
 int bta::calc(const long &a, const long &b) {
     // inaccurate part
-    update_energy(Nia); 
+    update_energy(Nia, "long", "long"); 
 
 #ifdef VERBOSE 
     cout<<"=============long int version"<<endl; 
@@ -80,7 +102,7 @@ int bta::calc(const long &a, const long &b) {
 
 int bta::calc(const int &a, const long &b) {
     // inaccurate part
-    update_energy(Nia); 
+    update_energy(Nia, "int", "long"); 
 #ifdef VERBOSE 
     cout<<"=============int, long version"<<endl; 
 #endif  
@@ -100,6 +122,9 @@ int bta::calc(const int &a, const long &b) {
 	return ((a_op) + (b_op)) << Nia;
 }
 
+
+
+
 float bta::calc(const float &number1, const int &number2) {
     #ifdef VERBOSE 
     cout<<"=============insde half float"<<endl; 
@@ -117,7 +142,7 @@ float bta::calc(const int &number1, const float &number2) {
 
 
 float bta::calc(const float &number1, const float &number2) {
-    update_energy(Nia); 
+    update_energy(Nia, "float", "float"); 
     /*
     FILE* fp;
     fp = fopen("diff_file.txt", "ab+");
@@ -217,9 +242,14 @@ float bta::calc(const float &number1, const float &number2) {
      */
 }
 
-
+float bta::calc(const double &number1, const double &number2) {
+    cout<<"=============insde other half float"<<endl; 
+    float numOut = number1; 
+    float numOut2 = number2; 
+    calc(numOut, numOut2);
+}
 int bta::calc(const int &a, const int &b) {
-    update_energy(Nia); 
+    update_energy(Nia, "int", "int"); 
     // inaccurate part
 #ifdef VERBOSE 
     cout<<"=============in int version"<<endl; 
@@ -246,7 +276,7 @@ int bta::calc(const int &a, const int &b) {
 
 
 unsigned int bta::calc(const unsigned int &a, const unsigned int &b) {
-    update_energy(Nia); 
+    update_energy(Nia, "int", "int"); 
     #ifdef BT_RND
        printf("ERRR: rounding not defined for unsigned int unsigned int bta \n");
        exit(0);
@@ -278,7 +308,7 @@ unsigned int bta::calc(const unsigned int &a, const unsigned int &b) {
 
 int bta::calc(const unsigned int &a_unsigned, const int &b) {
     
-    update_energy(Nia); 
+    update_energy(Nia, "int", "int"); 
     
     #ifdef BT_RND
        printf("ERRR: rounding not defined for unsigned int, int bta \n");
@@ -308,7 +338,7 @@ int bta::calc(const unsigned int &a_unsigned, const int &b) {
 }
 
 int bta::calc(const int &a, const unsigned int &b_unsigned) {
-    update_energy(Nia); 
+    update_energy(Nia, "int", "int"); 
     // inaccurate part
     
     #ifdef BT_RND
@@ -343,7 +373,7 @@ int bta::calc(const int &a, const unsigned int &b_unsigned) {
 
 int bta::calc_ref(const int &a, const int &b) {
 	// this is adder
-    update_energy(Nia); 
+    update_energy(Nia, "int", "int"); 
     return a + b;
 }
 

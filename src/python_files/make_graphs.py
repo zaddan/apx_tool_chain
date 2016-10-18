@@ -101,9 +101,16 @@ def main():
         get_quality_energy_values("various_inputs.PIK", "+", points_to_graph, limit, lower_bound, upper_bound)
         
         #get_quality_energy_values("various_inputs_same_setUp.PIK", "+", points_to_graph_2, limit, lower_bound, upper_bound)
-        generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "pareto_comparison", "various_inputs") 
+         
+        generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "same_Q_vs_input", "same_Q_vs_input") 
+        generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "E_vs_Q", "E_vs_Q") 
+        points_to_graph = [] 
+        get_quality_energy_values("various_inputs_same_setUp.PIK", "+", points_to_graph, limit, lower_bound, upper_bound)
+        generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "E_vs_Q_imposed", "E_vs_Q") 
+        generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "Q_vs_mean_imposed", "same_E_vs_input") 
+
         
-        sys.exit() 
+        sys.exit()
         if (arg == "various_inputs_alter"):
             for index in range(6): 
                 generateGraph_for_all_alternative(points_to_graph, points_to_graph_2, "1/quality", "energy", get_benchmark_name(), index, "One input optimal setUp imposed on others for ") 

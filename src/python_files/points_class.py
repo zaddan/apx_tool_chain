@@ -153,8 +153,7 @@ class points:
         NSR = np.mean(NSR_vector_abs) #this should be a scalar number
         if (mean_of_error_values[0]) == 0:
             mean_of_error_values[0] = .00000000000001
-        PSNR = 10*math.log(((255^2)/ mean_of_error_values[0]), 10)
-        
+        PSNR = 10*math.log10(((255*255)/ mean_of_error_values[0]))
         
         if (normalize and not(possibly_worse_case_result_quality == float("inf"))):
             NSR = NSR#/possibly_worse_case_result_quality

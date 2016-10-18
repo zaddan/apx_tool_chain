@@ -102,6 +102,7 @@ def run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name, heu
         os.system("cp dct_apx.txt dct.cpp")
         os.system("cp quant_apx.txt quant.cpp")
 
+
         os.chdir("/home/polaris/behzad/behzad_local/"+ root_folder +"/src/python_files/")
         
         
@@ -132,6 +133,7 @@ def run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name, heu
             inputObj.settings_obj.runMode = "serial" 
             inputObj.set_run_input(input_) 
             for el in optimal_setUps_for_various_inputs[max_n_setUps]: 
+                print "here is the setUp: " + str(el.get_raw_setUp() )
                 myPoint = run_task_with_one_set_up_and_collect_info(settings_obj, inputObj,el.get_raw_setUp())
                 myPoint.set_input_number(iteration) 
                 lOfmyPoints.append(myPoint)

@@ -262,7 +262,8 @@ def apply_heuristic_on_task_with_multiple_prime_input(settings_obj, inputObj, lO
 def run_task_with_one_set_up_and_collect_info(settings_obj, inputObj, input_setUp):
     start = time.time() 
     timeBeforeFindingResults = datetime.datetime.now()
-    
+    print "ISA : " + str(input_setUp)
+    sys.stdout.flush()
     #--------------------------------------------------------------------------------
     #--------------------------------------------------------------------------------
     #----- initializing variables 
@@ -770,13 +771,17 @@ def apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj):
         print("\n.......running to get possibly_worse_case_result\n"); 
         
         try: 
+            print possibly_worse_case_setup_individual
+            accurateSetUp_stuff = map(lambda x: x[2], accurateSetUp) 
             possibly_worse_case_result = specializedEval(False, 1, accurateSetUp, [], accurateSetUp, inputObj,nameOfAllOperandFilesList, rootResultFolderName, executableName,
                     executableInputList, CBuildFolder, operandSampleFileName,lOfAccurateValues, allPointsTried,True, unique_point_list, output_list,[], 0, settings_obj, run_input_list,
-                    possibly_worse_case_setup_individual)
+                    accurateSetUp_stuff)
+                    #possibly_worse_case_setup_individual)
+            print "PSNR for accurate version for " + inputObj.refImage_name + " is : " + str(possibly_worse_case_result[1])
+            reminder(settings_obj.reminder_flag, "replace accurateSetUp_stuff with possibly_worse_case_setup_individual")
         except WithinSpecEval as er:
             raise TaskError(er.error_name, inputObj, er.setUp)
             exit()
-
         
         possibly_worse_case_result_energy = possibly_worse_case_result[0]   
         possibly_worse_case_result_quality = possibly_worse_case_result[1]   
