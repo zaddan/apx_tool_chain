@@ -91,7 +91,7 @@ def adjust_vals_2(quality_list_sorted_based_on_z, energy_list_sorted_based_on_z,
     #get step i.e the difference between Q-states 
     #--- at the moment use avg of avg 
     
-    ref_image_qualities =  quality_list_sorted_based_on_z[1]
+    ref_image_qualities =  quality_list_sorted_based_on_z[0]
     step = numpy.mean(numpy.diff(ref_image_qualities))
     upper_bound = numpy.max(ref_image_qualities)
     lower_bound = numpy.min(ref_image_qualities)

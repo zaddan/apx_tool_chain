@@ -411,7 +411,9 @@ def run_spea2(population,
     #LAMBDA = settings.LAMBDA#number of children
     CXPB = settings_obj.CXPB 
     MUTPB = settings_obj.MUTPB
-    creator.create("FitnessMin", base.Fitness, weights=(x_direction, y_direction))
+    
+    reminder(settings_obj.reminder_flag, "xdirectino and y_direction are reverese b/c I was returning them in a reverse direction");
+    creator.create("FitnessMin", base.Fitness, weights=(y_direction,  x_direction))
     creator.create("Individual", list, fitness=creator.FitnessMin)
     toolbox = base.Toolbox()
     

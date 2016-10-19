@@ -127,7 +127,7 @@ def run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name, heu
         input_n_setUps_index_sorted = sorted(enumerate(input_n_setUps), key=lambda x: x[1])
         index_of_n_setUps_sorted = map(lambda y: y[0], input_n_setUps_index_sorted)
         max_n_setUps = index_of_n_setUps_sorted[-1] 
-
+        print "the image to use as an imposer: " + str(lOf_run_input_list[max_n_setUps])
         lOfmyPoints = [] 
         for iteration, input_ in enumerate(lOf_run_input_list): 
             inputObj.settings_obj.runMode = "serial" 

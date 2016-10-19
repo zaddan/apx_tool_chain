@@ -775,9 +775,10 @@ def apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj):
             accurateSetUp_stuff = map(lambda x: x[2], accurateSetUp) 
             possibly_worse_case_result = specializedEval(False, 1, accurateSetUp, [], accurateSetUp, inputObj,nameOfAllOperandFilesList, rootResultFolderName, executableName,
                     executableInputList, CBuildFolder, operandSampleFileName,lOfAccurateValues, allPointsTried,True, unique_point_list, output_list,[], 0, settings_obj, run_input_list,
-                    accurateSetUp_stuff)
-                    #possibly_worse_case_setup_individual)
+                    #accurateSetUp_stuff)
+                    possibly_worse_case_setup_individual)
             print "PSNR for accurate version for " + inputObj.refImage_name + " is : " + str(possibly_worse_case_result[1])
+            print "E for accurate version for " + inputObj.refImage_name + " is : " + str(possibly_worse_case_result[0])
             reminder(settings_obj.reminder_flag, "replace accurateSetUp_stuff with possibly_worse_case_setup_individual")
         except WithinSpecEval as er:
             raise TaskError(er.error_name, inputObj, er.setUp)
@@ -961,7 +962,13 @@ def apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj):
             pickle.dump(copy.deepcopy(pointSet), f)
     elif (settings.method == "allPoints"):
     """ 
+   
+
+    #--- extract pareto points 
     pareto_points =  pareto_frontier(lOfPoints_out_of_heuristic, maxX, maxY, settings_obj)
+    
+    
+    #pareto_points =  lOfPoints_out_of_heuristic
     pointSet= point_set(pareto_points, "pareto", maxX, maxY)
     pointSet.set_delimeter(delimeter)
     

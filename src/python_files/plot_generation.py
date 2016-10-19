@@ -241,6 +241,7 @@ def generateGraph_for_all_simplified(valueList, xName, yName, benchmark_name, gr
     base_dir = "/home/local/bulkhead/behzad/usr/local/apx_tool_chain/inputPics/"
     counter = 0
     energy_list_to_be_drawn = []
+    setup_list_to_be_drawn = [] 
     quality_list_to_be_drawn = []
     std_list_to_be_drawn = []
     image_list_to_be_drawn = [] 
@@ -266,15 +267,19 @@ def generateGraph_for_all_simplified(valueList, xName, yName, benchmark_name, gr
                 el = map(lambda x: list(x), zip(*res))
                 quality_values_shifted = map(lambda x: x+1, el[0]) 
                 
+                print "mean of image : " + (lOf_run_input_list[index][0]) + " is: " +  str(np.mean([mR,mG,mB]))
                 #--- sort based on the quality
                 Q = quality_values_shifted
                 E = el[1]
+                SetUps =  el[2]
                 E_index_sorted = sorted(enumerate(E), key=lambda x: x[1])
                 index_of_E_sorted = map(lambda y: y[0], E_index_sorted)
                 Q_sorted = [Q[i] for i in index_of_E_sorted]
                 E_sorted = [E[i] for i in index_of_E_sorted]
+                SetUp_sorted = [SetUps[i] for i in index_of_E_sorted]
                 quality_list_to_be_drawn.append(Q_sorted)
                 energy_list_to_be_drawn.append(E_sorted)
+                setup_list_to_be_drawn.append(SetUp_sorted)
                 std_list_to_be_drawn.append([int(np.mean([mR,mG,mB]))]*len(E_sorted))
                 image_list_to_be_drawn.append([lOf_run_input_list[index][0]]*len(E_sorted))
                 z_vals.append( int(np.mean([mR,mG,mB])))
@@ -292,6 +297,7 @@ def generateGraph_for_all_simplified(valueList, xName, yName, benchmark_name, gr
         
         image_list_sorted_based_on_z = [image_list_to_be_drawn[i] for i in index_of_zvals_sorted]                
         
+        SetUp_list_sorted_based_on_z = [setup_list_to_be_drawn[i] for i in index_of_zvals_sorted]                
         print quality_list_sorted_based_on_z
         print std_list_sorted_based_on_z
         print energy_list_sorted_based_on_z
@@ -305,14 +311,18 @@ def generateGraph_for_all_simplified(valueList, xName, yName, benchmark_name, gr
             second_axis = Es; 
             third_axis = QSs; 
             third_axis_name = "quality" 
-            n_lines = len(QSs)
+            
+            #---limiting
+            #third_axis= QSs[:10]
+            n_lines = len(third_axis)
             colors = gen_color_spec.gen_color(n_lines, 'seismic') 
-           
+            #---limiting 
+            
             #--- printing the the Qstates (Q attempted) and the Q found
             for input_index in range(len(Qs)): 
                 print "true Qs for input with mean:" + str(stds[input_index]) + "is:"
                 for x in range(len(third_axis)):
-                    print "Q state:" + str(third_axis[x]) + "  found Q:" + str(Qs[input_index][x])
+                    print "Q state:" + str(third_axis[x]) + "  found Q:" + str(Qs[input_index][x]) + "En is: " + str(Es[input_index][x]) 
 
             for x in range(len(third_axis)):
                 my_label =  third_axis_name +": " + str(int(third_axis[x]))
@@ -331,6 +341,9 @@ def generateGraph_for_all_simplified(valueList, xName, yName, benchmark_name, gr
              n_lines = len(third_axis)
              colors = gen_color_spec.gen_color(n_lines, 'seismic') 
              for x in range(len(third_axis)):
+                 #--- limiting
+#                 if x > 10:
+#                     break;
                  my_label =  third_axis_name +": " + str(int(third_axis[x]))
                  second_axis_as_w_diff_mean = map(lambda y: y[x], second_axis)
                  l_mean = map(lambda y: y[x], std_list_sorted_based_on_z)
@@ -509,7 +522,8 @@ def generateGraph_for_all(valueList, xName, yName, benchmark_name, graph_title="
 
                     l_mean = map(lambda y: y[x], std_list_sorted_based_on_z)
                     
-                    ax.plot(l_mean, quality_as_w_diff_mean, marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label, linestyle=line_style)
+                    ax.plot(l_mean, quality_as_w_diff_mean, marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label)
+                            #, linestyle=line_style)
                 if (n_graphs  == "multiple"):
                     finish_up_making_graph(ax, name, graph_title, benchmark_name, name_counter) 
                     fig = plt.figure(figsize=plt.figaspect(0.5)) 

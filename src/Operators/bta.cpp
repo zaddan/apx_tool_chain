@@ -29,16 +29,16 @@ vector <float> add_int_int_energy_vals{.894, .8892198 , .8846183 , .8785046 , .8
 
 void bta::update_energy(int n_apx_bits, string op1_type, string op2_type){
     if (op1_type == "long" && op2_type == "long") {
-        energy_value += add_long_long_energy_vals[n_apx_bits];
+        energy_value += add_long_long_energy_vals[n_apx_bits]*.3; //*.3 b/c  the clock cycle was .3ns for adder vs multiplier which was 1ns
     }
     else if (op1_type=="int" && op2_type =="long") {
-        energy_value += add_long_int_energy_vals[n_apx_bits];
+        energy_value += add_long_int_energy_vals[n_apx_bits]*.3;
     }
     else if (op1_type == "long" && op2_type == "int") {
-        energy_value += add_long_int_energy_vals[n_apx_bits];
+        energy_value += add_long_int_energy_vals[n_apx_bits]*.3;
     }
     else if (op1_type == "int" && op2_type== "int") {
-        energy_value += add_int_int_energy_vals[n_apx_bits];
+        energy_value += add_int_int_energy_vals[n_apx_bits]*.3;
     }
     else {
         cout<<"the energy value for this bta types is not defined"<<endl;

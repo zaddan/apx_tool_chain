@@ -51,6 +51,7 @@ def get_quality_energy_values_directly(src_file, symbol, lOfPoints, points_to_gr
     
     lOfQualityVals = map(lambda x: x.get_quality(), lOfPoints)
     lOfEnergyVals = map(lambda x: x.get_energy(), lOfPoints)
+    lOfSetUps = map(lambda x: x.get_raw_setUp(), lOfPoints)
     if (limit):
         result = filter(lambda x: x[0] > lower_bound and x[0] <upper_bound, zip(lOfQualityVals, lOfEnergyVals))
         lOfQualityVals = map(lambda x: x[0], result)
@@ -58,7 +59,7 @@ def get_quality_energy_values_directly(src_file, symbol, lOfPoints, points_to_gr
     
     
     #here
-    points_to_graph.append([lOfQualityVals, lOfEnergyVals, lOfInput_number, src_file])
+    points_to_graph.append([lOfQualityVals, lOfEnergyVals, lOfInput_number, lOfSetUps, src_file])
 #    points_to_graph.append([lOfQualityVals, lOfEnergyVals, symbol, src_file])
 
 
@@ -96,6 +97,9 @@ def main():
             exit()
             """
 
+        get_quality_energy_values("pickled_results_all_points.PIK", "+", points_to_graph, limit, lower_bound, upper_bound)
+        generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "E_vs_Q_all_points", "E_vs_Q") 
+        
         points_to_graph = [] 
         points_to_graph_2 = [] 
         get_quality_energy_values("various_inputs.PIK", "+", points_to_graph, limit, lower_bound, upper_bound)
