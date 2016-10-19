@@ -97,23 +97,48 @@ def main():
             exit()
             """
 
+        #--- all results 
         get_quality_energy_values("pickled_results_all_points.PIK", "+", points_to_graph, limit, lower_bound, upper_bound)
-        generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "E_vs_Q_all_points", "E_vs_Q") 
+        generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "","", "E_vs_Q_all_points", "E_vs_Q") 
         
+        #--- various inputs 
         points_to_graph = [] 
         points_to_graph_2 = [] 
         get_quality_energy_values("various_inputs.PIK", "+", points_to_graph, limit, lower_bound, upper_bound)
+        generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "", "", "same_Q_vs_input", "same_Q_vs_input") 
+        generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "", "", "E_vs_Q", "E_vs_Q") 
         
-        #get_quality_energy_values("various_inputs_same_setUp.PIK", "+", points_to_graph_2, limit, lower_bound, upper_bound)
-         
-        generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "same_Q_vs_input", "same_Q_vs_input") 
-        generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "E_vs_Q", "E_vs_Q") 
+        #--- imposed on various inputs
         points_to_graph = [] 
         get_quality_energy_values("various_inputs_same_setUp.PIK", "+", points_to_graph, limit, lower_bound, upper_bound)
-        generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "E_vs_Q_imposed", "E_vs_Q") 
-        generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "Q_vs_mean_imposed", "same_E_vs_input") 
+        generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "", "" , "E_vs_Q_imposed", "E_vs_Q") 
+        generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "", "", "Q_vs_mean_imposed", "same_E_vs_input") 
+
+        #--- various inputs imposed vs regular 
+        points_to_graph = [] 
+        get_quality_energy_values("various_inputs_same_setUp.PIK", "+", points_to_graph, limit, lower_bound, upper_bound)
+        ax, fig = generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "", "", "E_vs_Q_imposed_vs_optimal", "E_vs_Q", True) #-- post pone saving
+        
+        points_to_graph = [] 
+        get_quality_energy_values("various_inputs.PIK", "+", points_to_graph, limit, lower_bound, upper_bound)
+        generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), ax, fig, "E_vs_Q_impose_vs_optimal", "E_vs_Q", False, True) 
 
         
+        #--- various inputs E vs Q adjusted
+        points_to_graph = [] 
+        get_quality_energy_values("various_inputs.PIK", "+", points_to_graph, limit, lower_bound, upper_bound)
+        ax,fig =generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "", "", "E_vs_Q_adjusted", "E_vs_Q_adjusted")
+        
+        
+        #--- (E vs Q adjusted) and vs (E vs Q adjusted imposed)
+        points_to_graph = [] 
+        get_quality_energy_values("various_inputs_same_setUp.PIK", "+", points_to_graph, limit, lower_bound, upper_bound)
+        ax,fig =generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "", "", "E_vs_Q_adjusted_vs_imposed", "E_vs_Q_adjusted", True)
+        points_to_graph = [] 
+        get_quality_energy_values("various_inputs.PIK", "+", points_to_graph, limit, lower_bound, upper_bound)
+        fig = generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), ax, fig, "E_vs_Q_adjusted_vs_imposed", "E_vs_Q_adjusted", False, True) #-- post pone saving
+        
+
         sys.exit()
         if (arg == "various_inputs_alter"):
             for index in range(6): 

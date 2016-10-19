@@ -210,26 +210,25 @@ def finish_up_making_graph(ax, name, graph_title, benchmark_name, counter=0):
 #            plt.xscale('log')
 #            plt.ylabel(yName)
 #            plt.xlabel(xName)
-def generateGraph_for_all_simplified(valueList, xName, yName, benchmark_name, graph_title="pareto comparison for", name = "various_inputs", graph_dim = "2d", graph_type ="Q_vs_E", n_graphs="one"):
+def generateGraph_for_all_simplified(valueList, xName, yName, benchmark_name, ax, fig, graph_title="pareto comparison for", name = "various_inputs", post_pone_saving_graph = False, use_prev_ax_fig = False, n_graphs="one"):
     
     name_counter = 0 
-    fig = plt.figure(figsize=plt.figaspect(0.5)) 
+    #fig = plt.figure(figsize=plt.figaspect(0.5)) 
     #--- sanity check 
-    if (graph_dim == "3d"): 
-        print "can't draw this" 
-        sys.exit() 
-    else: 
+    if not(use_prev_ax_fig):
         fig, ax = plt.subplots()
-        if (graph_type == "Q_E_product"):
-            plt.ylabel("Q_E_product")
-            plt.xlabel("mean")
-        else: 
-            #plt.xscale('log')
-            plt.xlabel("mean")
-            plt.ylabel("Energy")
+
+    """ 
+    if (graph_type == "Q_E_product"):
+        plt.ylabel("Q_E_product")
+        plt.xlabel("mean")
+    else: 
+        #plt.xscale('log')
+        plt.xlabel("mean")
+        plt.ylabel("Energy")
 #            plt.ylabel(yName)
 #            plt.xlabel(xName)
-    
+    """
     #here
     #----comment if not proving th s4 pont
     symbolsToChooseFrom = ['*', 'x', "o", "+","^", '1', '2', "3"] 
@@ -302,6 +301,11 @@ def generateGraph_for_all_simplified(valueList, xName, yName, benchmark_name, gr
         print std_list_sorted_based_on_z
         print energy_list_sorted_based_on_z
         
+        
+        if (post_pone_saving_graph): 
+            line_style = ':'
+        else:
+            line_style = '-'
         #--- generate a spectrum of colors  
         #colors = ['b', 'g'] 
         if (name == "same_Q_vs_input"):
@@ -328,9 +332,8 @@ def generateGraph_for_all_simplified(valueList, xName, yName, benchmark_name, gr
                 my_label =  third_axis_name +": " + str(int(third_axis[x]))
                 second_axis_as_w_diff_mean = map(lambda y: y[x], second_axis)
                 l_mean = map(lambda y: y[x], stds)
-                line_style = '-'
                 ax.plot(l_mean, second_axis_as_w_diff_mean, marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label, linestyle=line_style)
-            finish_up_making_graph(ax, graph_title, graph_title, benchmark_name,  0) 
+            #finish_up_making_graph(ax, graph_title, graph_title, benchmark_name,  0) 
         elif (name == "same_E_vs_input"):
              plt.xlabel("mean")
              plt.ylabel("quality")
@@ -347,10 +350,21 @@ def generateGraph_for_all_simplified(valueList, xName, yName, benchmark_name, gr
                  my_label =  third_axis_name +": " + str(int(third_axis[x]))
                  second_axis_as_w_diff_mean = map(lambda y: y[x], second_axis)
                  l_mean = map(lambda y: y[x], std_list_sorted_based_on_z)
-                 line_style = '-'
                  print "asdf" + str(second_axis_as_w_diff_mean )
                  ax.plot(l_mean, second_axis_as_w_diff_mean, marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label, linestyle=line_style)
-             finish_up_making_graph(ax, graph_title, graph_title, benchmark_name,  0) 
+             #finish_up_making_graph(ax, graph_title, graph_title, benchmark_name,  0) 
+        elif(name == "E_vs_Q_adjusted"): 
+            plt.xlabel("Quality")
+            plt.ylabel("Energy")
+            Qs, Es, stds, QSs = adjust.adjust_vals_2(quality_list_sorted_based_on_z, energy_list_sorted_based_on_z, std_list_sorted_based_on_z)
+            second_axis = Es; 
+            third_axis = std_list_sorted_based_on_z; 
+            third_axis_name = "input" 
+            n_lines = len(std_list_sorted_based_on_z)
+            colors = gen_color_spec.gen_color(n_lines, 'seismic') 
+            for x in range(len(third_axis)):
+                my_label =  third_axis_name +": " + str(int(third_axis[x][0]))
+                ax.plot(QSs, Es[x], marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label, linestyle=line_style)
         elif (name == "E_vs_Q"):
             plt.xlabel("Quality")
             plt.ylabel("Energy")
@@ -360,13 +374,14 @@ def generateGraph_for_all_simplified(valueList, xName, yName, benchmark_name, gr
             colors = gen_color_spec.gen_color(n_lines, 'seismic') 
             for x in range(len(third_axis)):
                 my_label =  third_axis_name +": " + str(int(third_axis[x][0]))
-                line_style = '-'
                 ax.plot(quality_list_sorted_based_on_z[x], energy_list_sorted_based_on_z[x], marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label, linestyle=line_style)
-            finish_up_making_graph(ax, graph_title, graph_title, benchmark_name,  0) 
         else:
             print "this name : " + name + " is not defined" 
             sys.exit()
 
+        if not(post_pone_saving_graph): 
+            finish_up_making_graph(ax, graph_title, graph_title, benchmark_name,  0) 
+        return ax, fig
 def generateGraph_for_all(valueList, xName, yName, benchmark_name, graph_title="pareto comparison for", name = "various_inputs", graph_dim = "2d", graph_type ="Q_vs_E", n_graphs="one"):
     
     name_counter = 0 
