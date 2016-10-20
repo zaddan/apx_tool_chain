@@ -245,7 +245,6 @@ def generateGraph_for_all_simplified(valueList, xName, yName, benchmark_name, ax
     std_list_to_be_drawn = []
     image_list_to_be_drawn = [] 
     z_vals = [] 
-    
 
     for val in valueList:
         input_results = map(list, [[]]*number_of_inputs_used) 
@@ -329,7 +328,7 @@ def generateGraph_for_all_simplified(valueList, xName, yName, benchmark_name, ax
                     print "Q state:" + str(third_axis[x]) + "  found Q:" + str(Qs[input_index][x]) + "En is: " + str(Es[input_index][x]) 
 
             for x in range(len(third_axis)):
-                my_label =  third_axis_name +": " + str(int(third_axis[x]))
+                my_label =  third_axis_name +": " + str(float(third_axis[x]))
                 second_axis_as_w_diff_mean = map(lambda y: y[x], second_axis)
                 l_mean = map(lambda y: y[x], stds)
                 ax.plot(l_mean, second_axis_as_w_diff_mean, marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label, linestyle=line_style)
@@ -347,7 +346,7 @@ def generateGraph_for_all_simplified(valueList, xName, yName, benchmark_name, ax
                  #--- limiting
 #                 if x > 10:
 #                     break;
-                 my_label =  third_axis_name +": " + str(int(third_axis[x]))
+                 my_label =  third_axis_name +": " + str(float(third_axis[x]))
                  second_axis_as_w_diff_mean = map(lambda y: y[x], second_axis)
                  l_mean = map(lambda y: y[x], std_list_sorted_based_on_z)
                  print "asdf" + str(second_axis_as_w_diff_mean )
@@ -364,7 +363,8 @@ def generateGraph_for_all_simplified(valueList, xName, yName, benchmark_name, ax
             colors = gen_color_spec.gen_color(n_lines, 'seismic') 
             for x in range(len(third_axis)):
                 my_label =  third_axis_name +": " + str(int(third_axis[x][0]))
-                ax.plot(QSs, Es[x], marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label, linestyle=line_style)
+                if (third_axis[x][0] == 97): 
+                    ax.plot(QSs, Es[x], marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label, linestyle=line_style)
         elif (name == "E_vs_Q"):
             plt.xlabel("Quality")
             plt.ylabel("Energy")
@@ -374,7 +374,8 @@ def generateGraph_for_all_simplified(valueList, xName, yName, benchmark_name, ax
             colors = gen_color_spec.gen_color(n_lines, 'seismic') 
             for x in range(len(third_axis)):
                 my_label =  third_axis_name +": " + str(int(third_axis[x][0]))
-                ax.plot(quality_list_sorted_based_on_z[x], energy_list_sorted_based_on_z[x], marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label, linestyle=line_style)
+                if (third_axis[x][0] == 97): 
+                    ax.plot(quality_list_sorted_based_on_z[x], energy_list_sorted_based_on_z[x], marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label, linestyle=line_style)
         else:
             print "this name : " + name + " is not defined" 
             sys.exit()
@@ -382,6 +383,13 @@ def generateGraph_for_all_simplified(valueList, xName, yName, benchmark_name, ax
         if not(post_pone_saving_graph): 
             finish_up_making_graph(ax, graph_title, graph_title, benchmark_name,  0) 
         return ax, fig
+
+
+
+
+
+
+
 def generateGraph_for_all(valueList, xName, yName, benchmark_name, graph_title="pareto comparison for", name = "various_inputs", graph_dim = "2d", graph_type ="Q_vs_E", n_graphs="one"):
     
     name_counter = 0 

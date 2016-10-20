@@ -1,11 +1,31 @@
-import pickle
+from math import *
+from reminder import *
+import pylab
+import os
+from matplotlib import cm
+from matplotlib.ticker import LinearLocator, FormatStrFormatter
+import sys
+import matplotlib.pyplot as plt
+import settings
+from list_all_files_in_a_folder import *
+import numpy
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+
+
+
 import copy
 import pylab
+import operator
+import image_list
 import sys
 import os
 from plot_generation import *
 import matplotlib.pyplot as plt
-
+import run_task
+import misc
+import adjust
 from scipy.spatial import distance
 from src_parse_and_apx_op_space_gen import *
 from modify_operator_sample_file import *
@@ -23,7 +43,7 @@ import datetime
 from points_class import *
 import pickle
 from points_class import *
-
+from reminder import *
 
 def nearest_neighbors_2d(x, y) :
     #x, y = map(np.asarray, (x, y))
@@ -70,26 +90,6 @@ def calc_distance_for_nearest_neighbors_2d(ref_values, tobe_compared_values):
 
 
 #--------------------**
-def getPoints(file1_name):     
-    lOfPoints =[]
-    with open(file1_name, "rb") as f:
-        # pickle.load(f)
-        while True: 
-            try: 
-                point = pickle.load(f)
-                lOfPoints.append(point) 
-                # listOfPeople.append(copy.copy(person))# 
-            except Exception as ex:
-                if not (type(ex).__name__ == "EOFError"):
-                    print type(ex).__name__ 
-                    print ex.args
-                    print "something went wrongss"
-                break
-
-
-
-    return lOfPoints
-
 
 def aMemberOfBStar(a, BPertoFront, radius1, radius2, maxX, maxY):
     if(not(maxX) and not(maxY)):
@@ -246,6 +246,208 @@ def compare_two_pareto_fronts(curve1FeatureValues, curve2FeatureValues):
     # symbolsToChooseFrom = ['*', 'x', "o", "+", "*", "-", "^", "1", "2", "3", "4"] #symbols to draw the plots with
     # generateGraph(curve1FirstFeature, curve1SecondFeature,  "PSNR", "Energy", symbolsToChooseFrom[symbolIndex])
     # # plt.show() 
+def compare_adjusted(points_collected, points_collected_imposed):
+    fig, ax = plt.subplots()
+
+    symbolsToChooseFrom = ['*', 'x', "o", "+","^", '1', '2', "3"] 
+    color =['g', 'y', 'r', 'm']
+    
+    """ 
+    limit = False
+    lower_bound = -100
+    upper_bound = .001
+
+    get_quality_energy_values("various_inputs.PIK", "+", points_collected, limit, lower_bound, upper_bound)
+    """ 
+    lOf_run_input_list = image_list.lOf_run_input_list
+    number_of_inputs_used = len(lOf_run_input_list)
+    input_results = map(list, [[]]*number_of_inputs_used) 
+    base_dir = "/home/local/bulkhead/behzad/usr/local/apx_tool_chain/inputPics/"
+    counter = 0
+    energy_list_to_be_drawn = []
+    setup_list_to_be_drawn = [] 
+    quality_list_to_be_drawn = []
+    std_list_to_be_drawn = []
+    image_list_to_be_drawn = [] 
+    z_vals = [] 
+
+
+
+    for val in points_collected:
+        input_results = map(list, [[]]*number_of_inputs_used) 
+        zipped = zip(*val[:-1])  
+        for el in zipped:
+            input_results[el[2]].append(el)
+        for index,res in enumerate(input_results):
+            """ 
+            if (counter > 50 ):
+                break
+            """ 
+            print counter 
+            if len(res) > 0:
+                image_addr =  base_dir+lOf_run_input_list[index][0] + ".ppm"
+                mR, mG, mB, stdR, stdG, stdB = cluster_images.calc_image_mean_std(image_addr)
+                if (int(np.mean([mR,mG,mB]))) in z_vals:
+                    continue
+                el = map(lambda x: list(x), zip(*res))
+                quality_values_shifted = map(lambda x: x+1, el[0]) 
+                
+                #--- sort based on the quality
+                Q = quality_values_shifted
+                E = el[1]
+                SetUps =  el[2]
+                E_index_sorted = sorted(enumerate(E), key=lambda x: x[1])
+                index_of_E_sorted = map(lambda y: y[0], E_index_sorted)
+                Q_sorted = [Q[i] for i in index_of_E_sorted]
+                E_sorted = [E[i] for i in index_of_E_sorted]
+                SetUp_sorted = [SetUps[i] for i in index_of_E_sorted]
+                quality_list_to_be_drawn.append(Q_sorted)
+                energy_list_to_be_drawn.append(E_sorted)
+                setup_list_to_be_drawn.append(SetUp_sorted)
+                std_list_to_be_drawn.append([int(np.mean([mR,mG,mB]))]*len(E_sorted))
+                image_list_to_be_drawn.append([lOf_run_input_list[index][0]]*len(E_sorted))
+                z_vals.append( int(np.mean([mR,mG,mB])))
+                counter +=1
+        
+        reminder(True,"the following lines which creates a new image every len(symbolsToChooseFrom) should be commented if we use any flag but various_inputs")
+        
+        
+        #--sorting the data. This is necessary for wire frame 
+        zvals_index_sorted = sorted(enumerate(z_vals), key=lambda x: x[1])
+        index_of_zvals_sorted = map(lambda y: y[0], zvals_index_sorted)
+        quality_list_sorted_based_on_z = [quality_list_to_be_drawn[i] for i in index_of_zvals_sorted]                
+        std_list_sorted_based_on_z = [std_list_to_be_drawn[i] for i in index_of_zvals_sorted]                
+        energy_list_sorted_based_on_z = [energy_list_to_be_drawn[i] for i in index_of_zvals_sorted]                
+        
+        image_list_sorted_based_on_z = [image_list_to_be_drawn[i] for i in index_of_zvals_sorted]                
+        
+        SetUp_list_sorted_based_on_z = [setup_list_to_be_drawn[i] for i in index_of_zvals_sorted]                
+    Qs_ref, Es_ref, stds_ref, QSs_ref = adjust.adjust_vals_2(quality_list_sorted_based_on_z, energy_list_sorted_based_on_z, std_list_sorted_based_on_z)
+    
+    
+    lOf_run_input_list = image_list.lOf_run_input_list
+    number_of_inputs_used = len(lOf_run_input_list)
+    input_results = map(list, [[]]*number_of_inputs_used) 
+    base_dir = "/home/local/bulkhead/behzad/usr/local/apx_tool_chain/inputPics/"
+    counter = 0
+    energy_list_to_be_drawn = []
+    setup_list_to_be_drawn = [] 
+    quality_list_to_be_drawn = []
+    std_list_to_be_drawn = []
+    image_list_to_be_drawn = [] 
+    z_vals = [] 
+
+
+    for val in points_collected_imposed:
+        input_results = map(list, [[]]*number_of_inputs_used) 
+        zipped = zip(*val[:-1])  
+        for el in zipped:
+            input_results[el[2]].append(el)
+        for index,res in enumerate(input_results):
+            """ 
+            if (counter > 50 ):
+                break
+            """ 
+            print counter 
+            if len(res) > 0:
+                image_addr =  base_dir+lOf_run_input_list[index][0] + ".ppm"
+                mR, mG, mB, stdR, stdG, stdB = cluster_images.calc_image_mean_std(image_addr)
+                if (int(np.mean([mR,mG,mB]))) in z_vals:
+                    continue
+                el = map(lambda x: list(x), zip(*res))
+                quality_values_shifted = map(lambda x: x+1, el[0]) 
+                
+                #--- sort based on the quality
+                Q = quality_values_shifted
+                E = el[1]
+                SetUps =  el[2]
+                E_index_sorted = sorted(enumerate(E), key=lambda x: x[1])
+                index_of_E_sorted = map(lambda y: y[0], E_index_sorted)
+                Q_sorted = [Q[i] for i in index_of_E_sorted]
+                E_sorted = [E[i] for i in index_of_E_sorted]
+                SetUp_sorted = [SetUps[i] for i in index_of_E_sorted]
+                quality_list_to_be_drawn.append(Q_sorted)
+                energy_list_to_be_drawn.append(E_sorted)
+                setup_list_to_be_drawn.append(SetUp_sorted)
+                std_list_to_be_drawn.append([int(np.mean([mR,mG,mB]))]*len(E_sorted))
+                image_list_to_be_drawn.append([lOf_run_input_list[index][0]]*len(E_sorted))
+                z_vals.append( int(np.mean([mR,mG,mB])))
+                counter +=1
+        
+        reminder(True,"the following lines which creates a new image every len(symbolsToChooseFrom) should be commented if we use any flag but various_inputs")
+        
+        
+        #--sorting the data. This is necessary for wire frame 
+        zvals_index_sorted = sorted(enumerate(z_vals), key=lambda x: x[1])
+        index_of_zvals_sorted = map(lambda y: y[0], zvals_index_sorted)
+        quality_list_sorted_based_on_z = [quality_list_to_be_drawn[i] for i in index_of_zvals_sorted]                
+        std_list_sorted_based_on_z = [std_list_to_be_drawn[i] for i in index_of_zvals_sorted]                
+        energy_list_sorted_based_on_z = [energy_list_to_be_drawn[i] for i in index_of_zvals_sorted]                
+        
+        image_list_sorted_based_on_z = [image_list_to_be_drawn[i] for i in index_of_zvals_sorted]                
+        
+        SetUp_list_sorted_based_on_z = [setup_list_to_be_drawn[i] for i in index_of_zvals_sorted]                
+    Qs_imposed, Es_imposed, stds_imposed, QSs_imposed = adjust.adjust_vals_2(quality_list_sorted_based_on_z, energy_list_sorted_based_on_z, std_list_sorted_based_on_z)
+        
+    
+    Es_diff = []
+    for input_index in range(len(Es_imposed)):
+#        Es_diff_el = [] 
+#        for el in range(len(Es_imposed[input_index])):
+#            Es_diff_el.append(Es_imposed[input_index][el] - Es_ref[input_index][el])
+         
+        #Es_diff.append(Es_diff_el) 
+        Es_diff.append(map(operator.sub, Es_imposed[input_index], Es_ref[input_index]))
+     
+    line_style = '-'
+    plt.xlabel("Quality")
+    plt.ylabel("Energy")
+    second_axis = Es_diff; 
+    third_axis = std_list_sorted_based_on_z; 
+    third_axis_name = "input" 
+    n_lines = len(std_list_sorted_based_on_z)
+    colors = gen_color_spec.gen_color(n_lines, 'seismic') 
+    for x in range(len(third_axis)):
+        my_label =  third_axis_name +": " + str(int(third_axis[x][0]))
+        ax.plot(QSs_imposed, Es_diff[x], marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label, linestyle=line_style)
+
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0, box.width*.8 ,  box.height])
+    # Put a legend to the right of the current axis (note: prop changes the fontsize)
+    ax.legend(loc='center left', bbox_to_anchor=(1, .9), prop={'size':6})
+    graph_title = "Ediff_vs_Q"
+    name  = graph_title
+    benchmark_name = "jpeg" 
+    plt.title(graph_title + str(benchmark_name) + " benchmark")
+    pylab.savefig(name+str(counter)+".png") #saving the figure generated by generateGraph
+     
+    #plt.close()
+    fig, ax = plt.subplots()
+    print "avg of ES_diff" + str(numpy.mean(map(lambda x: numpy.mean(x), Es_diff)))
+
+    """
+    if(mode == ":
+        Es_ref = [Es[0]]*len(stds)
+    print "QS is : " + str(QSs) 
+    l_diff_avged = []  
+    l_diff = []  
+    for input_index, input in enumerate(stds):
+        #print "Es for mean:"  + str(stds[input_index][0]) + " " + str(Es[input_index])
+        l_diff.append(map(operator.sub, Es[input_index], Es_ref[index]))
+    print l_diff
+    
+    for diffs in l_diff:
+        l_diff_avged.append(numpy.mean(diffs))
+    print l_diff_avged
+    
+    l_diff_normalized = [] 
+    for diffs in l_diff:
+        l_diff_normalized.append(map(operator.div, diffs, Es[0]))
+
+    print l_diff_normalized
+    print "avg difference of E between PFs normalized to ref curve Evalues: " + str(numpy.mean(l_diff_normalized))
+    """
+
 
 
 def run_compare_pareto_curves(settings_obj):
@@ -284,5 +486,23 @@ def run_compare_pareto_curves(settings_obj):
     # # compare_two_pareto_fronts(PIK1, PIK2)
     # plt.show() 
 
-#if __name__ == "__main__":
+if __name__ == "__main__":
+    limit = False
+    lower_bound = -100
+    upper_bound = .001
+    print "diff accoross images" 
+    points_collected = [] 
+    points_collected_imposed = [] 
+    get_quality_energy_values("various_inputs.PIK", "+", points_collected, limit, lower_bound, upper_bound)
+    get_quality_energy_values("various_inputs_same_setUp.PIK", "+", points_collected_imposed, limit, lower_bound, upper_bound)
+    compare_adjusted(points_collected, points_collected_imposed) 
+    
+    """
+    points_collected = [] 
+    print "diff accross images once imposed" 
+    get_quality_energy_values("various_inputs_same_setUp.PIK", "+", points_collected, limit, lower_bound, upper_bound)
+    compare_adjusted(points_collected)
+    """
+
+
 #    run_compare_pareto_curves() 

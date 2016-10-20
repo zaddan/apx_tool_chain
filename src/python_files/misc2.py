@@ -1,3 +1,4 @@
+from reminder import *
 import os
 import pickle
 import copy
@@ -287,5 +288,98 @@ def get_heuristic_intensity():
             for line in f:
                 root_folder= line.rstrip().replace(',', ' ').replace('/',' ').replace(';', ' ').split(' ')
     return root_folder[6]
+
+def is_accurate_design(lOfSetUps):
+    for el in lOfSetUps:
+        if not(el == 0):
+            return False
+    print "it is accurate" + str(lOfSetUps )
+    return True
+
+
+def normalized_quality(lOfQualityVals, lOfInput_number, lOfAccurate_PSNR) :
+    lOfQualityVals_normalized = []
+    for index,input_num in enumerate(lOfInput_number):
+        lOfQualityVals_normalized.append(lOfQualityVals[index]/lOfAccurate_PSNR[input_num])
+    return lOfQualityVals_normalized
+
+def get_quality_energy_values_directly(src_file, symbol, lOfPoints, points_to_graph, limit=False, lower_bound=-100, upper_bound=100):
+ 
+     
+    reminder(True,"the following needs to be uncommented if we want to show s6 results")
+    #only change here
+#    for el in lOfPoints:
+#        el.set_input_number(0)
+
+    lOfInput_number =  map(lambda x: x.get_input_number(), lOfPoints) #this is used for
+                                                                      #only s4 and can be 
+                                                                      #commented OW
+    
+    lOfQualityVals = map(lambda x: x.get_quality(), lOfPoints)
+    lOfEnergyVals = map(lambda x: x.get_energy(), lOfPoints)
+    lOfSetUps = map(lambda x: x.get_raw_setUp(), lOfPoints)
+    if (limit):
+        result = filter(lambda x: x[0] > lower_bound and x[0] <upper_bound, zip(lOfQualityVals, lOfEnergyVals))
+        lOfQualityVals = map(lambda x: x[0], result)
+        lOfEnergyVals = map(lambda x: x[1], result)
+    
+    
+    
+    reminder(True, "The normalization shouldn't been done for other quality metrics that already consider the accurate desing in their quality calculations")
+    reminder(True, "normalization needs to be done automatically");
+    reminder(True, "normalization of energy also needs to be automated") 
+    print "before normialization" + str(lOfQualityVals) 
+    lOfAccurate_PSNR = [41.14, 39.67, 43.35, 40.34, 39.67, 41.14, 43.35]
+    lOfQualityVals_normalized = normalized_quality(lOfQualityVals, lOfInput_number,lOfAccurate_PSNR) 
+    accurate_design_energy  = 516918
+    lOfEnergyVals_normalized = map(lambda x: float(x)/float(accurate_design_energy), lOfEnergyVals)
+    lOfQualityVals = lOfQualityVals_normalized 
+    lOfEnergyVals= lOfEnergyVals_normalized
+    
+    #here
+    points_to_graph.append([lOfQualityVals, lOfEnergyVals, lOfInput_number, lOfSetUps, src_file])
+
+     
+    pts = points_to_graph[0] #am not using scenario where points_to_graph is more than oneelement deep 
+    
+    
+    """ 
+    l_accurate_design_PSNR = []
+    for index,_ in enumerate(pts[0]):
+        lOfSetUps =  pts[3][index]
+        if is_accurate_design(lOfSetUps):
+            l_accurate_design_PSNR.append(lOfQualityVals[index])
+
+    print l_accurate_design_PSNR  
+    sys.exit()
+    """  
+
+#    points_to_graph.append([lOfQualityVals, lOfEnergyVals, symbol, src_file])
+def getPoints(file1_name):     
+    lOfPoints =[]
+    with open(file1_name, "rb") as f:
+        # pickle.load(f)
+        while True: 
+            try: 
+                point = pickle.load(f)
+                lOfPoints.append(point) 
+                # listOfPeople.append(copy.copy(person))# 
+            except Exception as ex:
+                if not (type(ex).__name__ == "EOFError"):
+                    print type(ex).__name__ 
+                    print ex.args
+                    print "something went wrongss"
+                break
+
+
+
+    return lOfPoints
+
+
+
+
+def get_quality_energy_values(src_file, symbol, points_to_graph, limit=False, lower_bound=-100, upper_bound=100):
+    lOfPoints = getPoints(src_file)
+    get_quality_energy_values_directly(src_file, symbol, lOfPoints, points_to_graph, limit, lower_bound, upper_bound)
 
 

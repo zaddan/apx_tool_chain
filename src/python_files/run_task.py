@@ -191,7 +191,6 @@ def run_serial(settings_obj, in_inputObj, run_input_list, iteration):
             else: 
                 inputObj = in_inputObj
                 inputObj.set_run_input(run_input_list) 
-            
             #inputObj.set_run_input(run_input_list) 
             #inputObj = in_inputObj
             unique_point_list, lOfAllPointsTried, lOfPoints_out_of_heuristic, \
@@ -775,8 +774,8 @@ def apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj):
             accurateSetUp_stuff = map(lambda x: x[2], accurateSetUp) 
             possibly_worse_case_result = specializedEval(False, 1, accurateSetUp, [], accurateSetUp, inputObj,nameOfAllOperandFilesList, rootResultFolderName, executableName,
                     executableInputList, CBuildFolder, operandSampleFileName,lOfAccurateValues, allPointsTried,True, unique_point_list, output_list,[], 0, settings_obj, run_input_list,
-                    #accurateSetUp_stuff)
-                    possibly_worse_case_setup_individual)
+                    accurateSetUp_stuff)
+                    #possibly_worse_case_setup_individual)
             print "PSNR for accurate version for " + inputObj.refImage_name + " is : " + str(possibly_worse_case_result[1])
             print "E for accurate version for " + inputObj.refImage_name + " is : " + str(possibly_worse_case_result[0])
             reminder(settings_obj.reminder_flag, "replace accurateSetUp_stuff with possibly_worse_case_setup_individual")
