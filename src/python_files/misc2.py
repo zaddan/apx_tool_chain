@@ -12,6 +12,14 @@ from mpl_toolkits.mplot3d import Axes3D
 from sklearn.cluster import KMeans
 
 from extract_pareto_set_from_raw_material import *
+def get_imposing_setups(imposed_setUp_file):
+    l_imposing_setUp = [] 
+    l_promised_quality = []  
+    all_points = getPoints(imposed_setUp_file)
+    for el in all_points:
+        l_imposing_setUp.append(el)
+        l_promised_quality.append(el.get_quality())
+    return l_imposing_setUp, l_promised_quality
 
 
 def write_points(lOfPoints, file_addr):

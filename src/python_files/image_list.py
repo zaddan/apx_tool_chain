@@ -18,7 +18,7 @@
 
 #Of_run_input_list = [['Buildings.0007'], ['Fabric.0018'], ['PrisonWindow.0002'], ['Clouds.0001'], ['MtValley.0000'], ['Water.0004']]
 
-lOf_run_input_list = [['Buildings.0007'], ['PrisonWindow.0002'], ['MtValley.0000'], ['Water.0004']]
+lOf_run_input_list = [['Buildings.0007'], ['MtValley.0000'], ['Water.0004'], ['GrassPlantsSky.0003'],  ['Flowers.0006'], ['Buildings.0010'], ['Misc.0003']]
 #lOf_run_input_list = [['Buildings.0007']]
 
 

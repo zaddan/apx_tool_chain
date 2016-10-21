@@ -363,8 +363,8 @@ def generateGraph_for_all_simplified(valueList, xName, yName, benchmark_name, ax
             colors = gen_color_spec.gen_color(n_lines, 'seismic') 
             for x in range(len(third_axis)):
                 my_label =  third_axis_name +": " + str(int(third_axis[x][0]))
-                if (third_axis[x][0] == 97): 
-                    ax.plot(QSs, Es[x], marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label, linestyle=line_style)
+                #if (third_axis[x][0] == 97): 
+                ax.plot(QSs, Es[x], marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label, linestyle=line_style)
         elif (name == "E_vs_Q"):
             plt.xlabel("Quality")
             plt.ylabel("Energy")
@@ -374,8 +374,22 @@ def generateGraph_for_all_simplified(valueList, xName, yName, benchmark_name, ax
             colors = gen_color_spec.gen_color(n_lines, 'seismic') 
             for x in range(len(third_axis)):
                 my_label =  third_axis_name +": " + str(int(third_axis[x][0]))
-                if (third_axis[x][0] == 97): 
-                    ax.plot(quality_list_sorted_based_on_z[x], energy_list_sorted_based_on_z[x], marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label, linestyle=line_style)
+                #if (third_axis[x][0] == 97): 
+                ax.plot(quality_list_sorted_based_on_z[x], energy_list_sorted_based_on_z[x], marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label, linestyle=line_style)
+        elif (name == "Qdiff_vs_E_imposed"):
+            plt.ylabel("Quality_std")
+            plt.xlabel("Energy")
+            n_lines = 1
+            colors = gen_color_spec.gen_color(n_lines, 'seismic') 
+            my_label =  "nolabel"
+            Q_diff = [] 
+            for E_index in range(len(energy_list_sorted_based_on_z[0])):
+                all_Qs_as_w_index = map(lambda x: x[E_index], quality_list_sorted_based_on_z)
+                Q_diff.append(numpy.std(all_Qs_as_w_index))
+            ax.plot(energy_list_sorted_based_on_z[0], Q_diff, marker = symbolsToChooseFrom[0%len(symbolsToChooseFrom)], c= colors[0], label=my_label, linestyle=line_style)
+
+        
+        
         else:
             print "this name : " + name + " is not defined" 
             sys.exit()

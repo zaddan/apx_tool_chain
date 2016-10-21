@@ -83,6 +83,7 @@ def main():
         get_quality_energy_values("various_inputs_same_setUp.PIK", "+", points_to_graph, limit, lower_bound, upper_bound)
         generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "", "" , "E_vs_Q_imposed", "E_vs_Q") 
         generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "", "", "Q_vs_mean_imposed", "same_E_vs_input") 
+        generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "", "" , "Qdiff_vs_E_imposed", "Qdiff_vs_E_imposed") 
 
         #--- various inputs imposed vs regular 
         points_to_graph = [] 

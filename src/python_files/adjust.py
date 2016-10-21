@@ -121,7 +121,7 @@ def adjust_vals_2(quality_list_sorted_based_on_z, energy_list_sorted_based_on_z,
 #    lower_bound =  max_of_min
 #
 
-    step = .001
+    step = .01
     upper_bound = 2.1
     lower_bound =  1.4
 
