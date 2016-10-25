@@ -1,3 +1,4 @@
+import sys
 """
 class bcolors:
     HEADER = '\033[95m'
@@ -24,3 +25,5 @@ def reminder(flag, text, type_rem ="MISC"):
             print colored(base + text, 'orange')
         if (type_rem == "MISC"):
             print colored(base + text, 'blue', attrs=['bold'])
+        if (type_rem == "URGENT"):
+            print colored(base + text, 'red', attrs=['bold'])

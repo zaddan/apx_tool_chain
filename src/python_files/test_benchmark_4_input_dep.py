@@ -113,6 +113,7 @@ def run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name, heu
         lOf_run_input_list = image_list.lOf_run_input_list
         
         
+        inputObj.quality_calc_mode = "individual" 
         """
         optimal_setUps_for_various_inputs,lOflOfAllPointsTried =  apply_heuristic_on_task_with_multiple_prime_input(settings_obj, inputObj, lOf_run_input_list)
         optimal_setUps_for_various_inputs_flattened = list(itertools.chain(*optimal_setUps_for_various_inputs))
@@ -132,8 +133,7 @@ def run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name, heu
         max_n_setUps = index_of_n_setUps_sorted[-1] 
         imposer_input_number = 0  
         l_imposing_setUp = optimal_setUps_for_various_inputs[imposer_input_number]
-        """ 
-          
+        
         #---- removing and creating image_dirs for further comparison
         optimal_image_dir = "optimal_image_dump"
         imposed_image_dir = "imposed_image_dump" 
@@ -149,6 +149,7 @@ def run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name, heu
             each_input_optimal_setup[el.get_input_number()].append(el)
 
         #--- making images for all the optimal setups
+        lOfmyPoints = [] 
         for iteration, input_ in enumerate(lOf_run_input_list): 
             inputObj.settings_obj.runMode = "serial" 
             inputObj.set_run_input(input_) 
@@ -159,22 +160,33 @@ def run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name, heu
                 myPoint.set_input_number(iteration) 
                 myPoint_quality = myPoint.get_quality() 
                 os.system("cp ~/apx_b/inputPics/" + input_[0]+"_noisy.ppm " + optimal_image_dir + "/"+input_[0]+"^^"+str(round(float(myPoint_quality),3))+"_quality^^noisy.ppm")
-                #lOfmyPoints.append(myPoint)       
-
-       
+                lOfmyPoints.append(myPoint)       
+        reminder(True, "delete the following line. just there to see if previous setUP corret. no need to rewirte various_inputs.PIK") 
+        write_points(lOfmyPoints, "various_inputs.PIK") 
+        """
         #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
         #--- setting up an imposer mode, and getting the setups associated with it
         #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
         imposing_mode =  "specific_input"
-#        imposing_mode =  "avg_setUp"
-#        imposing_mode =  "worse_case_setup"
+        #imposing_mode =  "avg_setUp"
+        #imposing_mode =  "worst_case_setUp"
         lOfmyPoints = [] 
         if (imposing_mode == "avg_setUp") :
             imposed_setUp_file =  "various_inputs_avg_setUp.PIK"
-        elif (imposing_mode ==  "worse_case_setUp"):
+            inputObj.quality_calc_mode = "avg" 
+            optimal_setUps_for_various_inputs,lOflOfAllPointsTried =  apply_heuristic_on_task_with_multiple_prime_input(settings_obj, inputObj, lOf_run_input_list)
+            optimal_setUps_for_various_inputs_flattened = list(itertools.chain(*optimal_setUps_for_various_inputs))
+            write_points(optimal_setUps_for_various_inputs_flattened, imposed_setUp_file) 
+        elif (imposing_mode ==  "worst_case_setUp"):
             imposed_setUp_file =  "various_inputs_worse_case_setUp.PIK"
+            inputObj.quality_calc_mode = "worst_case" 
+            optimal_setUps_for_various_inputs,lOflOfAllPointsTried =  apply_heuristic_on_task_with_multiple_prime_input(settings_obj, inputObj, lOf_run_input_list)
+            optimal_setUps_for_various_inputs_flattened = list(itertools.chain(*optimal_setUps_for_various_inputs))
+            write_points(optimal_setUps_for_various_inputs_flattened, imposed_setUp_file) 
         elif (imposing_mode == "specific_input"):
-            imposer_input_number = 5
+            inputObj.quality_calc_mode = "individual" 
+            imposer_input_number = 2
+            print "the image to use as an imposer: " + str(lOf_run_input_list[imposer_input_number])
             imposed_setUp_file =  "one_input_imposed_setUp_points.PIK"
             all_points = getPoints("various_inputs.PIK")
             for el in all_points:
@@ -187,11 +199,11 @@ def run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name, heu
         l_imposing_setUp, l_promised_quality = get_imposing_setups(imposed_setUp_file)
         
         
+        write_points(lOfmyPoints, "imposed_setUp.PIK") 
         #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
         #--- applying the imposed setUps on all images, and also recording the images
         #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
         lOfmyPoints = [] 
-        print "the image to use as an imposer: " + str(lOf_run_input_list[imposer_input_number])
         for iteration, input_ in enumerate(lOf_run_input_list): 
             inputObj.settings_obj.runMode = "serial" 
             inputObj.set_run_input(input_) 
@@ -200,8 +212,8 @@ def run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name, heu
                 myPoint = run_task_with_one_set_up_and_collect_info(settings_obj, inputObj,el.get_raw_setUp())
                 myPoint.set_input_number(iteration) 
                 myPoint_quality = myPoint.get_quality() 
-                os.system("cp ~/apx_b/inputPics/" + input_[0]+"_noisy.ppm " + imposed_image_dir +
-                        "/"+input_[0]+"^^"+str(round(l_promised_quality[imposed_setUp_index],3))+"_VS_"+str(round(float(myPoint_quality),3))+"_quality^^noisy.ppm")
+
+#                 os.system("cp ~/apx_b/inputPics/" + input_[0]+"_noisy.ppm " + imposed_image_dir + "/"+input_[0]+"^^"+str(round(l_promised_quality[imposed_setUp_index],3))+"_VS_"+str(round(float(myPoint_quality),3))+"_quality^^noisy.ppm")
                 lOfmyPoints.append(myPoint)
          
         write_points(lOfmyPoints, "various_inputs_same_setUp.PIK") 

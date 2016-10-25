@@ -337,7 +337,8 @@ def get_quality_energy_values_directly(src_file, symbol, lOfPoints, points_to_gr
     reminder(True, "normalization needs to be done automatically");
     reminder(True, "normalization of energy also needs to be automated") 
     print "before normialization" + str(lOfQualityVals) 
-    lOfAccurate_PSNR = [41.14, 39.67, 43.35, 40.34, 39.67, 41.14, 43.35]
+    #lOfAccurate_PSNR = [41.14, 39.67, 43.35, 40.34, 39.67, 41.14, 43.35]
+    lOfAccurate_PSNR = [1,1, 1,1,1,1,1]
     lOfQualityVals_normalized = normalized_quality(lOfQualityVals, lOfInput_number,lOfAccurate_PSNR) 
     accurate_design_energy  = 516918
     lOfEnergyVals_normalized = map(lambda x: float(x)/float(accurate_design_energy), lOfEnergyVals)

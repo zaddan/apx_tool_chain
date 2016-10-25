@@ -1,5 +1,6 @@
 from math import *
 from reminder import *
+import operator
 import pylab
 import os
 from matplotlib import cm
@@ -210,30 +211,10 @@ def finish_up_making_graph(ax, name, graph_title, benchmark_name, counter=0):
 #            plt.xscale('log')
 #            plt.ylabel(yName)
 #            plt.xlabel(xName)
-def generateGraph_for_all_simplified(valueList, xName, yName, benchmark_name, ax, fig, graph_title="pareto comparison for", name = "various_inputs", post_pone_saving_graph = False, use_prev_ax_fig = False, n_graphs="one"):
-    
-    name_counter = 0 
-    #fig = plt.figure(figsize=plt.figaspect(0.5)) 
-    #--- sanity check 
-    if not(use_prev_ax_fig):
-        fig, ax = plt.subplots()
 
-    """ 
-    if (graph_type == "Q_E_product"):
-        plt.ylabel("Q_E_product")
-        plt.xlabel("mean")
-    else: 
-        #plt.xscale('log')
-        plt.xlabel("mean")
-        plt.ylabel("Energy")
-#            plt.ylabel(yName)
-#            plt.xlabel(xName)
-    """
-    #here
-    #----comment if not proving th s4 pont
-    symbolsToChooseFrom = ['*', 'x', "o", "+","^", '1', '2', "3"] 
-    color =['g', 'y', 'r', 'm']
-    
+
+
+def sort_values(valueList):
     lOf_run_input_list = image_list.lOf_run_input_list
     number_of_inputs_used = len(lOf_run_input_list)
     input_results = map(list, [[]]*number_of_inputs_used) 
@@ -245,6 +226,9 @@ def generateGraph_for_all_simplified(valueList, xName, yName, benchmark_name, ax
     std_list_to_be_drawn = []
     image_list_to_be_drawn = [] 
     z_vals = [] 
+    
+
+
 
     for val in valueList:
         input_results = map(list, [[]]*number_of_inputs_used) 
@@ -285,6 +269,102 @@ def generateGraph_for_all_simplified(valueList, xName, yName, benchmark_name, ax
         
         reminder(True,"the following lines which creates a new image every len(symbolsToChooseFrom) should be commented if we use any flag but various_inputs")
         
+        #--sorting the data. This is necessary for wire frame 
+        zvals_index_sorted = sorted(enumerate(z_vals), key=lambda x: x[1])
+        index_of_zvals_sorted = map(lambda y: y[0], zvals_index_sorted)
+        quality_list_sorted_based_on_z = [quality_list_to_be_drawn[i] for i in index_of_zvals_sorted]                
+        std_list_sorted_based_on_z = [std_list_to_be_drawn[i] for i in index_of_zvals_sorted]                
+        energy_list_sorted_based_on_z = [energy_list_to_be_drawn[i] for i in index_of_zvals_sorted]                
+        
+        image_list_sorted_based_on_z = [image_list_to_be_drawn[i] for i in index_of_zvals_sorted]                
+        
+        SetUp_list_sorted_based_on_z = [setup_list_to_be_drawn[i] for i in index_of_zvals_sorted]                
+        print quality_list_sorted_based_on_z
+        print std_list_sorted_based_on_z
+        print energy_list_sorted_based_on_z
+        
+        return quality_list_sorted_based_on_z, std_list_sorted_based_on_z,energy_list_sorted_based_on_z            
+    return [],[],[]        
+        
+        
+ 
+
+
+
+def generateGraph_for_all_simplified(valueList,xlabel, ylabel, benchmark_name, ax, fig,  graph_title="pareto comparison for", name = "various_inputs", post_pone_saving_graph = False, use_prev_ax_fig = False, n_graphs="one", valueList_promised=[]):
+    
+    name_counter = 0 
+    #fig = plt.figure(figsize=plt.figaspect(0.5)) 
+    #--- sanity check 
+    if not(use_prev_ax_fig):
+        fig, ax = plt.subplots()
+
+    """ 
+    if (graph_type == "Q_E_product"):
+        plt.ylabel("Q_E_product")
+        plt.xlabel("mean")
+    else: 
+        #plt.xscale('log')
+        plt.xlabel("mean")
+        plt.ylabel("Energy")
+#            plt.ylabel(yName)
+#            plt.xlabel(xName)
+    """
+    #here
+    #----comment if not proving th s4 pont
+    symbolsToChooseFrom = ['*', 'x', "o", "+","^", '1', '2', "3"] 
+    color =['g', 'y', 'r', 'm']
+    quality_list_sorted_based_on_z, std_list_sorted_based_on_z, energy_list_sorted_based_on_z = sort_values(valueList)
+    quality_list_promised_sorted_based_on_z, std_list_promised_sorted_based_on_z, energy_list_promised_sorted_based_on_z = sort_values(valueList_promised)
+
+
+    """ 
+    lOf_run_input_list = image_list.lOf_run_input_list
+    number_of_inputs_used = len(lOf_run_input_list)
+    input_results = map(list, [[]]*number_of_inputs_used) 
+    base_dir = "/home/local/bulkhead/behzad/usr/local/apx_tool_chain/inputPics/"
+    counter = 0
+    energy_list_to_be_drawn = []
+    setup_list_to_be_drawn = [] 
+    quality_list_to_be_drawn = []
+    std_list_to_be_drawn = []
+    image_list_to_be_drawn = [] 
+    z_vals = [] 
+
+    for val in valueList:
+        input_results = map(list, [[]]*number_of_inputs_used) 
+        zipped = zip(*val[:-1])  
+        for el in zipped:
+            input_results[el[2]].append(el)
+        for index,res in enumerate(input_results):
+            print counter 
+            if len(res) > 0:
+                image_addr =  base_dir+lOf_run_input_list[index][0] + ".ppm"
+                mR, mG, mB, stdR, stdG, stdB = cluster_images.calc_image_mean_std(image_addr)
+                if (int(np.mean([mR,mG,mB]))) in z_vals:
+                    continue
+                el = map(lambda x: list(x), zip(*res))
+                quality_values_shifted = map(lambda x: x+1, el[0]) 
+                
+                print "mean of image : " + (lOf_run_input_list[index][0]) + " is: " +  str(np.mean([mR,mG,mB]))
+                #--- sort based on the quality
+                Q = quality_values_shifted
+                E = el[1]
+                SetUps =  el[2]
+                E_index_sorted = sorted(enumerate(E), key=lambda x: x[1])
+                index_of_E_sorted = map(lambda y: y[0], E_index_sorted)
+                Q_sorted = [Q[i] for i in index_of_E_sorted]
+                E_sorted = [E[i] for i in index_of_E_sorted]
+                SetUp_sorted = [SetUps[i] for i in index_of_E_sorted]
+                quality_list_to_be_drawn.append(Q_sorted)
+                energy_list_to_be_drawn.append(E_sorted)
+                setup_list_to_be_drawn.append(SetUp_sorted)
+                std_list_to_be_drawn.append([int(np.mean([mR,mG,mB]))]*len(E_sorted))
+                image_list_to_be_drawn.append([lOf_run_input_list[index][0]]*len(E_sorted))
+                z_vals.append( int(np.mean([mR,mG,mB])))
+                counter +=1
+        
+        reminder(True,"the following lines which creates a new image every len(symbolsToChooseFrom) should be commented if we use any flag but various_inputs")
         
         #--sorting the data. This is necessary for wire frame 
         zvals_index_sorted = sorted(enumerate(z_vals), key=lambda x: x[1])
@@ -300,103 +380,135 @@ def generateGraph_for_all_simplified(valueList, xName, yName, benchmark_name, ax
         print std_list_sorted_based_on_z
         print energy_list_sorted_based_on_z
         
+    """        
+    if (post_pone_saving_graph): 
+        line_style = ':'
+    else:
+        line_style = '-'
+    #--- generate a spectrum of colors  
+    #colors = ['b', 'g'] 
+    if (name == "same_Q_vs_input"):
+        plt.xlabel("mean")
+        plt.ylabel("Energy")
+        Qs, Es, stds, QSs = adjust.adjust_vals_2(quality_list_sorted_based_on_z, energy_list_sorted_based_on_z, std_list_sorted_based_on_z)
+        second_axis = Es; 
+        third_axis = QSs; 
+        third_axis_name = "quality" 
         
-        if (post_pone_saving_graph): 
-            line_style = ':'
-        else:
-            line_style = '-'
-        #--- generate a spectrum of colors  
-        #colors = ['b', 'g'] 
-        if (name == "same_Q_vs_input"):
-            plt.xlabel("mean")
-            plt.ylabel("Energy")
-            Qs, Es, stds, QSs = adjust.adjust_vals_2(quality_list_sorted_based_on_z, energy_list_sorted_based_on_z, std_list_sorted_based_on_z)
-            second_axis = Es; 
-            third_axis = QSs; 
-            third_axis_name = "quality" 
-            
-            #---limiting
-            #third_axis= QSs[:10]
-            n_lines = len(third_axis)
-            colors = gen_color_spec.gen_color(n_lines, 'seismic') 
-            #---limiting 
-            
-            #--- printing the the Qstates (Q attempted) and the Q found
-            for input_index in range(len(Qs)): 
-                print "true Qs for input with mean:" + str(stds[input_index]) + "is:"
-                for x in range(len(third_axis)):
-                    print "Q state:" + str(third_axis[x]) + "  found Q:" + str(Qs[input_index][x]) + "En is: " + str(Es[input_index][x]) 
-
+        #---limiting
+        #third_axis= QSs[:10]
+        n_lines = len(third_axis)
+        colors = gen_color_spec.gen_color(max(n_lines,2), 'seismic')
+        #---limiting 
+        
+        #--- printing the the Qstates (Q attempted) and the Q found
+        for input_index in range(len(Qs)): 
+            print "true Qs for input with mean:" + str(stds[input_index]) + "is:"
             for x in range(len(third_axis)):
-                my_label =  third_axis_name +": " + str(float(third_axis[x]))
-                second_axis_as_w_diff_mean = map(lambda y: y[x], second_axis)
-                l_mean = map(lambda y: y[x], stds)
-                ax.plot(l_mean, second_axis_as_w_diff_mean, marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label, linestyle=line_style)
-            #finish_up_making_graph(ax, graph_title, graph_title, benchmark_name,  0) 
-        elif (name == "same_E_vs_input"):
-             plt.xlabel("mean")
-             plt.ylabel("quality")
-             sys.stdout.flush()  
-             third_axis= energy_list_sorted_based_on_z[0]; 
-             third_axis_name = "energy" 
-             second_axis = quality_list_sorted_based_on_z; 
-             n_lines = len(third_axis)
-             colors = gen_color_spec.gen_color(n_lines, 'seismic') 
-             for x in range(len(third_axis)):
-                 #--- limiting
+                print "Q state:" + str(third_axis[x]) + "  found Q:" + str(Qs[input_index][x]) + "En is: " + str(Es[input_index][x]) 
+
+        for x in range(len(third_axis)):
+            my_label =  third_axis_name +": " + str(float(third_axis[x]))
+            second_axis_as_w_diff_mean = map(lambda y: y[x], second_axis)
+            l_mean = map(lambda y: y[x], stds)
+            ax.plot(l_mean, second_axis_as_w_diff_mean, marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label, linestyle=line_style)
+        #finish_up_making_graph(ax, graph_title, graph_title, benchmark_name,  0) 
+    elif (name == "same_E_vs_input"):
+         plt.xlabel("mean")
+         plt.ylabel("quality")
+         sys.stdout.flush()  
+         third_axis= energy_list_sorted_based_on_z[0]; 
+         third_axis_name = "energy" 
+         second_axis = quality_list_sorted_based_on_z; 
+         n_lines = len(third_axis)
+         colors = gen_color_spec.gen_color(n_lines, 'seismic') 
+         for x in range(len(third_axis)):
+             #--- limiting
 #                 if x > 10:
 #                     break;
-                 my_label =  third_axis_name +": " + str(float(third_axis[x]))
-                 second_axis_as_w_diff_mean = map(lambda y: y[x], second_axis)
-                 l_mean = map(lambda y: y[x], std_list_sorted_based_on_z)
-                 print "asdf" + str(second_axis_as_w_diff_mean )
-                 ax.plot(l_mean, second_axis_as_w_diff_mean, marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label, linestyle=line_style)
-             #finish_up_making_graph(ax, graph_title, graph_title, benchmark_name,  0) 
-        elif(name == "E_vs_Q_adjusted"): 
-            plt.xlabel("Quality")
-            plt.ylabel("Energy")
-            Qs, Es, stds, QSs = adjust.adjust_vals_2(quality_list_sorted_based_on_z, energy_list_sorted_based_on_z, std_list_sorted_based_on_z)
-            second_axis = Es; 
-            third_axis = std_list_sorted_based_on_z; 
-            third_axis_name = "input" 
-            n_lines = len(std_list_sorted_based_on_z)
-            colors = gen_color_spec.gen_color(n_lines, 'seismic') 
-            for x in range(len(third_axis)):
-                my_label =  third_axis_name +": " + str(int(third_axis[x][0]))
-                #if (third_axis[x][0] == 97): 
-                ax.plot(QSs, Es[x], marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label, linestyle=line_style)
-        elif (name == "E_vs_Q"):
-            plt.xlabel("Quality")
-            plt.ylabel("Energy")
-            third_axis = std_list_sorted_based_on_z; 
-            third_axis_name = "input" 
-            n_lines = len(std_list_sorted_based_on_z)
-            colors = gen_color_spec.gen_color(n_lines, 'seismic') 
-            for x in range(len(third_axis)):
-                my_label =  third_axis_name +": " + str(int(third_axis[x][0]))
-                #if (third_axis[x][0] == 97): 
-                ax.plot(quality_list_sorted_based_on_z[x], energy_list_sorted_based_on_z[x], marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label, linestyle=line_style)
-        elif (name == "Qdiff_vs_E_imposed"):
-            plt.ylabel("Quality_std")
-            plt.xlabel("Energy")
-            n_lines = 1
-            colors = gen_color_spec.gen_color(n_lines, 'seismic') 
-            my_label =  "nolabel"
-            Q_diff = [] 
-            for E_index in range(len(energy_list_sorted_based_on_z[0])):
-                all_Qs_as_w_index = map(lambda x: x[E_index], quality_list_sorted_based_on_z)
-                Q_diff.append(numpy.std(all_Qs_as_w_index))
-            ax.plot(energy_list_sorted_based_on_z[0], Q_diff, marker = symbolsToChooseFrom[0%len(symbolsToChooseFrom)], c= colors[0], label=my_label, linestyle=line_style)
-
+             my_label =  third_axis_name +": " + str(float(third_axis[x]))
+             second_axis_as_w_diff_mean = map(lambda y: y[x], second_axis)
+             l_mean = map(lambda y: y[x], std_list_sorted_based_on_z)
+             print "asdf" + str(second_axis_as_w_diff_mean )
+             ax.plot(l_mean, second_axis_as_w_diff_mean, marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label, linestyle=line_style)
+         #finish_up_making_graph(ax, graph_title, graph_title, benchmark_name,  0) 
+    elif(name == "E_vs_Q_adjusted"): 
+        plt.xlabel("Quality")
+        plt.ylabel("Energy")
+        Qs, Es, stds, QSs = adjust.adjust_vals_2(quality_list_sorted_based_on_z, energy_list_sorted_based_on_z, std_list_sorted_based_on_z)
+        second_axis = Es; 
+        third_axis = std_list_sorted_based_on_z; 
+        third_axis_name = "input" 
+        n_lines = len(std_list_sorted_based_on_z)
+        colors = gen_color_spec.gen_color(n_lines, 'seismic') 
+        for x in range(len(third_axis)):
+            my_label =  third_axis_name +": " + str(int(third_axis[x][0]))
+            #if (third_axis[x][0] == 97): 
+            ax.plot(QSs, Es[x], marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label, linestyle=line_style)
+    elif (name == "E_vs_Q"):
+        plt.xlabel("Quality")
+        plt.ylabel("Energy")
+        third_axis = std_list_sorted_based_on_z; 
+        third_axis_name = "input" 
+        n_lines = len(std_list_sorted_based_on_z)
+        colors = gen_color_spec.gen_color(n_lines, 'seismic') 
+        for x in range(len(third_axis)):
+            my_label =  third_axis_name +": " + str(int(third_axis[x][0]))
+            #if (third_axis[x][0] == 97): 
+            ax.plot(quality_list_sorted_based_on_z[x], energy_list_sorted_based_on_z[x], marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label, linestyle=line_style)
+    elif (name == "Qstd_vs_E_imposed"):
+        plt.ylabel("Quality_std")
+        plt.xlabel("Energy")
+        n_lines = 1
+        colors = gen_color_spec.gen_color(n_lines, 'seismic') 
+        my_label =  "nolabel"
+        Q_diff = [] 
+        for E_index in range(len(energy_list_sorted_based_on_z[0])):
+            all_Qs_as_w_index = map(lambda x: x[E_index], quality_list_sorted_based_on_z)
+            Q_diff.append(numpy.std(all_Qs_as_w_index))
+        ax.plot(energy_list_sorted_based_on_z[0], Q_diff, marker = symbolsToChooseFrom[0%len(symbolsToChooseFrom)], c= colors[0], label=my_label, linestyle=line_style)
+    elif (name == "Qmean_normalized_to_Q_promissed"):
         
+        plt.ylabel("Quality_mean_normalized_to_Q_promised")
+        plt.xlabel("Energy")
+        n_lines = 1
+        colors = gen_color_spec.gen_color(max(n_lines,2), 'seismic') 
+        my_label =  "nolabel"
+        Q_diff_1 = [] 
+        Q_diff_2 = [] 
+        for E_index in range(len(energy_list_sorted_based_on_z[0])):
+            all_Qs_as_w_index = map(lambda x: x[E_index], quality_list_sorted_based_on_z)
+            Q_diff_1.append(numpy.mean(all_Qs_as_w_index))
+            imposed_vs_got_diff =  map(operator.sub,  [quality_list_promised_sorted_based_on_z[0][E_index]]*len(all_Qs_as_w_index), all_Qs_as_w_index)
+            Q_diff_2.append(numpy.mean(imposed_vs_got_diff))
+        ax.plot(energy_list_sorted_based_on_z[0], Q_diff_1, marker = symbolsToChooseFrom[0%len(symbolsToChooseFrom)], c= colors[0], label="Q_mean", linestyle=line_style)
+        ax.plot(energy_list_sorted_based_on_z[0], Q_diff_2, marker = symbolsToChooseFrom[0%len(symbolsToChooseFrom)], c= colors[1], label="Q_mean_"+"normalized", linestyle=line_style)
+    elif (name == "Q_satisfaction_success_rate"):
         
-        else:
-            print "this name : " + name + " is not defined" 
-            sys.exit()
+        plt.ylabel("Q_satisfaction_success_rate")
+        plt.xlabel("Energy")
+        n_lines = 1
+        colors = gen_color_spec.gen_color(max(n_lines,2), 'seismic') 
+        my_label =  "nolabel"
+        Q_diff_2 = [] 
+        for E_index in range(len(energy_list_sorted_based_on_z[0])):
+            all_Qs_as_w_index = map(lambda x: x[E_index], quality_list_sorted_based_on_z)
+            imposed_vs_got_diff =  map(operator.sub, all_Qs_as_w_index, [quality_list_promised_sorted_based_on_z[0][E_index]]*len(all_Qs_as_w_index))
+            print "sub_is2" + str(imposed_vs_got_diff)
+            success_rate =  float(len(filter(lambda x: x >= 000, imposed_vs_got_diff)))/float(len(imposed_vs_got_diff))
+            Q_diff_2.append(success_rate)
+      
+        ax.get_yaxis().get_major_formatter().set_useOffset(False)
+        ax.plot(energy_list_sorted_based_on_z[0], Q_diff_2, marker = symbolsToChooseFrom[0%len(symbolsToChooseFrom)], c= colors[1], label="Q_satisfaction_success_rate", linestyle=line_style)
 
-        if not(post_pone_saving_graph): 
-            finish_up_making_graph(ax, graph_title, graph_title, benchmark_name,  0) 
-        return ax, fig
+    
+    else:
+        print "this name : " + name + " is not defined" 
+        sys.exit()
+
+    if not(post_pone_saving_graph): 
+        finish_up_making_graph(ax, graph_title, graph_title, benchmark_name,  0) 
+    return ax, fig
 
 
 

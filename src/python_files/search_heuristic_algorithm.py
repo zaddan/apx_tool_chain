@@ -4,6 +4,7 @@ import copy
 import math
 import numpy
 import settings 
+import image_list
 from deap import algorithms
 from points_class import *
 from deap import base
@@ -188,6 +189,42 @@ def eaMuPlusLambda_redefined(population, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN)
     return population
 
    
+def specializedEval_multiple_inputs(normalize,possibly_worse_case_result_quality, _mld_ , ignoreListIndecies, accurateSetUp, inputObj, nameOfAllOperandFilesList, rootResultFolderName,executableName,
+        executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, collect_pts, unique_point_list, output_list, previous_ideal_setUp,iteration, settings_obj,
+        run_input_list, individual):
+    if inputObj.quality_calc_mode in ["avg", "worse_case"]:
+        reminder(True, "quality_calc_mode  of avg and worse_case has not been verified for other benchmarks besides jpeg")
+        assert(inputObj.benchmark_name == "jpeg")
+        collect_pts = False
+        reminder(True, " can not collect points when quality_calc_mode is avg or worse_case")
+        l_energy = []
+        l_quality = []
+        for input_val in image_list.lOf_run_input_list:
+            print input_val
+            inputObj.set_run_input(input_val) 
+            print "input_val " + str(input_val) 
+            energy, quality = specializedEval(normalize,possibly_worse_case_result_quality, _mld_ , ignoreListIndecies, accurateSetUp, inputObj, nameOfAllOperandFilesList, rootResultFolderName,executableName,
+        executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, collect_pts, unique_point_list, output_list, previous_ideal_setUp,iteration, settings_obj,
+        input_val, individual)
+            l_energy.append(energy)
+            l_quality.append(quality)
+        if (inputObj.quality_calc_mode == "avg"): 
+            print "l_energy " + str(l_energy)
+            print "l_quality" + str(l_quality)
+            print "indi" + str(individual)
+            return (numpy.mean(l_energy), numpy.mean(l_quality))
+        elif(inputObj.quality_calc_mode == "worse_case"):
+            return (numpy.min(l_energy), numpy.min(l_quality))
+        else:
+            print "this quality_calc_mode " + inputObj.quality_calc_mode + " is not defined"
+            sys.exit()
+    elif inputObj.quality_calc_mode in ["individual"]:
+        energy, quality = specializedEval(normalize,possibly_worse_case_result_quality, _mld_ , ignoreListIndecies, accurateSetUp, inputObj, nameOfAllOperandFilesList, rootResultFolderName,executableName,
+        executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, collect_pts, unique_point_list, output_list, previous_ideal_setUp,iteration, settings_obj,
+        run_input_list, individual)
+        return (energy,quality)
+
+
 def specializedEval(normalize,possibly_worse_case_result_quality, _mld_ , ignoreListIndecies, accurateSetUp, inputObj, nameOfAllOperandFilesList, rootResultFolderName,executableName,
         executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, collect_pts, unique_point_list, output_list, previous_ideal_setUp,iteration, settings_obj,
         run_input_list, individual):
@@ -209,7 +246,6 @@ def specializedEval(normalize,possibly_worse_case_result_quality, _mld_ , ignore
         newPoint = points() 
         newPoint.set_dealing_with_pics(eval(inputObj.dealingWithPics))
         for operandIndex, operandSampleFileName in enumerate(nameOfAllOperandFilesList):
-
             if (settings_obj.runMode == "parallel"): 
                 CSourceOutputForVariousSetUpFileName =  rootResultFolderName + "/" + settings_obj.rawResultFolderName + "/" + settings_obj.csourceOutputFileName + str(exe_annex) + ".txt" #where to collect C++ source results
                 operatorSampleFileFullAddress = rootResultFolderName + "/"+ settings_obj.operatorSampleFileName + str(exe_annex) + ".txt"
@@ -221,7 +257,8 @@ def specializedEval(normalize,possibly_worse_case_result_quality, _mld_ , ignore
 
             modifyOperatorSampleFile(operatorSampleFileFullAddress, newSetUp)
 
-
+            print "blah func"
+            print run_input_list
             if not(settings_obj.errorTest): #if errorTest generate acc.txt and apx.txt which contain accurate and apx values
                 make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, inputObj.bench_suit_name,exe_annex,
                         settings_obj, run_input_list) 
@@ -424,7 +461,7 @@ def run_spea2(population,
     # Operator registering
     toolbox.register("individual", tools.initRepeat, creator.Individual)
     stats = tools.Statistics(lambda ind: ind.fitness.values)
-    toolbox.register("evaluate", specializedEval, True, possibly_worse_case_result_quality, accurateSetUp, ignoreListIndecies, accurateSetUp, inputObj, nameOfAllOperandFilesList, rootResultFolderName,
+    toolbox.register("evaluate", specializedEval_multiple_inputs, True, possibly_worse_case_result_quality, accurateSetUp, ignoreListIndecies, accurateSetUp, inputObj, nameOfAllOperandFilesList, rootResultFolderName,
             executableName, executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, True, unique_point_list, output_list, previous_ideal_setUp, iteration,
             settings_obj, run_input_list)
     toolbox.register("mate", tools.cxTwoPoint)

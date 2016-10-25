@@ -11,14 +11,14 @@ LOG_FILENAME = exception_dump_file
 logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-heuristic_intensity1="small"
-heuristic_intensity2= "small"
+#heuristic_intensity1="small"
+#heuristic_intensity2= "small"
 #heuristic_intensity1="medium"
 #heuristic_intensity2= "medium"
 #heuristic_intensity1="large"
 #heuristic_intensity2= "large"
-#heuristic_intensity1="xxxl"
-#heuristic_intensity2= "xxxl"
+heuristic_intensity1="xxxl"
+heuristic_intensity2= "xxxl"
 
 
 send_email_activate = True

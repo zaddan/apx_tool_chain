@@ -244,8 +244,13 @@ def apply_heuristic_on_task_with_multiple_prime_input(settings_obj, inputObj, lO
         lOflOfAllPointsTried = map(lambda x: x[1], parallel_results)
         print len(parallel_results)
     elif(settings_obj.runMode == "serial"):
-        for iteration, run_input_list in enumerate(lOf_run_input_list):
-            lOfPoints_out_of_heuristic, lOfAllPointsTried = run_serial(settings_obj, inputObj, run_input_list, iteration)
+        if (inputObj.quality_calc_mode == "individual"):
+            for iteration, run_input_list in enumerate(lOf_run_input_list):
+                lOfPoints_out_of_heuristic, lOfAllPointsTried = run_serial(settings_obj, inputObj, run_input_list, iteration)
+                lOflOfPoints_out_of_heuristic.append(lOfPoints_out_of_heuristic)
+                lOflOfAllPointsTried.append(lOfAllPointsTried)
+        else:
+            lOfPoints_out_of_heuristic, lOfAllPointsTried = run_serial(settings_obj, inputObj, lOf_run_input_list[0], 0)
             lOflOfPoints_out_of_heuristic.append(lOfPoints_out_of_heuristic)
             lOflOfAllPointsTried.append(lOfAllPointsTried)
     else:

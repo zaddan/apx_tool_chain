@@ -73,6 +73,8 @@ def calculate_error_for_image(refImage, noisyImage):
     # ---- get R,G,B values of the two image
     noisyImage_ppm = noisyImage[:-4]+".ppm" 
     refImage_ppm =  refImage[:-4]+".ppm" 
+    print "1nononono " + refImage_ppm
+    print "2nononono " + noisyImage_ppm
     os.system("convert " + noisyImage + " " + noisyImage_ppm)
     refImageRVal, refImageGVal, refImageBVal, img_size = get_RGB_values(refImage_ppm)
     noisyImageRVal, noisyImageGVal, noisyImageBVal,_  = get_RGB_values(noisyImage_ppm)

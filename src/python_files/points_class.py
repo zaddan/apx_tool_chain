@@ -13,6 +13,15 @@ from extract_result_properties import *
 #--------------------**
 class points:
     def __init__(self):
+        self.image_accurate_psnr = {}
+        self.image_accurate_psnr['Buildings.0007'] = 41.14
+        self.image_accurate_psnr['MtValley.0000'] = 39.67
+        self.image_accurate_psnr['Water.0004'] = 43.35
+        self.image_accurate_psnr ['GrassPlantsSky.0003'] = 40.34
+        self.image_accurate_psnr ['Flowers.0006'] = 39.67
+        self.image_accurate_psnr ['Buildings.0010'] = 41.14
+        self.image_accurate_psnr ['Misc.0003'] = 43.35
+        
         self.lOfError = []
         self.lOfOperand = [] 
         self.lOfAccurateValues = [] 
@@ -179,7 +188,11 @@ class points:
                 print "psnr is not defined for other applications but images. This is b/c\
                         at the moment I am simply using mean_of_error_values[0] and I am \
                         not sure if that would work if len(mean_of_error_values) > 0"
-            self.quality = abs(PSNR)
+             
+            if  not(self.inputObj.refImage_name[:-4] in self.image_accurate_psnr.keys()):
+                print "this image accurate PSNR for image: " + str(self.inputObj.refImage_name[:-4]) + " is not defined. add it to the list and set it's value to 1, so we can get it's accurate value"
+                sys.exit() 
+            self.quality = abs(PSNR/self.image_accurate_psnr[self.inputObj.refImage_name[:-4]])
             self.quality_is_set = True
         else:
             print "*****ERROR: this quality_mode: " + str(settings_obj.quality_mode) + " is not defined***"

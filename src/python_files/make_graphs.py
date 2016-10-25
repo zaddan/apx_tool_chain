@@ -81,10 +81,20 @@ def main():
         #--- imposed on various inputs
         points_to_graph = [] 
         get_quality_energy_values("various_inputs_same_setUp.PIK", "+", points_to_graph, limit, lower_bound, upper_bound)
+        
         generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "", "" , "E_vs_Q_imposed", "E_vs_Q") 
         generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "", "", "Q_vs_mean_imposed", "same_E_vs_input") 
-        generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "", "" , "Qdiff_vs_E_imposed", "Qdiff_vs_E_imposed") 
+        generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "", "" , "Qstd_vs_E_imposed", "Qstd_vs_E_imposed") 
 
+        reminder(True, "make sure to creat a file with universal name that holds the imposed values so we  can sample", "URGENT") 
+        points_to_graph_3 =[] 
+        
+        #get_quality_energy_values("various_inputs_avg_setUp.PIK", "+", points_to_graph_3, limit, lower_bound, upper_bound)
+        get_quality_energy_values("imposed_setUps.PIK", "+", points_to_graph_3, limit, lower_bound, upper_bound)
+        #get_quality_energy_values("various_inputs_worse_case_setUp.PIK", "+", points_to_graph_3, limit, lower_bound, upper_bound)
+        
+        generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "", "" , "Qmean_normalized_to_Q_promissed", "Qmean_normalized_to_Q_promissed", False, False, "one", points_to_graph_3) 
+        generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "", "" , "Q_satisfaction_success_rate", "Q_satisfaction_success_rate", False, False, "one", points_to_graph_3) 
         #--- various inputs imposed vs regular 
         points_to_graph = [] 
         get_quality_energy_values("various_inputs_same_setUp.PIK", "+", points_to_graph, limit, lower_bound, upper_bound)
