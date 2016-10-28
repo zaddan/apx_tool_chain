@@ -21,32 +21,35 @@ btm::btm(void) {}
 
 //vector<float> mul_long_long_energy_vals2 {0, 17.6200, 16.9703, 16.5727, 16.0470, 15.4340};
 
-
 vector<float> mul_long_long_energy_vals {17.9, 17.6200, 16.9703, 16.5727, 16.0470, 15.4340,  15.0166,14.5268 ,13.9600 ,13.6053 ,13.1328 ,12.6118 ,12.3106 ,11.8315 , 11.2906, 10.9915};
-
-
 vector<float> mul_long_int_energy_vals {8.8, 8.5007, 8.0576 , 7.6706 , 7.3762 , 6.9593 , 6.56237,6.2935 ,5.9425 ,5.5465 ,5.3194, 4.9607 ,4.6345, 4.4028 ,4.1278 ,3.7874};
-
 vector<float> mul_int_int_energy_vals {4.6, 4.4194, 4.1470, 3.8712, 3.6900, 3.4301,3.1957 ,3.0342 ,2.8028 ,2.5685 ,2.4261,2.558612,2.0411,1.9182,1.7561,1.5972};
+//--- their counters
+extern vector<int> mul_long_long_energy_counters;
+extern vector<int> mul_long_int_energy_counters; 
+extern vector<int> mul_int_int_energy_counters;
 
 void btm::update_energy(int n_apx_bits, string op1_type, string op2_type){
     /* 
     cout <<energy_value<<endl; 
     cout<<mul_long_long_energy_vals[n_apx_bits]<<endl;
     cout<<energy_value+mul_long_long_energy_vals[n_apx_bits]<<endl;
-    cout <<"PRINTING"<<endl; 
-    */
+     */
     if (op1_type ==  "long" && op2_type ==  "long") {
         energy_value += mul_long_long_energy_vals[n_apx_bits];
+        mul_long_long_energy_counters[n_apx_bits] +=1;
     }
     else if (op1_type=="int" && op2_type =="long") {
         energy_value += mul_long_int_energy_vals[n_apx_bits];
+        mul_long_int_energy_counters[n_apx_bits] +=1;
     }
     else if (op1_type == "long" && op2_type == "int") {
         energy_value += mul_long_int_energy_vals[n_apx_bits];
+        mul_long_int_energy_counters[n_apx_bits] +=1; 
     }
     else if (op1_type == "int" && op2_type== "int") {
         energy_value += mul_int_int_energy_vals[n_apx_bits];
+        mul_int_int_energy_counters[n_apx_bits] +=1; 
     }
     else {
         cout<<"the energy value for this bta types is not defined"<<endl;
@@ -81,7 +84,7 @@ size_t btm::get_hbl_bits(void) {
 size_t btm::get_vbl_bits(void) {
     return vbl;
 }
-
+//long, long version
 int btm::calc(const long &a, const long &b) {
     update_energy(vbl, "long", "long"); 
     
@@ -91,26 +94,17 @@ int btm::calc(const long &a, const long &b) {
     long abs_a = (a<0) ? -a : a;
     long abs_b = (b<0) ? -b : b;
     int sign = (a<0 && b>0) || (a>0 && b<0) ? 1 : 0;
-    //  int iap_a = weight&a;
-//  int iap_b = weight&b;
-//  int a_rnd = (((a >> vbl)&((int)(pow(2, Nt-vbl-1) - 1))) == ((int)pow(2, Nt-vbl-1) - 1)) ?
-//              (a >> vbl) : (a >> vbl) + 1;
-//  int b_rnd = (((b >> vbl)&((int)pow(2, Nt-vbl-1) - 1)) == ((int)pow(2, Nt-vbl-1) - 1)) ?
-//              (b >> vbl) : (b >> vbl) + 1;
-    //printf("SGLEE VBL: %d, %x, %x, %x\n", vbl, (b >> vbl), b_rnd, (int)(pow(2, Nt-vbl-1) - 1));
-    //if (((b >> vbl)&((int)pow(2, Nt-vbl-1) - 1)) == ((int)pow(2, Nt-vbl-1) - 1)) cout << "SGLEE OVERFLOW" << endl;
-    //if ((a >> vbl) == (pow(2, Nt) - 1)) cout << "SGLEE OVERFLOW" << endl;
-//  int a_op = (iap_a >> (vbl - 1)) == 0x1 ? a_rnd : (a >> vbl);
-//  int b_op = (iap_b >> (vbl - 1)) == 0x1 ? b_rnd : (b >> vbl);
+    int iap_a = weight&a;
+    int iap_b = weight&b;
 
 #ifdef BT_RND
-    int a_op = (abs_a >> (vbl - 1)) == 0x1 ? (abs_a >> vbl) + 1 : (abs_a >> vbl);
+    int a_op = (iap_a>> (vbl - 1)) == 0x1 ? (abs_a >> vbl) + 1 : (abs_a >> vbl);
 #else
     int a_op = (abs_a >> vbl);
 #endif
 
 #ifdef BT_RND
-    int b_op = (abs_b >> (vbl - 1)) == 0x1 ? (abs_b >> vbl) + 1 : (abs_b >> vbl);
+    int b_op = (iap_b>> (vbl - 1)) == 0x1 ? (abs_b >> vbl) + 1 : (abs_b >> vbl);
 #else
     int b_op = (abs_b >> vbl);
 #endif
@@ -121,6 +115,7 @@ int btm::calc(const long &a, const long &b) {
     return (sign ? -tmp : tmp);
 }
 
+//long, int version
 int btm::calc(const long &a, const int &b) {
     update_energy(vbl, "long", "int"); 
     
@@ -130,26 +125,17 @@ int btm::calc(const long &a, const int &b) {
     long abs_a = (a<0) ? -a : a;
     long abs_b = (b<0) ? -b : b;
     int sign = (a<0 && b>0) || (a>0 && b<0) ? 1 : 0;
-    //  int iap_a = weight&a;
-//  int iap_b = weight&b;
-//  int a_rnd = (((a >> vbl)&((int)(pow(2, Nt-vbl-1) - 1))) == ((int)pow(2, Nt-vbl-1) - 1)) ?
-//              (a >> vbl) : (a >> vbl) + 1;
-//  int b_rnd = (((b >> vbl)&((int)pow(2, Nt-vbl-1) - 1)) == ((int)pow(2, Nt-vbl-1) - 1)) ?
-//              (b >> vbl) : (b >> vbl) + 1;
-    //printf("SGLEE VBL: %d, %x, %x, %x\n", vbl, (b >> vbl), b_rnd, (int)(pow(2, Nt-vbl-1) - 1));
-    //if (((b >> vbl)&((int)pow(2, Nt-vbl-1) - 1)) == ((int)pow(2, Nt-vbl-1) - 1)) cout << "SGLEE OVERFLOW" << endl;
-    //if ((a >> vbl) == (pow(2, Nt) - 1)) cout << "SGLEE OVERFLOW" << endl;
-//  int a_op = (iap_a >> (vbl - 1)) == 0x1 ? a_rnd : (a >> vbl);
-//  int b_op = (iap_b >> (vbl - 1)) == 0x1 ? b_rnd : (b >> vbl);
+    int iap_a = weight&a;
+    int iap_b = weight&b;
 
 #ifdef BT_RND
-    int a_op = (abs_a >> (vbl - 1)) == 0x1 ? (abs_a >> vbl) + 1 : (abs_a >> vbl);
+    int a_op = (iap_a>> (vbl - 1)) == 0x1 ? (abs_a >> vbl) + 1 : (abs_a >> vbl);
 #else
     int a_op = (abs_a >> vbl);
 #endif
 
 #ifdef BT_RND
-    int b_op = (abs_b >> (vbl - 1)) == 0x1 ? (abs_b >> vbl) + 1 : (abs_b >> vbl);
+    int b_op = (iap_b>> (vbl - 1)) == 0x1 ? (abs_b >> vbl) + 1 : (abs_b >> vbl);
 #else
     int b_op = (abs_b >> vbl);
 #endif
@@ -159,35 +145,30 @@ int btm::calc(const long &a, const int &b) {
     // accurate part
     return (sign ? -tmp : tmp);
 }
+
+
+//int, long version
 int btm::calc(const int &a, const long &b) {
     update_energy(vbl, "int", "long"); 
     
-
+    
     // inaccurate part
     int weight = pow(2, vbl) - 1;
     long abs_a = (a<0) ? -a : a;
     long abs_b = (b<0) ? -b : b;
     int sign = (a<0 && b>0) || (a>0 && b<0) ? 1 : 0;
-    //  int iap_a = weight&a;
-//  int iap_b = weight&b;
-//  int a_rnd = (((a >> vbl)&((int)(pow(2, Nt-vbl-1) - 1))) == ((int)pow(2, Nt-vbl-1) - 1)) ?
-//              (a >> vbl) : (a >> vbl) + 1;
-//  int b_rnd = (((b >> vbl)&((int)pow(2, Nt-vbl-1) - 1)) == ((int)pow(2, Nt-vbl-1) - 1)) ?
-//              (b >> vbl) : (b >> vbl) + 1;
-    //printf("SGLEE VBL: %d, %x, %x, %x\n", vbl, (b >> vbl), b_rnd, (int)(pow(2, Nt-vbl-1) - 1));
-    //if (((b >> vbl)&((int)pow(2, Nt-vbl-1) - 1)) == ((int)pow(2, Nt-vbl-1) - 1)) cout << "SGLEE OVERFLOW" << endl;
-    //if ((a >> vbl) == (pow(2, Nt) - 1)) cout << "SGLEE OVERFLOW" << endl;
-//  int a_op = (iap_a >> (vbl - 1)) == 0x1 ? a_rnd : (a >> vbl);
-//  int b_op = (iap_b >> (vbl - 1)) == 0x1 ? b_rnd : (b >> vbl);
+    int iap_a = weight&a;
+    int iap_b = weight&b;
+
 
 #ifdef BT_RND
-    int a_op = (abs_a >> (vbl - 1)) == 0x1 ? (abs_a >> vbl) + 1 : (abs_a >> vbl);
+    int a_op = (iap_a>> (vbl - 1)) == 0x1 ? (abs_a >> vbl) + 1 : (abs_a >> vbl);
 #else
     int a_op = (abs_a >> vbl);
 #endif
 
 #ifdef BT_RND
-    int b_op = (abs_b >> (vbl - 1)) == 0x1 ? (abs_b >> vbl) + 1 : (abs_b >> vbl);
+    int b_op = (iap_b>> (vbl - 1)) == 0x1 ? (abs_b >> vbl) + 1 : (abs_b >> vbl);
 #else
     int b_op = (abs_b >> vbl);
 #endif
@@ -316,46 +297,38 @@ float btm::calc(const double &number1, const double &number2) {
 }
 
 
-
+//int, int version
 int btm::calc(const int &a, const int &b) {
    update_energy(vbl, "int", "int");    
 #ifdef VERBOSE 
     cout<<"=============in int version"<<endl; 
     #endif 
-    // inaccurate part
     int weight = pow(2, vbl) - 1;
-    int abs_a = (a<0) ? -a : a;
-    int abs_b = (b<0) ? -b : b;
-    int sign = (a<0 && b>0) || (a>0 && b<0) ? 1 : 0;
-    //  int iap_a = weight&a;
-//  int iap_b = weight&b;
-//  int a_rnd = (((a >> vbl)&((int)(pow(2, Nt-vbl-1) - 1))) == ((int)pow(2, Nt-vbl-1) - 1)) ?
-//              (a >> vbl) : (a >> vbl) + 1;
-//  int b_rnd = (((b >> vbl)&((int)pow(2, Nt-vbl-1) - 1)) == ((int)pow(2, Nt-vbl-1) - 1)) ?
-//              (b >> vbl) : (b >> vbl) + 1;
-    //printf("SGLEE VBL: %d, %x, %x, %x\n", vbl, (b >> vbl), b_rnd, (int)(pow(2, Nt-vbl-1) - 1));
-    //if (((b >> vbl)&((int)pow(2, Nt-vbl-1) - 1)) == ((int)pow(2, Nt-vbl-1) - 1)) cout << "SGLEE OVERFLOW" << endl;
-    //if ((a >> vbl) == (pow(2, Nt) - 1)) cout << "SGLEE OVERFLOW" << endl;
-//  int a_op = (iap_a >> (vbl - 1)) == 0x1 ? a_rnd : (a >> vbl);
-//  int b_op = (iap_b >> (vbl - 1)) == 0x1 ? b_rnd : (b >> vbl);
+    int iap_a = weight&a;
+    int iap_b = weight&b;
+
 
 #ifdef BT_RND
-    cout<<"rounding btm"<<endl;	
-    int a_op = (abs_a >> (vbl - 1)) == 0x1 ? (abs_a >> vbl) + 1 : (abs_a >> vbl);
+    int a_op = (iap_a>> (vbl - 1)) == 0x1 ? (a >> vbl) + 1 : (a >> vbl);
+    int a_op_shifted_back = a_op <<vbl;
 #else
-    int a_op = (abs_a >> vbl);
+    int a_op = (a >> vbl);
+    int a_op_shifted_back = a_op <<vbl;
 #endif
+
 
 #ifdef BT_RND
-    int b_op = (abs_b >> (vbl - 1)) == 0x1 ? (abs_b >> vbl) + 1 : (abs_b >> vbl);
-#else
-    int b_op = (abs_b >> vbl);
+    int b_op = (iap_b>> (vbl - 1)) == 0x1 ? (b >> vbl) + 1 : (b >> vbl);
+    int b_op_shifted_back = b_op <<vbl;
+    
+   #else
+    int b_op = (b >> vbl);
+    int b_op_shifted_back = b_op <<vbl;
 #endif
-
-    //printf("SGLEE VBL: %d, %d, %d\n", a_op, b_op, ((a_op)*(b_op)) << (2*vbl));
-    int tmp = ((a_op)*(b_op)) << (2*vbl);
-    // accurate part
-    return (sign ? -tmp : tmp);
+    //int tmp = ((a_op)*(b_op)) << (2*vbl);
+    //assert(((b_op_not_abs * a_op_not_abs) <<(2*vbl)) == tmp_sg_version );
+    //assert(tmp == a_ops_shifted_back*b_ops_shifted_back);
+    return b_op_shifted_back * a_op_shifted_back;
 }
 
 
@@ -462,7 +435,6 @@ int btm::calc(const int &a, const unsigned int &b_unsigned) {
     // accurate part
     return tmp;
 }
-
 
 
 
