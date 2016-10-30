@@ -166,210 +166,211 @@ float bta::calc(const int &number1, const float &number2) {
 } 
 
 
-/*
+
+//float, float version
+
 float bta::calc(const float &number1, const float &number2) {
     int a ;
-    memcpy(&a, &number1, sizeof(a));
-    int a_m =  (a & ~(0xff800000)) << 3;
-    int a_e=  a & (0x8f800000)>>23 - 127;
-    int a_s =  a & (0x80000000)>>31;
-    cout<<"mantisa before approximation"<<bitset<32>(num1_mantisa)<<endl;
-    
     int b ;
-    memcpy(&b, &number1, sizeof(b));
-    int b_m =  (b & ~(0xff800000))<<3;
-    int b_e=  b & (0xff800000)>>23 - 127;
-    int b_s =  b & (0x80000000)>>31;
-   
-    int z = 0;
-    int output;
+    float z = 0; //intermediate output used in the function
+    int output = 0;  //output to return
+    memcpy(&a, &number1, sizeof(a));
+    memcpy(&b, &number2, sizeof(b));
+    /* 
+    cout<<"showing a nad b"<<endl; 
+    show_hex(a);
+    show_hex(number1);
+    show_hex(b);
+    show_hex(number2);
+    cout<<"add inside:"<<a+ b<<endl; 
+    */ 
+    int a_m; //a_mantisa
+    int b_m; //b_mantisa
+    int z_m; //z_mantis
+   //----------------------------------------------------------------- 
+    int a_e; //a_exp
+    int b_e;
+    int z_e;
+   //----------------------------------------------------------------- 
+    int a_s; //a_sign
+    int b_s;
+    int z_s;
+   //----------------------------------------------------------------- 
+   int sticky, guard, round_bit, sum;
+    //unpack
+#ifdef BT_RND 
+    a_m = get_bits(a, 22, 0 + Nia) << 3;
+    b_m = get_bits(b, 22, 0 + Nia) << 3;
+#else
+    a_m = get_bits(a, 22, 0 + Nia) << 3;
+    b_m = get_bits(b, 22, 0 + Nia) << 3;
+#endif
+    a_e = get_bits(a, 30, 23) - 127;
+    b_e = get_bits(b, 30, 23) - 127;
+    a_s = get_bit(a, 31);
+    b_s = get_bit(b, 31);
+
     //special_cases:
-     //if a is NaN or b is NaN return NaN 
-     if ((a_e == 128 && a_m != 0) || (b_e == 128 && b_m != 0)) {
-         set_bit(z, 31, 1); //z[31] <= 1;
-         set_bits(z, 30,23, 255); // z[30:23] <= 255;
-         set_bit(z, 22,1); // z[22] <= 1;
-         set_bit (z, 21, 0, 0); //z[21:0] <= 0;
-         output = z;
-         return output;
-     }
-     else if (a_e == 128) { //if a is inf return inf
-          set_z[31] <= a_s;
-          z[30:23] <= 255;
-          z[22:0] <= 0;
-          state <= put_z;
-        //if b is inf return inf
-        end else if (b_e == 128) begin
-          z[31] <= b_s;
-          z[30:23] <= 255;
-          z[22:0] <= 0;
-          state <= put_z;
-        //if a is zero return b
-        end else if ((($signed(a_e) == -127) && (a_m == 0)) && (($signed(b_e) == -127) && (b_m == 0))) begin
-          z[31] <= a_s & b_s;
-          z[30:23] <= b_e[7:0] + 127;
-          z[22:0] <= b_m[26:3];
-          state <= put_z;
-        //if a is zero return b
-        end else if (($signed(a_e) == -127) && (a_m == 0)) begin
-          z[31] <= b_s;
-          z[30:23] <= b_e[7:0] + 127;
-          z[22:0] <= b_m[26:3];
-          state <= put_z;
-        //if b is zero return a
-        end else if (($signed(b_e) == -127) && (b_m == 0)) begin
-          z[31] <= a_s;
-          z[30:23] <= a_e[7:0] + 127;
-          z[22:0] <= a_m[26:3];
-          state <= put_z;
-        end else begin
-          //Denormalised Number
-          if ($signed(a_e) == -127) begin
-            a_e <= -126;
-          end else begin
-            a_m[26] <= 1;
-          end
-          //Denormalised Number
-          if ($signed(b_e) == -127) begin
-            b_e <= -126;
-          end else begin
-            b_m[26] <= 1;
-          end
-          state <= align;
-        end
-      end
+    //if a is NaN or b is NaN return NaN 
+    { 
+        if ((a_e == 128 && a_m != 0) || (b_e == 128 && b_m != 0)) {
+            set_bit(z, 31, 1); //z[31] <= 1;
+            set_bits(z, 30,23, 255); // z[30:23] <= 255;
+            set_bit(z, 22,1); // z[22] <= 1;
+            set_bits(z, 21, 0, 0); //z[21:0] <= 0;
+            return z;
+        }
+        else if (a_e == 128) { //if a is inf return inf
+            set_bit(z,31,a_s); //set_z[31] <= a_s;
+            set_bits(z, 30, 23, 255); //z[30:23] <= 255;
+            set_bits(z, 22, 0, 0); // z[22:0] <= 0;
+            //if b is inf return inf
+            return z; 
+        }else if (b_e == 128) {
+            set_bit(z, 31, b_s); //z[31] <= b_s;
+            set_bits(z, 30, 23, 255); //z[30:23] <= 255;
+            set_bits(z, 22, 0, 0); // z[22:0] <= 0;
+            return z; 
+            //if a is zero return b
+        }  else if (((a_e == -127) && (a_m == 0)) && ((b_e == -127) && (b_m == 0))){
+            set_bit(z, 31, a_s & b_s); //z[31] <= a_s & b_s;
+            set_bits(z, 30, 23, get_bits(b_e, 7, 0) + 127); // z[30:23] <= b_e[7:0] + 127;
+            set_bits(z, 22, 0 + Nia, get_bits(b_m, 26-Nia, 3)); //z[22:0] <= b_m[26:3];
+            //if a is zero return b
+            return z; 
+        }  else if ((a_e == -127) && (a_m == 0)){
+            set_bit(z, 31, b_s); //z[31] <= b_s;
+            set_bits(z, 30, 23, get_bits(b_e, 7, 0) + 127); //z[30:23] <= b_e[7:0] + 127;
+            set_bits(z, 22, 0+Nia, get_bits(b_m, 26-Nia, 3)); //z[22:0] <= b_m[26:3];
+            return z; 
+            //if b is zero return a
+        }else if ((b_e == -127) && (b_m == 0)) {
+            set_bit(z, 31, a_s); //z[31] <= a_s;
+            set_bits(z, 30, 23, get_bits(a_e, 7, 0) + 127); //z[30:23] <= a_e[7:0] + 127;
+            set_bits(z, 22, 0+Nia, get_bits(a_m, 26-Nia, 3)); //z[22:0] <= a_m[26:3];
+            return z; 
+        }else {
+            //Denormalised Number
+            if (a_e == -127) {
+                a_e = -126;
+            }else {
+                set_bit(a_m, 26-Nia, 1); //a_m[26] <= 1;
+            }
+            //Denormalised Number
+            if (b_e == -127){
+                b_e = -126;
+            }else{
+                set_bit(b_m, 26-Nia, 1);   ///b_m[26] <= 1;
+            }
+        }
+    } 
+    //align:
+    {    
+        if (a_e > b_e) {
+            b_e = b_e + 1;
+            b_m = (b_m >> 1);
+            set_bit(b_m, 0, get_bit(b_m, 0) | get_bit(b_m, 1));//b_m[0] <= b_m[0] | b_m[1];
+        }else if (a_e < b_e) {
+            a_e = a_e + 1;
+            a_m = (a_m >> 1);
+            set_bit(a_m, 0, get_bit(a_m, 0) | get_bit(a_m, 1)); //_m[0] <= a_m[0] | a_m[1];
+        }
+    }
 
-      align:
-      begin
-        if ($signed(a_e) > $signed(b_e)) begin
-          b_e <= b_e + 1;
-          b_m <= b_m >> 1;
-          b_m[0] <= b_m[0] | b_m[1];
-        end else if ($signed(a_e) < $signed(b_e)) begin
-          a_e <= a_e + 1;
-          a_m <= a_m >> 1;
-          a_m[0] <= a_m[0] | a_m[1];
-        end else begin
-          state <= add_0;
-        end
-      end
+    //add_0:
+    { 
+        z_e = a_e;
+        if (a_s == b_s) {
+            sum = a_m + b_m;
+            z_s = a_s;
+        }else {
+            if (a_m >= b_m) {
+                sum = a_m - b_m;
+                z_s = a_s;
+            }else {
+                sum = b_m - a_m;
+                z_s = b_s;
+            }
+        }
+    }
+    //add_1:
+    {
+        if (get_bit(sum, 27-Nia) == 1) {
+            z_m = get_bits(sum, 27-Nia, 4); //z_m <= sum[27:4];
+            guard = get_bit(sum, 3); //guard <= sum[3];
+            round_bit = get_bit(sum, 2); //round_bit <= sum[2];
+            sticky = get_bit(sum,1) | get_bit(sum, 0); //sticky <= sum[1] | sum[0];
+            z_e += 1; //<= z_e + 1;
+        } else {
+            z_m = get_bits(sum, 26 - Nia, 3); //z_m <= sum[26:3];
+            guard = get_bit(sum, 2); //guard <= sum[2];
+            round_bit = get_bit(sum, 1); //round_bit <= sum[1];
+            sticky = get_bit(sum, 0); //sticky <= sum[0];
+        }
+    }
 
-      add_0:
-      begin
-        z_e <= a_e;
-        if (a_s == b_s) begin
-          sum <= a_m + b_m;
-          z_s <= a_s;
-        end else begin
-          if (a_m >= b_m) begin
-            sum <= a_m - b_m;
-            z_s <= a_s;
-          end else begin
-            sum <= b_m - a_m;
-            z_s <= b_s;
-          end
-        end
-        state <= add_1;
-      end
+    //normalise_1:
+    {
+        if ((get_bit(z_m, 23-Nia) == 0)  && (z_e > -126)) {
+            z_e = z_e - 1;
+            z_m = (z_m << 1);
+            set_bit(z_m, 0, guard); //z_m[0] <= guard;
+            guard = round_bit; //guard <= round_bit;
+            round_bit = 0;
+        }     
+    }
 
-      add_1:
-      begin
-        if (sum[27]) begin
-          z_m <= sum[27:4];
-          guard <= sum[3];
-          round_bit <= sum[2];
-          sticky <= sum[1] | sum[0];
-          z_e <= z_e + 1;
-        end else begin
-          z_m <= sum[26:3];
-          guard <= sum[2];
-          round_bit <= sum[1];
-          sticky <= sum[0];
-        end
-        state <= normalise_1;
-      end
+    //normalise_2:
+    {
+        if (z_e < -126) {
+            
+        cout<<" got to normal 2"<<endl; 
+            z_e = z_e + 1;
+            z_m = (z_m >> 1);
+            guard = get_bit(z_m, 0);//[0];
+            round_bit = guard;
+            sticky = sticky | round_bit;
+        } 
+    }
 
-      normalise_1:
-      begin
-        if (z_m[23] == 0 && $signed(z_e) > -126) begin
-          z_e <= z_e - 1;
-          z_m <= z_m << 1;
-          z_m[0] <= guard;
-          guard <= round_bit;
-          round_bit <= 0;
-        end else begin
-          state <= normalise_2;
-        end
-      end
+    //round:
+    {
+        if (guard && (round_bit | sticky | get_bit(z_m, 0))) { 
+            
+        cout<<"to to rounding"<<endl; 
+            z_m = z_m + 1;
+            if (z_m == 0xffffff) {
+                z_e =z_e + 1;
+            }
+        }
+    }
 
-      normalise_2:
-      begin
-        if ($signed(z_e) < -126) begin
-          z_e <= z_e + 1;
-          z_m <= z_m >> 1;
-          guard <= z_m[0];
-          round_bit <= guard;
-          sticky <= sticky | round_bit;
-        end else begin
-          state <= round;
-        end
-      end
-
-      round:
-      begin
-        if (guard && (round_bit | sticky | z_m[0])) begin
-          z_m <= z_m + 1;
-          if (z_m == 24'hffffff) begin
-            z_e <=z_e + 1;
-          end
-        end
-        state <= pack;
-      end
-
-      pack:
-      begin
-        z[22 : 0] <= z_m[22:0];
-        z[30 : 23] <= z_e[7:0] + 127;
-        z[31] <= z_s;
-        if ($signed(z_e) == -126 && z_m[23] == 0) begin
-          z[30 : 23] <= 0;
-        end
+    //pack:
+    {
+        cout<<"parts"<<endl; 
+        show_binary(get_bits(z_m, 22, 0));
+        show_binary(get_bits(z_e, 7, 0) + 127);
+        cout<<"parts done"<<endl; 
+        set_bits(z, 22, 0 + Nia, get_bits(z_m, 22-Nia, 0)); //z[22 : 0] <= z_m[22:0];
+        set_bits(z, 30, 23, get_bits(z_e, 7, 0) + 127); //z[30 : 23] <= z_e[7:0] + 127;
+        set_bit(z, 31, z_s); //z[31] <= z_s;
+        if (z_e == -126 && (get_bit(z_m, 23 - Nia)==0)) {
+            set_bits(z, 30, 23, 0); //z[30 : 23] <= 0;
+        }
         //if overflow occurs, return inf
-        if ($signed(z_e) > 127) begin
-          z[22 : 0] <= 0;
-          z[30 : 23] <= 255;
-          z[31] <= z_s;
-        end
-        state <= put_z;
-      end
+        if (z_e > 127) {
+            set_bits(z, 22, 0, 0); //z[22 : 0] <= 0;
+            set_bits(z, 30, 23, 255); //z[30 : 23] <= 255;
+            set_bit(z, 31, z_s); //z[31] <= z_s;
+        }
+    }
 
-      put_z:
-      begin
-        s_output_z_stb <= 1;
-        s_output_z <= z;
-        if (s_output_z_stb && output_z_ack) begin
-          s_output_z_stb <= 0;
-          state <= get_a;
-        end
-      end
+    return z;
 
-    endcase
-
-    if (rst == 1) begin
-      state <= get_a;
-      s_input_a_ack <= 0;
-      s_input_b_ack <= 0;
-      s_output_z_stb <= 0;
-    end
-
-  end
-  assign input_a_ack = s_input_a_ack;
-  assign input_b_ack = s_input_b_ack;
-  assign output_z_stb = s_output_z_stb;
-  assign output_z = s_output_z;
 }
-*/
 
+//float, float version
+/*
 float bta::calc(const float &number1, const float &number2) {
     update_energy(Nia, "float", "float"); 
     int RND_BT_TO_DECIDE_ON;
@@ -377,11 +378,6 @@ float bta::calc(const float &number1, const float &number2) {
     int num1_ptr ;
     int mask; 
     memcpy(&num1_ptr, &number1, sizeof(num1_ptr));
-    
-    /* 
-    cout<<"wtf"<<bitset<sizeof number1*8>(*(long unsigned int*)(&number1))<<endl;
-    cout<<"berfor rounding"<<bitset<sizeof num1_ptr*8>(*(long unsigned int*)(&num1_ptr))<<endl;
-    */
     int num1_mantisa =  num1_ptr & ~(0xff800000);
     cout<<"mantisa before approximation"<<bitset<32>(num1_mantisa)<<endl;
     
@@ -398,11 +394,7 @@ float bta::calc(const float &number1, const float &number2) {
      
     RND_BT_TO_DECIDE_ON = (num1_mantisa & mask) >> (Nia - 1);
     num1_mantisa_cut_off = (num1_mantisa >> Nia) <<Nia;
-    /* 
-    cout <<"here is RND_BT_TO_DECIDE_ON"<<RND_BT_TO_DECIDE_ON<<endl; 
-    cout<<"mantisa_cut_off before rounding"<<bitset<32>(num1_mantisa_cut_off)<<endl;
-    cout<<"mantisa before rounding"<<bitset<32>(num1_mantisa)<<endl;
-    */ 
+    
     if (RND_BT_TO_DECIDE_ON == 1) 
         num1_mantisa = num1_mantisa_cut_off + (1 << Nia);
     else
@@ -447,7 +439,7 @@ float bta::calc(const float &number1, const float &number2) {
     cout<<"adder output "<<bitset<32>(num2_restored + num1_restored)<<endl;
     return num2_restored + num1_restored;
 }
-
+*/
 
 
 float bta::calc(const double &number1, const double &number2) {

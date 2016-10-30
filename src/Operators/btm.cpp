@@ -53,7 +53,7 @@ void btm::update_energy(int n_apx_bits, string op1_type, string op2_type){
     }
     else {
         cout<<"the energy value for this bta types is not defined"<<endl;
-        exit(0);
+        //exit(0);
     }
     //energy_valuee+= (32 - n_apx_bits) + 10;
 }
