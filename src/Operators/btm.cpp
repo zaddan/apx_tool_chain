@@ -60,12 +60,12 @@ void btm::update_energy(int n_apx_bits, string op1_type, string op2_type){
 
 
 
-btm::btm(size_t Nt, size_t Nia, bool table_gen) {
+btm::btm(size_t Nt, size_t vbl, bool table_gen) {
     this->Nt = Nt;
-    this->msb = Nia-1;
+    this->msb = vbl-1;
     this->lsb = 0;
-    this->vbl = Nia;
-    this->hbl = Nia;
+    this->vbl = vbl;
+    this->hbl = vbl;
 
     if (table_gen) tbl_gen();
 }
@@ -191,103 +191,301 @@ float btm::calc(const int &number1, const float &number2) {
 } 
 
 
-
+//float, float version
 float btm::calc(const float &number1, const float &number2) {
+  //update_energy(vbl, "float", "float"); 
+
+  int a ;
+  int b ;
+  float z = 0; //intermediate output used in the function
+  int output = 0;  //output to return
+  memcpy(&a, &number1, sizeof(a));
+  memcpy(&b, &number2, sizeof(b));
+
+  int a_m; //a_mantisa
+  int b_m; //b_mantisa
+  int z_m; //z_mantis
+  //----------------------------------------------------------------- 
+  int a_e; //a_exp
+  int b_e;
+  int z_e;
+  //----------------------------------------------------------------- 
+  int a_s; //a_sign
+  int b_s;
+  int z_s;
+  //----------------------------------------------------------------- 
+  int sticky, guard, round_bit, sum;
+  //----------------------------------------------------------------- 
+  long product;
+
+
+#ifdef BT_RND 
+    a_m = get_bits(a, 22, 0 + vbl);
+    b_m = get_bits(b, 22, 0 + vbl);
+#else
+    a_m = get_bits(a, 22, 0 + vbl);
+    b_m = get_bits(b, 22, 0 + vbl);
+#endif
+    a_e = get_bits(a, 30, 23) - 127;
+    b_e = get_bits(b, 30, 23) - 127;
+    a_s = get_bit(a, 31);
+    b_s = get_bit(b, 31);
+
     
-    #ifdef BT_RND
-       printf("ERRR: rounding not defined for float,float btm \n");
-       exit(0);
-    #endif
     
-    /*
-    FILE* fp;
-    fp = fopen("diff_file.txt", "ab+"); 
-    
-    if ( num1_inverse_converted*num2_inverse_converted != (number1*number2)){
-        float diff_part_1 =  num1_inverse_converted*num2_inverse_converted;
-        float diff_part_2 =  number1*number2;
-        float diff = (diff_part_1 - diff_part_2);
+      //special_cases:
+    {   
+        //if a is NaN or b is NaN return NaN 
+        if ((a_e == 128 && a_m != 0) || (b_e == 128 && b_m != 0)) {
+            set_bit(z, 31, 1); //z[31] <= 1;
+            set_bits(z, 30,23, 255); // z[30:23] <= 255;
+            set_bit(z, 22,1); // z[22] <= 1;
+            set_bits(z, 21, 0, 0); //z[21:0] <= 0;
+            return z;
+        }
+        else if (a_e == 128) { //if a is inf return inf
+            set_bit(z,31,a_s); //set_z[31] <= a_s;
+            set_bits(z, 30, 23, 255); //z[30:23] <= 255;
+            set_bits(z, 22, 0, 0); // z[22:0] <= 0;
+            //if b is inf return inf
+            return z; 
+        }   
+        //if b is zero return NaN
+        else if (b_e == -127 && b_m == 0) {
+            set_bit(z, 31, 1);
+            set_bits(z, 30, 23, 255);
+            set_bit(z, 22, 1); 
+            set_bits(z, 21, 0 , 0);
+            return z; 
+        }
+        //if b is inf return inf
+        else if (b_e == 128) {
+          set_bit(z, 31, a_s ^ b_s);
+          set_bits(z, 30, 23, 255); //z[30:23] <= 255;
+          set_bits(z, 22, 0, 0); //z[22:0] <= 0;
+          return z; 
+        //if a is zero return zero
+        } else if (a_e == -127 && a_m == 0){
+          set_bit(z, 31, a_s ^ b_s);
+          set_bits(z, 30, 23, 0);
+          set_bits(z, 22, 0, 0); 
+          return z; 
+        //if b is zero return zero
+         } else if (b_e == -127 && b_m == 0) {
+          set_bit(z, 31, a_s ^ b_s); //z[31] <= a_s ^ b_s;
+          set_bits(z, 30, 23, 0); //z[30:23] <= 0;
+          set_bits(z, 22, 0, 0); //z[22:0] <= 0;
+          return z; 
+         }else {
+            //Denormalised Number
+            if (a_e == -127) {
+                a_e = -126;
+            }else {
+                set_bit(a_m, 23-vbl, 1); //a_m[26] <= 1;
+            }
+            //Denormalised Number
+            if (b_e == -127){
+                b_e = -126;
+            }else{
+                set_bit(b_m, 23-vbl, 1);   ///b_m[26] <= 1;
+            }
+         }
+    }
+
+    //normalise_a:
+    {
+        while (get_bit(a_m, 23 - vbl) != 1) {
+          a_m = (a_m << 1);
+          a_e = (a_e - 1);
+        }
+    }
+
+    //normalise_b:
+    { 
+        while (get_bit(b_m, 23 - vbl) != 1) {
+                b_m = (b_m << 1);
+                b_e = (b_e - 1);
+        }
+    }
+
         
-        //--checking for under/over-flow 
-        if (std::isinf(diff_part_1)) {
-            fprintf(fp, "par_1_overflow\n");
-        }
-        if (std::isinf(diff_part_2)) {
-            fprintf(fp, "par_2_overflow\n");
-        }
-        if ((diff_part_1 != diff_part_2) && (diff ==0)){
-            fprintf(fp, "diff underflow\n");
-        }
-        fprintf(fp, "error   ");
-        if ( diff > 1){
-            fprintf(fp, "acc:%f apx: %f diff:%f\n",num1_inverse_converted*num2_inverse_converted ,number1*number2, diff); 
-        }
-        fprintf(fp, "------\n");
+    //multiply_0:
+    {
+        z_s = a_s ^ b_s;
+        z_e = a_e + b_e + 1;
+        //product <= a_m[23-vbl:0] * b_m[23-vbl: 0] * 4;
+        product = (long)get_bits(a_m, 23-vbl , 0) * (long)get_bits(b_m, 23-vbl, 0) * 4;
     }
     
-    fclose(fp);
-    */ 
-    
-    /*     
-    int *num1_ptr = (int *)malloc(sizeof(int));
-    memcpy(num1_ptr, &number1, sizeof(num1_ptr));
-    int num1_mantisa =  *num1_ptr & ~(0xff800000);
-    num1_mantisa = (num1_mantisa >> vbl) <<vbl;
-    *num1_ptr &= (0xff800000);
-    *num1_ptr |= num1_mantisa;
-    
-    int *num2_ptr = (int *)malloc(sizeof(int));
-    memcpy(num2_ptr, &number2, sizeof(num2_ptr));
-    int num2_mantisa =  *num2_ptr & ~(0xff800000);
-    num2_mantisa = (num2_mantisa >> vbl) <<vbl;
-    *num2_ptr &= (0xff800000);
-    *num2_ptr |= num2_mantisa;
-    */
+    //show_hex(z_m);
 
-    update_energy(vbl, "float", "float"); 
-    int num1_ptr;
-    memcpy(&num1_ptr, &number1, sizeof(num1_ptr));
-    int num1_mantisa =  num1_ptr & ~(0xff800000);
-    num1_mantisa = (num1_mantisa >> vbl) <<vbl;
-    num1_ptr &= (0xff800000);
-    num1_ptr |= num1_mantisa;
-    
-    int num2_ptr; 
-    memcpy(&num2_ptr, &number2, sizeof(num2_ptr));
-    int num2_mantisa =  num2_ptr & ~(0xff800000);
-    num2_mantisa = (num2_mantisa >> vbl) <<vbl;
-    num2_ptr &= (0xff800000);
-    num2_ptr |= num2_mantisa;
-
-
-    
-    float num2_restored, num1_restored; 
-    memcpy(&num1_restored, &num1_ptr, sizeof(num1_restored));
-    memcpy(&num2_restored, &num2_ptr, sizeof(num2_restored));
-    return num1_restored * num2_restored;
-   /* 
-    fpType num1;
-    fpType num2;
-    getFPComponents(number1, num1); //get the fp componenets
-    getFPComponents(number2, num2); //get the fp components
-
-    num1.Mantisa = ((num1.Mantisa)>> vbl) <<vbl;
-    num2.Mantisa = ((num2.Mantisa)>> vbl) <<vbl;
-    
-    float num1_inverse_converted = convertFPCompToFP(num1);
-    float num2_inverse_converted = convertFPCompToFP(num2);
-    
-    if (num1_inverse_converted != num1_restored){
-        cout<<"main: " <<number1<<"inverse: "<<num1_inverse_converted<< " num1_ptr: "<< num1_ptr << "restored :"<<num1_restored<<endl;
-        exit(0); 
+    //multiply_1:
+    {
+        z_m = get_bits(product, 49-2*vbl, 26-vbl);
+        guard = get_bit(product, 25-vbl);
+        round_bit = get_bit(product, 24-vbl);
+        sticky = get_bits(product, 23-vbl, 0) != 0;
     }
-    if (num2_inverse_converted != num2_restored){
-        cout<<"inverse: "<<num2_inverse_converted<< " num2_ptr: "<<num2_restored<<endl;
-        exit(0); 
+    
+    
+    //normalise_1:
+    {
+        while (get_bit(z_m, 23-vbl) == 0){
+          z_e = z_e - 1;
+          z_m = (z_m << 1);
+          set_bit(z_m, 0,  guard);
+          guard = round_bit;
+          round_bit = 0;
+        }
+     }
+     
+    
+    //    show_hex(a_m);
+//    show_hex(b_m);
+//    show_hex(z_m);
+
+    // normalise_2:
+    { 
+        while (z_e < -126) {
+          z_e = z_e + 1;
+          int old_guard = guard; 
+          guard = get_bit(z_m, 0);
+          z_m = z_m >> 1;
+          int old_round_bit = round_bit; 
+          round_bit = old_guard;
+          sticky = sticky | old_round_bit;
+        }
     }
-    return num1_inverse_converted * num2_inverse_converted;
-    */
+    
+    //round:
+    {
+        if (guard && (round_bit | sticky | get_bit(z_m, 0))) { 
+            
+            z_m = z_m + 1;
+            if (z_m == 0xffffff) {
+                z_e =z_e + 1;
+            }
+        }
+    }
+
+    //pack:
+    {
+        set_bits(z, 22, 0 + vbl, get_bits(z_m, 22-vbl, 0)); //z[22 : 0] <= z_m[22:0];
+        set_bits(z, 30, 23, get_bits(z_e, 7, 0) + 127); //z[30 : 23] <= z_e[7:0] + 127;
+        set_bit(z, 31, z_s); //z[31] <= z_s;
+        if (z_e == -126 && (get_bit(z_m, 23 - vbl)==0)) {
+            set_bits(z, 30, 23, 0); //z[30 : 23] <= 0;
+        }
+        //if overflow occurs, return inf
+        if (z_e > 127) {
+            set_bits(z, 22, 0, 0); //z[22 : 0] <= 0;
+            set_bits(z, 30, 23, 255); //z[30 : 23] <= 255;
+            set_bit(z, 31, z_s); //z[31] <= z_s;
+        }
+    }
+    return z;
 }
+
+
+
+//float btm::calc(const float &number1, const float &number2) {
+//    
+//    #ifdef BT_RND
+//       printf("ERRR: rounding not defined for float,float btm \n");
+//       exit(0);
+//    #endif
+//    
+//    /*
+//    FILE* fp;
+//    fp = fopen("diff_file.txt", "ab+"); 
+//    
+//    if ( num1_inverse_converted*num2_inverse_converted != (number1*number2)){
+//        float diff_part_1 =  num1_inverse_converted*num2_inverse_converted;
+//        float diff_part_2 =  number1*number2;
+//        float diff = (diff_part_1 - diff_part_2);
+//        
+//        //--checking for under/over-flow 
+//        if (std::isinf(diff_part_1)) {
+//            fprintf(fp, "par_1_overflow\n");
+//        }
+//        if (std::isinf(diff_part_2)) {
+//            fprintf(fp, "par_2_overflow\n");
+//        }
+//        if ((diff_part_1 != diff_part_2) && (diff ==0)){
+//            fprintf(fp, "diff underflow\n");
+//        }
+//        fprintf(fp, "error   ");
+//        if ( diff > 1){
+//            fprintf(fp, "acc:%f apx: %f diff:%f\n",num1_inverse_converted*num2_inverse_converted ,number1*number2, diff); 
+//        }
+//        fprintf(fp, "------\n");
+//    }
+//    
+//    fclose(fp);
+//    */ 
+//    
+//    /*     
+//    int *num1_ptr = (int *)malloc(sizeof(int));
+//    memcpy(num1_ptr, &number1, sizeof(num1_ptr));
+//    int num1_mantisa =  *num1_ptr & ~(0xff800000);
+//    num1_mantisa = (num1_mantisa >> vbl) <<vbl;
+//    *num1_ptr &= (0xff800000);
+//    *num1_ptr |= num1_mantisa;
+//    
+//    int *num2_ptr = (int *)malloc(sizeof(int));
+//    memcpy(num2_ptr, &number2, sizeof(num2_ptr));
+//    int num2_mantisa =  *num2_ptr & ~(0xff800000);
+//    num2_mantisa = (num2_mantisa >> vbl) <<vbl;
+//    *num2_ptr &= (0xff800000);
+//    *num2_ptr |= num2_mantisa;
+//    */
+//
+//    update_energy(vbl, "float", "float"); 
+//    int num1_ptr;
+//    memcpy(&num1_ptr, &number1, sizeof(num1_ptr));
+//    int num1_mantisa =  num1_ptr & ~(0xff800000);
+//    num1_mantisa = (num1_mantisa >> vbl) <<vbl;
+//    num1_ptr &= (0xff800000);
+//    num1_ptr |= num1_mantisa;
+//    
+//    int num2_ptr; 
+//    memcpy(&num2_ptr, &number2, sizeof(num2_ptr));
+//    int num2_mantisa =  num2_ptr & ~(0xff800000);
+//    num2_mantisa = (num2_mantisa >> vbl) <<vbl;
+//    num2_ptr &= (0xff800000);
+//    num2_ptr |= num2_mantisa;
+//
+//
+//    
+//    float num2_restored, num1_restored; 
+//    memcpy(&num1_restored, &num1_ptr, sizeof(num1_restored));
+//    memcpy(&num2_restored, &num2_ptr, sizeof(num2_restored));
+//    return num1_restored * num2_restored;
+//   /* 
+//    fpType num1;
+//    fpType num2;
+//    getFPComponents(number1, num1); //get the fp componenets
+//    getFPComponents(number2, num2); //get the fp components
+//
+//    num1.Mantisa = ((num1.Mantisa)>> vbl) <<vbl;
+//    num2.Mantisa = ((num2.Mantisa)>> vbl) <<vbl;
+//    
+//    float num1_inverse_converted = convertFPCompToFP(num1);
+//    float num2_inverse_converted = convertFPCompToFP(num2);
+//    
+//    if (num1_inverse_converted != num1_restored){
+//        cout<<"main: " <<number1<<"inverse: "<<num1_inverse_converted<< " num1_ptr: "<< num1_ptr << "restored :"<<num1_restored<<endl;
+//        exit(0); 
+//    }
+//    if (num2_inverse_converted != num2_restored){
+//        cout<<"inverse: "<<num2_inverse_converted<< " num2_ptr: "<<num2_restored<<endl;
+//        exit(0); 
+//    }
+//    return num1_inverse_converted * num2_inverse_converted;
+//    */
+//}
+
+
 
 float btm::calc(const double &number1, const double &number2) {
     cout<<"=============insde other half float"<<endl; 
