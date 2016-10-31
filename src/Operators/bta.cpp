@@ -62,8 +62,8 @@ void bta::update_energy(int n_apx_bits, string op1_type, string op2_type){
         add_int_int_energy_counters[n_apx_bits] +=1;
     }
     else if (op1_type == "float" && op2_type == "float") {
-        cout<<"^^^^^^^^^^^^^the energy value for this bta types is not defined"<<endl;
-        cout<<"^^^^^^^^^^^^^"<<endl;
+        //cout<<"^^^^^^^^^^^^^the energy value for this bta types is not defined"<<endl;
+        //cout<<"^^^^^^^^^^^^^"<<endl;
     }
     else {
         cout<<"the energy value for "<< op1_type <<" and "<< op2_type<<  " bta types is not defined"<<endl;
@@ -170,6 +170,7 @@ float bta::calc(const int &number1, const float &number2) {
 //float, float version
 
 float bta::calc(const float &number1, const float &number2) {
+    update_energy(Nia, "float", "float"); 
     int a ;
     int b ;
     float z = 0; //intermediate output used in the function
@@ -210,9 +211,11 @@ float bta::calc(const float &number1, const float &number2) {
     a_s = get_bit(a, 31);
     b_s = get_bit(b, 31);
 
+    
+    
     //special_cases:
-    //if a is NaN or b is NaN return NaN 
     { 
+        //if a is NaN or b is NaN return NaN 
         if ((a_e == 128 && a_m != 0) || (b_e == 128 && b_m != 0)) {
             set_bit(z, 31, 1); //z[31] <= 1;
             set_bits(z, 30,23, 255); // z[30:23] <= 255;
@@ -264,21 +267,51 @@ float bta::calc(const float &number1, const float &number2) {
             }
         }
     } 
+    
     //align:
     {    
         if (a_e > b_e) {
-            b_e = b_e + 1;
-            b_m = (b_m >> 1);
-            set_bit(b_m, 0, get_bit(b_m, 0) | get_bit(b_m, 1));//b_m[0] <= b_m[0] | b_m[1];
+            while( a_e > b_e) {
+                int b_m_first_bit = get_bit(b_m,0) | get_bit(b_m, 1); 
+                b_m = (b_m >> 1);
+                b_e = b_e + 1;
+                set_bit(b_m, 0, b_m_first_bit);
+            }
+            /*
+            int b_m_first_bit = get_bit(b_m, (a_e - b_e) -1) | get_bit(b_m, (a_e - b_e)); 
+            b_m = (b_m >> (a_e- b_e));
+            b_e = b_e + (a_e - b_e);
+            //set_bit(b_m, 0, get_bit(b_m_old_shifted, 0) | get_bit(b_m_old_shifted, 1));//b_m[0] <= b_m[0] | b_m[1];
+            set_bit(b_m, 0, b_m_first_bit);
+           */ 
         }else if (a_e < b_e) {
-            a_e = a_e + 1;
-            a_m = (a_m >> 1);
-            set_bit(a_m, 0, get_bit(a_m, 0) | get_bit(a_m, 1)); //_m[0] <= a_m[0] | a_m[1];
-        }
+            while( a_e < b_e) {
+                int a_m_first_bit = get_bit(a_m,0) | get_bit(a_m, 1); 
+                a_m = (a_m >> 1);
+                a_e = a_e + 1;
+                set_bit(a_m, 0, a_m_first_bit);
+            }
+            /*
+            //int a_m_old_shifted = a_m >> ((b_e - a_e) -1); 
+            int a_m_first_bit = get_bit(a_m, (b_e - a_e) -1) | get_bit(a_m, (b_e - a_e)); 
+            
+            a_m = (a_m >> (b_e- a_e));
+            a_e = a_e + (b_e - a_e);
+            //set_bit(a_m, 0, get_bit(a_m_old_shifted, 0) | get_bit(a_m_old_shifted, 1)); //_m[0] <= a_m[0] | a_m[1];
+            set_bit(a_m, 0, a_m_first_bit);
+            */
+            }
     }
+    //cout<<"print a_m and b_m in alighn"<<endl;
+    //show_hex(a_m);
+    //show_hex(b_m);
 
     //add_0:
     { 
+        
+        //cout<<"a_m"<<endl; 
+        //show_hex(a_m);
+        //show_hex(b_m);
         z_e = a_e;
         if (a_s == b_s) {
             sum = a_m + b_m;
@@ -293,6 +326,7 @@ float bta::calc(const float &number1, const float &number2) {
             }
         }
     }
+    
     //add_1:
     {
         if (get_bit(sum, 27-Nia) == 1) {
@@ -311,7 +345,7 @@ float bta::calc(const float &number1, const float &number2) {
 
     //normalise_1:
     {
-        if ((get_bit(z_m, 23-Nia) == 0)  && (z_e > -126)) {
+        while ((get_bit(z_m, 23-Nia) == 0)  && (z_e > -126)) {
             z_e = z_e - 1;
             z_m = (z_m << 1);
             set_bit(z_m, 0, guard); //z_m[0] <= guard;
@@ -322,7 +356,7 @@ float bta::calc(const float &number1, const float &number2) {
 
     //normalise_2:
     {
-        if (z_e < -126) {
+        while(z_e < -126) {
             
         cout<<" got to normal 2"<<endl; 
             z_e = z_e + 1;
@@ -337,7 +371,6 @@ float bta::calc(const float &number1, const float &number2) {
     {
         if (guard && (round_bit | sticky | get_bit(z_m, 0))) { 
             
-        cout<<"to to rounding"<<endl; 
             z_m = z_m + 1;
             if (z_m == 0xffffff) {
                 z_e =z_e + 1;
@@ -347,10 +380,6 @@ float bta::calc(const float &number1, const float &number2) {
 
     //pack:
     {
-        cout<<"parts"<<endl; 
-        show_binary(get_bits(z_m, 22, 0));
-        show_binary(get_bits(z_e, 7, 0) + 127);
-        cout<<"parts done"<<endl; 
         set_bits(z, 22, 0 + Nia, get_bits(z_m, 22-Nia, 0)); //z[22 : 0] <= z_m[22:0];
         set_bits(z, 30, 23, get_bits(z_e, 7, 0) + 127); //z[30 : 23] <= z_e[7:0] + 127;
         set_bit(z, 31, z_s); //z[31] <= z_s;
@@ -364,7 +393,6 @@ float bta::calc(const float &number1, const float &number2) {
             set_bit(z, 31, z_s); //z[31] <= z_s;
         }
     }
-
     return z;
 
 }
