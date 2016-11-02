@@ -371,10 +371,10 @@ float bta::calc(const float &number1, const float &number2) {
     {
         if (guard && (round_bit | sticky | get_bit(z_m, 0))) { 
             
-            z_m = z_m + 1;
-            if (z_m == 0xffffff) {
+            if (get_bits(z_m, 23- Nia, 0) == ((1<<(24-Nia))-1)) {
                 z_e =z_e + 1;
             }
+            z_m = z_m + 1;
         }
     }
 

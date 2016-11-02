@@ -339,7 +339,6 @@ float btm::calc(const float &number1, const float &number2) {
           round_bit = 0;
         }
      }
-     
     
     //    show_hex(a_m);
 //    show_hex(b_m);
@@ -357,15 +356,13 @@ float btm::calc(const float &number1, const float &number2) {
           sticky = sticky | old_round_bit;
         }
     }
-    
     //round:
     {
         if (guard && (round_bit | sticky | get_bit(z_m, 0))) { 
-            
-            z_m = z_m + 1;
-            if (z_m == 0xffffff) {
+            if (get_bits(z_m, 23-vbl, 0) == ((1<<(24-vbl))-1)) {
                 z_e =z_e + 1;
             }
+            z_m = z_m + 1;
         }
     }
 
