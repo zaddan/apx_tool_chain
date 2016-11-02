@@ -1,0 +1,28 @@
+to build this program follow the following steps:
+
+
+#--- genrating make files
+mkdir build
+cd build
+cmake ../
+note: if cmake has already been run, we might get an error. Hence first
+run "rm CmakeCache.txt" and then run "cmake ../"
+#--- building the application
+cmake --build .
+
+#--- runing the application
+    #--- the application gets 3 inputs:
+    resultFolderName, resultFile and an operatorFile
+    the first two args are self explanatory.
+    3rd arg is an file containing the config for each one of the operators
+    in the program.
+    and example of operatorFile (with the name of operator_sample.txt) is included
+    #--- to run:
+    ./simple . out ../operator_sample.txt
+
+note: the output of the program is directed to the stdout
+note: in the operator_sample.txt file: 
+    btm means bit trucation multiplier
+    bta mean bit truncation adder
+    btm 32 10 0 0  (10 is the number of aproximated bits. change only that argument)
+

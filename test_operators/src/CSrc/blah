@@ -1,0 +1,5 @@
+#!bin/bash
+make
+cp ~/behzad_local/verilog_files/apx_operators/int_ops_apx/TRUNCATION.txt .
+./simple . out ../operator_sample.txt
+python get_elements_and_compare.py

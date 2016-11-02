@@ -1,0 +1,3 @@
+/home/polaris/behzad/apx_b/test_operators/build/CMakeFiles/edit_cache.dir
+/home/polaris/behzad/apx_b/test_operators/build/CMakeFiles/rebuild_cache.dir
+/home/polaris/behzad/apx_b/test_operators/build/CMakeFiles/simple.dir
