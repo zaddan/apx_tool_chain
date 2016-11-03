@@ -1,28 +1,56 @@
-to build this program follow the following steps:
+--- this app allows us the verify the correctness of the operators we are using:
+--- the operators are of type int and float (at the moment but they will be extended to long and double)
+--- there are two tests that can be run from this app:
+    1.TEST_1: testing the bouneries of the errors introduced by approximation
+    2. TEST_2: comparing c vs verilog version of the operators 
 
 
-#--- genrating make files
-mkdir build
-cd build
-cmake ../
-note: if cmake has already been run, we might get an error. Hence first
-run "rm CmakeCache.txt" and then run "cmake ../"
-#--- building the application
-cmake --build .
+#----------------------------------------------------
+--- TEST_1: tests whether we exceed the bounderies of the error for each operator (I have 
+#----------------------------------------------------
+implemented this for only floating point operations. To do this test:
+    python test_verilog.py. The parameters need to be set accordingly. They are pretty self
+    explanatory. Keep in mind that the failure rate(the rate in which we fail to meet the bounds) reported needs to be reasonably low. At the moment, it is zero.Note that this test requires
+    TRUNCATION_acc_vs_apx.txt or BT_RND_acc_vs_apx.txt which is generated from the verilog files.
+    To generate these, run_test_apx_float_adder (or run_test_apx_float_mul). However, keep in mind that the verilog testbench associated with these two scripts aka test_apx_float_adder.v , and test_apx_float_mul.v need to set the right parameters (they are the same as the one in the test_verilog.py).
+    
+    
+    steps to be taken : for example if you want to check float_adder meeting the error boundary:
+    cd :~/behzad_local/verilog_files/apx_operators/float_ops_apx
+    vim test_apx_float_adder.v 
+    set the parameters (NAB and BT_RND(if BT_RND==1, we will be rounding), number_of_input_pairs)
+    python float_gen_and_to_hex_convertor.py (to generate floating points inputs)
+    ./run_test_apx_float_adder (make sure that you have loaded cadence module load cadence/2009)
+    Note: make sure to delete the last line of TRUNCATION.txxt and TRUNCATION_acc_vs_apx.txt. For some reason they output xxxx .. 
+    cd /home/local/bulkhead/behzad/usr/local/apx_tool_chain/test_operators/src/PySrc
+    set parameters in test_verilog.c (NAB and rounding,truncation and also addition, or multiplication).also make sure exp is set to one less that the bigger of the two (this is b/c the addition or multipliaction would have the max value of that)
+    python test_verilog.c
+    Note: to generate float values (as input to the test_apx_float_adder.v), we run float_gen_and_to_hex_converter.py (we can set the boundaries of numbers and also the number of pairs line) we want to generate. Note that this files is located in the same folder as float_opx_apx with verilog files). This number of pairs( MUST be used within the test_apx_float_adder.v  to determine the number of pairs we want to sample and do operation on.
+    Caveat: test_apx_float_mul.v generate xxxxx as the last pair (for some unknown reason), delete that line before running the .py file
 
-#--- runing the application
-    #--- the application gets 3 inputs:
-    resultFolderName, resultFile and an operatorFile
-    the first two args are self explanatory.
-    3rd arg is an file containing the config for each one of the operators
-    in the program.
-    and example of operatorFile (with the name of operator_sample.txt) is included
-    #--- to run:
-    ./simple . out ../operator_sample.txt
+#----------------------------------------------------
+--- TEST_2: whether c and verilog files agree
+#----------------------------------------------------
+Note:it uses TRUNCATION.txt or BT_RND.txt generated from the bash script in the verilog folder(look bellow)
 
-note: the output of the program is directed to the stdout
-note: in the operator_sample.txt file: 
-    btm means bit trucation multiplier
-    bta mean bit truncation adder
-    btm 32 10 0 0  (10 is the number of aproximated bits. change only that argument)
+In summary, for example if you want to check float_adder meeting the error boundary:
+    cd :~/behzad_local/verilog_files/apx_operators/float_ops_apx
+    vim test_apx_float_adder.v 
+    set the parameters (NAB and BT_RND(if BT_RND==1, we will be rounding), number_of_input_pairs)
+    ./run_test_apx_float_adder
+    cd /home/local/bulkhead/behzad/usr/local/apx_tool_chain/test_operators/src/PySrc
+    set parameters in test_verilog_vs_c.c (NAB and rounding,truncation and also addition, or multiplication)
+    vim  /home/local/bulkhead/behzad/usr/local/apx_tool_chain/test_operators/operator_sample.txt . and set the operation and number of apx bits properly
+    vim  /home/local/bulkhead/behzad/usr/local/apx_tool_chain/test_operators/inc/BookKeeping/globals.h and either comment or uncomment BT_RND
+    python test_verilog_vs_c.c
+    Note: to generate float values (as input to the test_apx_float_adder.v), we run float_gen_and_to_hex_converter.py (we can set the boundaries of numbers and also the number of pairs we want to generate). This number of pair needs to be used within the test_apx_float_adder.v  to determine the number of pairs we want to sample and do operation on.
+    Caveat: test_apx_float_mul.v generate xxxxx as the last pair (for some unknown reason), delete that line before running the .py file (the output of ./run_test_apx_float_adder or mul would be in  TRUNCATION.txt and TRUNCATION_acc_vs_apx.txt, or their rounding counter_part)
+    Caveat:
+    verilog_results:     00000000  
+    c_results:           800000    
+
+    verilog_results:     80000000  
+    c_results:           80800000  
+    these two instances are the only ones that I have seen to be different. so ignore for now
+    -
 

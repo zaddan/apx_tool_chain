@@ -10,15 +10,15 @@ import binascii
 #----------------------------------------------------
 #---- parameters
 #----------------------------------------------------
-DEBUG = True#--- print 
-NAB   = 10#--- num of appx bits, needs to be set according to NAB in
+DEBUG = False#--- print 
+NAB   = 18#--- num of appx bits, needs to be set according to NAB in
          #--- in the test_apx_float_* file
 #-- addition or multiplication
-#op    = "addition"
-op = "mul"
+op    = "addition"
+#op = "mul"
 #---- truncation or rounding
-#mode  = "truncation"
-mode = "rounding"
+mode  = "truncation"
+#mode = "rounding"
 exp   = 10 #exp associated with the largest of the number used within the set
 failed = 0 #how many time we fail to fall within meet the error boundary
 counter =0 #number of tests run
