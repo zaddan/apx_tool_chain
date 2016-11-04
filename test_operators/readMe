@@ -40,8 +40,10 @@ In summary, for example if you want to check float_adder meeting the error bound
     ./run_test_apx_float_adder
     cd /home/local/bulkhead/behzad/usr/local/apx_tool_chain/test_operators/src/PySrc
     set parameters in test_verilog_vs_c.c (NAB and rounding,truncation and also addition, or multiplication)
+    set operands_type parameter in main.cpp  (wether you want float or int)
     vim  /home/local/bulkhead/behzad/usr/local/apx_tool_chain/test_operators/operator_sample.txt . and set the operation and number of apx bits properly
     vim  /home/local/bulkhead/behzad/usr/local/apx_tool_chain/test_operators/inc/BookKeeping/globals.h and either comment or uncomment BT_RND
+     
     python test_verilog_vs_c.c
     Note: to generate float values (as input to the test_apx_float_adder.v), we run float_gen_and_to_hex_converter.py (we can set the boundaries of numbers and also the number of pairs we want to generate). This number of pair needs to be used within the test_apx_float_adder.v  to determine the number of pairs we want to sample and do operation on.
     Caveat: test_apx_float_mul.v generate xxxxx as the last pair (for some unknown reason), delete that line before running the .py file (the output of ./run_test_apx_float_adder or mul would be in  TRUNCATION.txt and TRUNCATION_acc_vs_apx.txt, or their rounding counter_part)

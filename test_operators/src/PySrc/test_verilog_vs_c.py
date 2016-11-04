@@ -1,10 +1,10 @@
 from termcolor import colored
 import os
 
-#operand_type = "integers"
-operand_type = "floating"
-mode  = "truncation"
-#mode = "rounding"
+operand_type = "integers"
+#operand_type = "floating"
+#mode  = "truncation"
+mode = "rounding"
 
 
 #--- for integers

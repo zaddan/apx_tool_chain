@@ -64,8 +64,7 @@ int in1 = 0;
     int sign;
 }
 
-//copy past the following lines: start here
-int main(int argc, char* argv[]){
+int main_float(int argc, char* argv[]){
     string resultFolderName; 
     string resultFileName; 
     string operatorFileName;
@@ -164,5 +163,123 @@ int main(int argc, char* argv[]){
     }
     */
     return 0;
+    }
+
+
+//copy past the following lines: start here
+int main_int(int argc, char* argv[]){
+    string resultFolderName; 
+    string resultFileName; 
+    string operatorFileName;
+    if (argc < 4) {
+        cout<< "provide the name of the file that you want the result to be written to"<<endl;
+        cout<< "Example: resultFolderName.txt resultFile.txt operatorFile.txt"<<endl; 
+        return 0; 
+    }else{
+        resultFolderName= argv[1]; 
+        resultFileName = argv[2]; 
+        operatorFileName = argv[3]; 
+    }
+    
+    std::setprecision(11); 
+    assign_global_variables(resultFolderName, operatorFileName);
+    string resultFileNameCompleteAddress = resultFileName;
+    ofstream resultFile;
+    //resultFile.setprecision(11);
+    //resultFile.open(resultFileNameCompleteAddress.c_str(), ios_base::app);
+#ifdef BT_RND    
+    resultFile.open("BT_RND_c.txt", ios_base::out);
+#else
+    resultFile.open("TRUNCATION_c.txt", ios_base::out);
+#endif    
+
+
+//    float in1 = pow(2, 23) - 1;//2.75;
+//    float in2 = 20.1;
+
+    
+    int data_element;
+    unsigned int data_element_mem_holder; 
+    unsigned int in1_mem_holder; 
+    unsigned int in2_mem_holder; 
+    unsigned int overAllOutput_mem_holder; 
+    vector <int> data; 
+    ifstream fin;
+#ifdef BT_RND
+    fin.open("BT_RND.txt",ios::in);    // open file
+#else
+    fin.open("TRUNCATION.txt",ios::in);    // open file
+#endif     
+    assert (!fin.fail( ));     
+    while (!fin.eof( ))      //if not at end of file, continue reading numbers
+    {
+        //fin>>hex>>data_element_mem_holder ; 
+        fin>>data_element_mem_holder ; 
+        memcpy(&data_element, &data_element_mem_holder, sizeof(data_element));
+        data.push_back(data_element);
+    }
+    fin.close( );       //close file
+    int in1;
+    int in2;
+    for (int i = 0; i < (data.size())/3; i++) {
+        in1 = data[3*i] ;
+        in2 = data[3*i + 1];
+//         cout<<"here is in1"<<in1 <<"here is in2"<<in2<<endl;
+        int overAllOutput = myOp[0]->calc(in1, in2);  //MultiplicationOp
+//         cout<<"here is overAllOutput"<< overAllOutput<<endl; 
+//         exit(0);
+        //cout<<i <<":"<<overAllOutput<<endl; 
+        //exit(0);
+        //--- we need to set the precision properly o.w, the values dumped i the file would be rounded up or down :/ 
+        //resultFile<<std::setprecision(7 + log10(int(abs(in1))))<<in1 << " " <<std::setprecision(7 + log10(int(abs(in2)+1))) <<in2 << " " << setprecision(7 +  log10(int(abs(overAllOutput)+1)))<<overAllOutput <<endl;
+        //resultFile<<std::setprecision(20 )<<in1 << " " <<std::setprecision(20) <<in2 << " " << setprecision(20 )<<overAllOutput <<endl;
+        
+        
+        memcpy(&in1_mem_holder, &in1, sizeof(in1));
+        memcpy(&in2_mem_holder, &in2, sizeof(in2));
+        //memcpy(&overAllOutput_mem_holder, &overAllOutput, sizeof(overAllOutput));
+        //resultFile<<in1 << " " <<in2 << " " << overAllOutput <<endl;
+        resultFile<<in1<< " " <<in2<< " " << overAllOutput<<endl;
+    } 
+
+    resultFile.close();
+     
+    //test_1();
+    
+    /*
+     
+    int LO = -10000;
+    int HI= 10000;
+    int number_of_inputs = 10000000; 
+    for (int i = 0 ;i < number_of_inputs; i++) {
+        float in1= LO + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(HI-LO)));
+        float in2= LO + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(HI-LO)));
+        float result = myOp[0]->calc(in1, in2);
+        //cout <<"apx version:" <<result<<" acc:" << in1 + in2<<endl;
+        //cout<<in1<<endl;
+        //cout<<in2<<endl;
+        //cout <<result<<endl;
+//        show_hex(in1);
+//        show_hex(in2);
+        //cout <<in1 + in2<<endl;
+        //show_hex(in1+in2);
+//        show_hex(result);
+//        show_hex(in1 * in2);
+        assert(result == (in1 * in2));
+    }
+    */
+    return 0;
     }    
 
+
+int main(int argc, char* argv[]){
+    string operands_type = "int"; 
+    if (operands_type == "float") {
+        main_float(argc, argv);
+    }
+    else {
+        main_int(argc, argv);
+    }
+
+
+}
