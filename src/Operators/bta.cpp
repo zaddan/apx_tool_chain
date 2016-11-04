@@ -200,12 +200,16 @@ float bta::calc(const float &number1, const float &number2) {
    int sticky, guard, round_bit, sum;
     //unpack
 #ifdef BT_RND 
-    a_m = get_bits(a, 22, 0 + Nia) << 3;
-    b_m = get_bits(b, 22, 0 + Nia) << 3;
-#else
-    a_m = get_bits(a, 22, 0 + Nia) << 3;
-    b_m = get_bits(b, 22, 0 + Nia) << 3;
+   if(get_bit(a, Nia -1) == 1){
+      a +=(1<<Nia); 
+   }
+   if(get_bit(b, Nia -1) == 1){
+      b +=(1<<Nia); 
+   }
 #endif
+    
+    a_m = get_bits(a, 22, 0 + Nia) << 3;
+    b_m = get_bits(b, 22, 0 + Nia) << 3;
     a_e = get_bits(a, 30, 23) - 127;
     b_e = get_bits(b, 30, 23) - 127;
     a_s = get_bit(a, 31);
