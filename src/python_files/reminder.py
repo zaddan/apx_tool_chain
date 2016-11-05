@@ -27,3 +27,9 @@ def reminder(flag, text, type_rem ="MISC"):
             print colored(base + text, 'blue', attrs=['bold'])
         if (type_rem == "URGENT"):
             print colored(base + text, 'red', attrs=['bold'])
+
+
+
+def print_in_color(text, color):
+     print colored(text, color)
+            

@@ -31,6 +31,7 @@ from compare_pareto_curves import *
 from make_graphs import *
 import image_list
 def run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name, heuristic_intensity1, heuristic_intensity2):
+    reminder(True, "HAVE TO CHANGE LONG, INT INT, LONG and LONG, lONG ofr both btm,bta rounding. I need to be consistent about whether I abs, then round or simply round.")
     #removing all the previous files
     print "---------starting stage 0"
     #os.system("rm *.PIK") 
@@ -114,7 +115,7 @@ def run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name, heu
         
         
         inputObj.quality_calc_mode = "individual" 
-        """
+        """ 
         optimal_setUps_for_various_inputs,lOflOfAllPointsTried =  apply_heuristic_on_task_with_multiple_prime_input(settings_obj, inputObj, lOf_run_input_list)
         optimal_setUps_for_various_inputs_flattened = list(itertools.chain(*optimal_setUps_for_various_inputs))
         write_points(optimal_setUps_for_various_inputs_flattened, "various_inputs.PIK") 
