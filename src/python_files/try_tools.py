@@ -13,10 +13,10 @@ logger = logging.getLogger(__name__)
 
 heuristic_intensity1="small"
 heuristic_intensity2= "small"
-#heuristic_intensity1="medium"
-#heuristic_intensity2= "medium"
-#heuristic_intensity1="large"
-#heuristic_intensity2= "large"
+#heuristic_intensity1="xl"
+#heuristic_intensity2= "xl"
+#heuristic_intensity1="xxl"
+#heuristic_intensity2= "xxl"
 #heuristic_intensity1="xxxl"
 #heuristic_intensity2= "xxxl"
 
@@ -26,6 +26,8 @@ benchmark= "disparity"
 #benchmark= "sift"
 #benchmark= "localization"
 #benchmark= "jpeg"
+#benchmark= "texture_synthesis"
+#benchmark= "multi_ncut"
 
 bench_suit_name= "sd-vbs"
 #bench_suit_name= "my_micro_benchmark"

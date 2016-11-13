@@ -10,6 +10,7 @@ using namespace std;
 #include <cassert>
 #include <string>
 #include <climits>
+#include <iomanip>
 extern long double energy_value;
 
 template<typename T>
@@ -35,35 +36,89 @@ bta::bta(size_t Nt, size_t Nia, size_t msb, size_t lsb, bool table_gen) {
 
 bta::~bta(void) {}
 
-vector <float> add_long_long_energy_vals  {1.77, 1.7653 ,1.7620 ,1.7585, 1.7495, 1.7448, 1.7369,1.7321 ,1.7278 ,1.7240 ,1.7179,1.7135,1.7092,1.7052,1.6975,1.6945};
-vector <float> add_long_int_energy_vals {1.63,1.6204 , 1.6091 , 1.6080 , 1.5979 ,  1.6019, 1.5879,1.5896 ,1.5785 ,1.5811 ,1.5667,1.5715,1.5566,1.5591,1.5450, 1.5469};
-vector <float> add_int_int_energy_vals{.894, .8892198 , .8846183 , .8785046 , .8740424 , .8694106 ,  .8630022 ,.8601716 ,.8548939 ,.8502534 ,.8421492, .8393752 ,.8353899 ,.8289224 ,.8231492 ,.8175684};
+vector <float> add_long_long_energy_vals  {1.77, 1.7653 ,1.7620 ,1.7585, 1.7495, 1.7448, 1.7369,1.7321 ,1.7278 ,1.7240 ,1.7179,1.7135,1.7092,1.7052,1.6975,1.6945,0,0,0,0,0,0};
+vector <float> add_long_int_energy_vals {1.63,1.6204 , 1.6091 , 1.6080 , 1.5979 ,  1.6019, 1.5879,1.5896 ,1.5785 ,1.5811 ,1.5667,1.5715,1.5566,1.5591,1.5450, 1.5469,0,0,0,0,0,0};
+
+vector <float> add_int_int_energy_vals{54.5116
+,64.8985
+,64.6492
+,63.9344
+,63.4433
+,62.8537
+,62.2874 
+,61.8949 
+,61.4378 
+,60.9253 
+,59.8723 
+,59.4546 
+,59.0458 
+,58.5203 
+,57.9844 
+,57.4047 
+,57.0508 
+,56.5394 
+,55.9977 
+,55.4868 
+,55.0705
+,54.6590 
+};
+
+vector <float> add_float_float_energy_vals{382.6169
+,497.9132
+,432.6956
+,425.1386
+,417.7188
+,410.2462
+,402.8626
+,395.4497
+,388.0271
+,380.5831
+,373.3186
+,366.0025
+,358.6290
+,342.2793
+,335.8817
+,329.5136
+,378.3177
+,368.4564
+,358.0845
+,348.1317
+,338.2024
+,328.7460
+};
+
+
 //--- their counters
 extern vector<int> add_long_long_energy_counters;
 extern vector<int> add_long_int_energy_counters;
 extern vector<int> add_int_int_energy_counters;
-
+extern vector<int> add_float_float_energy_counters;
 
 void bta::update_energy(int n_apx_bits, string op1_type, string op2_type){
     if (op1_type == "long" && op2_type == "long") {
+        cout<<"don't have values for long, long yet"<<endl;
+        exit(0);
         energy_value += add_long_long_energy_vals[n_apx_bits]*.3; //*.3 b/c  the clock cycle was .3ns for adder vs multiplier which was 1ns
         add_long_long_energy_counters[n_apx_bits] +=1;
     }
     else if (op1_type=="int" && op2_type =="long") {
-        energy_value += add_long_int_energy_vals[n_apx_bits]*.3;
+        cout<<"don't have values for int, long yet"<<endl;
+        exit(0);
+        //energy_value += add_long_int_energy_vals[n_apx_bits]*.3;
         add_long_int_energy_counters[n_apx_bits] +=1;
     }
     else if (op1_type == "long" && op2_type == "int") {
-        energy_value += add_long_int_energy_vals[n_apx_bits]*.3;
+        cout<<"don't have values for long, int yet"<<endl;
+        exit(0);
+        //energy_value += add_long_int_energy_vals[n_apx_bits]*.3;
         add_long_int_energy_counters[n_apx_bits] +=1;
     }
     else if (op1_type == "int" && op2_type== "int") {
-        energy_value += add_int_int_energy_vals[n_apx_bits]*.3;
+        //energy_value += add_int_int_energy_vals[n_apx_bits]*.3;
         add_int_int_energy_counters[n_apx_bits] +=1;
     }
     else if (op1_type == "float" && op2_type == "float") {
-        //cout<<"^^^^^^^^^^^^^the energy value for this bta types is not defined"<<endl;
-        //cout<<"^^^^^^^^^^^^^"<<endl;
+        add_float_float_energy_counters[n_apx_bits] +=1; 
     }
     else {
         cout<<"the energy value for "<< op1_type <<" and "<< op2_type<<  " bta types is not defined"<<endl;
@@ -271,7 +326,6 @@ float bta::calc(const float &number1, const float &number2) {
             }
         }
     } 
-    
     //align:
     {    
         if (a_e > b_e) {
@@ -304,12 +358,11 @@ float bta::calc(const float &number1, const float &number2) {
             //set_bit(a_m, 0, get_bit(a_m_old_shifted, 0) | get_bit(a_m_old_shifted, 1)); //_m[0] <= a_m[0] | a_m[1];
             set_bit(a_m, 0, a_m_first_bit);
             */
-            }
+        }
     }
     //cout<<"print a_m and b_m in alighn"<<endl;
     //show_hex(a_m);
     //show_hex(b_m);
-
     //add_0:
     { 
         
@@ -330,7 +383,6 @@ float bta::calc(const float &number1, const float &number2) {
             }
         }
     }
-    
     //add_1:
     {
         if (get_bit(sum, 27-Nia) == 1) {
@@ -357,7 +409,6 @@ float bta::calc(const float &number1, const float &number2) {
             round_bit = 0;
         }     
     }
-
     //normalise_2:
     {
         while(z_e < -126) {
@@ -373,6 +424,7 @@ float bta::calc(const float &number1, const float &number2) {
 
     //round:
     {
+        
         if (guard && (round_bit | sticky | get_bit(z_m, 0))) { 
             
             if (get_bits(z_m, 23- Nia, 0) == ((1<<(24-Nia))-1)) {
@@ -385,8 +437,10 @@ float bta::calc(const float &number1, const float &number2) {
     //pack:
     {
         set_bits(z, 22, 0 + Nia, get_bits(z_m, 22-Nia, 0)); //z[22 : 0] <= z_m[22:0];
+        
         set_bits(z, 30, 23, get_bits(z_e, 7, 0) + 127); //z[30 : 23] <= z_e[7:0] + 127;
         set_bit(z, 31, z_s); //z[31] <= z_s;
+        
         if (z_e == -126 && (get_bit(z_m, 23 - Nia)==0)) {
             set_bits(z, 30, 23, 0); //z[30 : 23] <= 0;
         }
@@ -397,6 +451,15 @@ float bta::calc(const float &number1, const float &number2) {
             set_bit(z, 31, z_s); //z[31] <= z_s;
         }
     }
+    
+    
+    //cout<<"z:"<<setw(12)<<left<<z<<" addition:" <<setw(12)<<left<< number1 + number2<<endl;
+    /* 
+    if (z != number1+number2) {
+       cout<<"num1:"<<number1<<" num2:"<<number2<<endl;
+        cout<<"btm not equal:"<< "num1+num2  "<<number1+number2 << "and z"<<z<<endl;
+        assert(z == number1 + number2);
+    }*/
     return z;
 
 }

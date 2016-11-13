@@ -15,7 +15,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 from matplotlib import cm
 plt.ioff()
-import image_list
+import input_list
 from extract_result_properties import *
 from extract_pareto_set_from_raw_material import *
 import cluster_images 
@@ -215,7 +215,7 @@ def finish_up_making_graph(ax, name, graph_title, benchmark_name, counter=0):
 
 
 def sort_values(valueList):
-    lOf_run_input_list = image_list.lOf_run_input_list
+    lOf_run_input_list = input_list.lOf_run_input_list
     number_of_inputs_used = len(lOf_run_input_list)
     input_results = map(list, [[]]*number_of_inputs_used) 
     base_dir = "/home/local/bulkhead/behzad/usr/local/apx_tool_chain/inputPics/"
@@ -227,6 +227,9 @@ def sort_values(valueList):
     image_list_to_be_drawn = [] 
     z_vals = [] 
     
+    mR =0 
+    mG =0
+    mB =0
 
 
 
@@ -243,7 +246,17 @@ def sort_values(valueList):
             print counter 
             if len(res) > 0:
                 image_addr =  base_dir+lOf_run_input_list[index][0] + ".ppm"
-                mR, mG, mB, stdR, stdG, stdB = cluster_images.calc_image_mean_std(image_addr)
+                # the following line is commented to incorperate applications
+                # that are not images, b/c the following line is only applicable
+                # for images
+                #mR, mG, mB, stdR, stdG, stdB = cluster_images.calc_image_mean_std(image_addr)
+                mR +=1 
+                mG +=1
+                mB +=1
+                stdB = 0
+                stdR = 0
+                stdG = 0
+                
                 if (int(np.mean([mR,mG,mB]))) in z_vals:
                     continue
                 el = map(lambda x: list(x), zip(*res))
@@ -299,6 +312,7 @@ def generateGraph_for_all_simplified(valueList,xlabel, ylabel, benchmark_name, a
     if not(use_prev_ax_fig):
         fig, ax = plt.subplots()
 
+
     """ 
     if (graph_type == "Q_E_product"):
         plt.ylabel("Q_E_product")
@@ -319,7 +333,7 @@ def generateGraph_for_all_simplified(valueList,xlabel, ylabel, benchmark_name, a
 
 
     """ 
-    lOf_run_input_list = image_list.lOf_run_input_list
+    lOf_run_input_list = input_list.lOf_run_input_list
     number_of_inputs_used = len(lOf_run_input_list)
     input_results = map(list, [[]]*number_of_inputs_used) 
     base_dir = "/home/local/bulkhead/behzad/usr/local/apx_tool_chain/inputPics/"
@@ -387,6 +401,8 @@ def generateGraph_for_all_simplified(valueList,xlabel, ylabel, benchmark_name, a
         line_style = '-'
     #--- generate a spectrum of colors  
     #colors = ['b', 'g'] 
+    
+    plt.xscale('log')
     if (name == "same_Q_vs_input"):
         plt.xlabel("mean")
         plt.ylabel("Energy")
@@ -442,10 +458,11 @@ def generateGraph_for_all_simplified(valueList,xlabel, ylabel, benchmark_name, a
         n_lines = len(std_list_sorted_based_on_z)
         colors = gen_color_spec.gen_color(n_lines, 'seismic') 
         for x in range(len(third_axis)):
-            my_label =  third_axis_name +": " + str(int(third_axis[x][0]))
+            my_label =  third_axis_name +": " + str(float(third_axis[x][0]))
             #if (third_axis[x][0] == 97): 
             ax.plot(QSs, Es[x], marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label, linestyle=line_style)
     elif (name == "E_vs_Q"):
+        #---line_style = ''  uncomment for all_points
         plt.xlabel("Quality")
         plt.ylabel("Energy")
         third_axis = std_list_sorted_based_on_z; 
@@ -453,7 +470,7 @@ def generateGraph_for_all_simplified(valueList,xlabel, ylabel, benchmark_name, a
         n_lines = len(std_list_sorted_based_on_z)
         colors = gen_color_spec.gen_color(n_lines, 'seismic') 
         for x in range(len(third_axis)):
-            my_label =  third_axis_name +": " + str(int(third_axis[x][0]))
+            my_label =  third_axis_name +": " + str(float(third_axis[x][0]))
             #if (third_axis[x][0] == 97): 
             ax.plot(quality_list_sorted_based_on_z[x], energy_list_sorted_based_on_z[x], marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label, linestyle=line_style)
     elif (name == "Qstd_vs_E_imposed"):
@@ -473,14 +490,16 @@ def generateGraph_for_all_simplified(valueList,xlabel, ylabel, benchmark_name, a
         plt.xlabel("Energy")
         n_lines = 1
         colors = gen_color_spec.gen_color(max(n_lines,2), 'seismic') 
-        my_label =  "nolabel"
         Q_diff_1 = [] 
         Q_diff_2 = [] 
         for E_index in range(len(energy_list_sorted_based_on_z[0])):
             all_Qs_as_w_index = map(lambda x: x[E_index], quality_list_sorted_based_on_z)
+            print "all_Qs" + str(all_Qs_as_w_index) 
             Q_diff_1.append(numpy.mean(all_Qs_as_w_index))
+            print "quality_promiseed" + str(quality_list_promised_sorted_based_on_z[0]) 
             imposed_vs_got_diff =  map(operator.sub,  [quality_list_promised_sorted_based_on_z[0][E_index]]*len(all_Qs_as_w_index), all_Qs_as_w_index)
             Q_diff_2.append(numpy.mean(imposed_vs_got_diff))
+        print "Q_diff_2)" + str(Q_diff_2) 
         ax.plot(energy_list_sorted_based_on_z[0], Q_diff_1, marker = symbolsToChooseFrom[0%len(symbolsToChooseFrom)], c= colors[0], label="Q_mean", linestyle=line_style)
         ax.plot(energy_list_sorted_based_on_z[0], Q_diff_2, marker = symbolsToChooseFrom[0%len(symbolsToChooseFrom)], c= colors[1], label="Q_mean_"+"normalized", linestyle=line_style)
     elif (name == "Q_satisfaction_success_rate"):
@@ -517,7 +536,8 @@ def generateGraph_for_all_simplified(valueList,xlabel, ylabel, benchmark_name, a
 
 
 def generateGraph_for_all(valueList, xName, yName, benchmark_name, graph_title="pareto comparison for", name = "various_inputs", graph_dim = "2d", graph_type ="Q_vs_E", n_graphs="one"):
-    
+    assert(1==0, "this graph generation tool can not be used b/c it uses meani")
+
     name_counter = 0 
     fig = plt.figure(figsize=plt.figaspect(0.5)) 
     #--- sanity check 
@@ -547,7 +567,7 @@ def generateGraph_for_all(valueList, xName, yName, benchmark_name, graph_title="
     symbolsToChooseFrom = ['*', 'x', "o", "+","^", '1', '2', "3"] 
     color =['g', 'y', 'r', 'm']
     
-    lOf_run_input_list = image_list.lOf_run_input_list
+    lOf_run_input_list = input_list.lOf_run_input_list
     number_of_inputs_used = len(lOf_run_input_list)
     input_results = map(list, [[]]*number_of_inputs_used) 
     base_dir = "/home/local/bulkhead/behzad/usr/local/apx_tool_chain/inputPics/"
@@ -636,7 +656,7 @@ def generateGraph_for_all(valueList, xName, yName, benchmark_name, graph_title="
         for x in range(len(energy_list_sorted_based_on_z[0][:n_energy_levels])):
         #for x in range(len(quality_list_sorted_based_on_z)):
             #my_label =  'mean:' + str(int(std_list_sorted_based_on_z[x][0]))
-            my_label =  'En:' + str(int(energy_list_sorted_based_on_z[0][x]))
+            my_label =  'En:' + str(float(energy_list_sorted_based_on_z[0][x]))
             if (graph_dim == "3d"): 
                 """ the following is for plotting a wire_frame or surface plot
         surf = ax.plot_surface(np.asarray(energy_list_sorted_based_on_z), np.asarray(quality_list_sorted_based_on_z), np.asarray(std_list_sorted_based_on_z), rstride=1, cstride=1, cmap=cm.coolwarm, linewidth=0, antialiased=False)

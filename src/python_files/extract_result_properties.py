@@ -199,7 +199,9 @@ def calculateError(accurateValues, currentValues, settings_obj):
         if (currentValues== None or len(currentValues)==0):
             raise error.CurrentValueNoneError
         if not(len(accurateValues) == len(currentValues)):
-            print "pretty weird " + str(accurateValues) + " " + str(currentValues)
+            print "--- len of acc and cur vals are not the same" 
+            print "accvals:" + str(accurateValues) 
+            print "curvals " + str(currentValues)
             raise error.NoneLengthEqualityError
     
     except error.AccurateValueNoneError as er:
@@ -233,10 +235,13 @@ def calculateError(accurateValues, currentValues, settings_obj):
         #for accurateValue,currentValue in zip(accurateValues,currentValues):
         #    result += [(euclid_dis(accurateValue, currentValue))]
             #result += pow(float(accurateValue) - float(currentValue), 2)
+        #print "acc vals" +str(accurateValues)
+        #print "cur vals" + str(currentValues)
+        #print "result of subtraction"  + str(result)
     elif (settings_obj.error_mode == "nearest_neighbors"): 
         result = calc_error_for_nearest_neighbors(map(lambda x: float(x), accurateValues), map(lambda x: float(x), currentValues))
     elif (settings_obj.error_mode == "nearest_neighbors_2d"): 
-        if (benchmark_name == "sift"): 
+        if (settings_obj.benchmark_name == "sift"): 
             result = calc_error_for_nearest_neighbors_2d(accurateValues , currentValues, settings_obj)
         else:
             print "*****ERRR****"
@@ -348,7 +353,7 @@ def calculateEnergy(operatorNumberOfBitsList, settings_obj):
         for line in f:
             for words in line.split():
                 print "energyval: " + str(words);
-                result = int(words); 
+                result = float(words); 
                 sys.stdout.flush()
 
 

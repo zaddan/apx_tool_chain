@@ -17,6 +17,100 @@ using namespace std;
 extern hw_ac **myOp;   
 //end here
 
+int test_simple_int(int argc, char* argv[]){
+    string resultFolderName; 
+    string resultFileName; 
+    string operatorFileName;
+    if (argc < 4) {
+        cout<< "provide the name of the file that you want the result to be written to"<<endl;
+        cout<< "Example: resultFolderName.txt resultFile.txt operatorFile.txt"<<endl; 
+        return 0; 
+    }else{
+        resultFolderName= argv[1]; 
+        resultFileName = argv[2]; 
+        operatorFileName = argv[3]; 
+    }
+    
+    std::setprecision(11); 
+    assign_global_variables(resultFolderName, operatorFileName);
+    string resultFileNameCompleteAddress = resultFileName;
+    ofstream resultFile;
+    //resultFile.setprecision(11);
+    //resultFile.open(resultFileNameCompleteAddress.c_str(), ios_base::app);
+#ifdef BT_RND    
+    resultFile.open("BT_RND_c.txt", ios_base::out);
+#else
+    resultFile.open("TRUNCATION_c.txt", ios_base::out);
+#endif    
+
+    
+//    float in1 =  .00000327432;
+//    float in2 = -.00000327432; 
+
+
+    int in1 = 2147483647;
+    int in2 =2147483647; 
+
+//    float in1 = 0;
+//    float in2 = 0;
+    
+    int overAllOutput = myOp[0]->calc(in1, in2);  //MultiplicationOp
+    
+    
+    
+    cout<<overAllOutput<<endl;
+    
+    
+    return overAllOutput;
+}
+
+
+float test_simple(int argc, char* argv[]){
+    string resultFolderName; 
+    string resultFileName; 
+    string operatorFileName;
+    if (argc < 4) {
+        cout<< "provide the name of the file that you want the result to be written to"<<endl;
+        cout<< "Example: resultFolderName.txt resultFile.txt operatorFile.txt"<<endl; 
+        return 0; 
+    }else{
+        resultFolderName= argv[1]; 
+        resultFileName = argv[2]; 
+        operatorFileName = argv[3]; 
+    }
+    
+    std::setprecision(11); 
+    assign_global_variables(resultFolderName, operatorFileName);
+    string resultFileNameCompleteAddress = resultFileName;
+    ofstream resultFile;
+    //resultFile.setprecision(11);
+    //resultFile.open(resultFileNameCompleteAddress.c_str(), ios_base::app);
+#ifdef BT_RND    
+    resultFile.open("BT_RND_c.txt", ios_base::out);
+#else
+    resultFile.open("TRUNCATION_c.txt", ios_base::out);
+#endif    
+
+    
+//    float in1 =  .00000327432;
+//    float in2 = -.00000327432; 
+
+
+    float in1 =  -1;
+    float in2 = 1; 
+
+//    float in1 = 0;
+//    float in2 = 0;
+    
+    float overAllOutput = myOp[0]->calc(in1, in2);  //MultiplicationOp
+    
+    
+    
+    cout<<overAllOutput<<endl;
+    
+    
+    return overAllOutput;
+}
 
 void test_1(void) {
 int in1 = 0;
@@ -275,9 +369,11 @@ int main_int(int argc, char* argv[]){
 int main(int argc, char* argv[]){
     string operands_type = "int"; 
     if (operands_type == "float") {
-        main_float(argc, argv);
+        //test_simple(argc, argv); 
+         main_float(argc, argv);
     }
     else {
+//        test_simple_int(argc, argv); 
         main_int(argc, argv);
     }
 

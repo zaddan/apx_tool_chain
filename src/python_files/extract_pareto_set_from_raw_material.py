@@ -1,4 +1,4 @@
-import image_list
+import input_list
 import matplotlib.pyplot as plt
 import sys
 import math

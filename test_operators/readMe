@@ -39,9 +39,9 @@ In summary, for example if you want to check float_adder meeting the error bound
     set the parameters (NAB and BT_RND(if BT_RND==1, we will be rounding), number_of_input_pairs)
     ./run_test_apx_float_adder
     cd /home/local/bulkhead/behzad/usr/local/apx_tool_chain/test_operators/src/PySrc
-    set parameters in test_verilog_vs_c.c (NAB and rounding,truncation and also addition, or multiplication)
+    set parameters in test_verilog_vs_c.c (rounding,truncation )
     set operands_type parameter in main.cpp  (wether you want float or int)
-    vim  /home/local/bulkhead/behzad/usr/local/apx_tool_chain/test_operators/operator_sample.txt . and set the operation and number of apx bits properly
+    vim  /home/local/bulkhead/behzad/usr/local/apx_tool_chain/test_operators/operator_sample.txt . and set the operation and number of apx bits properly(btm or bta and NAB)
     vim  /home/local/bulkhead/behzad/usr/local/apx_tool_chain/test_operators/inc/BookKeeping/globals.h and either comment or uncomment BT_RND
      
     python test_verilog_vs_c.c

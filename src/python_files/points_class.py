@@ -3,6 +3,7 @@ import sys
 import math
 import numpy
 import settings
+import input_list
 from calc_psnr import *
 from inputs import *
 from extract_result_properties import *
@@ -106,11 +107,11 @@ class points:
         noisyImage = self.inputObj.noisyImage
         self.PSNR = calculate_psnr(refImage, noisyImage)
     
-    def calculate_quality(self,normalize, possibly_worse_case_result_quality, settings_obj):
+    def calculate_quality(self,normalize, possibly_worse_case_result_quality, settings_obj, input_index):
         #---- calculate mean of accurate values 
         if (settings_obj.error_mode == "image"):
             mean_of_acc_values = calculate_mean_acc_for_image(self.inputObj.refImage, self.inputObj.noisyImage)
-        elif(settings_obj.error_mode == "nearest_neighbors_2d" and benchmark_name =="sift"):
+        elif(settings_obj.error_mode == "nearest_neighbors_2d" and settings_obj.benchmark_name =="sift"):
             mean_of_acc_values = numpy.mean(map( lambda x: numpy.mean(x, axis=0)[:-1], self.lOfAccurateValues), axis=0)
         else: 
             mean_of_acc_values = numpy.mean(map( lambda x: numpy.mean(x, axis=0), self.lOfAccurateValues),axis=0)
@@ -136,8 +137,8 @@ class points:
             print "---------------" 
        
         if (settings_obj.outputMode == "uniform"): #convert to a list for compatibility issues
-            mean_of_error_values = [float(mean_of_error_values)]
-            mean_of_acc_values = [ float(mean_of_acc_values)]
+            mean_of_error_values = [abs(float(mean_of_error_values))]
+            mean_of_acc_values = [ abs(float(mean_of_acc_values))]
         
         #semi_sanity check (semi b/c it'll cause problems but it's not wrong perse
         for el in mean_of_acc_values:
@@ -157,31 +158,61 @@ class points:
             print "mean of acc-val: " + str(mean_of_acc_values);
             print "mean of error-val: " + str(mean_of_error_values);
         
+        
+        print "mean of acc-val: " + str(mean_of_acc_values);
+        print "mean of error-val: " + str(mean_of_error_values);
+        NSR_will_be_zero = True
+        for el in mean_of_error_values:
+            if el != 0:
+                NSR_will_be_zero = False
+                break
+        if (NSR_will_be_zero):
+            for index,el in enumerate(mean_of_error_values):
+                mean_of_error_values[index] = .00000000001
+        
+         
+        #--- here now
+        #print "mean of err vals" + str(mean_of_error_values)
+        #print "now printing error"
+        #print self.lOfError
+
+
+#        if (mean_of_error_values[0]) == 0:
+#            mean_of_error_values[0] = .00000000000001
+        
         NSR_vector = np.divide(mean_of_error_values,mean_of_acc_values) #should be a vector
         NSR_vector_abs = map(lambda x: abs(x), NSR_vector) #should be a vector
         NSR = np.mean(NSR_vector_abs) #this should be a scalar number
-        if (mean_of_error_values[0]) == 0:
-            mean_of_error_values[0] = .00000000000001
-        PSNR = 10*math.log10(((255*255)/ mean_of_error_values[0]))
-        
+        if(settings_obj.quality_mode == "psnr"):
+            PSNR = 10*math.log10(((255*255)/ mean_of_error_values[0]))
+
         if (normalize and not(possibly_worse_case_result_quality == float("inf"))):
             NSR = NSR#/possibly_worse_case_result_quality
             #NSR = NSR/possibly_worse_case_result_quality
 
         if (settings_obj.quality_mode == "snr"):
-            if(NSR == 0):
-                print "*******ERROR(kind of) noise is zero, make sure SNR is the right quality mode****"
-                self.quality_calculatable = False
-                self.SNR =  mean_of_acc_values
-                self.quality = abs(self.SNR)
+            if(mean_of_error_values[0]== .00000000001):
+                self.quality = 10000
+                #print "the quality set is " + str(1/NSR) 
                 self.quality_is_set = True
-            else: 
-                print "goftam " + str(self.SNR)
-                self.SNR =  1/NSR
+                print "quality is" + str(self.quality) 
+            elif(NSR == 0):
+                print "*******ERROR(kind of) noise is zero, make sure SNR is the right quality mode****"
+                assert(1==0, "this scenario should never be allowed for NSR") 
+                self.quality_calculatable = False
+                #self.SNR =  mean_of_acc_values
                 self.quality = abs(1/NSR)
                 self.quality_is_set = True
+            else: 
+#                 print "goftam " + str(self.SNR)
+                #self.SNR =  1/NSR
+                self.quality = (abs(1/NSR))/input_list.lOf_accurate_points_quality[input_index]
+                #print "the quality set is " + str(1/NSR) 
+                self.quality_is_set = True
+                print "quality is" + str(self.quality) 
         elif (settings_obj.quality_mode == "nsr"):
-            self.quality = abs(NSR)
+            self.quality = abs(NSR)/input_list.lOf_accurate_points_quality[input_index]
+
             self.quality_is_set = True
         elif (settings_obj.quality_mode == "psnr"):
             if not(settings_obj.error_mode == "image"):
@@ -189,10 +220,11 @@ class points:
                         at the moment I am simply using mean_of_error_values[0] and I am \
                         not sure if that would work if len(mean_of_error_values) > 0"
              
-            if  not(self.inputObj.refImage_name[:-4] in self.image_accurate_psnr.keys()):
-                print "this image accurate PSNR for image: " + str(self.inputObj.refImage_name[:-4]) + " is not defined. add it to the list and set it's value to 1, so we can get it's accurate value"
-                sys.exit() 
-            self.quality = abs(PSNR/self.image_accurate_psnr[self.inputObj.refImage_name[:-4]])
+#            if  not(self.inputObj.refImage_name[:-4] in self.image_accurate_psnr.keys()):
+#                print "this image accurate PSNR for image: " + str(self.inputObj.refImage_name[:-4]) + " is not defined. add it to the list and set it's value to 1, so we can get it's accurate value"
+#                sys.exit() 
+            self.quality = abs(PSNR/input_list.lOf_accurate_points_quality[input_index])
+                    #self.image_accurate_psnr[self.inputObj.refImage_name[:-4]])
             self.quality_is_set = True
         else:
             print "*****ERROR: this quality_mode: " + str(settings_obj.quality_mode) + " is not defined***"

@@ -311,6 +311,16 @@ def normalized_quality(lOfQualityVals, lOfInput_number, lOfAccurate_PSNR) :
         lOfQualityVals_normalized.append(lOfQualityVals[index]/lOfAccurate_PSNR[input_num])
     return lOfQualityVals_normalized
 
+def normalized_energy(lOfEnergyVals, lOfInput_number, lOfAccurate_energy) :
+    lOfEnergyVals_normalized = []
+    for index,input_num in enumerate(lOfInput_number):
+        lOfEnergyVals_normalized.append(lOfEnergyVals[index]/lOfAccurate_energy[input_num])
+    return lOfEnergyVals_normalized;
+
+
+
+
+
 def get_quality_energy_values_directly(src_file, symbol, lOfPoints, points_to_graph, limit=False, lower_bound=-100, upper_bound=100):
  
      
@@ -338,19 +348,24 @@ def get_quality_energy_values_directly(src_file, symbol, lOfPoints, points_to_gr
     reminder(True, "normalization of energy also needs to be automated") 
     print "before normialization" + str(lOfQualityVals) 
     #lOfAccurate_PSNR = [41.14, 39.67, 43.35, 40.34, 39.67, 41.14, 43.35]
-    lOfAccurate_PSNR = [1,1, 1,1,1,1,1]
-    lOfQualityVals_normalized = normalized_quality(lOfQualityVals, lOfInput_number,lOfAccurate_PSNR) 
-    accurate_design_energy  = 516918
-    #accurate_design_energy  = 516882432
+    lOfAccurate_PSNR = [1,1, 1,1,1,1,1] #no need for other applications besides 
+    lOfAccurate_Energy = [1,1,1,1,1,1,1,1,1,1,1] #dont matter anymore, cuase
+    # I already normalize at in specializedEval
+    # the ones with image outputs
     
-    lOfEnergyVals_normalized = map(lambda x: float(x)/float(accurate_design_energy), lOfEnergyVals)
+    lOfQualityVals_normalized = normalized_quality(lOfQualityVals, lOfInput_number,lOfAccurate_PSNR) 
+    #accurate_design_energy  = 516918 #for jpeg
+    #lOfAccurate_Energy = [2.20284e+08,2.39439e+08,2.562e+08, 2.63383e+8,2.562e+08,2.53805e+08]  #for disparity
+    #accurate_design_energy  = [516882432,516882432,516882432,516882432,516882432,516882432,516882432,516882432] #for jpeg
+    
+    lOfEnergyVals_normalized = normalized_energy(lOfEnergyVals, lOfInput_number, lOfAccurate_Energy)
+    
+    #lOfEnergyVals_normalized = map(lambda x: float(x)/float(accurate_design_energy), lOfEnergyVals)
     lOfQualityVals = lOfQualityVals_normalized 
     lOfEnergyVals= lOfEnergyVals_normalized
     
     #here
     points_to_graph.append([lOfQualityVals, lOfEnergyVals, lOfInput_number, lOfSetUps, src_file])
-
-     
     pts = points_to_graph[0] #am not using scenario where points_to_graph is more than oneelement deep 
     
     

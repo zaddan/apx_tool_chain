@@ -246,6 +246,7 @@ def apply_heuristic_on_task_with_multiple_prime_input(settings_obj, inputObj, lO
     elif(settings_obj.runMode == "serial"):
         if (inputObj.quality_calc_mode == "individual"):
             for iteration, run_input_list in enumerate(lOf_run_input_list):
+                print "input at hand" + str(run_input_list)
                 lOfPoints_out_of_heuristic, lOfAllPointsTried = run_serial(settings_obj, inputObj, run_input_list, iteration)
                 lOflOfPoints_out_of_heuristic.append(lOfPoints_out_of_heuristic)
                 lOflOfAllPointsTried.append(lOfAllPointsTried)
@@ -781,8 +782,8 @@ def apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj):
                     executableInputList, CBuildFolder, operandSampleFileName,lOfAccurateValues, allPointsTried,True, unique_point_list, output_list,[], 0, settings_obj, run_input_list,
                     accurateSetUp_stuff)
                     #possibly_worse_case_setup_individual)
-            print "PSNR for accurate version for " + inputObj.refImage_name + " is : " + str(possibly_worse_case_result[1])
-            print "E for accurate version for " + inputObj.refImage_name + " is : " + str(possibly_worse_case_result[0])
+            #print "PSNR for accurate version for " + inputObj.refImage_name + " is : " + str(possibly_worse_case_result[1])
+            #print "E for accurate version for " + inputObj.refImage_name + " is : " + str(possibly_worse_case_result[0])
             reminder(settings_obj.reminder_flag, "replace accurateSetUp_stuff with possibly_worse_case_setup_individual")
         except WithinSpecEval as er:
             raise TaskError(er.error_name, inputObj, er.setUp)

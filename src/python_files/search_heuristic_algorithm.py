@@ -4,7 +4,7 @@ import copy
 import math
 import numpy
 import settings 
-import image_list
+import input_list
 from deap import algorithms
 from points_class import *
 from deap import base
@@ -194,17 +194,18 @@ def specializedEval_multiple_inputs(normalize,possibly_worse_case_result_quality
         run_input_list, individual):
     if inputObj.quality_calc_mode in ["avg", "worse_case"]:
         reminder(True, "quality_calc_mode  of avg and worse_case has not been verified for other benchmarks besides jpeg")
-        assert(inputObj.benchmark_name == "jpeg")
+        #assert(inputObj.benchmark_name == "jpeg")
         collect_pts = False
         reminder(True, " can not collect points when quality_calc_mode is avg or worse_case")
         l_energy = []
         l_quality = []
-        for input_val in image_list.lOf_run_input_list:
+        for input_val in input_list.lOf_run_input_list:
             print input_val
             inputObj.set_run_input(input_val) 
             print "input_val " + str(input_val) 
             energy, quality = specializedEval(normalize,possibly_worse_case_result_quality, _mld_ , ignoreListIndecies, accurateSetUp, inputObj, nameOfAllOperandFilesList, rootResultFolderName,executableName,
         executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, collect_pts, unique_point_list, output_list, previous_ideal_setUp,iteration, settings_obj,
+                if (settings_obj.DEBUG):
         input_val, individual)
             l_energy.append(energy)
             l_quality.append(quality)
@@ -257,13 +258,15 @@ def specializedEval(normalize,possibly_worse_case_result_quality, _mld_ , ignore
 
             modifyOperatorSampleFile(operatorSampleFileFullAddress, newSetUp)
 
-            print "blah func"
-            print run_input_list
+            print "input to operate on:" + str(run_input_list) 
+            print "input's index"+ str(input_list.lOf_run_input_list.index(run_input_list))
             if not(settings_obj.errorTest): #if errorTest generate acc.txt and apx.txt which contain accurate and apx values
                 make_run(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, inputObj.bench_suit_name,exe_annex,
                         settings_obj, run_input_list) 
             # print "here is the accurate" + str(lOfAccurateValues) 
-            energyValue = [getEnergy(newSetUp, settings_obj)]
+            input_index = input_list.lOf_run_input_list.index(run_input_list)
+            accurate_design_energy = input_list.lOf_accurate_points_energy[input_index]
+            energyValue = [float(getEnergy(newSetUp, settings_obj))/float(accurate_design_energy)]
             if (settings_obj.errorTest):
                 newPath = "/home/local/bulkhead/behzad/usr/local/apx_tool_chain/src/python_files/scratch/apx.txt"
                 if(settings_obj.errorTest):
@@ -283,11 +286,11 @@ def specializedEval(normalize,possibly_worse_case_result_quality, _mld_ , ignore
                 except WithinCalcError as er:
                     raise WithinSpecEval(er.error_name, map(lambda x: x, individual))
                 
-                if (settings_obj.DEBUG):
-                    print "Acurate Vals:" + str(lOfAccurateValues)
-                    print "errant Vals:" +str(errantValues)
-                    print "error Vals:" + str(errorValue)
+                print "Acurate Vals:" + str(lOfAccurateValues)
+                print "errant Vals:" +str(errantValues)
+                print "error Vals:" + str(errorValue)
 
+            #here sys 
             configValue = [newSetUp]
             rawValues = [extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj, settings_obj)]
             #print errorValue
@@ -312,7 +315,7 @@ def specializedEval(normalize,possibly_worse_case_result_quality, _mld_ , ignore
         # print "here is the config " + str(newPoint.get_setUp())
         newPoint.set_input_number(iteration) 
         if not(eval(inputObj.dealingWithPics)):
-            newPoint.calculate_quality(normalize, possibly_worse_case_result_quality, settings_obj)
+            newPoint.calculate_quality(normalize, possibly_worse_case_result_quality, settings_obj, input_list.lOf_accurate_points_quality[input_index])
             if (settings_obj.DEBUG):
                 print "quality is: " + str(newPoint.get_quality())
             if (settings_obj.errorTest):

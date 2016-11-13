@@ -18,7 +18,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import copy
 import pylab
 import operator
-import image_list
+import input_list
 import sys
 import os
 from plot_generation import *
@@ -259,7 +259,7 @@ def compare_adjusted(points_collected, points_collected_imposed):
 
     get_quality_energy_values("various_inputs.PIK", "+", points_collected, limit, lower_bound, upper_bound)
     """ 
-    lOf_run_input_list = image_list.lOf_run_input_list
+    lOf_run_input_list = input_list.lOf_run_input_list
     number_of_inputs_used = len(lOf_run_input_list)
     input_results = map(list, [[]]*number_of_inputs_used) 
     base_dir = "/home/local/bulkhead/behzad/usr/local/apx_tool_chain/inputPics/"
@@ -325,7 +325,7 @@ def compare_adjusted(points_collected, points_collected_imposed):
     Qs_ref, Es_ref, stds_ref, QSs_ref = adjust.adjust_vals_2(quality_list_sorted_based_on_z, energy_list_sorted_based_on_z, std_list_sorted_based_on_z)
     
     
-    lOf_run_input_list = image_list.lOf_run_input_list
+    lOf_run_input_list = input_list.lOf_run_input_list
     number_of_inputs_used = len(lOf_run_input_list)
     input_results = map(list, [[]]*number_of_inputs_used) 
     base_dir = "/home/local/bulkhead/behzad/usr/local/apx_tool_chain/inputPics/"

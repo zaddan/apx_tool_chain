@@ -48,7 +48,14 @@ template <class T1, class T2>
 void set_bits(T1 &num, int upper_bit_index, int lower_bit_index, T2 value){
     //cout <<"indecies"<< lower_bit_index << " to "<< upper_bit_index << "set to " << bitset<32>(value)<<endl;
     assert(upper_bit_index> lower_bit_index); 
-    int mask = (1<<(upper_bit_index+1)) - (1<<(lower_bit_index+1));
+    int mask = ((1<<(upper_bit_index - lower_bit_index + 1)) - 1)<<(lower_bit_index);
+    value = ((1<<(upper_bit_index - lower_bit_index + 1)) -1) & value; //make sure that value doesn't go over
+                                               // the number of bits it's allowed to
+    
+//    cout <<"mask is: ";
+//    show_hex(mask);
+    //show_hex(mask);
+
     int thirty_two_bit_mem_holder;
     long sixty_four_mem_holder;
     
@@ -68,6 +75,7 @@ void set_bits(T1 &num, int upper_bit_index, int lower_bit_index, T2 value){
 template <class T>
 void set_bit(T &num, int bit_index, int value){
     int mask = 1<<bit_index;
+    
     int thirty_two_bit_mem_holder;
     long sixty_four_mem_holder;
     

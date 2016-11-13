@@ -22,13 +22,62 @@ btm::btm(void) {}
 
 //vector<float> mul_long_long_energy_vals2 {0, 17.6200, 16.9703, 16.5727, 16.0470, 15.4340};
 
-vector<float> mul_long_long_energy_vals {17.9, 17.6200, 16.9703, 16.5727, 16.0470, 15.4340,  15.0166,14.5268 ,13.9600 ,13.6053 ,13.1328 ,12.6118 ,12.3106 ,11.8315 , 11.2906, 10.9915};
-vector<float> mul_long_int_energy_vals {8.8, 8.5007, 8.0576 , 7.6706 , 7.3762 , 6.9593 , 6.56237,6.2935 ,5.9425 ,5.5465 ,5.3194, 4.9607 ,4.6345, 4.4028 ,4.1278 ,3.7874};
-vector<float> mul_int_int_energy_vals {4.6, 4.4194, 4.1470, 3.8712, 3.6900, 3.4301,3.1957 ,3.0342 ,2.8028 ,2.5685 ,2.4261,2.558612,2.0411,1.9182,1.7561,1.5972};
+vector<float> mul_long_long_energy_vals {17.9, 17.6200, 16.9703, 16.5727, 16.0470, 15.4340,  15.0166,14.5268 ,13.9600 ,13.6053 ,13.1328 ,12.6118 ,12.3106 ,11.8315 , 11.2906, 10.9915,0,0,0,0,0,0};
+vector<float> mul_long_int_energy_vals {8.8, 8.5007, 8.0576 , 7.6706 , 7.3762 , 6.9593 , 6.56237,6.2935 ,5.9425 ,5.5465 ,5.3194, 4.9607 ,4.6345, 4.4028 ,4.1278 ,3.7874,0,0,0,0,0,0};
+vector<float> mul_int_int_energy_vals {486.2017 
+,511.1409 
+,427.4391 
+,343.0051
+,292.1470
+,246.7992
+,206.4686
+,172.2560
+,142.6394
+,117.1256
+,96.0281
+,80.0619
+,68.5533
+,60.6959
+,55.4436
+,0
+,0
+,0
+,0
+,0
+,0
+,0
+};
+
+vector<float> mul_float_float_energy_vals {384.3519 
+,446.3146
+,433.7586
+,422.1362
+,410.5379
+,398.5074
+,388.5437
+,376.5775
+,364.2995
+,353.3449
+,342.0724
+,330.2271
+,320.0819
+,309.3953
+,297.7820
+,286.8400
+,275.2844
+,264.9446
+,254.1393
+,243.1327
+,232.8908
+,222.4889
+};
+
+
 //--- their counters
 extern vector<int> mul_long_long_energy_counters;
 extern vector<int> mul_long_int_energy_counters; 
 extern vector<int> mul_int_int_energy_counters;
+extern vector<int> mul_float_float_energy_counters;
 
 void btm::update_energy(int n_apx_bits, string op1_type, string op2_type){
     /* 
@@ -37,24 +86,34 @@ void btm::update_energy(int n_apx_bits, string op1_type, string op2_type){
     cout<<energy_value+mul_long_long_energy_vals[n_apx_bits]<<endl;
      */
     if (op1_type ==  "long" && op2_type ==  "long") {
-        energy_value += mul_long_long_energy_vals[n_apx_bits];
+        //energy_value += mul_long_long_energy_vals[n_apx_bits];
+        cout<<"don't have values for long, long yet"<<endl;
+        exit(0);
         mul_long_long_energy_counters[n_apx_bits] +=1;
     }
     else if (op1_type=="int" && op2_type =="long") {
-        energy_value += mul_long_int_energy_vals[n_apx_bits];
+        //energy_value += mul_long_int_energy_vals[n_apx_bits];
+        cout<<"don't have values for int , long yet"<<endl;
+        exit(0);
         mul_long_int_energy_counters[n_apx_bits] +=1;
     }
     else if (op1_type == "long" && op2_type == "int") {
-        energy_value += mul_long_int_energy_vals[n_apx_bits];
+        cout<<"don't have values for long , int yet"<<endl;
+        exit(0);
+        //energy_value += mul_long_int_energy_vals[n_apx_bits];
         mul_long_int_energy_counters[n_apx_bits] +=1; 
     }
     else if (op1_type == "int" && op2_type== "int") {
-        energy_value += mul_int_int_energy_vals[n_apx_bits];
+        //energy_value += mul_int_int_energy_vals[n_apx_bits];
         mul_int_int_energy_counters[n_apx_bits] +=1; 
+    }
+    else if (op1_type == "float" && op2_type== "float") {
+        //energy_value += mul_float_float_energy_vals[n_apx_bits];
+        mul_float_float_energy_counters[n_apx_bits] +=1; 
     }
     else {
         cout<<"the energy value for this bta types is not defined"<<endl;
-        //exit(0);
+        exit(0);
     }
     //energy_valuee+= (32 - n_apx_bits) + 10;
 }
@@ -194,8 +253,7 @@ float btm::calc(const int &number1, const float &number2) {
 
 //float, float version
 float btm::calc(const float &number1, const float &number2) {
-  //update_energy(vbl, "float", "float"); 
-
+    //update_energy(vbl, "float", "float"); 
   int a ;
   int b ;
   float z = 0; //intermediate output used in the function
@@ -256,10 +314,16 @@ float btm::calc(const float &number1, const float &number2) {
         }   
         //if b is zero return NaN
         else if (b_e == -127 && b_m == 0) {
+            /* 
             set_bit(z, 31, 1);
             set_bits(z, 30, 23, 255);
             set_bit(z, 22, 1); 
+            set_bits(z, 22, 0, 0); 
             set_bits(z, 21, 0 , 0);
+            */
+            set_bit(z, 31, a_s ^ b_s);
+            set_bits(z, 30, 23, 0);
+            set_bits(z, 22, 0, 0); 
             return z; 
         }
         //if b is inf return inf
@@ -384,6 +448,13 @@ float btm::calc(const float &number1, const float &number2) {
             set_bit(z, 31, z_s); //z[31] <= z_s;
         }
     }
+    /*
+    if (z != number1*number2) {
+      cout<<"btm not equal"<< "num1*num2"<<number1*number2 << "and z"<<z<<endl;
+    assert(z == number1 * number2);
+    }
+     */
+    //return number1 *number2; 
     return z;
 }
 

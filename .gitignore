@@ -1,3 +1,11 @@
+test_operators/build
+test_operators/operator_sample.txt
+test_operators/src/PySrc/BT_RND.txt
+test_operators/src/PySrc/BT_RND_c.txt
+test_operators/src/PySrc/TRUNCATION.txt
+test_operators/src/PySrc/TRUNCATION_c.txt
+test_operators/src/PySrc/test_verilog_vs_c.py
+
 Debug/*
 extras/*
 inputPic/*

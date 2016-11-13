@@ -18,8 +18,31 @@
 
 #Of_run_input_list = [['Buildings.0007'], ['Fabric.0018'], ['PrisonWindow.0002'], ['Clouds.0001'], ['MtValley.0000'], ['Water.0004']]
 
-lOf_run_input_list = [['Buildings.0007'], ['MtValley.0000'], ['Water.0004'], ['GrassPlantsSky.0003'],  ['Flowers.0006'], ['Buildings.0010'], ['Misc.0003']]
 
-#lOf_run_input_list = [['Buildings.0007'], ['MtValley.0000'], ['Water.0004']]
+
+#.i  set lOf_accurate_points_quality to all 1s, when you want to find the accurate value for images  i. 
+#for jpeg
+#lOf_run_input_list = [['Buildings.0007'], ['MtValley.0000'], ['Water.0004'], ['GrassPlantsSky.0003'],  ['Flowers.0006'], ['Buildings.0010'], ['Misc.0003']]
+lOf_accurate_points_energy = [516918]*10
+lOf_accurate_points_quality = [41.14, 39.67, 43.35, 40.34, 39.67, 41.14, 43.35]
+
+#for disparity
+lOf_run_input_list = [["room_1.bmp", "room_2.bmp"], ["papers_1.bmp", "papers_2.bmp"], ["odd_1.bmp", "odd_2.bmp"], ["baby1_1.bmp", "baby1_2.bmp"]]
+lOf_accurate_points_energy = [2.20284e+08,2.39439e+08,2.562e+08, 2.63383e+8,2.562e+08,2.53805e+08]  #for disparity
+lOf_accurate_points_quality = [1]*10
+
+
+#for sift
+#for localization
+#for texture_synthesis
+#lOf_run_input_list= [["2.bmp", "garbage"]]
+#lOf_accurate_points_energy = [2.20284e+08,2.39439e+08,2.562e+08, 2.63383e+8,2.562e+08,2.53805e+08]  #for disparity
+#lOf_accurate_points_quality = [1]*10
+#
+
+#for multi_ncut
+#lOf_run_input_list= [["2.bmp", "garbage"]]
+#lOf_accurate_points_energy = [2.20284e+08,2.39439e+08,2.562e+08, 2.63383e+8,2.562e+08,2.53805e+08]  #for disparity
+#lOf_accurate_points_quality = [1]*10
 
 

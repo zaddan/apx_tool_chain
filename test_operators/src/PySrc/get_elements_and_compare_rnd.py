@@ -12,7 +12,7 @@ with  open("BT_RND_c.txt") as f:
 c_results_flattened = list(itertools.chain(*c_results))
 verilog_results_flattened = list(itertools.chain(*verilog_results))
 for index in range(len(verilog_results_flattened)):
-    if not(verilog_results_flattened[index] == c_results_flattened[index]):
+    if not(int(verilog_results_flattened[index],16) == int(c_results_flattened[index],16)):
         print "------------" 
         print "%-20s %-10s" %("input1: ", verilog_results_flattened[index-2])
         print "%-20s %-10s" %("input2: ", verilog_results_flattened[index-1])

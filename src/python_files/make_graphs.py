@@ -68,9 +68,9 @@ def main():
             """
 
         #--- all results 
-        #get_quality_energy_values("pickled_results_all_points.PIK", "+", points_to_graph, limit, lower_bound, upper_bound)
-        #generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "","", "E_vs_Q_all_points", "E_vs_Q") 
         
+        get_quality_energy_values("pickled_results_all_points.PIK", "+", points_to_graph, limit, lower_bound, upper_bound)
+        generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "","", "E_vs_Q_all_points", "E_vs_Q") 
         #--- various inputs 
         points_to_graph = [] 
         points_to_graph_2 = [] 
@@ -90,7 +90,7 @@ def main():
         points_to_graph_3 =[] 
         
         #get_quality_energy_values("various_inputs_avg_setUp.PIK", "+", points_to_graph_3, limit, lower_bound, upper_bound)
-        get_quality_energy_values("imposed_setUps.PIK", "+", points_to_graph_3, limit, lower_bound, upper_bound)
+        get_quality_energy_values("imposed_setUp.PIK", "+", points_to_graph_3, limit, lower_bound, upper_bound)
         #get_quality_energy_values("various_inputs_worse_case_setUp.PIK", "+", points_to_graph_3, limit, lower_bound, upper_bound)
         
         generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "", "" , "Qmean_normalized_to_Q_promissed", "Qmean_normalized_to_Q_promissed", False, False, "one", points_to_graph_3) 

@@ -12,14 +12,15 @@ using namespace std;
 hw_ac **myOp;   
 long double energy_value;
 
-vector<int> mul_long_long_energy_counters {0, 0, 0, 0, 0, 0,  0,0,0, 0 ,0 ,0 ,0 ,0 , 0, 0};
-vector<int> mul_long_int_energy_counters  {0, 0, 0, 0, 0, 0,  0,0,0, 0 ,0 ,0 ,0 ,0 , 0, 0};
-vector<int> mul_int_int_energy_counters {0, 0, 0, 0, 0, 0,  0,0,0, 0 ,0 ,0 ,0 ,0 , 0, 0};
+vector<int> mul_long_long_energy_counters {0, 0, 0, 0, 0, 0,  0,0,0, 0 ,0 ,0 ,0 ,0 , 0, 0,0,0,0,0,0,0};
+vector<int> mul_long_int_energy_counters  {0, 0, 0, 0, 0, 0,  0,0,0, 0 ,0 ,0 ,0 ,0 , 0, 0,0,0,0,0,0,0};
+vector<int> mul_int_int_energy_counters {0, 0, 0, 0, 0, 0,  0,0,0, 0 ,0 ,0 ,0 ,0 , 0, 0,0,0,0,0,0,0};
+vector<int> mul_float_float_energy_counters {0, 0, 0, 0, 0, 0,  0,0,0, 0 ,0 ,0 ,0 ,0 , 0, 0,0,0,0,0,0};
 
-vector<int> add_long_long_energy_counters {0, 0, 0, 0, 0, 0,  0,0,0, 0 ,0 ,0 ,0 ,0 , 0, 0};
-vector<int> add_long_int_energy_counters  {0, 0, 0, 0, 0, 0,  0,0,0, 0 ,0 ,0 ,0 ,0 , 0, 0};
-vector<int> add_int_int_energy_counters {0, 0, 0, 0, 0, 0,  0,0,0, 0 ,0 ,0 ,0 ,0 , 0, 0};
-
+vector<int> add_long_long_energy_counters {0, 0, 0, 0, 0, 0,  0,0,0, 0 ,0 ,0 ,0 ,0 , 0, 0,0,0,0,0,0,0};
+vector<int> add_long_int_energy_counters  {0, 0, 0, 0, 0, 0,  0,0,0, 0 ,0 ,0 ,0 ,0 , 0, 0,0,0,0,0,0};
+vector<int> add_int_int_energy_counters {0, 0, 0, 0, 0, 0,  0,0,0, 0 ,0 ,0 ,0 ,0 , 0, 0,0,0,0,0,0};
+vector<int> add_float_float_energy_counters {0, 0, 0, 0, 0, 0,  0,0,0, 0 ,0 ,0 ,0 ,0 , 0, 0,0,0,0,0,0};
 /*
 void set_bit(int &num, int bit_index, int bit_value){
     //cout <<"index"<< bit_index << " converted to "<< bitset<32>(bit_value) <<endl;
