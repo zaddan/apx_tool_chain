@@ -48,7 +48,7 @@ def run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name, heu
     if (benchmark == "texture_synthesis"):
         settings_obj = settingsClass(benchmark, root_folder, bench_suit_name,heuristic_intensity1)
         #TODO should be psnr, change it
-        settings_obj.quality_mode = "snr"
+        settings_obj.quality_mode = "psnr"
         settings_obj.outputMode = "uniform"
         settings_obj.error_mode= "corresponding_elements"
         

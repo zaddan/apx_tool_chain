@@ -287,9 +287,9 @@ def specializedEval(normalize,possibly_worse_case_result_quality, _mld_ , ignore
                 except WithinCalcError as er:
                     raise WithinSpecEval(er.error_name, map(lambda x: x, individual))
                 
-                print "Acurate Vals:" + str(lOfAccurateValues)
-                print "errant Vals:" +str(errantValues)
-                print "error Vals:" + str(errorValue)
+                #print "Acurate Vals:" + str(lOfAccurateValues)
+                #print "errant Vals:" +str(errantValues)
+                #print "error Vals:" + str(errorValue)
 
             #here sys 
             configValue = [newSetUp]

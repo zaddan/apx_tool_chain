@@ -36,15 +36,17 @@ lOf_accurate_points_quality = [1]*10
 #for sift
 #for localization
 #for texture_synthesis
-#lOf_run_input_list= [["2.bmp", "garbage"]]
-#lOf_accurate_points_energy = [2.20284e+08,2.39439e+08,2.562e+08, 2.63383e+8,2.562e+08,2.53805e+08]  #for disparity
-#lOf_accurate_points_quality = [1]*10
-#
+lOf_run_input_list = [["woodtile1.bmp", "garbage.bmp"], ["seattle08.bmp", "garbage.bmp"] , ["sand_rock.bmp", "garbage.bmp"] , ["newpage4.bmp", "garbage.bmp"] , ["esc_pge.bmp", "garbage.bmp"] , ["esc_p2e.bmp", "garbage.bmp"] , ["newpage6.bmp", "garbage.bmp"]]
+ #["1.bmp", "garbage"]]
+lOf_accurate_points_energy = [5.21938e+06, 5.29308e+06, 5.20509e+06,
+        5.19801e+06, 5.22003e+06, 5.23093e+06, 5.23028e+06]
+lOf_accurate_points_quality = [1]*10
+
 
 #for multi_ncut
-#lOf_run_input_list = [["room_1.bmp", "room_2.bmp"], ["papers_1.bmp", "papers_2.bmp"], ["odd_1.bmp", "odd_2.bmp"], ["baby1_1.bmp", "baby1_2.bmp"]] #, ["odd_1.bmp", "odd_2.bmp"], ["baby1_1.bmp", "baby1_2.bmp"]]
+#lOf_run_input_list = [["room_1.bmp", "room_2.bmp"], ["papers_1.bmp","papers_2.bmp"]], ["odd_1.bmp", "odd_2.bmp"], ["baby1_1.bmp", "baby1_2.bmp"]]
 #lOf_run_input_list = [["1.bmp", "garbage.bmp"]]
-#lOf_accurate_points_energy = [2.20284e+08,2.39439e+08,2.562e+08, 2.63383e+8,2.562e+08,2.53805e+08]  #for disparity
+#lOf_accurate_points_energy = [8.15931e+07 ,8.91831e+07,9.58244e+07, 9.86707e+07]
 #lOf_accurate_points_quality = [1]*10
 
 

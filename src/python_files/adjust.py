@@ -95,8 +95,6 @@ def adjust_vals_2(quality_list_sorted_based_on_z, energy_list_sorted_based_on_z,
     step = numpy.mean(numpy.diff(ref_image_qualities))
     upper_bound = numpy.max(ref_image_qualities)
     lower_bound = numpy.min(ref_image_qualities)
-        
-    
 
     l_avg = []
     l_min = []

@@ -187,8 +187,10 @@ class points:
             NSR_vector_abs = map(lambda x: abs(x), NSR_vector) #should be a vector
             NSR = np.mean(NSR_vector_abs) #this should be a scalar number
         if(settings_obj.quality_mode == "psnr"):
-            PSNR = 10*math.log10(((255*255)/ mean_of_error_values[0]))
-
+            if not(mean_of_error_values[0] == 0):
+                PSNR = 10*math.log10(((255*255)/ mean_of_error_values[0]))
+            else:
+                PSNR = 10000 
         #if (normalize and not(possibly_worse_case_result_quality == float("inf"))):
         #    NSR = NSR#/possibly_worse_case_result_quality
             #NSR = NSR/possibly_worse_case_result_quality

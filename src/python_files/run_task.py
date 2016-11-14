@@ -136,7 +136,7 @@ def generate_snr_energy_graph(dealingWithPics, lOfPoints, plotPareto, symbolsToC
                 lOfEnergy.append(point.get_energy())
 
         symbolsCollected.append(symbolsToChooseFrom[symbolIndex]) 
-        print "List of Quality Values: " + str(lOfQualityValues)
+        #print "List of Quality Values: " + str(lOfQualityValues)
         generateGraph(lOfQualityValues,lOfEnergy, "QualityValues", "Energy", symbolsToChooseFrom[symbolIndex])
     return symbolsCollected
 
@@ -242,7 +242,7 @@ def apply_heuristic_on_task_with_multiple_prime_input(settings_obj, inputObj, lO
         parallel_results = Parallel(n_jobs=num_cores)(delayed(run_serial)(settings_obj, inputObj,  run_input_list, iteration) for iteration, run_input_list in enumerate(lOf_run_input_list))
         lOflOfPoints_out_of_heuristic = map(lambda x: x[0], parallel_results)
         lOflOfAllPointsTried = map(lambda x: x[1], parallel_results)
-        print len(parallel_results)
+        #print len(parallel_results)
     elif(settings_obj.runMode == "serial"):
         if (inputObj.quality_calc_mode == "individual"):
             for iteration, run_input_list in enumerate(lOf_run_input_list):
@@ -267,7 +267,7 @@ def apply_heuristic_on_task_with_multiple_prime_input(settings_obj, inputObj, lO
 def run_task_with_one_set_up_and_collect_info(settings_obj, inputObj, input_setUp):
     start = time.time() 
     timeBeforeFindingResults = datetime.datetime.now()
-    print "ISA : " + str(input_setUp)
+    print "input setup: " + str(input_setUp)
     sys.stdout.flush()
     #--------------------------------------------------------------------------------
     #--------------------------------------------------------------------------------
