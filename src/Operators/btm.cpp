@@ -245,7 +245,6 @@ float btm::calc(const float &number1, const int &number2) {
 } 
 
 float btm::calc(const int &number1, const float &number2) {
-    cout<<"=============insde other half float"<<endl; 
     float numOut = number1; 
     calc(numOut, number2);
 } 
@@ -253,7 +252,7 @@ float btm::calc(const int &number1, const float &number2) {
 
 //float, float version
 float btm::calc(const float &number1, const float &number2) {
-    //update_energy(vbl, "float", "float"); 
+  update_energy(vbl, "float", "float"); 
   int a ;
   int b ;
   float z = 0; //intermediate output used in the function
@@ -559,8 +558,21 @@ float btm::calc(const float &number1, const float &number2) {
 
 
 
-float btm::calc(const double &number1, const double &number2) {
-    cout<<"=============insde other half float"<<endl; 
+double btm::calc(const int &number1, const double &number2) {
+    double numOut = number1; 
+    double numOut2 = number2; 
+    calc(numOut, numOut2);
+}
+
+double btm::calc(const double &number1, const int &number2) {
+    double numOut = number1; 
+    double numOut2 = number2; 
+    calc(numOut, numOut2);
+}
+
+double btm::calc(const double &number1, const double &number2) {
+    return number1*number2; 
+    //cout<<"=============insde other half float"<<endl; 
     float numOut = number1; 
     float numOut2 = number2; 
     calc(numOut, numOut2);

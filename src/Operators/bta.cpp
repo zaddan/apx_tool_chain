@@ -215,7 +215,6 @@ float bta::calc(const float &number1, const int &number2) {
 } 
 
 float bta::calc(const int &number1, const float &number2) {
-    cout<<"=============insde other half float"<<endl; 
     float numOut = number1; 
     calc(numOut, number2);
 } 
@@ -537,8 +536,24 @@ float bta::calc(const float &number1, const float &number2) {
 */
 
 
-float bta::calc(const double &number1, const double &number2) {
-    cout<<"=============insde other half float"<<endl; 
+double bta::calc(const double &number1, const int &number2) {
+    //cout<<"=============insde other half float"<<endl; 
+    double numOut = number1; 
+    double numOut2 = number2; 
+    calc(numOut, numOut2);
+}
+
+double bta::calc(const int &number1, const double &number2) {
+    //cout<<"=============insde other half float"<<endl; 
+    double numOut = number1; 
+    double numOut2 = number2; 
+    calc(numOut, numOut2);
+}
+
+
+double bta::calc(const double &number1, const double &number2) {
+    //cout<<"=============insde other half float"<<endl; 
+    return number1+number2; 
     float numOut = number1; 
     float numOut2 = number2; 
     calc(numOut, numOut2);

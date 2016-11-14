@@ -38,8 +38,9 @@ class hw_ac {
         virtual int calc(const int &a, const long &b) = 0; // pure virtual
         virtual unsigned int calc(const unsigned int &a, const unsigned int &b) = 0; // pure virtual
         
-		virtual float calc(const double &a, const double &b) = 0; // pure virtual
-        
+		virtual double calc(const double &a, const double &b) = 0; // pure virtual
+		virtual double calc(const double &a, const int &b) = 0; // pure virtual
+		virtual double calc(const int &a, const double &b) = 0; // pure virtual
         virtual size_t get_ianum_bits(void)=0;
         virtual int calc(const unsigned int &a, const int &b) = 0; // pure virtual
         virtual int calc(const int &a, const unsigned int &b) = 0; // pure virtual
