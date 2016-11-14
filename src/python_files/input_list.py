@@ -28,6 +28,7 @@ lOf_accurate_points_quality = [41.14, 39.67, 43.35, 40.34, 39.67, 41.14, 43.35]
 
 #for disparity
 lOf_run_input_list = [["room_1.bmp", "room_2.bmp"], ["papers_1.bmp", "papers_2.bmp"], ["odd_1.bmp", "odd_2.bmp"], ["baby1_1.bmp", "baby1_2.bmp"]]
+#lOf_run_input_list = [["room_1.bmp", "room_2.bmp"], ["papers_1.bmp","papers_2.bmp"]]#, ["odd_1.bmp", "odd_2.bmp"], ["baby1_1.bmp", "baby1_2.bmp"]]
 lOf_accurate_points_energy = [2.20284e+08,2.39439e+08,2.562e+08, 2.63383e+8,2.562e+08,2.53805e+08]  #for disparity
 lOf_accurate_points_quality = [1]*10
 
@@ -41,7 +42,8 @@ lOf_accurate_points_quality = [1]*10
 #
 
 #for multi_ncut
-#lOf_run_input_list= [["2.bmp", "garbage"]]
+#lOf_run_input_list = [["room_1.bmp", "room_2.bmp"], ["papers_1.bmp", "papers_2.bmp"], ["odd_1.bmp", "odd_2.bmp"], ["baby1_1.bmp", "baby1_2.bmp"]] #, ["odd_1.bmp", "odd_2.bmp"], ["baby1_1.bmp", "baby1_2.bmp"]]
+#lOf_run_input_list = [["1.bmp", "garbage.bmp"]]
 #lOf_accurate_points_energy = [2.20284e+08,2.39439e+08,2.562e+08, 2.63383e+8,2.562e+08,2.53805e+08]  #for disparity
 #lOf_accurate_points_quality = [1]*10
 

@@ -271,8 +271,9 @@ def compare_adjusted(points_collected, points_collected_imposed):
     image_list_to_be_drawn = [] 
     z_vals = [] 
 
-
-
+    mR =0 
+    mG =0
+    mB =0
     for val in points_collected:
         input_results = map(list, [[]]*number_of_inputs_used) 
         zipped = zip(*val[:-1])  
@@ -286,7 +287,14 @@ def compare_adjusted(points_collected, points_collected_imposed):
             print counter 
             if len(res) > 0:
                 image_addr =  base_dir+lOf_run_input_list[index][0] + ".ppm"
-                mR, mG, mB, stdR, stdG, stdB = cluster_images.calc_image_mean_std(image_addr)
+                #mR, mG, mB, stdR, stdG, stdB = cluster_images.calc_image_mean_std(image_addr)
+                mR +=1 
+                mG +=1
+                mB +=1
+                stdB = 0
+                stdR = 0
+                stdG = 0
+
                 if (int(np.mean([mR,mG,mB]))) in z_vals:
                     continue
                 el = map(lambda x: list(x), zip(*res))
@@ -337,6 +345,9 @@ def compare_adjusted(points_collected, points_collected_imposed):
     image_list_to_be_drawn = [] 
     z_vals = [] 
 
+    mR =0 
+    mG =0
+    mB =0
 
     for val in points_collected_imposed:
         input_results = map(list, [[]]*number_of_inputs_used) 
@@ -350,8 +361,15 @@ def compare_adjusted(points_collected, points_collected_imposed):
             """ 
             print counter 
             if len(res) > 0:
+                mR +=1 
+                mG +=1
+                mB +=1
+                stdB = 0
+                stdR = 0
+                stdG = 0
+
                 image_addr =  base_dir+lOf_run_input_list[index][0] + ".ppm"
-                mR, mG, mB, stdR, stdG, stdB = cluster_images.calc_image_mean_std(image_addr)
+                #mR, mG, mB, stdR, stdG, stdB = cluster_images.calc_image_mean_std(image_addr)
                 if (int(np.mean([mR,mG,mB]))) in z_vals:
                     continue
                 el = map(lambda x: list(x), zip(*res))

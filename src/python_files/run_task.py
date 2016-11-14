@@ -716,9 +716,26 @@ def apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj):
         if not(settings_obj.errorTest): 
             print("\n........running to get accurate values\n"); 
             reminder(settings_obj.reminder_flag,"make sure to change make_run to make_run_compile if you change the content of any of the cSRC files")
-            make_run_compile(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, process_id, settings_obj,
-                    run_input_list) #first make_run
+            lOf_accurateValues = []  #only used for avg and worst_case
+            if (inputObj.quality_calc_mode == "avg" or
+                    inputObj.quality_calc_mode == "worst_case"):
+                for el in input_list.lOf_run_input_list:
+                    make_run_compile(executableName, executableInputList, rootResultFolderName, CSourceOutputForVariousSetUpFileName, CBuildFolder, operandSampleFileName, bench_suit_name, process_id, settings_obj,
+                    el) #first make_run
+                    lOf_accurateValues.append(extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName,
+                        inputObj, settings_obj))
+                    accurateValues = extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj, settings_obj)
+            
+            #--- I am running the following anyone to get accurate values b/c
+            # accurate value is used later for some sanity checks and I don't
+            # want to affect that 
+            make_run_compile(executableName, executableInputList,
+                    rootResultFolderName,
+                    CSourceOutputForVariousSetUpFileName, CBuildFolder,
+                    operandSampleFileName, bench_suit_name, process_id,
+                    settings_obj, run_input_list)
             accurateValues = extractCurrentValuesForOneInput(CSourceOutputForVariousSetUpFileName, inputObj, settings_obj)
+    
         else:
             newPath = "/home/local/bulkhead/behzad/usr/local/apx_tool_chain/src/python_files/scratch/acc.txt"
             accurateValues = extractCurrentValuesForOneInput(newPath, inputObj, settings_obj)
@@ -726,8 +743,16 @@ def apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj):
         
         #-----sanity check
         try:
-            if (accurateValues == None or len(accurateValues)==0):
-                raise AccurateValueNoneError
+            if (inputObj.quality_calc_mode == "avg" or
+                    inputObj.quality_calc_mode == "worst_case"):
+                for index,el in enumerate(input_list.lOf_run_input_list):
+                    if (lOf_accurateValues[index] == None or
+                            len(lOf_accurateValues[index])==0):
+                        raise AccurateValueNoneError
+
+            else: 
+                if (accurateValues == None or len(accurateValues)==0):
+                    raise AccurateValueNoneError
         except AccurateValueNoneError as er:
             raise TaskError(type(er).__name__, inputObj, map(lambda x: x[2],  accurateSetUp))
             exit()
@@ -834,7 +859,10 @@ def apply_heuristic_on_task_with_one_prime_input(settings_obj, inputObj):
                             executableName, executableInputList, rootResultFolderName, CBuildFolder,
 
                             operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality, accurateSetUp, allConfs, NGEN_to_use,
-                            settings_obj.MU, settings_obj.LAMBDA, unique_point_list, output_list,allPointsTried,  input_setUp_list_element, iteration, settings_obj, run_input_list)
+                            settings_obj.MU, settings_obj.LAMBDA,
+                            unique_point_list, output_list,allPointsTried,
+                            input_setUp_list_element, iteration, settings_obj,
+                            run_input_list, lOf_accurateValues)
                 except WithinSpecEval as er:
                     raise TaskError(er.error_name, inputObj, er.setUp)
                     exit()

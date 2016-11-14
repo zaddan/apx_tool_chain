@@ -141,11 +141,13 @@ class points:
             mean_of_acc_values = [ abs(float(mean_of_acc_values))]
         
         #semi_sanity check (semi b/c it'll cause problems but it's not wrong perse
+        some_element_zero = False 
         for el in mean_of_acc_values:
             if el==0:
-                print "acc_val can not be zero"#there is gonna be problems later on
+                print "****ERROR ***** acc_val can not be zero"#there is gonna be problems later on
                                               #if mean is zero, but technically there 
                                               #there is nothing wrong with that
+                some_element_zero = False
                 sys.exit()
 #         assert (not(mean_of_acc_values == 0)) #there is gonna be problems later on
                                               #if mean is zero, but technically there 
@@ -180,14 +182,15 @@ class points:
 #        if (mean_of_error_values[0]) == 0:
 #            mean_of_error_values[0] = .00000000000001
         
-        NSR_vector = np.divide(mean_of_error_values,mean_of_acc_values) #should be a vector
-        NSR_vector_abs = map(lambda x: abs(x), NSR_vector) #should be a vector
-        NSR = np.mean(NSR_vector_abs) #this should be a scalar number
+        if not(some_element_zero): 
+            NSR_vector = np.divide(mean_of_error_values,mean_of_acc_values) #should be a vector
+            NSR_vector_abs = map(lambda x: abs(x), NSR_vector) #should be a vector
+            NSR = np.mean(NSR_vector_abs) #this should be a scalar number
         if(settings_obj.quality_mode == "psnr"):
             PSNR = 10*math.log10(((255*255)/ mean_of_error_values[0]))
 
-        if (normalize and not(possibly_worse_case_result_quality == float("inf"))):
-            NSR = NSR#/possibly_worse_case_result_quality
+        #if (normalize and not(possibly_worse_case_result_quality == float("inf"))):
+        #    NSR = NSR#/possibly_worse_case_result_quality
             #NSR = NSR/possibly_worse_case_result_quality
 
         if (settings_obj.quality_mode == "snr"):
@@ -196,6 +199,10 @@ class points:
                 #print "the quality set is " + str(1/NSR) 
                 self.quality_is_set = True
                 print "quality is" + str(self.quality) 
+            elif (some_element_zero):
+                self.quality = 0
+                #print "the quality set is " + str(1/NSR) 
+                self.quality_is_set = True
             elif(NSR == 0):
                 print "*******ERROR(kind of) noise is zero, make sure SNR is the right quality mode****"
                 assert(1==0, "this scenario should never be allowed for NSR") 

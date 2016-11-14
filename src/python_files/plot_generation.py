@@ -500,7 +500,7 @@ def generateGraph_for_all_simplified(valueList,xlabel, ylabel, benchmark_name, a
             imposed_vs_got_diff =  map(operator.sub,  [quality_list_promised_sorted_based_on_z[0][E_index]]*len(all_Qs_as_w_index), all_Qs_as_w_index)
             Q_diff_2.append(numpy.mean(imposed_vs_got_diff))
         print "Q_diff_2)" + str(Q_diff_2) 
-        ax.plot(energy_list_sorted_based_on_z[0], Q_diff_1, marker = symbolsToChooseFrom[0%len(symbolsToChooseFrom)], c= colors[0], label="Q_mean", linestyle=line_style)
+        #ax.plot(energy_list_sorted_based_on_z[0], Q_diff_1, marker = symbolsToChooseFrom[0%len(symbolsToChooseFrom)], c= colors[0], label="Q_mean", linestyle=line_style)
         ax.plot(energy_list_sorted_based_on_z[0], Q_diff_2, marker = symbolsToChooseFrom[0%len(symbolsToChooseFrom)], c= colors[1], label="Q_mean_"+"normalized", linestyle=line_style)
     elif (name == "Q_satisfaction_success_rate"):
         

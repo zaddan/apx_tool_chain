@@ -109,7 +109,8 @@ def run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name, heu
         print "l_promised_quality" + str(l_promised_quality)
         
         
-        write_points(lOfmyPoints, "imposed_setUp.PIK") 
+        #write_points(lOfmyPoints, "imposed_setUp.PIK") 
+        os.system("cp " + imposed_setUp_file + " imposed_setUp.PIK")
         #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
         #--- applying the imposed setUps on all images, and also recording the images
         #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
@@ -160,7 +161,7 @@ def run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name, heu
         write_points(optimal_setUps_for_various_inputs_flattened, "various_inputs.PIK") 
         lOflOfAllPointsTried_flattened = list(itertools.chain(*lOflOfAllPointsTried))
         write_points(lOflOfAllPointsTried_flattened, "pickled_results_all_points.PIK")
-        """
+        """ 
         #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
         #--- setting up an imposer mode, and getting the setups associated with it
         #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
@@ -196,8 +197,8 @@ def run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name, heu
         l_imposing_setUp, l_promised_quality = get_imposing_setups(imposed_setUp_file)
         print "l_promised_quality" + str(l_promised_quality)
         
-        
-        write_points(lOfmyPoints, "imposed_setUp.PIK") 
+        os.system("cp " + imposed_setUp_file + " imposed_setUp.PIK")
+        #write_points(lOfmyPoints, "imposed_setUp.PIK") 
         #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
         #--- applying the imposed setUps on all images, and also recording the images
         #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
@@ -309,7 +310,8 @@ def run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name, heu
         l_imposing_setUp, l_promised_quality = get_imposing_setups(imposed_setUp_file)
         
         
-        write_points(lOfmyPoints, "imposed_setUp.PIK") 
+        #write_points(lOfmyPoints, "imposed_setUp.PIK") 
+        os.system("cp " + imposed_setUp_file + " imposed_setUp.PIK")
         #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
         #--- applying the imposed setUps on all images, and also recording the images
         #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
@@ -427,7 +429,8 @@ def run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name, heu
         l_imposing_setUp, l_promised_quality = get_imposing_setups(imposed_setUp_file)
         
         
-        write_points(lOfmyPoints, "imposed_setUp.PIK") 
+        #write_points(lOfmyPoints, "imposed_setUp.PIK") 
+        os.system("cp " + imposed_setUp_file + " imposed_setUp.PIK")
         #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
         #--- applying the imposed setUps on all images, and also recording the images
         #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
@@ -538,7 +541,9 @@ def run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name, heu
         l_imposing_setUp, l_promised_quality = get_imposing_setups(imposed_setUp_file)
         
         
-        write_points(lOfmyPoints, "imposed_setUp.PIK") 
+        
+        os.system("cp " + imposed_setUp_file + " imposed_setUp.PIK")
+        #write_points(lOfmyPoints, "imposed_setUp.PIK") 
         #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
         #--- applying the imposed setUps on all images, and also recording the images
         #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
@@ -569,7 +574,7 @@ def run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name, heu
         print "\n\n---------starting stage 1"
         stage_number = 1 
         os.chdir("/home/local/bulkhead/behzad/usr/local/sd-vbs/benchmarks/multi_ncut/src/c/")
-        os.system("cp segment-image.txt segment-graph.c")
+        os.system("cp imageBlur_apx.txt imageBlur.c")
 
         os.chdir("/home/polaris/behzad/behzad_local/"+ root_folder +"/src/python_files/")
         
@@ -621,7 +626,8 @@ def run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name, heu
         print "l_promised_quality" + str(l_promised_quality)
         
         
-        write_points(lOfmyPoints, "imposed_setUp.PIK") 
+        os.system("cp " + imposed_setUp_file + " imposed_setUp.PIK")
+        #write_points(lOfmyPoints, "imposed_setUp.PIK") 
         #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
         #--- applying the imposed setUps on all images, and also recording the images
         #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 

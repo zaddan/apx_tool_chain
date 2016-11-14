@@ -191,7 +191,7 @@ def eaMuPlusLambda_redefined(population, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN)
    
 def specializedEval_multiple_inputs(normalize,possibly_worse_case_result_quality, _mld_ , ignoreListIndecies, accurateSetUp, inputObj, nameOfAllOperandFilesList, rootResultFolderName,executableName,
         executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, collect_pts, unique_point_list, output_list, previous_ideal_setUp,iteration, settings_obj,
-        run_input_list, individual):
+        run_input_list, lOf_accurateValues, individual):
     if inputObj.quality_calc_mode in ["avg", "worse_case"]:
         reminder(True, "quality_calc_mode  of avg and worse_case has not been verified for other benchmarks besides jpeg")
         #assert(inputObj.benchmark_name == "jpeg")
@@ -199,13 +199,14 @@ def specializedEval_multiple_inputs(normalize,possibly_worse_case_result_quality
         reminder(True, " can not collect points when quality_calc_mode is avg or worse_case")
         l_energy = []
         l_quality = []
-        for input_val in input_list.lOf_run_input_list:
+        for index,input_val in enumerate(input_list.lOf_run_input_list):
+            lOfAccurateValues = [lOf_accurateValues[index]]
+            print "changed the lOfAccurateValues" + str(lOfAccurateValues)
             print input_val
             inputObj.set_run_input(input_val) 
             print "input_val " + str(input_val) 
             energy, quality = specializedEval(normalize,possibly_worse_case_result_quality, _mld_ , ignoreListIndecies, accurateSetUp, inputObj, nameOfAllOperandFilesList, rootResultFolderName,executableName,
         executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, collect_pts, unique_point_list, output_list, previous_ideal_setUp,iteration, settings_obj,
-                if (settings_obj.DEBUG):
         input_val, individual)
             l_energy.append(energy)
             l_quality.append(quality)
@@ -429,7 +430,8 @@ def run_spea2(population,
         CSourceOutputForVariousSetUpFileName, operatorSampleFileFullAddress, 
         executableName, executableInputList, rootResultFolderName, 
         CBuildFolder, operandSampleFileName, lOfAccurateValues, nameOfAllOperandFilesList, inputObj, ignoreListIndecies, possibly_worse_case_result_quality,accurateSetUp, allConfs, NGEN, MU, LAMBDA,
-        unique_point_list, output_list, allPointsTried, previous_ideal_setUp, iteration, settings_obj, run_input_list):
+        unique_point_list, output_list, allPointsTried, previous_ideal_setUp,
+        iteration, settings_obj, run_input_list, lOf_accurateValues):
     
     
     #allPointsTried = []
@@ -466,7 +468,7 @@ def run_spea2(population,
     stats = tools.Statistics(lambda ind: ind.fitness.values)
     toolbox.register("evaluate", specializedEval_multiple_inputs, True, possibly_worse_case_result_quality, accurateSetUp, ignoreListIndecies, accurateSetUp, inputObj, nameOfAllOperandFilesList, rootResultFolderName,
             executableName, executableInputList, CBuildFolder, operandSampleFileName, lOfAccurateValues, allPointsTried, True, unique_point_list, output_list, previous_ideal_setUp, iteration,
-            settings_obj, run_input_list)
+            settings_obj, run_input_list, lOf_accurateValues)
     toolbox.register("mate", tools.cxTwoPoint)
     toolbox.register("mutate", specializedMutate, ignoreListIndecies, settings_obj)
     toolbox.register("select", tools.selSPEA2)

@@ -91,8 +91,8 @@ def main():
         
         #get_quality_energy_values("various_inputs_avg_setUp.PIK", "+", points_to_graph_3, limit, lower_bound, upper_bound)
         get_quality_energy_values("imposed_setUp.PIK", "+", points_to_graph_3, limit, lower_bound, upper_bound)
+        print points_to_graph_3
         #get_quality_energy_values("various_inputs_worse_case_setUp.PIK", "+", points_to_graph_3, limit, lower_bound, upper_bound)
-        
         generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "", "" , "Qmean_normalized_to_Q_promissed", "Qmean_normalized_to_Q_promissed", False, False, "one", points_to_graph_3) 
         generateGraph_for_all_simplified(points_to_graph, "1/quality", "energy", get_benchmark_name(), "", "" , "Q_satisfaction_success_rate", "Q_satisfaction_success_rate", False, False, "one", points_to_graph_3) 
         #--- various inputs imposed vs regular 
