@@ -154,14 +154,13 @@ def run_test_bench_mark_4_input_dep(benchmark, root_folder, bench_suit_name, heu
         lOf_run_input_list = input_list.lOf_run_input_list
         #, ["plastic_1.bmp", "plastic_2.bmp"], ["rocks1_1.bmp", "rocks1_2.bmp"]]
         #.i  uncomment if you want to get the specific input results  i. 
-        """ 
         inputObj.quality_calc_mode = "individual" 
         optimal_setUps_for_various_inputs,lOflOfAllPointsTried =  apply_heuristic_on_task_with_multiple_prime_input(settings_obj, inputObj, lOf_run_input_list)
         optimal_setUps_for_various_inputs_flattened = list(itertools.chain(*optimal_setUps_for_various_inputs))
         write_points(optimal_setUps_for_various_inputs_flattened, "various_inputs.PIK") 
         lOflOfAllPointsTried_flattened = list(itertools.chain(*lOflOfAllPointsTried))
         write_points(lOflOfAllPointsTried_flattened, "pickled_results_all_points.PIK")
-        """ 
+        sys.exit() 
         #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
         #--- setting up an imposer mode, and getting the setups associated with it
         #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 

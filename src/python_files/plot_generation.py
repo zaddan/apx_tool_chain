@@ -305,14 +305,14 @@ def sort_values(valueList):
 
 
 def generateGraph_for_all_simplified(valueList,xlabel, ylabel, benchmark_name, ax, fig,  graph_title="pareto comparison for", name = "various_inputs", post_pone_saving_graph = False, use_prev_ax_fig = False, n_graphs="one", valueList_promised=[]):
-    
+
     name_counter = 0 
     #fig = plt.figure(figsize=plt.figaspect(0.5)) 
     #--- sanity check 
     if not(use_prev_ax_fig):
         fig, ax = plt.subplots()
 
-
+    plt.autoscale(enable=True, axis='both', tight=True)
     """ 
     if (graph_type == "Q_E_product"):
         plt.ylabel("Q_E_product")
@@ -469,10 +469,27 @@ def generateGraph_for_all_simplified(valueList,xlabel, ylabel, benchmark_name, a
         third_axis_name = "input" 
         n_lines = len(std_list_sorted_based_on_z)
         colors = gen_color_spec.gen_color(n_lines, 'seismic') 
+        if (graph_title == "E_vs_Q_all_points"): 
+            line_style = "None" #for no lines
         for x in range(len(third_axis)):
             my_label =  third_axis_name +": " + str(float(third_axis[x][0]))
-            #if (third_axis[x][0] == 97): 
-            ax.plot(quality_list_sorted_based_on_z[x], energy_list_sorted_based_on_z[x], marker = symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c= colors[x], label=my_label, linestyle=line_style)
+            ax.plot(quality_list_sorted_based_on_z[x],
+                        energy_list_sorted_based_on_z[x], marker =
+                        symbolsToChooseFrom[x%len(symbolsToChooseFrom)], c=
+                        colors[x], label=my_label, linestyle=line_style)
+            if (graph_title == "E_vs_Q_all_points"): 
+                #.n  the counter would be an incremented version of the input
+                #value  n.    
+                finish_up_making_graph(ax, graph_title, graph_title,
+                        benchmark_name, x+1) 
+                fig, ax = plt.subplots()
+                plt.xscale('log')
+                plt.xlabel("Quality")
+                plt.ylabel("Energy")
+     
+
+
+
     elif (name == "Qstd_vs_E_imposed"):
         plt.ylabel("Quality_std")
         plt.xlabel("Energy")
@@ -503,7 +520,6 @@ def generateGraph_for_all_simplified(valueList,xlabel, ylabel, benchmark_name, a
         #ax.plot(energy_list_sorted_based_on_z[0], Q_diff_1, marker = symbolsToChooseFrom[0%len(symbolsToChooseFrom)], c= colors[0], label="Q_mean", linestyle=line_style)
         ax.plot(energy_list_sorted_based_on_z[0], Q_diff_2, marker = symbolsToChooseFrom[0%len(symbolsToChooseFrom)], c= colors[1], label="Q_mean_"+"normalized", linestyle=line_style)
     elif (name == "Q_satisfaction_success_rate"):
-        
         plt.ylabel("Q_satisfaction_success_rate")
         plt.xlabel("Energy")
         n_lines = 1
