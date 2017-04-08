@@ -3,8 +3,8 @@ import os
 
 operand_type = "integers"
 #operand_type = "floating"
-#mode  = "truncation"
-mode = "rounding"
+mode  = "truncation"
+#mode = "rounding"
 
 
 #--- for integers
@@ -14,7 +14,7 @@ if (operand_type == "integers"):
         os.chdir("../../build/")
         os.system("make");
         os.chdir("../src/PySrc")
-        os.system("cp ~/behzad_local/verilog_files/apx_operators/int_ops_apx/TRUNCATION.txt .")
+        os.system("cp ~/behzad_local/verilog_files/apx_operators/int_ops_apx/build/functional/results.txt TRUNCATION.txt")
         os.system("../../build/simple . out ../../operator_sample.txt")
         os.system("python get_elements_and_compare_truncation.py")
 

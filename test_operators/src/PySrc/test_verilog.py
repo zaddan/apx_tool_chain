@@ -11,7 +11,7 @@ import binascii
 #---- parameters
 #----------------------------------------------------
 DEBUG = False#--- print 
-NAB   = 18#--- num of appx bits, needs to be set according to NAB in
+NAB   = 0#--- num of appx bits, needs to be set according to NAB in
          #--- in the test_apx_float_* file
 #-- addition or multiplication
 op    = "addition"
